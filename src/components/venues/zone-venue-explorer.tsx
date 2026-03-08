@@ -28,7 +28,7 @@ export function ZoneVenueExplorer({
   featuredVenue,
   venues,
 }: ZoneVenueExplorerProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("Todas");
+  const [selectedCategory, setSelectedCategory] = useState("Todas");
 
   const categories = useMemo(() => {
     const availableCategories = Array.from(
@@ -58,7 +58,7 @@ export function ZoneVenueExplorer({
       {featuredVenue ? (
         <section className="mt-8">
           <article
-            className="editorial-card overflow-hidden rounded-[2.8rem] border border-white/10 px-8 py-10 text-white shadow-[var(--shadow)] sm:px-10 sm:py-12"
+            className="editorial-card spotlight-panel overflow-hidden rounded-[2.8rem] border border-white/10 px-8 py-10 text-white shadow-[var(--shadow)] sm:px-10 sm:py-12"
             style={{
               backgroundImage: featuredVenue.coverUrl
                 ? `linear-gradient(180deg, rgba(12, 14, 13, 0.28), rgba(12, 14, 13, 0.84)), url(${featuredVenue.coverUrl})`
@@ -78,7 +78,7 @@ export function ZoneVenueExplorer({
             </p>
             <Link
               href={`/cities/${citySlug}/venues/${featuredVenue.slug}`}
-              className="mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+              className="magnetic-button mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
             >
               Ver menú
             </Link>
@@ -97,7 +97,7 @@ export function ZoneVenueExplorer({
                   key={category}
                   type="button"
                   onClick={() => setSelectedCategory(category)}
-                  className={`rounded-full px-4 py-2.5 text-sm font-medium transition ${
+                  className={`magnetic-button rounded-full px-4 py-2.5 text-sm font-medium transition ${
                     isActive
                       ? "bg-[color:var(--brand)] text-white shadow-[var(--card-shadow)]"
                       : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted-strong)]"
@@ -117,14 +117,14 @@ export function ZoneVenueExplorer({
             <Link
               key={venue.id}
               href={`/cities/${citySlug}/venues/${venue.slug}`}
-              className="editorial-card group overflow-hidden rounded-[2.5rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)] transition hover:-translate-y-1.5 hover:shadow-[var(--shadow)]"
+              className="editorial-card hover-lift-card group overflow-hidden rounded-[2.5rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)]"
             >
               <div
                 className="min-h-[24rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]"
                 style={{
                   backgroundImage: venue.coverUrl
                     ? `linear-gradient(180deg, rgba(23, 17, 14, 0.22), rgba(23, 17, 14, 0.58)), url(${venue.coverUrl})`
-                    : "linear-gradient(180deg, rgba(224, 171, 87, 0.32), rgba(213, 90, 50, 0.38))",
+                    : "linear-gradient(180deg, rgba(31, 138, 112, 0.32), rgba(15, 22, 20, 0.52))",
                 }}
               />
               <div className="p-7">
@@ -144,6 +144,7 @@ export function ZoneVenueExplorer({
                     {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
                   </span>
                 </div>
+
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
                   <p className="inline-flex items-center gap-2 text-sm text-[color:var(--muted)]">
                     <LocationPinIcon
@@ -152,6 +153,7 @@ export function ZoneVenueExplorer({
                     />
                     {venue.address ?? "Dirección pendiente"}
                   </p>
+
                   <div className="inline-flex items-center gap-4">
                     <span className="inline-flex items-center gap-2 text-sm text-[color:var(--muted)]">
                       <ClockIcon

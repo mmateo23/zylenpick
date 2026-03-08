@@ -44,16 +44,12 @@ function calculateArrivalMetrics(
     venueCoordinates.latitude,
     venueCoordinates.longitude,
   );
-  const distanceMeters = Math.max(50, Math.round(distanceKm * 1000));
-  const walkingMinutes = Math.max(1, Math.round((distanceKm / 4.8) * 60));
-  const drivingMinutes = Math.max(1, Math.round((distanceKm / 22) * 60));
-  const steps = Math.max(60, Math.round(distanceKm * 1300));
 
   return {
-    distanceMeters,
-    walkingMinutes,
-    drivingMinutes,
-    steps,
+    distanceMeters: Math.max(50, Math.round(distanceKm * 1000)),
+    walkingMinutes: Math.max(1, Math.round((distanceKm / 4.8) * 60)),
+    drivingMinutes: Math.max(1, Math.round((distanceKm / 22) * 60)),
+    steps: Math.max(60, Math.round(distanceKm * 1300)),
   };
 }
 
@@ -171,7 +167,7 @@ export function VenueArrivalCard({
               type="button"
               onClick={handleUseLocation}
               disabled={isLocating}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:var(--surface-dark-soft)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:var(--surface-dark-soft)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <LocationPinIcon size={18} className="text-[color:var(--brand)]" />
               {isLocating ? "Buscando ubicación..." : "Activar ubicación"}
@@ -181,7 +177,7 @@ export function VenueArrivalCard({
               type="button"
               onClick={handleUseLocation}
               disabled={isLocating}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:var(--surface-dark-soft)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] transition hover:bg-[color:var(--surface-dark-soft)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <ClockIcon size={18} className="text-[color:var(--brand)]" />
               {isLocating ? "Actualizando ubicación..." : "Actualizar ubicación"}
@@ -191,7 +187,7 @@ export function VenueArrivalCard({
           <button
             type="button"
             onClick={() => setIsRouteOpen(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+            className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
           >
             <LocationPinIcon size={18} />
             Cómo llegar

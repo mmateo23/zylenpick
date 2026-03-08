@@ -15,9 +15,18 @@ type AddToCartButtonProps = {
     currency: string;
     imageUrl: string | null;
   };
+  className?: string;
+  buttonClassName?: string;
+  feedbackClassName?: string;
 };
 
-export function AddToCartButton({ venue, item }: AddToCartButtonProps) {
+export function AddToCartButton({
+  venue,
+  item,
+  className,
+  buttonClassName,
+  feedbackClassName,
+}: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const handleAdd = () => {
@@ -35,16 +44,24 @@ export function AddToCartButton({ venue, item }: AddToCartButtonProps) {
   };
 
   return (
-    <div className="mt-7">
+    <div className={className ?? "mt-7"}>
       <button
         type="button"
         onClick={handleAdd}
-        className="inline-flex items-center rounded-full bg-[color:var(--surface-dark)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
+        className={
+          buttonClassName ??
+          "magnetic-button inline-flex items-center rounded-full bg-[color:var(--surface-dark)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
+        }
       >
         Añadir al carrito
       </button>
       {feedback ? (
-        <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
+        <p
+          className={
+            feedbackClassName ??
+            "mt-3 text-sm leading-6 text-[color:var(--muted)]"
+          }
+        >
           {feedback}
         </p>
       ) : null}

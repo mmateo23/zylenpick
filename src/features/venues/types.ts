@@ -15,6 +15,7 @@ export type VenueMenuItem = {
   priceAmount: number;
   currency: string;
   imageUrl: string | null;
+  secondaryImageUrl?: string | null;
   categoryName: string | null;
 };
 

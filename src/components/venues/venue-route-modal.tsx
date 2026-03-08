@@ -86,7 +86,7 @@ export function VenueRouteModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
+            className="magnetic-button inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
           >
             <CloseIcon size={18} />
           </button>
@@ -162,7 +162,7 @@ export function VenueRouteModal({
                   type="button"
                   onClick={onRequestLocation}
                   disabled={isLocating}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="magnetic-button mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   <LocationPinIcon size={18} />
                   {isLocating ? "Buscando ubicación..." : "Activar ubicación"}
@@ -175,7 +175,7 @@ export function VenueRouteModal({
                 href={googleMapsUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+                className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
               >
                 <ClockIcon size={18} />
                 Abrir ruta en Google Maps
@@ -184,7 +184,7 @@ export function VenueRouteModal({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/8"
+                className="magnetic-button inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/8"
               >
                 Cerrar mapa
               </button>

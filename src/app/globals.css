@@ -90,4 +90,55 @@ video {
       rgba(255, 255, 255, 0.03)
     );
   }
+
+  .hover-lift-card {
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+    transform-origin: center;
+    will-change: transform;
+  }
+
+  .hover-lift-card:hover {
+    transform: translateY(-6px) rotateX(2deg) rotateY(-2deg);
+    box-shadow: var(--shadow);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .magnetic-button {
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      background-color 180ms ease,
+      border-color 180ms ease;
+    will-change: transform;
+  }
+
+  .magnetic-button:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--card-shadow);
+  }
+
+  .magnetic-button:active {
+    transform: translateY(0) scale(0.99);
+  }
+
+  .spotlight-panel {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .spotlight-panel::before {
+    content: "";
+    position: absolute;
+    inset: -35%;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 24% 24%, rgba(111, 207, 151, 0.22), transparent 22%),
+      radial-gradient(circle at 82% 18%, rgba(31, 138, 112, 0.28), transparent 28%),
+      radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 26%);
+    pointer-events: none;
+  }
 }

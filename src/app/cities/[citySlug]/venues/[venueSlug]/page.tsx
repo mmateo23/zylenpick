@@ -4,16 +4,15 @@ import { notFound } from "next/navigation";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
+import { SiteShell } from "@/components/layout/site-shell";
 import { MapIcon } from "@/components/icons/map-icon";
 import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
-import { SiteShell } from "@/components/layout/site-shell";
+import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
 import { VenueArrivalCard } from "@/components/venues/venue-arrival-card";
-import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary";
 import { getVenueDetails } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { formatPrice } from "@/lib/utils/currency";
 
 type VenuePageProps = {
   params: {
@@ -67,22 +66,21 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
   return (
     <SiteShell>
-      <CityPreferenceSync
-        city={{ slug: venue.city.slug, name: venue.city.name }}
-      />
+      <CityPreferenceSync city={{ slug: venue.city.slug, name: venue.city.name }} />
+
       <section
         className="editorial-card overflow-hidden rounded-[2.8rem] border border-white/28 px-8 py-10 text-white shadow-[var(--shadow)] sm:px-10 sm:py-12"
         style={{
           backgroundImage: venue.coverUrl
             ? `linear-gradient(180deg, rgba(18, 12, 10, 0.38), rgba(18, 12, 10, 0.86)), url(${venue.coverUrl})`
-            : "linear-gradient(135deg, rgba(224, 171, 87, 0.48), rgba(213, 90, 50, 0.6))",
+            : "linear-gradient(135deg, rgba(31, 138, 112, 0.48), rgba(15, 22, 20, 0.6))",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <Link
           href={`/cities/${venue.city.slug}`}
-          className="inline-flex w-fit rounded-full border border-white/16 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur"
+          className="magnetic-button inline-flex w-fit rounded-full border border-white/16 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white backdrop-blur"
         >
           Volver a {venue.city.name}
         </Link>
@@ -138,43 +136,11 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
               <div className="grid gap-7 lg:grid-cols-2">
                 {items.map((item) => (
-                  <article
+                  <MenuItemGalleryCard
                     key={item.id}
-                    className="editorial-card overflow-hidden rounded-[2.4rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)] transition hover:-translate-y-1 hover:shadow-[var(--shadow)]"
-                  >
-                    <div
-                      className="min-h-[22rem] bg-cover bg-center"
-                      style={{
-                        backgroundImage: item.imageUrl
-                          ? `linear-gradient(180deg, rgba(24, 18, 14, 0.16), rgba(24, 18, 14, 0.4)), url(${item.imageUrl})`
-                          : "linear-gradient(180deg, rgba(224, 171, 87, 0.35), rgba(213, 90, 50, 0.35))",
-                      }}
-                    />
-                    <div className="p-7">
-                      <div className="flex items-start justify-between gap-4">
-                        <h3 className="text-4xl font-semibold leading-[0.98] text-[color:var(--foreground)]">
-                          {item.name}
-                        </h3>
-                        <span className="whitespace-nowrap rounded-full bg-[color:var(--surface-strong)] px-3.5 py-2.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)]">
-                          {formatPrice(item.priceAmount, item.currency)}
-                        </span>
-                      </div>
-                      <p className="mt-5 text-sm leading-7 text-[color:var(--muted-strong)]">
-                        {item.description}
-                      </p>
-                      <AddToCartButton
-                        venue={cartVenue}
-                        item={{
-                          id: item.id,
-                          name: item.name,
-                          description: item.description,
-                          priceAmount: item.priceAmount,
-                          currency: item.currency,
-                          imageUrl: item.imageUrl,
-                        }}
-                      />
-                    </div>
-                  </article>
+                    item={item}
+                    venue={cartVenue}
+                  />
                 ))}
               </div>
             </section>
