@@ -183,7 +183,11 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
         <div className="space-y-6">
           <VenueCartSummary venueId={venue.id} />
-          <VenueArrivalCard venueSlug={venue.slug} />
+          <VenueArrivalCard
+            venueSlug={venue.slug}
+            venueName={venue.name}
+            address={venue.address}
+          />
 
           <aside className="glass-panel rounded-[2.3rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
             <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">

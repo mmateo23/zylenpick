@@ -3,6 +3,16 @@ type VenueCoordinates = {
   longitude: number;
 };
 
+const venueCategoryBySlug: Record<string, string> = {
+  "la-comida-de-los-dados": "Comida casera",
+  "bendita-burger": "Burgers",
+  "burger-mc-queens": "Burgers",
+  "godzilla-smash-burger": "Burgers",
+  "manhattan-burger": "Burgers",
+  "pizzeria-carlos-talavera": "Pizza",
+  "sushi-talavera": "Sushi",
+};
+
 const venueCoordinatesBySlug: Record<string, VenueCoordinates> = {
   "la-comida-de-los-dados": {
     latitude: 39.9636,
@@ -42,4 +52,8 @@ export function getVenueCoordinates(venueSlug: string) {
 
 export function isFeaturedVenue(venueSlug: string) {
   return featuredVenueSlugs.has(venueSlug);
+}
+
+export function getVenueCategory(venueSlug: string) {
+  return venueCategoryBySlug[venueSlug] ?? "Otros";
 }
