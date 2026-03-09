@@ -141,4 +141,23 @@ video {
       radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 26%);
     pointer-events: none;
   }
+
+  .dark-form-field {
+    appearance: none;
+    color-scheme: dark;
+    background-color: #18181b !important;
+    color: #ffffff !important;
+  }
+
+  .dark-form-field::placeholder {
+    color: #a1a1aa !important;
+  }
+
+  .dark-form-field:-webkit-autofill,
+  .dark-form-field:-webkit-autofill:hover,
+  .dark-form-field:-webkit-autofill:focus {
+    -webkit-text-fill-color: #ffffff;
+    -webkit-box-shadow: 0 0 0 1000px #18181b inset;
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }

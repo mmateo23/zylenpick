@@ -7,7 +7,11 @@ import { useRouter } from "next/navigation";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
-import { clearCart, removeCartItem, updateCartItemQuantity } from "@/features/cart/services/cart-storage";
+import {
+  clearCart,
+  removeCartItem,
+  updateCartItemQuantity,
+} from "@/features/cart/services/cart-storage";
 import { createOrderFromCart } from "@/features/orders/services/order-storage";
 import { formatPrice } from "@/lib/utils/currency";
 
@@ -28,6 +32,9 @@ function buildPickupOptions(pickupEtaMin: number | null) {
     };
   });
 }
+
+const inputClassName =
+  "dark-form-field mt-3 w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white shadow-[var(--card-shadow)] outline-none transition placeholder:text-zinc-400 focus:border-green-500 focus:outline-none focus:ring-0";
 
 export function CartScreen() {
   const router = useRouter();
@@ -116,13 +123,13 @@ export function CartScreen() {
   };
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
-      <section className="glass-panel rounded-[2.5rem] border border-[color:var(--border)] p-8 shadow-[var(--shadow)]">
+    <div className="grid gap-8 lg:pt-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <section className="glass-panel rounded-[2.5rem] border border-[color:var(--border)] p-6 shadow-[var(--shadow)] sm:p-8">
         <div className="max-w-2xl">
           <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
             Carrito
           </p>
-          <h1 className="mt-5 text-balance text-5xl font-semibold leading-[0.95] text-[color:var(--foreground)]">
+          <h1 className="mt-5 text-balance text-4xl font-semibold leading-[0.95] text-[color:var(--foreground)] sm:text-5xl">
             Revisa tu pedido con calma.
           </h1>
           <p className="mt-5 text-base leading-8 text-[color:var(--muted-strong)]">
@@ -135,64 +142,62 @@ export function CartScreen() {
           {cart.items.map((item) => (
             <article
               key={item.id}
-              className="editorial-card overflow-hidden rounded-[2.4rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)]"
+              className="editorial-card overflow-hidden rounded-[2.4rem] border border-[color:var(--border)] shadow-[var(--soft-shadow)]"
+              style={{
+                backgroundImage: item.imageUrl
+                  ? `linear-gradient(180deg, rgba(7, 10, 9, 0.18), rgba(7, 10, 9, 0.84)), url(${item.imageUrl})`
+                  : "linear-gradient(180deg, rgba(31, 138, 112, 0.26), rgba(10, 12, 11, 0.88))",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
             >
-              <div className="grid gap-0 md:grid-cols-[15rem_minmax(0,1fr)]">
-                <div
-                  className="min-h-[20rem] bg-cover bg-center"
-                  style={{
-                    backgroundImage: item.imageUrl
-                      ? `linear-gradient(180deg, rgba(24, 18, 14, 0.16), rgba(24, 18, 14, 0.32)), url(${item.imageUrl})`
-                      : "linear-gradient(180deg, rgba(31, 138, 112, 0.32), rgba(15, 22, 20, 0.46))",
-                  }}
-                />
-                <div className="p-7">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-4xl font-semibold leading-[0.98] text-[color:var(--foreground)]">
-                        {item.name}
-                      </h2>
-                      <p className="mt-5 text-sm leading-7 text-[color:var(--muted-strong)]">
-                        {item.description}
-                      </p>
-                    </div>
-                    <span className="whitespace-nowrap rounded-full bg-[color:var(--surface-strong)] px-3.5 py-2.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)]">
-                      {formatPrice(item.priceAmount * item.quantity, item.currency)}
-                    </span>
+              <div className="flex min-h-[18rem] flex-col justify-between p-5 sm:min-h-[19rem] sm:p-7">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="max-w-xl">
+                    <h2 className="text-3xl font-semibold leading-[0.98] text-white sm:text-4xl">
+                      {item.name}
+                    </h2>
+                    <p className="mt-4 text-sm leading-7 text-white/82">
+                      {item.description}
+                    </p>
                   </div>
+                  <span className="w-fit whitespace-nowrap rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] px-3.5 py-2.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur">
+                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  </span>
+                </div>
 
-                  <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <div className="inline-flex items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] shadow-[var(--card-shadow)]">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateCartItemQuantity(item.id, item.quantity - 1)
-                        }
-                        className="px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)]"
-                      >
-                        -
-                      </button>
-                      <span className="min-w-10 text-center text-sm font-semibold text-[color:var(--foreground)]">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateCartItemQuantity(item.id, item.quantity + 1)
-                        }
-                        className="px-4 py-2.5 text-sm font-semibold text-[color:var(--foreground)]"
-                      >
-                        +
-                      </button>
-                    </div>
+                <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
+                  <div className="inline-flex items-center rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] shadow-[var(--card-shadow)] backdrop-blur">
                     <button
                       type="button"
-                      onClick={() => removeCartItem(item.id)}
-                      className="magnetic-button inline-flex rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-2.5 text-sm font-semibold text-[color:var(--muted-strong)] shadow-[var(--card-shadow)]"
+                      onClick={() =>
+                        updateCartItemQuantity(item.id, item.quantity - 1)
+                      }
+                      className="px-4 py-2.5 text-sm font-semibold text-white"
                     >
-                      Eliminar
+                      -
+                    </button>
+                    <span className="min-w-10 text-center text-sm font-semibold text-white">
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateCartItemQuantity(item.id, item.quantity + 1)
+                      }
+                      className="px-4 py-2.5 text-sm font-semibold text-white"
+                    >
+                      +
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeCartItem(item.id)}
+                    className="magnetic-button inline-flex rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </div>
             </article>
@@ -200,7 +205,7 @@ export function CartScreen() {
         </div>
       </section>
 
-      <aside className="rounded-[2.4rem] border border-white/35 bg-[color:var(--surface-dark)] p-6 text-white shadow-[var(--soft-shadow)]">
+      <aside className="rounded-[2.4rem] border border-white/15 bg-[color:var(--surface-dark)] p-6 text-white shadow-[var(--soft-shadow)]">
         <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/58">
           Confirmación
         </p>
@@ -231,94 +236,103 @@ export function CartScreen() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label htmlFor="customer-name" className="text-sm text-white/72">
-              Nombre
-            </label>
-            <input
-              id="customer-name"
-              value={customerName}
-              onChange={(event) => setCustomerName(event.target.value)}
-              className="mt-2 w-full rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3 text-white outline-none placeholder:text-white/34"
-              placeholder="Tu nombre"
-            />
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto mt-6 max-w-2xl space-y-6 px-6 py-8"
+        >
+          <div className="space-y-6">
+            <div>
+              <label htmlFor="customer-name" className="text-sm text-white/72">
+                Nombre
+              </label>
+              <input
+                id="customer-name"
+                value={customerName}
+                onChange={(event) => setCustomerName(event.target.value)}
+                className={inputClassName}
+                placeholder="Tu nombre"
+                autoComplete="name"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="customer-phone" className="text-sm text-white/72">
-              Teléfono
-            </label>
-            <input
-              id="customer-phone"
-              value={customerPhone}
-              onChange={(event) => setCustomerPhone(event.target.value)}
-              className="mt-2 w-full rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3 text-white outline-none placeholder:text-white/34"
-              placeholder="Tu teléfono"
-            />
-          </div>
+            <div>
+              <label htmlFor="customer-phone" className="text-sm text-white/72">
+                Teléfono
+              </label>
+              <input
+                id="customer-phone"
+                value={customerPhone}
+                onChange={(event) => setCustomerPhone(event.target.value)}
+                className={inputClassName}
+                placeholder="Tu teléfono"
+                autoComplete="tel"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="pickup-at" className="text-sm text-white/72">
-              Hora estimada de recogida
-            </label>
-            <select
-              id="pickup-at"
-              value={pickupAt}
-              onChange={(event) => setPickupAt(event.target.value)}
-              className="mt-2 w-full rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3 text-white outline-none"
-            >
-              {pickupOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}
-                  className="bg-[color:var(--surface-dark)]"
-                >
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <label htmlFor="pickup-at" className="text-sm text-white/72">
+                Hora estimada de recogida
+              </label>
+              <select
+                id="pickup-at"
+                value={pickupAt}
+                onChange={(event) => setPickupAt(event.target.value)}
+                className={inputClassName}
+              >
+                {pickupOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                    className="bg-zinc-900 text-white"
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label htmlFor="notes" className="text-sm text-white/72">
-              Notas opcionales
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-              className="mt-2 min-h-28 w-full rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-3 text-white outline-none placeholder:text-white/34"
-              placeholder="Alguna indicación adicional"
-            />
+            <div>
+              <label htmlFor="notes" className="text-sm text-white/72">
+                Notas opcionales
+              </label>
+              <textarea
+                id="notes"
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                className={`${inputClassName} min-h-28 resize-y`}
+                placeholder="Alguna indicación adicional"
+              />
+            </div>
           </div>
 
           {feedback ? (
             <p className="text-sm leading-6 text-white/72">{feedback}</p>
           ) : null}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="magnetic-button inline-flex w-full justify-center rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] disabled:opacity-60"
-          >
-            {isSubmitting ? "Confirmando pedido..." : "Confirmar pedido"}
-          </button>
+          <div className="space-y-4">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="magnetic-button inline-flex w-full justify-center rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] disabled:opacity-60"
+            >
+              {isSubmitting ? "Confirmando pedido..." : "Confirmar pedido"}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => clearCart()}
-            className="magnetic-button inline-flex w-full justify-center rounded-full border border-white/12 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-white/12"
-          >
-            Vaciar carrito
-          </button>
+            <button
+              type="button"
+              onClick={() => clearCart()}
+              className="magnetic-button inline-flex w-full justify-center rounded-full border border-white/12 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-white/12"
+            >
+              Vaciar carrito
+            </button>
 
-          <Link
-            href={`/cities/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
-            className="magnetic-button inline-flex w-full justify-center rounded-full border border-white/12 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-white/12"
-          >
-            Volver al local
-          </Link>
+            <Link
+              href={`/cities/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
+              className="magnetic-button inline-flex w-full justify-center rounded-full border border-white/12 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-white/12"
+            >
+              Volver al local
+            </Link>
+          </div>
         </form>
       </aside>
     </div>
