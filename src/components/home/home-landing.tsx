@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Logo } from "@/components/branding/logo";
@@ -39,6 +39,28 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
   const [selectedCity, setSelectedCity] = useState(cities[0]?.slug ?? "");
   const [isLocating, setIsLocating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isInfoOpen) {
+      return;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsInfoOpen(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isInfoOpen]);
 
   const handleContinue = () => {
     if (!selectedCity) {
@@ -120,6 +142,10 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
     );
   };
 
+  const handleExploreFood = () => {
+    setIsInfoOpen(false);
+  };
+
   return (
     <main
       className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-6 sm:px-6 lg:px-8"
@@ -180,7 +206,7 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
               ))}
             </select>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div className="mt-4 grid gap-3">
               <button
                 type="button"
                 onClick={handleContinue}
@@ -189,18 +215,29 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
               >
                 Continuar
               </button>
-              <button
-                type="button"
-                onClick={handleUseLocation}
-                disabled={!isConfigured || cities.length === 0 || isLocating}
-                className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <LocationPinIcon
-                  size={18}
-                  className="text-[color:var(--accent)]"
-                />
-                {isLocating ? "Buscando ubicación..." : "Usar mi ubicación"}
-              </button>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setIsInfoOpen(true)}
+                  className="magnetic-button inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8"
+                >
+                  ¿Qué es ZylenPick?
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleUseLocation}
+                  disabled={!isConfigured || cities.length === 0 || isLocating}
+                  className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <LocationPinIcon
+                    size={18}
+                    className="text-[color:var(--accent)]"
+                  />
+                  {isLocating ? "Buscando ubicación..." : "Usar mi ubicación"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -213,6 +250,75 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
           <p className="mt-6 text-center text-sm text-white/40">by ZylenLabs</p>
         </div>
       </section>
+
+      {isInfoOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-5 py-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="zylenpick-info-title"
+          onClick={() => setIsInfoOpen(false)}
+        >
+          <div className="absolute inset-0 bg-[rgba(3,6,5,0.72)] backdrop-blur-md" />
+
+          <section
+            className="spotlight-panel hover-lift-card relative z-10 w-full max-w-[34rem] rounded-[2rem] border border-white/10 bg-[color:var(--surface)]/96 p-6 shadow-[var(--shadow)] sm:p-8"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsInfoOpen(false)}
+                className="magnetic-button inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-[color:var(--foreground)]"
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="mt-4">
+              <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
+                ZylenPick
+              </p>
+              <h2
+                id="zylenpick-info-title"
+                className="mt-4 text-balance text-3xl font-semibold leading-[0.98] text-[color:var(--foreground)] sm:text-4xl"
+              >
+                ¿Qué es ZylenPick?
+              </h2>
+
+              <div className="mt-6 space-y-4 text-sm leading-7 text-[color:var(--muted-strong)] sm:text-base">
+                <p>
+                  ZylenPick conecta a las personas con la comida local de su ciudad.
+                </p>
+                <p>
+                  Descubre platos cercanos, haz tu pedido y recógelo directamente
+                  en el local.
+                </p>
+                <p>Sin esperas, sin repartos innecesarios.</p>
+                <p>Apoya a la hostelería de tu barrio.</p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleExploreFood}
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+              >
+                Explorar comida cerca
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsInfoOpen(false)}
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8"
+              >
+                Volver
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }
