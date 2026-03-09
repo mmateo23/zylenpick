@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Logo } from "@/components/branding/logo";
-import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
 import type { City } from "@/features/cities/types";
@@ -16,11 +15,8 @@ import {
   type UserLocation,
 } from "@/features/location/browser-location";
 import { saveSelectedCity } from "@/features/location/city-preference";
-import {
-  getVenueCoordinates,
-} from "@/features/venues/venue-meta";
+import { getVenueCoordinates } from "@/features/venues/venue-meta";
 import type { HomeShowcaseItem } from "@/features/venues/types";
-import { formatPrice } from "@/lib/utils/currency";
 
 type HomeLandingProps = {
   cities: City[];
@@ -49,15 +45,6 @@ const supportedCityLocations: SupportedCityLocation[] = [
     longitude: -4.8308,
     radiusKm: 40,
   },
-];
-
-const latestMessages = [
-  "Recién preparado",
-  "Disponible ahora",
-  "Acaba de salir",
-  "Listo para descubrir",
-  "Hecho para recoger",
-  "Ahora mismo en carta",
 ];
 
 function formatDistanceLabel(distanceKm: number) {
@@ -96,74 +83,43 @@ function getItemJourney(
   };
 }
 
-function ShowcaseCard({
+function FeaturedDishCard({
   item,
-  buttonLabel,
-  eyebrow,
   userLocation,
 }: {
   item: HomeShowcaseItem;
-  buttonLabel: string;
-  eyebrow?: string;
   userLocation: UserLocation | null;
 }) {
   const journey = getItemJourney(item, userLocation);
 
   return (
-    <article
-      className="editorial-card hover-lift-card overflow-hidden rounded-[2rem] border border-white/10 shadow-[var(--soft-shadow)]"
+    <Link
+      href={`/cities/${item.venue.citySlug}/venues/${item.venue.slug}`}
+      className="editorial-card hover-lift-card group overflow-hidden rounded-[2.2rem] border border-white/10 shadow-[var(--soft-shadow)]"
       style={{
         backgroundImage: item.imageUrl
-          ? `linear-gradient(180deg, rgba(7, 10, 9, 0.14), rgba(7, 10, 9, 0.86)), url(${item.imageUrl})`
-          : "linear-gradient(135deg, rgba(31, 138, 112, 0.22), rgba(10, 12, 11, 0.92))",
+          ? `linear-gradient(180deg, rgba(5, 8, 7, 0.08), rgba(5, 8, 7, 0.86)), url(${item.imageUrl})`
+          : "linear-gradient(135deg, rgba(31, 138, 112, 0.24), rgba(10, 12, 11, 0.92))",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="relative z-10 flex min-h-[22rem] flex-col justify-end p-5 sm:p-6">
-        {eyebrow ? (
-          <span className="mb-4 inline-flex w-fit rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-xs font-medium text-white/82 backdrop-blur">
-            {eyebrow}
-          </span>
-        ) : null}
-
-        <div className="rounded-[1.5rem] border border-white/10 bg-[rgba(10,14,13,0.5)] p-4 backdrop-blur-md">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <h3 className="text-xl font-semibold leading-tight text-white">
-                {item.name}
-              </h3>
-              <p className="mt-2 text-sm text-white/72">{item.venue.name}</p>
-            </div>
-            <span className="shrink-0 text-lg font-semibold text-white">
-              {formatPrice(item.priceAmount, item.currency)}
-            </span>
-          </div>
-
-          <div className="mt-4 space-y-2 text-sm text-white/78">
-            {journey ? (
-              <p>A {journey.walkingMinutes} min andando · {journey.distanceLabel}</p>
-            ) : null}
-            <p className="inline-flex items-center gap-2">
-              <ClockIcon size={16} className="text-[color:var(--accent)]" />
-              Recogida en {item.pickupEtaMin ? `${item.pickupEtaMin} min` : "breve"}
+      <div className="min-h-[25rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]" />
+      <div className="relative z-10 -mt-36 flex min-h-[16rem] flex-col justify-end bg-[linear-gradient(180deg,rgba(6,9,8,0),rgba(6,9,8,0.5)_18%,rgba(6,9,8,0.88))] px-6 pb-6 pt-16">
+        <div className="space-y-3">
+          <p className="text-sm text-white/72">{item.venue.name}</p>
+          <h3 className="max-w-[12ch] text-balance text-3xl font-semibold leading-[0.95] text-white sm:text-[2rem]">
+            {item.name}
+          </h3>
+          {journey ? (
+            <p className="inline-flex items-center gap-2 text-sm text-white/82">
+              <LocationPinIcon size={17} className="text-[color:var(--accent)]" />
+              A {journey.walkingMinutes} min andando · {journey.distanceLabel}
             </p>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="max-w-[18rem] text-sm leading-6 text-white/72">
-              {item.description ?? "Un plato preparado para pedir y recoger."}
-            </p>
-            <Link
-              href={`/cities/${item.venue.citySlug}/venues/${item.venue.slug}`}
-              className="magnetic-button inline-flex shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/8 px-4 py-2.5 text-sm font-semibold text-white"
-            >
-              {buttonLabel}
-            </Link>
-          </div>
+          ) : null}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -215,55 +171,33 @@ export function HomeLanding({
     };
   }, [isInfoOpen]);
 
-  const sortedFeaturedItems = useMemo(() => {
-    if (!userLocation) {
-      return featuredItems;
+  const displayedItems = useMemo(() => {
+    const sourceItems = featuredItems.length > 0 ? featuredItems : latestItems;
+    const sortedItems = [...sourceItems];
+
+    if (userLocation) {
+      sortedItems.sort((itemA, itemB) => {
+        const journeyA = getItemJourney(itemA, userLocation);
+        const journeyB = getItemJourney(itemB, userLocation);
+
+        if (!journeyA && !journeyB) {
+          return 0;
+        }
+
+        if (!journeyA) {
+          return 1;
+        }
+
+        if (!journeyB) {
+          return -1;
+        }
+
+        return journeyA.distanceKm - journeyB.distanceKm;
+      });
     }
 
-    return [...featuredItems].sort((itemA, itemB) => {
-      const journeyA = getItemJourney(itemA, userLocation);
-      const journeyB = getItemJourney(itemB, userLocation);
-
-      if (!journeyA && !journeyB) {
-        return 0;
-      }
-
-      if (!journeyA) {
-        return 1;
-      }
-
-      if (!journeyB) {
-        return -1;
-      }
-
-      return journeyA.distanceKm - journeyB.distanceKm;
-    });
-  }, [featuredItems, userLocation]);
-
-  const sortedLatestItems = useMemo(() => {
-    if (!userLocation) {
-      return latestItems;
-    }
-
-    return [...latestItems].sort((itemA, itemB) => {
-      const journeyA = getItemJourney(itemA, userLocation);
-      const journeyB = getItemJourney(itemB, userLocation);
-
-      if (!journeyA && !journeyB) {
-        return 0;
-      }
-
-      if (!journeyA) {
-        return 1;
-      }
-
-      if (!journeyB) {
-        return -1;
-      }
-
-      return journeyA.distanceKm - journeyB.distanceKm;
-    });
-  }, [latestItems, userLocation]);
+    return sortedItems.slice(0, 3);
+  }, [featuredItems, latestItems, userLocation]);
 
   const handleContinue = () => {
     if (!selectedCity) {
@@ -455,60 +389,19 @@ export function HomeLanding({
         </section>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-[78rem] px-5 pb-20 pt-8 sm:px-6 lg:px-8">
-        {sortedFeaturedItems.length > 0 ? (
-          <section className="mb-14">
-            <div className="mb-7 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
-                  ZylenPick
-                </p>
-                <h2 className="mt-3 text-balance text-3xl font-semibold text-[color:var(--foreground)] sm:text-4xl">
-                  Destacados cerca de ti
-                </h2>
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {sortedFeaturedItems.map((item) => (
-                <ShowcaseCard
-                  key={item.id}
-                  item={item}
-                  buttonLabel="Ver local"
-                  userLocation={userLocation}
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {sortedLatestItems.length > 0 ? (
-          <section>
-            <div className="mb-7 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
-                  Ahora mismo
-                </p>
-                <h2 className="mt-3 text-balance text-3xl font-semibold text-[color:var(--foreground)] sm:text-4xl">
-                  Lo último cerca de ti
-                </h2>
-              </div>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {sortedLatestItems.map((item, index) => (
-                <ShowcaseCard
-                  key={item.id}
-                  item={item}
-                  buttonLabel="Ver local"
-                  eyebrow={latestMessages[index % latestMessages.length]}
-                  userLocation={userLocation}
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </section>
+      {displayedItems.length > 0 ? (
+        <section className="relative z-10 mx-auto max-w-[78rem] px-5 pb-20 pt-8 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-3">
+            {displayedItems.map((item) => (
+              <FeaturedDishCard
+                key={item.id}
+                item={item}
+                userLocation={userLocation}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {isInfoOpen ? (
         <div
