@@ -34,7 +34,7 @@ function buildPickupOptions(pickupEtaMin: number | null) {
 }
 
 const inputClassName =
-  "dark-form-field mt-3 w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white shadow-[var(--card-shadow)] outline-none transition placeholder:text-zinc-400 focus:border-green-500 focus:outline-none focus:ring-0";
+  "dark-form-field mt-4 w-full rounded-[1.2rem] border border-zinc-700 bg-zinc-900 px-4 py-3 text-white shadow-[var(--card-shadow)] outline-none transition placeholder:text-zinc-400 focus:border-[color:var(--brand)] focus:outline-none focus:ring-0";
 
 export function CartScreen() {
   const router = useRouter();
@@ -145,7 +145,7 @@ export function CartScreen() {
               className="editorial-card overflow-hidden rounded-[2.4rem] border border-[color:var(--border)] shadow-[var(--soft-shadow)]"
               style={{
                 backgroundImage: item.imageUrl
-                  ? `linear-gradient(180deg, rgba(7, 10, 9, 0.18), rgba(7, 10, 9, 0.84)), url(${item.imageUrl})`
+                  ? `linear-gradient(180deg, rgba(7, 10, 9, 0.24), rgba(7, 10, 9, 0.86)), url(${item.imageUrl})`
                   : "linear-gradient(180deg, rgba(31, 138, 112, 0.26), rgba(10, 12, 11, 0.88))",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -161,13 +161,13 @@ export function CartScreen() {
                       {item.description}
                     </p>
                   </div>
-                  <span className="w-fit whitespace-nowrap rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] px-3.5 py-2.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur">
+                  <span className="w-fit whitespace-nowrap rounded-full border border-white/10 bg-[rgba(8,12,11,0.46)] px-3 py-1.5 text-xs font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur">
                     {formatPrice(item.priceAmount * item.quantity, item.currency)}
                   </span>
                 </div>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
-                  <div className="inline-flex items-center rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] shadow-[var(--card-shadow)] backdrop-blur">
+                  <div className="inline-flex items-center rounded-full border border-white/10 bg-[rgba(8,12,11,0.5)] shadow-[var(--card-shadow)] backdrop-blur">
                     <button
                       type="button"
                       onClick={() =>
@@ -194,7 +194,7 @@ export function CartScreen() {
                   <button
                     type="button"
                     onClick={() => removeCartItem(item.id)}
-                    className="magnetic-button inline-flex rounded-full border border-white/10 bg-[rgba(8,12,11,0.48)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur"
+                    className="magnetic-button inline-flex rounded-full border border-white/10 bg-[rgba(8,12,11,0.5)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur"
                   >
                     Eliminar
                   </button>
@@ -309,7 +309,7 @@ export function CartScreen() {
             <p className="text-sm leading-6 text-white/72">{feedback}</p>
           ) : null}
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <button
               type="submit"
               disabled={isSubmitting}
