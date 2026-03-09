@@ -2,10 +2,10 @@ import Link from "next/link";
 
 const navigationItems = [
   { label: "Dashboard", href: "/panel", enabled: true },
-  { label: "Locales", href: "#", enabled: false },
+  { label: "Locales", href: "/panel/locales", enabled: true },
   { label: "Platos", href: "#", enabled: false },
   { label: "Pedidos", href: "#", enabled: false },
-  { label: "Solicitudes", href: "#", enabled: false },
+  { label: "Solicitudes", href: "/panel/solicitudes", enabled: true },
 ];
 
 export function AdminSidebar() {

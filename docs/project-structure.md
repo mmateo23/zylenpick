@@ -1,8 +1,8 @@
 # Estructura del proyecto
 
-## Visión rápida
+## Vision rapida
 
-La estructura actual separa pantallas, componentes y lógica de dominio de forma razonablemente clara para un MVP.
+La estructura actual separa pantallas, componentes y logica de dominio de forma razonable para un MVP con panel admin centralizado.
 
 ## Carpetas principales
 
@@ -10,7 +10,7 @@ La estructura actual separa pantallas, componentes y lógica de dominio de forma
 
 Contiene las rutas de Next.js App Router.
 
-Rutas activas más importantes:
+Rutas activas principales:
 
 - `/`
 - `/cities`
@@ -20,9 +20,19 @@ Rutas activas más importantes:
 - `/checkout/success/[orderId]`
 - `/checkout/success/[orderId]/ticket`
 - `/unete`
+- `/panel/login`
+- `/panel`
+- `/panel/locales`
+- `/panel/locales/nuevo`
+- `/panel/locales/[venueId]`
+- `/panel/locales/[venueId]/platos`
+- `/panel/locales/[venueId]/platos/nuevo`
+- `/panel/locales/[venueId]/platos/[menuItemId]`
+- `/panel/solicitudes`
+- `/panel/solicitudes/[requestId]`
 - `/api/join`
 
-También mantiene rutas heredadas del prototipo anterior que ya no forman parte del flujo principal:
+Rutas heredadas que siguen existiendo pero no forman parte del flujo principal:
 
 - `/acceder`
 - `/cuenta`
@@ -35,46 +45,49 @@ También mantiene rutas heredadas del prototipo anterior que ya no forman parte 
 
 Componentes visuales reutilizables.
 
-Subzonas relevantes:
+Subcarpetas mas relevantes:
 
 - `branding`
-  - logo y marca visual
+  - logo y marca
 - `layout`
-  - `site-shell`, `site-header`, estructura global
+  - shell y cabecera publica
 - `home`
-  - landing principal de la Home
+  - landing principal
 - `venues`
-  - cards, exploración por zona, llegada al local, visor de ruta
+  - exploracion por zona, cards y detalle de local
 - `cart`
-  - barra móvil del carrito
+  - barra movil de carrito
 - `orders`
   - widget de pedido activo
 - `join`
-  - formulario de captación de locales
+  - formulario de captacion
+- `admin`
+  - shell, login y formularios del panel admin
 - `icons`
-  - iconos SVG internos
+  - iconos SVG propios
 
 ### `src/features`
 
-Lógica del dominio separada por área.
+Logica del dominio separada por area.
 
 #### `features/cities`
 
-- tipos y lectura de ciudades desde Supabase
+- tipos de ciudad
+- lectura de ciudades desde Supabase
 
 #### `features/venues`
 
-- lectura de locales y menú
+- lectura de locales y menu
 - metadatos manuales de locales
-- selección para Home
-- categorías y coordenadas por `slug`
+- seleccion de platos para Home
+- categorias y coordenadas por `slug`
 
 #### `features/cart`
 
 - tipos del carrito
 - persistencia en `localStorage`
 - hook `useCart`
-- pantalla principal del carrito y checkout
+- pantalla de carrito y checkout
 
 #### `features/orders`
 
@@ -85,18 +98,27 @@ Lógica del dominio separada por área.
 
 #### `features/location`
 
-- ubicación del usuario
+- ubicacion del usuario
 - ciudad seleccionada
-- cálculo de distancias
+- calculo de distancias
+
+#### `features/admin`
+
+- autenticacion del panel
+- allowlist de admins
+- dashboard admin
+- lectura y escritura de locales desde el panel
+- lectura y escritura de platos desde el contexto de cada local
+- lectura y actualizacion de solicitudes desde el panel
 
 ### `src/lib`
 
 Utilidades transversales.
 
-Subzonas relevantes:
+Subzonas:
 
 - `supabase`
-  - configuración y clientes de Supabase
+  - configuracion y clientes
 - `utils`
   - helpers como formato de moneda
 
@@ -111,12 +133,14 @@ Migraciones SQL del proyecto.
 Incluyen:
 
 - esquema inicial
-- ajustes de auth heredados
-- ciudades y menú
-- seed del local real principal
-- seed adicional de locales de Talavera
+- auth heredada
+- ciudades y menu
+- seed de locales
+- politicas temporales para gestion admin de `venues`
+- columna `is_featured` y politicas temporales para `menu_items`
+- tabla `join_requests` y politicas temporales para solicitudes
 
-## Qué partes corresponden a cada bloque funcional
+## Bloques funcionales
 
 ### Home
 
@@ -142,12 +166,33 @@ Incluyen:
 - `src/features/orders/components/printable-order-ticket.tsx`
 - `src/components/orders/active-order-widget.tsx`
 
-### Localización
+### Localizacion
 
 - `src/features/location/browser-location.ts`
 - `src/features/location/city-preference.ts`
 - `src/components/location/city-preference-sync.tsx`
 - `src/features/venues/venue-meta.ts`
+
+### Panel admin
+
+- `src/app/panel/(auth)/login/page.tsx`
+- `src/app/panel/auth/callback/route.ts`
+- `src/app/panel/(admin)/layout.tsx`
+- `src/app/panel/(admin)/page.tsx`
+- `src/app/panel/(admin)/locales/page.tsx`
+- `src/app/panel/(admin)/locales/nuevo/page.tsx`
+- `src/app/panel/(admin)/locales/[venueId]/page.tsx`
+- `src/app/panel/(admin)/locales/[venueId]/platos/page.tsx`
+- `src/app/panel/(admin)/locales/[venueId]/platos/nuevo/page.tsx`
+- `src/app/panel/(admin)/locales/[venueId]/platos/[menuItemId]/page.tsx`
+- `src/app/panel/(admin)/solicitudes/page.tsx`
+- `src/app/panel/(admin)/solicitudes/[requestId]/page.tsx`
+- `src/features/admin/services/admin-auth.ts`
+- `src/features/admin/services/dashboard-service.ts`
+- `src/features/admin/services/venues-admin-service.ts`
+- `src/features/admin/services/menu-items-admin-service.ts`
+- `src/features/admin/services/join-requests-admin-service.ts`
+- `src/components/admin/*`
 
 ### Componentes compartidos
 
@@ -159,17 +204,19 @@ Incluyen:
 
 - `src/app/globals.css`
 
-Aquí viven:
+Aqui viven:
 
 - variables de color
-- utilidades como `hover-lift-card`
+- `hover-lift-card`
 - `magnetic-button`
 - `spotlight-panel`
 - `dark-form-field`
 
-## Observaciones prácticas
+## Observaciones practicas
 
-- la estructura actual ya está bastante orientada al MVP nuevo
-- aún conviven carpetas y rutas del prototipo anterior
-- no están eliminadas del repositorio, solo apartadas del flujo principal
-- hay piezas de UI y storage que todavía arrastran el naming antiguo `fknfood`
+- la estructura ya esta bastante orientada al MVP actual
+- el panel admin crece por fases sin introducir panel de local
+- los platos se administran desde cada local, no desde una vista global
+- las solicitudes se guardan desde `/unete` y se revisan desde el panel
+- conviven rutas y piezas heredadas del prototipo anterior
+- todavia hay naming antiguo `fknfood` en algunas capas internas

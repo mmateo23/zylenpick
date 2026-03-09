@@ -1,50 +1,57 @@
 # Arquitectura de ZylenPick
 
-## Visión general
+## Vision general
 
-ZylenPick es una web de pedidos locales para recoger construida con Next.js App Router. El proyecto mezcla renderizado en servidor para leer datos de Supabase y componentes cliente para toda la interacción que depende del navegador, especialmente:
+ZylenPick es una web de pedidos locales para recoger construida con Next.js App Router. La aplicacion mezcla:
 
-- carrito
-- ubicación del usuario
-- pedido activo
-- ticket imprimible
+- renderizado en servidor para leer datos de Supabase
+- componentes cliente para interaccion, `localStorage`, ubicacion y ticket
 
-La arquitectura actual está optimizada para un MVP visual y rápido de iterar. No hay backend propio separado ni paneles complejos. La mayor parte del estado persistente del usuario vive en `localStorage` y los datos de catálogo viven en Supabase.
+El proyecto sigue un enfoque MVP:
+
+- experiencia visual fuerte
+- flujo simple
+- control centralizado desde panel admin
+- sin panel para locales en esta fase
 
 ## Frontend
 
 ### Stack principal
 
-- Next.js 14 con App Router
+- Next.js 14
 - React 18
 - Tailwind CSS
 - TypeScript
 
-### Patrón actual
+### Organizacion
 
-- páginas en `src/app`
-- lógica de dominio en `src/features`
-- componentes de interfaz en `src/components`
-- utilidades compartidas en `src/lib`
+- `src/app`
+  - rutas y pantallas
+- `src/components`
+  - UI reutilizable
+- `src/features`
+  - logica por dominio
+- `src/lib`
+  - utilidades transversales
+- `src/types`
+  - tipos globales de base de datos
 
-### Qué se renderiza en servidor
+### Que se resuelve en servidor
 
-- Home con ciudades y selección de platos destacados/recientes
-- listado de zonas
-- listado de locales por zona
-- página de local y menú
+- Home con ciudades y seleccion simple de platos
+- zonas y locales desde Supabase
+- detalle del local y menu
+- panel admin privado
 
-Estas páginas leen datos desde Supabase usando el cliente server-side.
+### Que se resuelve en cliente
 
-### Qué se resuelve en cliente
-
-- carrito en `localStorage`
-- ubicación del usuario
-- selección de zona persistida
-- widget flotante de pedido activo
-- creación de pedido MVP en navegador
-- ticket imprimible con `window.print()`
+- carrito
+- ubicacion del usuario
+- ciudad seleccionada
+- pedido activo
+- ticket imprimible
 - modal explicativo de la Home
+- login del panel admin
 
 ## Backend y datos
 
@@ -52,170 +59,199 @@ Estas páginas leen datos desde Supabase usando el cliente server-side.
 
 La base de datos principal es Supabase PostgreSQL.
 
-Tablas relevantes para el MVP actual:
+Tablas relevantes del MVP:
 
 - `cities`
 - `venues`
 - `menu_items`
-- `profiles` y `venue_memberships` existen por migraciones previas, pero no son núcleo del flujo actual
+- `join_requests`
+- `profiles`
+- `venue_memberships`
 
-Tablas de pedidos persistidos en base de datos:
+Observaciones:
 
-- no están activas todavía en el flujo real
+- `profiles` y `venue_memberships` vienen del prototipo anterior y hoy no son la base del modelo de producto
+- los pedidos finales del usuario todavia no viven en Supabase; siguen en `localStorage`
+- `menu_items` ya incluye `is_featured` para destacado persistido en panel admin
+- `join_requests` permite revisar desde panel las solicitudes enviadas desde `/unete`
 
-Observación:
+### Acceso a Supabase
 
-- el pedido actual del usuario no se guarda en Supabase; se guarda en `localStorage`
-- esto es intencional en el estado actual del MVP
-
-### Acceso a datos
-
-Se usan dos clientes Supabase:
+Clientes activos:
 
 - `src/lib/supabase/server.ts`
 - `src/lib/supabase/browser.ts`
+- cliente simple con `@supabase/supabase-js` en `/api/join` para guardar solicitudes publicas
 
-En la práctica actual, la lectura de catálogo se hace sobre todo desde el cliente servidor de Next.
+El catalogo publico y el panel admin leen datos desde Supabase usando el cliente servidor.
+
+## Panel admin
+
+### Objetivo actual
+
+Gestion centralizada del MVP por parte del equipo interno.
+
+No existe panel de local en esta fase.
+
+### Acceso
+
+El panel usa:
+
+- Supabase Auth
+- allowlist simple por email
+
+Flujo actual:
+
+1. `/panel/login`
+2. login con Google o email
+3. callback en `/panel/auth/callback`
+4. comprobacion de sesion
+5. comprobacion de `ADMIN_ALLOWED_EMAILS`
+
+### Proteccion
+
+Las rutas privadas viven bajo:
+
+- `src/app/panel/(admin)`
+
+El layout protegido:
+
+- exige sesion
+- comprueba allowlist
+- muestra acceso no autorizado si el email no esta permitido
+
+### Alcance implementado
+
+- dashboard inicial
+- gestion de locales
+- gestion de platos ligada a cada local
+- gestion de solicitudes de alta
+
+Pendiente para fases posteriores:
+
+- pedidos conectados a base de datos
+- vista global de platos si hiciera falta
+- automatizacion parcial del alta de locales
 
 ## Hosting y despliegue
 
 ### Estado confirmado
 
-- el proyecto está preparado para desplegarse en Vercel
-- `.vercel` está ignorado en git
-- el usuario ha indicado que el proyecto ya está desplegado en Vercel
+- el proyecto esta preparado para Vercel
+- `.vercel` esta ignorado en git
+- el despliegue actual del proyecto esta planteado para Vercel
 
-### Estado pendiente de confirmar en código
+### Estado pendiente de confirmar en codigo
 
 - no hay `vercel.json`
-- no hay infraestructura como código para entornos
-- no hay pipeline CI/CD documentado dentro del repositorio
+- no hay infraestructura como codigo
+- no hay pipeline CI/CD documentado en el repositorio
 
 ## DNS
 
-No hay configuración DNS documentada dentro del repositorio.
+No hay configuracion DNS documentada dentro del repositorio.
 
 Estado:
 
 - pendiente de confirmar
 
-Esto implica que la relación entre dominio público, Vercel y posibles subdominios no está trazada todavía en código ni en documentación.
-
 ## Repositorio
 
 ### Estado observable
 
-- repositorio Next.js local en `C:\Users\Manu\Documents\FknFood`
+- repositorio local en `C:\Users\Manu\Documents\FknFood`
 - nombre del paquete en `package.json`: `fknfood`
 
 ## Naming del proyecto
 
-El naming definitivo del producto todavía no está cerrado.
+El naming definitivo del producto todavia no esta cerrado.
 
 Estado actual:
 
-- el nombre técnico heredado del prototipo es `fknfood`
-- el nombre de marca que se está usando hoy en interfaz es `ZylenPick`
-- también se está evaluando la variante `ZyPick`
-- el naming definitivo aún no está decidido
+- nombre tecnico heredado: `fknfood`
+- nombre de marca visible en evaluacion: `ZylenPick`
+- variante tambien en evaluacion: `ZyPick`
 
-Decisión actual:
+Decision actual:
 
-- no renombrar todavía claves internas
-- no renombrar todavía el paquete en `package.json`
-- no renombrar todavía namespaces ni rutas internas
-
-Esto significa que, por ahora, la arquitectura convive con nombres heredados y nombres de marca en evaluación.
-
-### Observación importante
-
-Hay una incoherencia de naming entre:
-
-- marca visible actual: `ZylenPick`
-- variante de marca en evaluación: `ZyPick`
-- nombre del paquete/repositorio local: `fknfood`
-- algunas claves antiguas de `localStorage` del carrito siguen usando `fknfood`
-
-Esto queda pendiente hasta cerrar el naming definitivo del producto.
+- no renombrar todavia claves internas
+- no renombrar todavia el paquete
+- no renombrar todavia namespaces ni rutas internas
 
 ## Emails
 
 ### Uso actual
 
-El único envío de email activo en este momento es el formulario `/unete`.
+El envio de email activo hoy es:
 
-### Flujo
+- formulario `/unete`
 
-- el formulario envía un `POST` a `/api/join`
-- el endpoint compone email HTML y texto plano
-- el envío se realiza contra la API HTTP de Resend
+Se envia a traves de Resend desde:
 
-### Variables implicadas
+- `/api/join`
 
-- `RESEND_API_KEY`
-- `JOIN_REQUEST_TO_EMAIL`
-- `JOIN_REQUEST_FROM_EMAIL`
+Observacion:
 
-### Observación
+- las solicitudes de `/unete` ya se guardan tambien en `join_requests`
+- los pedidos al local todavia no se envian por email
 
-Los pedidos al local todavía no se envían por correo. El email está implementado solo para captación de negocios.
-
-## Mapas y navegación
+## Mapas y navegacion
 
 ### Estado actual
 
-No hay SDK de mapas embebido ni routing avanzado.
+No hay SDK de mapas embebido.
 
-Se usa una capa simple basada en:
+Se usa una solucion simple basada en:
 
 - coordenadas por `venueSlug` en `src/features/venues/venue-meta.ts`
-- cálculo local de distancia con Haversine
+- calculo local de distancia con Haversine
 - apertura de Apple Maps o Google Maps mediante URL
 
-### Qué permite hoy
+### Que permite hoy
 
-- mostrar distancia aproximada
-- mostrar tiempo andando estimado
-- mostrar pasos aproximados
-- abrir ruta externa en Apple Maps o Google Maps
+- distancia aproximada
+- tiempo andando estimado
+- pasos aproximados
+- apertura de ruta externa
 
-### Observación
-
-Las coordenadas están mantenidas manualmente en código. No proceden todavía de la base de datos.
-
-## Cómo se relacionan las piezas principales
+## Como se relacionan las piezas principales
 
 ### Descubrimiento
 
-1. Home carga ciudades y una selección simple de platos desde Supabase.
-2. El usuario selecciona zona manualmente o por ubicación.
+1. Home carga ciudades y platos destacados desde Supabase.
+2. El usuario elige zona manualmente o por ubicacion.
 3. La zona elegida se guarda en `localStorage`.
-4. La navegación y ciertas pantallas usan esa preferencia.
 
-### Catálogo
+### Catalogo
 
-1. `/cities/[citySlug]` carga locales de Supabase.
-2. `/cities/[citySlug]/venues/[venueSlug]` carga detalle del local y menú.
-3. Si hay ubicación guardada, el frontend calcula cercanía y reordena ciertas listas.
+1. `/cities/[citySlug]` carga locales.
+2. `/cities/[citySlug]/venues/[venueSlug]` carga local y menu.
+3. Si hay ubicacion, el frontend calcula cercania.
 
 ### Compra
 
-1. El usuario añade productos al carrito.
+1. El usuario anade productos al carrito.
 2. El carrito se persiste en `localStorage`.
-3. En `/cart` se completan datos mínimos.
-4. Al confirmar, se crea un pedido local en `localStorage`.
+3. En `/cart` se completa checkout minimo.
+4. Se crea un pedido local, todavia no persistido en backend.
 
-### Seguimiento
+### Captacion de locales
 
-1. Se marca un pedido activo por clave específica en `localStorage`.
-2. El widget flotante lee ese pedido activo.
-3. La pantalla de ticket permite cerrar o cancelar el pedido.
-4. Al cerrarlo o cancelarlo, el pedido activo se limpia.
+1. Un negocio envia el formulario en `/unete`.
+2. `/api/join` guarda la solicitud en `join_requests`.
+3. El mismo endpoint envia un email interno.
+4. El equipo revisa la solicitud desde `/panel/solicitudes`.
+
+### Operacion interna
+
+1. El equipo accede a `/panel/login`.
+2. Si el email esta autorizado, entra en `/panel`.
+3. Desde ahi puede gestionar locales, platos y solicitudes.
 
 ## Observaciones abiertas
 
 - no existe persistencia real de pedidos en backend
 - no existe panel de local
-- no existe sistema de estados sincronizado con cocina o personal del local
-- el teléfono del local no está modelado de forma consistente en base de datos
-- hay textos con codificación heredada irregular en algunos archivos antiguos
+- el telefono del local no esta modelado de forma consistente
+- hay rutas heredadas del prototipo anterior todavia presentes
+- hay textos con codificacion irregular en algunos archivos antiguos

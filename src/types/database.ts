@@ -191,6 +191,7 @@ export type Database = {
           category_name: string | null;
           sort_order: number;
           is_available: boolean;
+          is_featured: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -205,6 +206,7 @@ export type Database = {
           category_name?: string | null;
           sort_order?: number;
           is_available?: boolean;
+          is_featured?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -219,6 +221,7 @@ export type Database = {
           category_name?: string | null;
           sort_order?: number;
           is_available?: boolean;
+          is_featured?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -231,6 +234,66 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      join_requests: {
+        Row: {
+          id: string;
+          venue_name: string;
+          business_type: string | null;
+          area: string | null;
+          address: string | null;
+          venue_phone: string | null;
+          venue_email: string | null;
+          website: string | null;
+          contact_name: string | null;
+          contact_phone: string | null;
+          contact_email: string | null;
+          service_type: string | null;
+          message: string | null;
+          privacy_accepted: boolean;
+          status: "pending" | "approved" | "rejected";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          venue_name: string;
+          business_type?: string | null;
+          area?: string | null;
+          address?: string | null;
+          venue_phone?: string | null;
+          venue_email?: string | null;
+          website?: string | null;
+          contact_name?: string | null;
+          contact_phone?: string | null;
+          contact_email?: string | null;
+          service_type?: string | null;
+          message?: string | null;
+          privacy_accepted?: boolean;
+          status?: "pending" | "approved" | "rejected";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          venue_name?: string;
+          business_type?: string | null;
+          area?: string | null;
+          address?: string | null;
+          venue_phone?: string | null;
+          venue_email?: string | null;
+          website?: string | null;
+          contact_name?: string | null;
+          contact_phone?: string | null;
+          contact_email?: string | null;
+          service_type?: string | null;
+          message?: string | null;
+          privacy_accepted?: boolean;
+          status?: "pending" | "approved" | "rejected";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       posts: {
         Row: {

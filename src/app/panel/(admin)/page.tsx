@@ -19,7 +19,7 @@ const adminStats = [
   {
     key: "requests",
     label: "Solicitudes",
-    description: "Llegan por email. Aún no almacenadas en base de datos.",
+    description: "Solicitudes recibidas desde /unete pendientes de revisión.",
   },
 ] as const;
 
@@ -35,7 +35,9 @@ export default async function AdminDashboardPage() {
               ? summary.venuesCount
               : stat.key === "menuItems"
                 ? summary.menuItemsCount
-                : null;
+                : stat.key === "requests"
+                  ? summary.joinRequestsCount
+                  : null;
 
           return (
             <article
@@ -65,9 +67,9 @@ export default async function AdminDashboardPage() {
             Pendientes de conectar
           </h2>
           <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-            En esta fase el panel aún no lee pedidos reales desde Supabase.
-            Queda preparado para conectar la persistencia del flujo de checkout
-            en la siguiente iteración.
+            En esta fase el panel aún no lee pedidos reales desde Supabase. Queda
+            preparado para conectar la persistencia del flujo de checkout en la
+            siguiente iteración.
           </p>
         </section>
 
@@ -76,12 +78,12 @@ export default async function AdminDashboardPage() {
             Solicitudes de alta
           </p>
           <h2 className="mt-4 text-2xl font-semibold text-[color:var(--foreground)]">
-            Gestión centralizada
+            Bandeja de solicitudes
           </h2>
           <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-            Las solicitudes de “Únete a ZylenPick” llegan por correo. El panel
-            queda listo para añadir esta bandeja cuando exista almacenamiento
-            persistente de solicitudes.
+            El panel ya puede leer las solicitudes enviadas desde `/unete` y
+            revisar manualmente su estado antes de crear el local desde el área de
+            locales.
           </p>
         </section>
       </div>

@@ -1,4 +1,7 @@
+import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+
+import type { Database } from "@/types/database";
 
 type JoinRequestPayload = {
   venueName: string;
@@ -110,8 +113,15 @@ export async function POST(request: Request) {
   const joinRequestToEmail = process.env.JOIN_REQUEST_TO_EMAIL;
   const joinRequestFromEmail =
     process.env.JOIN_REQUEST_FROM_EMAIL ?? "ZylenPick <onboarding@resend.dev>";
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!resendApiKey || !joinRequestToEmail) {
+  if (
+    !resendApiKey ||
+    !joinRequestToEmail ||
+    !supabaseUrl ||
+    !supabaseAnonKey
+  ) {
     return NextResponse.json(
       {
         message:
@@ -122,6 +132,35 @@ export async function POST(request: Request) {
   }
 
   const payload = normalizePayload((await request.json()) as JoinRequestPayload);
+  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+
+  const { error: insertError } = await supabase.from("join_requests").insert({
+    venue_name: payload.venueName,
+    business_type: payload.businessType,
+    area: payload.area,
+    address: payload.address,
+    venue_phone: payload.venuePhone,
+    venue_email: payload.venueEmail,
+    website: payload.website || null,
+    contact_name: payload.contactName,
+    contact_phone: payload.contactPhone,
+    contact_email: payload.contactEmail,
+    service_type: payload.serviceType,
+    message: payload.message || null,
+    privacy_accepted: payload.privacyAccepted,
+    status: "pending",
+  });
+
+  if (insertError) {
+    return NextResponse.json(
+      {
+        message:
+          "No hemos podido guardar la solicitud. Revisa la configuración de Supabase.",
+        detail: insertError.message,
+      },
+      { status: 502 },
+    );
+  }
 
   // Punto central de notificación para poder añadir Telegram más adelante.
   const resendResponse = await fetch("https://api.resend.com/emails", {
