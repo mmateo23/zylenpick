@@ -8,7 +8,7 @@ import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import {
   ORDER_UPDATED_EVENT,
-  getLatestOrder,
+  getActiveOrder,
 } from "@/features/orders/services/order-storage";
 
 function getMinutesRemaining(pickupAt: string) {
@@ -18,14 +18,14 @@ function getMinutesRemaining(pickupAt: string) {
 
 export function ActiveOrderWidget() {
   const pathname = usePathname();
-  const [order, setOrder] = useState(() => getLatestOrder());
+  const [order, setOrder] = useState(() => getActiveOrder());
   const [minutesRemaining, setMinutesRemaining] = useState(() =>
     order ? getMinutesRemaining(order.pickupAt) : 0,
   );
 
   useEffect(() => {
     const syncOrder = () => {
-      const nextOrder = getLatestOrder();
+      const nextOrder = getActiveOrder();
       setOrder(nextOrder);
       setMinutesRemaining(nextOrder ? getMinutesRemaining(nextOrder.pickupAt) : 0);
     };

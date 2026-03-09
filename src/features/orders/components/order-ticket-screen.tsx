@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
+import { PhoneIcon } from "@/components/icons/phone-icon";
 import { StepsIcon } from "@/components/icons/steps-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
 import {
@@ -13,7 +14,11 @@ import {
   saveUserLocation,
   type UserLocation,
 } from "@/features/location/browser-location";
-import { getOrderById } from "@/features/orders/services/order-storage";
+import {
+  cancelOrder,
+  completeOrder,
+  getOrderById,
+} from "@/features/orders/services/order-storage";
 import { getVenueCoordinates } from "@/features/venues/venue-meta";
 import { formatPrice } from "@/lib/utils/currency";
 
@@ -48,7 +53,7 @@ function getCountdownParts(targetDate: string) {
     label:
       hours > 0
         ? `${hours} h ${minutes.toString().padStart(2, "0")} min`
-        : `${minutes} min`,
+        : `${totalMinutes} min`,
   };
 }
 
@@ -61,18 +66,41 @@ function getOrderStatus(createdAt: string, pickupAt: string) {
   const progress = elapsed / totalWindow;
 
   if (now >= pickupTime) {
-    return "listo para recoger";
+    return "listo";
   }
 
   if (progress < 0.33) {
-    return "pedido recibido";
+    return "received";
   }
 
   if (progress < 0.85) {
-    return "preparando";
+    return "preparing";
   }
 
-  return "listo para recoger";
+  return "listo";
+}
+
+function getStatusCopy(createdAt: string, pickupAt: string) {
+  const status = getOrderStatus(createdAt, pickupAt);
+
+  if (status === "received") {
+    return {
+      title: "Pedido recibido",
+      description: "El local ya tiene tu pedido y está organizándolo.",
+    };
+  }
+
+  if (status === "preparing") {
+    return {
+      title: "En preparación",
+      description: "Tu pedido está avanzando y se está preparando para la recogida.",
+    };
+  }
+
+  return {
+    title: "Listo para recoger",
+    description: "Tu pedido ya está listo para que pases por el local.",
+  };
 }
 
 function isAppleDevice() {
@@ -193,8 +221,8 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
           No hemos encontrado este pedido.
         </p>
         <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-          Puede que ya no esté disponible en este navegador o que el enlace no
-          sea correcto.
+          Puede que ya no esté disponible en este navegador o que el enlace no sea
+          correcto.
         </p>
         <Link
           href="/cart"
@@ -206,8 +234,44 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
     );
   }
 
-  const status = getOrderStatus(order.createdAt, order.pickupAt);
+  const statusCopy = getStatusCopy(order.createdAt, order.pickupAt);
   const directionsUrl = getDirectionsUrl(order.venue.slug);
+  const isReadyToPickup = statusCopy.title === "Listo para recoger";
+  const canCancel = order.resolutionStatus === "active" && !isReadyToPickup;
+  const canComplete = order.resolutionStatus === "active";
+
+  const resolutionMessage =
+    order.resolutionStatus === "completed"
+      ? "Gracias por apoyar la hostelería local."
+      : order.resolutionStatus === "cancelled"
+        ? "Pedido cancelado. Puedes volver a pedir cuando quieras."
+        : null;
+
+  const handleCompleteOrder = () => {
+    completeOrder(order.id);
+    setOrder((currentOrder) =>
+      currentOrder
+        ? {
+            ...currentOrder,
+            resolutionStatus: "completed",
+            resolvedAt: new Date().toISOString(),
+          }
+        : currentOrder,
+    );
+  };
+
+  const handleCancelOrder = () => {
+    cancelOrder(order.id);
+    setOrder((currentOrder) =>
+      currentOrder
+        ? {
+            ...currentOrder,
+            resolutionStatus: "cancelled",
+            resolvedAt: new Date().toISOString(),
+          }
+        : currentOrder,
+    );
+  };
 
   return (
     <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
@@ -219,15 +283,15 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
           Tu pedido ya está en marcha.
         </h1>
         <p className="mt-5 max-w-[52ch] text-base leading-8 text-[color:var(--muted-strong)]">
-          Gracias por apoyar la hostelería local. Guarda este ticket para
-          recoger tu pedido con claridad.
+          Gracias por apoyar la hostelería local. Guarda este ticket y sigue el
+          estado hasta la recogida.
         </p>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-[1.6rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-5">
             <p className="text-sm text-[color:var(--muted)]">Estado</p>
-            <p className="mt-2 text-lg font-semibold capitalize text-[color:var(--foreground)]">
-              {status}
+            <p className="mt-2 text-lg font-semibold text-[color:var(--foreground)]">
+              {statusCopy.title}
             </p>
           </div>
           <div className="rounded-[1.6rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-5">
@@ -243,6 +307,23 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
             </p>
           </div>
         </div>
+
+        <div className="mt-6 rounded-[1.8rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-4">
+          <p className="text-sm font-semibold text-[color:var(--foreground)]">
+            {statusCopy.title}
+          </p>
+          <p className="mt-2 text-sm leading-7 text-[color:var(--muted-strong)]">
+            {statusCopy.description}
+          </p>
+        </div>
+
+        {resolutionMessage ? (
+          <div className="mt-6 rounded-[1.8rem] border border-[color:var(--accent)]/25 bg-[color:var(--accent)]/10 px-5 py-4">
+            <p className="text-sm font-semibold text-[color:var(--foreground)]">
+              {resolutionMessage}
+            </p>
+          </div>
+        ) : null}
 
         <div
           id="ticket"
@@ -294,7 +375,9 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
               </p>
             </div>
             <div>
-              <p className="text-sm text-[color:var(--muted)]">Hora estimada de recogida</p>
+              <p className="text-sm text-[color:var(--muted)]">
+                Hora estimada de recogida
+              </p>
               <p className="mt-2 text-base font-semibold text-[color:var(--foreground)]">
                 {formatPickupTime(order.pickupAt)}
               </p>
@@ -407,6 +490,54 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
             >
               Descargar ticket
             </Link>
+
+            <a
+              href={order.venue.phone ? `tel:${order.venue.phone}` : undefined}
+              aria-disabled={!order.venue.phone}
+              className={`magnetic-button inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3.5 text-sm font-semibold ${
+                order.venue.phone
+                  ? "border-white/10 bg-white/8 text-white"
+                  : "cursor-not-allowed border-white/8 bg-white/5 text-white/45"
+              }`}
+            >
+              <PhoneIcon size={18} />
+              {order.venue.phone ? "Llamar" : "Llamar no disponible"}
+            </a>
+
+            <a
+              href={order.venue.email ? `mailto:${order.venue.email}` : undefined}
+              aria-disabled={!order.venue.email}
+              className={`magnetic-button inline-flex w-full items-center justify-center rounded-full border px-5 py-3.5 text-sm font-semibold ${
+                order.venue.email
+                  ? "border-white/10 bg-white/8 text-white"
+                  : "cursor-not-allowed border-white/8 bg-white/5 text-white/45"
+              }`}
+            >
+              Enviar email
+            </a>
+
+            <button
+              type="button"
+              onClick={handleCompleteOrder}
+              disabled={!canComplete}
+              className={`magnetic-button inline-flex w-full items-center justify-center rounded-full px-5 py-3.5 text-sm font-semibold ${
+                canComplete
+                  ? "bg-[color:var(--brand)] text-white"
+                  : "cursor-not-allowed bg-white/8 text-white/45"
+              }`}
+            >
+              Pedido recogido
+            </button>
+
+            {canCancel ? (
+              <button
+                type="button"
+                onClick={handleCancelOrder}
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white"
+              >
+                Cancelar pedido
+              </button>
+            ) : null}
 
             <Link
               href="#ticket"

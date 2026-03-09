@@ -1,9 +1,15 @@
 "use client";
 
 import type { CartState } from "@/features/cart/types";
-import type { OrderRecord } from "@/features/orders/types";
+import type {
+  OrderRecord,
+  OrderResolutionStatus,
+} from "@/features/orders/types";
 
 const ORDER_STORAGE_KEY = "zylenpick.orders";
+const ACTIVE_ORDER_STORAGE_KEY = "zylenpick.active-order-id";
+const ACTIVE_ORDER_GRACE_MS = 1000 * 60 * 60 * 3;
+
 export const ORDER_UPDATED_EVENT = "zylenpick:order-updated";
 
 function readOrders(): OrderRecord[] {
@@ -19,7 +25,16 @@ function readOrders(): OrderRecord[] {
 
   try {
     const parsedValue = JSON.parse(rawValue) as OrderRecord[];
-    return Array.isArray(parsedValue) ? parsedValue : [];
+
+    if (!Array.isArray(parsedValue)) {
+      return [];
+    }
+
+    return parsedValue.map((order) => ({
+      ...order,
+      resolutionStatus: order.resolutionStatus ?? "active",
+      resolvedAt: order.resolvedAt ?? null,
+    }));
   } catch {
     return [];
   }
@@ -30,8 +45,51 @@ function writeOrders(orders: OrderRecord[]) {
   window.dispatchEvent(new Event(ORDER_UPDATED_EVENT));
 }
 
+function readActiveOrderId() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(ACTIVE_ORDER_STORAGE_KEY);
+}
+
+function writeActiveOrderId(orderId: string | null) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (orderId) {
+    window.localStorage.setItem(ACTIVE_ORDER_STORAGE_KEY, orderId);
+  } else {
+    window.localStorage.removeItem(ACTIVE_ORDER_STORAGE_KEY);
+  }
+
+  window.dispatchEvent(new Event(ORDER_UPDATED_EVENT));
+}
+
 function createOrderId() {
   return `ZP-${Date.now().toString().slice(-6)}`;
+}
+
+function isOrderExpired(order: OrderRecord) {
+  return Date.now() > new Date(order.pickupAt).getTime() + ACTIVE_ORDER_GRACE_MS;
+}
+
+function updateOrderResolutionStatus(
+  orderId: string,
+  resolutionStatus: OrderResolutionStatus,
+) {
+  const nextOrders = readOrders().map((order) =>
+    order.id === orderId
+      ? {
+          ...order,
+          resolutionStatus,
+          resolvedAt: new Date().toISOString(),
+        }
+      : order,
+  );
+
+  writeOrders(nextOrders);
 }
 
 export function createOrderFromCart(input: {
@@ -62,10 +120,12 @@ export function createOrderFromCart(input: {
     items: input.cart.items,
     totalAmount,
     currency,
+    resolutionStatus: "active",
+    resolvedAt: null,
   };
 
-  const currentOrders = readOrders();
-  writeOrders([order, ...currentOrders]);
+  writeOrders([order, ...readOrders()]);
+  writeActiveOrderId(order.id);
 
   return order;
 }
@@ -76,4 +136,41 @@ export function getOrderById(orderId: string) {
 
 export function getLatestOrder() {
   return readOrders()[0] ?? null;
+}
+
+export function getActiveOrder() {
+  const activeOrderId = readActiveOrderId();
+
+  if (!activeOrderId) {
+    return null;
+  }
+
+  const order = getOrderById(activeOrderId);
+
+  if (!order || order.resolutionStatus !== "active" || isOrderExpired(order)) {
+    clearActiveOrder();
+    return null;
+  }
+
+  return order;
+}
+
+export function clearActiveOrder() {
+  writeActiveOrderId(null);
+}
+
+export function completeOrder(orderId: string) {
+  updateOrderResolutionStatus(orderId, "completed");
+
+  if (readActiveOrderId() === orderId) {
+    clearActiveOrder();
+  }
+}
+
+export function cancelOrder(orderId: string) {
+  updateOrderResolutionStatus(orderId, "cancelled");
+
+  if (readActiveOrderId() === orderId) {
+    clearActiveOrder();
+  }
 }

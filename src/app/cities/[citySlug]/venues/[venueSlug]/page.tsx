@@ -61,6 +61,8 @@ export default async function VenuePage({ params }: VenuePageProps) {
     citySlug: venue.city.slug,
     cityName: venue.city.name,
     address: venue.address,
+    email: venue.email,
+    phone: null,
     pickupEtaMin: venue.pickupEtaMin,
   };
 

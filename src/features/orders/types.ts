@@ -1,5 +1,7 @@
 import type { CartItem, CartVenue } from "@/features/cart/types";
 
+export type OrderResolutionStatus = "active" | "completed" | "cancelled";
+
 export type OrderRecord = {
   id: string;
   createdAt: string;
@@ -11,4 +13,6 @@ export type OrderRecord = {
   items: CartItem[];
   totalAmount: number;
   currency: string;
+  resolutionStatus: OrderResolutionStatus;
+  resolvedAt: string | null;
 };
