@@ -151,7 +151,7 @@ export function CartScreen() {
                 backgroundPosition: "center",
               }}
             >
-              <div className="flex min-h-[18rem] flex-col justify-between p-5 sm:min-h-[19rem] sm:p-7">
+              <div className="relative z-10 flex min-h-[18rem] flex-col justify-between p-5 sm:min-h-[19rem] sm:p-7 md:pr-28">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="max-w-xl">
                     <h2 className="text-3xl font-semibold leading-[0.98] text-white sm:text-4xl">
@@ -161,7 +161,13 @@ export function CartScreen() {
                       {item.description}
                     </p>
                   </div>
-                  <span className="w-fit whitespace-nowrap rounded-full border border-white/10 bg-[rgba(8,12,11,0.46)] px-3 py-1.5 text-xs font-semibold text-white shadow-[var(--card-shadow)] backdrop-blur">
+                  <span
+                    className="ml-auto inline-block w-fit shrink-0 self-start whitespace-nowrap text-2xl font-semibold leading-none text-white sm:text-5xl"
+                    style={{
+                      textShadow:
+                        "0 4px 16px rgba(0, 0, 0, 0.32), 0 0 18px rgba(31, 138, 112, 0.24)",
+                    }}
+                  >
                     {formatPrice(item.priceAmount * item.quantity, item.currency)}
                   </span>
                 </div>
