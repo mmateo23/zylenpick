@@ -36,3 +36,17 @@ export type VenueDetails = {
   };
   menuItems: VenueMenuItem[];
 };
+
+export type HomeShowcaseItem = {
+  id: string;
+  name: string;
+  description: string | null;
+  priceAmount: number;
+  currency: string;
+  imageUrl: string | null;
+  venue: {
+    slug: string;
+    name: string;
+    citySlug: string;
+  };
+};

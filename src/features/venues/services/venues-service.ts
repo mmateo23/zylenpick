@@ -2,6 +2,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type {
+  HomeShowcaseItem,
   VenueDetails,
   VenueListItem,
   VenueMenuItem,
@@ -52,6 +53,36 @@ function mapVenueMenuItem(row: {
     currency: row.currency,
     imageUrl: row.image_url,
     categoryName: row.category_name,
+  };
+}
+
+function mapHomeShowcaseItem(row: {
+  id: string;
+  name: string;
+  description: string | null;
+  price_amount: number;
+  currency: string;
+  image_url: string | null;
+  venues: {
+    slug: string;
+    name: string;
+    cities: {
+      slug: string;
+    };
+  };
+}): HomeShowcaseItem {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    priceAmount: row.price_amount,
+    currency: row.currency,
+    imageUrl: row.image_url,
+    venue: {
+      slug: row.venues.slug,
+      name: row.venues.name,
+      citySlug: row.venues.cities.slug,
+    },
   };
 }
 
@@ -168,5 +199,43 @@ export async function getVenueDetails(
       name: venue.cities.name,
     },
     menuItems: menuItems.map(mapVenueMenuItem),
+  };
+}
+
+export async function getHomeShowcase(): Promise<{
+  featuredItems: HomeShowcaseItem[];
+  latestItems: HomeShowcaseItem[];
+}> {
+  if (!isSupabaseConfigured()) {
+    return {
+      featuredItems: [],
+      latestItems: [],
+    };
+  }
+
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select(
+      "id, name, description, price_amount, currency, image_url, venues!inner(slug, name, is_active, cities!inner(slug))",
+    )
+    .eq("is_available", true)
+    .eq("venues.is_active", true)
+    .not("image_url", "is", null)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true })
+    .limit(12);
+
+  if (error) {
+    throw new Error(`Unable to load home showcase: ${error.message}`);
+  }
+
+  const items = data.map(mapHomeShowcaseItem);
+  const featuredItems = items.slice(0, 6);
+  const latestItems = items.slice(6, 12);
+
+  return {
+    featuredItems,
+    latestItems: latestItems.length > 0 ? latestItems : items.slice(0, 6),
   };
 }

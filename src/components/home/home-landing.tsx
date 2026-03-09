@@ -1,21 +1,26 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Logo } from "@/components/branding/logo";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
+import type { City } from "@/features/cities/types";
 import {
   getDistanceInKm,
   saveUserLocation,
 } from "@/features/location/browser-location";
 import { saveSelectedCity } from "@/features/location/city-preference";
-import type { City } from "@/features/cities/types";
+import type { HomeShowcaseItem } from "@/features/venues/types";
+import { formatPrice } from "@/lib/utils/currency";
 
 type HomeLandingProps = {
   cities: City[];
   isConfigured: boolean;
+  featuredItems: HomeShowcaseItem[];
+  latestItems: HomeShowcaseItem[];
 };
 
 type SupportedCityLocation = {
@@ -34,7 +39,78 @@ const supportedCityLocations: SupportedCityLocation[] = [
   },
 ];
 
-export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
+const latestMessages = [
+  "Recién preparado",
+  "Disponible ahora",
+  "Acaba de salir",
+  "Listo para descubrir",
+  "Hecho para recoger",
+  "Ahora mismo en carta",
+];
+
+function ShowcaseCard({
+  item,
+  buttonLabel,
+  eyebrow,
+}: {
+  item: HomeShowcaseItem;
+  buttonLabel: string;
+  eyebrow?: string;
+}) {
+  return (
+    <article
+      className="editorial-card hover-lift-card overflow-hidden rounded-[2rem] border border-white/10 shadow-[var(--soft-shadow)]"
+      style={{
+        backgroundImage: item.imageUrl
+          ? `linear-gradient(180deg, rgba(7, 10, 9, 0.14), rgba(7, 10, 9, 0.86)), url(${item.imageUrl})`
+          : "linear-gradient(135deg, rgba(31, 138, 112, 0.22), rgba(10, 12, 11, 0.92))",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="relative z-10 flex min-h-[22rem] flex-col justify-end p-5 sm:p-6">
+        {eyebrow ? (
+          <span className="mb-4 inline-flex w-fit rounded-full border border-white/10 bg-white/8 px-3 py-1.5 text-xs font-medium text-white/82 backdrop-blur">
+            {eyebrow}
+          </span>
+        ) : null}
+
+        <div className="rounded-[1.5rem] border border-white/10 bg-[rgba(10,14,13,0.5)] p-4 backdrop-blur-md">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h3 className="text-xl font-semibold leading-tight text-white">
+                {item.name}
+              </h3>
+              <p className="mt-2 text-sm text-white/72">{item.venue.name}</p>
+            </div>
+            <span className="shrink-0 text-lg font-semibold text-white">
+              {formatPrice(item.priceAmount, item.currency)}
+            </span>
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="max-w-[18rem] text-sm leading-6 text-white/72">
+              {item.description ?? "Un plato preparado para pedir y recoger."}
+            </p>
+            <Link
+              href={`/cities/${item.venue.citySlug}/venues/${item.venue.slug}`}
+              className="magnetic-button inline-flex shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/8 px-4 py-2.5 text-sm font-semibold text-white"
+            >
+              {buttonLabel}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function HomeLanding({
+  cities,
+  isConfigured,
+  featuredItems,
+  latestItems,
+}: HomeLandingProps) {
   const router = useRouter();
   const [selectedCity, setSelectedCity] = useState(cities[0]?.slug ?? "");
   const [isLocating, setIsLocating] = useState(false);
@@ -142,113 +218,164 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
     );
   };
 
-  const handleExploreFood = () => {
-    setIsInfoOpen(false);
-  };
-
   return (
-    <main
-      className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-6 sm:px-6 lg:px-8"
-      style={{
-        backgroundImage:
-          "linear-gradient(180deg, rgba(6, 9, 8, 0.22), rgba(6, 9, 8, 0.86)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=80')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(31,138,112,0.16),transparent_22%)]" />
-      <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),transparent)]" />
+    <main className="relative overflow-hidden">
+      <section
+        className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-6 sm:px-6 lg:px-8"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, rgba(6, 9, 8, 0.22), rgba(6, 9, 8, 0.86)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=80')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(31,138,112,0.16),transparent_22%)]" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),transparent)]" />
 
-      <section className="relative z-10 w-full max-w-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-[color:var(--surface)]/86 p-4 shadow-[var(--shadow)] backdrop-blur-2xl sm:p-5">
-        <div className="rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-7 sm:p-9">
-          <div className="flex justify-center">
-            <Logo
-              priority
-              mode="full"
-              className="gap-4"
-              iconClassName="h-12 w-auto sm:h-14"
-              textClassName="text-3xl font-semibold text-white sm:text-4xl"
-            />
-          </div>
+        <section className="relative z-10 w-full max-w-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-[color:var(--surface)]/86 p-4 shadow-[var(--shadow)] backdrop-blur-2xl sm:p-5">
+          <div className="rounded-[1.9rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-7 sm:p-9">
+            <div className="flex justify-center">
+              <Logo
+                priority
+                mode="full"
+                className="gap-4"
+                iconClassName="h-12 w-auto sm:h-14"
+                textClassName="text-3xl font-semibold text-white sm:text-4xl"
+              />
+            </div>
 
-          <div className="mt-8 text-center">
-            <h1 className="text-balance text-3xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-4xl">
-              Comida local para recoger.
-            </h1>
-            <p className="mx-auto mt-4 max-w-[26rem] text-sm leading-7 text-[color:var(--muted-strong)] sm:text-base">
-              Elige tu zona y entra directo al menú.
-            </p>
-          </div>
+            <div className="mt-8 text-center">
+              <h1 className="text-balance text-3xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-4xl">
+                Comida local para recoger.
+              </h1>
+              <p className="mx-auto mt-4 max-w-[26rem] text-sm leading-7 text-[color:var(--muted-strong)] sm:text-base">
+                Elige tu zona y entra directo al menú.
+              </p>
+            </div>
 
-          <div className="mt-8 rounded-[1.7rem] border border-white/8 bg-[color:var(--surface-dark)]/74 p-4 sm:p-5">
-            <label
-              htmlFor="city"
-              className="inline-flex items-center gap-2 text-sm font-medium text-[color:var(--foreground)]"
-            >
-              <MapIcon size={18} className="text-[color:var(--brand)]" />
-              Selecciona tu zona
-            </label>
-
-            <select
-              id="city"
-              value={selectedCity}
-              onChange={(event) => setSelectedCity(event.target.value)}
-              disabled={!isConfigured || cities.length === 0}
-              className="dark-form-field mt-4 w-full appearance-none rounded-[1.2rem] border border-white/8 bg-[color:var(--surface-strong)] px-4 py-4 text-base text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {cities.length === 0 ? (
-                <option value="">No hay zonas disponibles todavía</option>
-              ) : null}
-              {cities.map((city) => (
-                <option key={city.id} value={city.slug}>
-                  {city.name}
-                </option>
-              ))}
-            </select>
-
-            <div className="mt-4 grid gap-3">
-              <button
-                type="button"
-                onClick={handleContinue}
-                disabled={!isConfigured || cities.length === 0}
-                className="magnetic-button inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60"
+            <div className="mt-8 rounded-[1.7rem] border border-white/8 bg-[color:var(--surface-dark)]/74 p-4 sm:p-5">
+              <label
+                htmlFor="city"
+                className="inline-flex items-center gap-2 text-sm font-medium text-[color:var(--foreground)]"
               >
-                Continuar
-              </button>
+                <MapIcon size={18} className="text-[color:var(--brand)]" />
+                Selecciona tu zona
+              </label>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <select
+                id="city"
+                value={selectedCity}
+                onChange={(event) => setSelectedCity(event.target.value)}
+                disabled={!isConfigured || cities.length === 0}
+                className="dark-form-field mt-4 w-full appearance-none rounded-[1.2rem] border border-white/8 bg-[color:var(--surface-strong)] px-4 py-4 text-base text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {cities.length === 0 ? (
+                  <option value="">No hay zonas disponibles todavía</option>
+                ) : null}
+                {cities.map((city) => (
+                  <option key={city.id} value={city.slug}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+
+              <div className="mt-4 grid gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsInfoOpen(true)}
-                  className="magnetic-button inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8"
+                  onClick={handleContinue}
+                  disabled={!isConfigured || cities.length === 0}
+                  className="magnetic-button inline-flex items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  ¿Qué es ZylenPick?
+                  Continuar
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleUseLocation}
-                  disabled={!isConfigured || cities.length === 0 || isLocating}
-                  className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <LocationPinIcon
-                    size={18}
-                    className="text-[color:var(--accent)]"
-                  />
-                  {isLocating ? "Buscando ubicación..." : "Usar mi ubicación"}
-                </button>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsInfoOpen(true)}
+                    className="magnetic-button inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8"
+                  >
+                    ¿Qué es ZylenPick?
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleUseLocation}
+                    disabled={!isConfigured || cities.length === 0 || isLocating}
+                    className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <LocationPinIcon
+                      size={18}
+                      className="text-[color:var(--accent)]"
+                    />
+                    {isLocating ? "Buscando ubicación..." : "Usar mi ubicación"}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {feedback ? (
+              <p className="mt-5 rounded-[1rem] border border-white/8 bg-white/4 px-4 py-3 text-sm leading-6 text-[color:var(--muted-strong)]">
+                {feedback}
+              </p>
+            ) : null}
+
+            <p className="mt-6 text-center text-sm text-white/40">by ZylenLabs</p>
           </div>
+        </section>
+      </section>
 
-          {feedback ? (
-            <p className="mt-5 rounded-[1rem] border border-white/8 bg-white/4 px-4 py-3 text-sm leading-6 text-[color:var(--muted-strong)]">
-              {feedback}
-            </p>
-          ) : null}
+      <section className="relative z-10 mx-auto max-w-[78rem] px-5 pb-20 pt-8 sm:px-6 lg:px-8">
+        {featuredItems.length > 0 ? (
+          <section className="mb-14">
+            <div className="mb-7 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
+                  ZylenPick
+                </p>
+                <h2 className="mt-3 text-balance text-3xl font-semibold text-[color:var(--foreground)] sm:text-4xl">
+                  Destacados cerca de ti
+                </h2>
+              </div>
+            </div>
 
-          <p className="mt-6 text-center text-sm text-white/40">by ZylenLabs</p>
-        </div>
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {featuredItems.map((item) => (
+                <ShowcaseCard
+                  key={item.id}
+                  item={item}
+                  buttonLabel="Ver local"
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+
+        {latestItems.length > 0 ? (
+          <section>
+            <div className="mb-7 flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
+                  Ahora mismo
+                </p>
+                <h2 className="mt-3 text-balance text-3xl font-semibold text-[color:var(--foreground)] sm:text-4xl">
+                  Lo último cerca de ti
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {latestItems.map((item, index) => (
+                <ShowcaseCard
+                  key={item.id}
+                  item={item}
+                  buttonLabel="Ver local"
+                  eyebrow={latestMessages[index % latestMessages.length]}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
       </section>
 
       {isInfoOpen ? (
@@ -302,7 +429,7 @@ export function HomeLanding({ cities, isConfigured }: HomeLandingProps) {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={handleExploreFood}
+                onClick={() => setIsInfoOpen(false)}
                 className="magnetic-button inline-flex w-full items-center justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
               >
                 Explorar comida cerca
