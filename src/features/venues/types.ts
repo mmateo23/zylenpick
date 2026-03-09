@@ -44,6 +44,7 @@ export type HomeShowcaseItem = {
   priceAmount: number;
   currency: string;
   imageUrl: string | null;
+  pickupEtaMin: number | null;
   venue: {
     slug: string;
     name: string;

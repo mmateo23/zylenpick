@@ -66,6 +66,7 @@ function mapHomeShowcaseItem(row: {
   venues: {
     slug: string;
     name: string;
+    pickup_eta_min: number | null;
     cities: {
       slug: string;
     };
@@ -78,6 +79,7 @@ function mapHomeShowcaseItem(row: {
     priceAmount: row.price_amount,
     currency: row.currency,
     imageUrl: row.image_url,
+    pickupEtaMin: row.venues.pickup_eta_min,
     venue: {
       slug: row.venues.slug,
       name: row.venues.name,
@@ -217,7 +219,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, venues!inner(slug, name, is_active, cities!inner(slug))",
+      "id, name, description, price_amount, currency, image_url, venues!inner(slug, name, pickup_eta_min, is_active, cities!inner(slug))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)

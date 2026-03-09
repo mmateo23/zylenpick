@@ -1,18 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Logo } from "@/components/branding/logo";
+import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
 import type { City } from "@/features/cities/types";
 import {
   getDistanceInKm,
+  readUserLocation,
   saveUserLocation,
+  type UserLocation,
 } from "@/features/location/browser-location";
 import { saveSelectedCity } from "@/features/location/city-preference";
+import {
+  getVenueCoordinates,
+} from "@/features/venues/venue-meta";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { formatPrice } from "@/lib/utils/currency";
 
@@ -28,6 +34,12 @@ type SupportedCityLocation = {
   latitude: number;
   longitude: number;
   radiusKm: number;
+};
+
+type ItemJourney = {
+  distanceKm: number;
+  distanceLabel: string;
+  walkingMinutes: number;
 };
 
 const supportedCityLocations: SupportedCityLocation[] = [
@@ -48,15 +60,55 @@ const latestMessages = [
   "Ahora mismo en carta",
 ];
 
+function formatDistanceLabel(distanceKm: number) {
+  if (distanceKm < 1) {
+    return `${Math.max(50, Math.round(distanceKm * 1000))} m`;
+  }
+
+  return `${distanceKm.toFixed(1).replace(".", ",")} km`;
+}
+
+function getItemJourney(
+  item: HomeShowcaseItem,
+  userLocation: UserLocation | null,
+): ItemJourney | null {
+  if (!userLocation) {
+    return null;
+  }
+
+  const venueCoordinates = getVenueCoordinates(item.venue.slug);
+
+  if (!venueCoordinates) {
+    return null;
+  }
+
+  const distanceKm = getDistanceInKm(
+    userLocation.latitude,
+    userLocation.longitude,
+    venueCoordinates.latitude,
+    venueCoordinates.longitude,
+  );
+
+  return {
+    distanceKm,
+    distanceLabel: formatDistanceLabel(distanceKm),
+    walkingMinutes: Math.max(1, Math.round((distanceKm / 4.8) * 60)),
+  };
+}
+
 function ShowcaseCard({
   item,
   buttonLabel,
   eyebrow,
+  userLocation,
 }: {
   item: HomeShowcaseItem;
   buttonLabel: string;
   eyebrow?: string;
+  userLocation: UserLocation | null;
 }) {
+  const journey = getItemJourney(item, userLocation);
+
   return (
     <article
       className="editorial-card hover-lift-card overflow-hidden rounded-[2rem] border border-white/10 shadow-[var(--soft-shadow)]"
@@ -88,6 +140,16 @@ function ShowcaseCard({
             </span>
           </div>
 
+          <div className="mt-4 space-y-2 text-sm text-white/78">
+            {journey ? (
+              <p>A {journey.walkingMinutes} min andando · {journey.distanceLabel}</p>
+            ) : null}
+            <p className="inline-flex items-center gap-2">
+              <ClockIcon size={16} className="text-[color:var(--accent)]" />
+              Recogida en {item.pickupEtaMin ? `${item.pickupEtaMin} min` : "breve"}
+            </p>
+          </div>
+
           <div className="mt-4 flex items-center justify-between gap-3">
             <p className="max-w-[18rem] text-sm leading-6 text-white/72">
               {item.description ?? "Un plato preparado para pedir y recoger."}
@@ -116,6 +178,21 @@ export function HomeLanding({
   const [isLocating, setIsLocating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+
+  useEffect(() => {
+    setUserLocation(readUserLocation());
+
+    const syncLocation = () => {
+      setUserLocation(readUserLocation());
+    };
+
+    window.addEventListener("storage", syncLocation);
+
+    return () => {
+      window.removeEventListener("storage", syncLocation);
+    };
+  }, []);
 
   useEffect(() => {
     if (!isInfoOpen) {
@@ -137,6 +214,56 @@ export function HomeLanding({
       window.removeEventListener("keydown", handleEscape);
     };
   }, [isInfoOpen]);
+
+  const sortedFeaturedItems = useMemo(() => {
+    if (!userLocation) {
+      return featuredItems;
+    }
+
+    return [...featuredItems].sort((itemA, itemB) => {
+      const journeyA = getItemJourney(itemA, userLocation);
+      const journeyB = getItemJourney(itemB, userLocation);
+
+      if (!journeyA && !journeyB) {
+        return 0;
+      }
+
+      if (!journeyA) {
+        return 1;
+      }
+
+      if (!journeyB) {
+        return -1;
+      }
+
+      return journeyA.distanceKm - journeyB.distanceKm;
+    });
+  }, [featuredItems, userLocation]);
+
+  const sortedLatestItems = useMemo(() => {
+    if (!userLocation) {
+      return latestItems;
+    }
+
+    return [...latestItems].sort((itemA, itemB) => {
+      const journeyA = getItemJourney(itemA, userLocation);
+      const journeyB = getItemJourney(itemB, userLocation);
+
+      if (!journeyA && !journeyB) {
+        return 0;
+      }
+
+      if (!journeyA) {
+        return 1;
+      }
+
+      if (!journeyB) {
+        return -1;
+      }
+
+      return journeyA.distanceKm - journeyB.distanceKm;
+    });
+  }, [latestItems, userLocation]);
 
   const handleContinue = () => {
     if (!selectedCity) {
@@ -168,10 +295,13 @@ export function HomeLanding({
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        saveUserLocation({
+        const nextLocation = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-        });
+        };
+
+        saveUserLocation(nextLocation);
+        setUserLocation(nextLocation);
 
         const nearestCity = supportedCityLocations
           .map((city) => ({
@@ -326,7 +456,7 @@ export function HomeLanding({
       </section>
 
       <section className="relative z-10 mx-auto max-w-[78rem] px-5 pb-20 pt-8 sm:px-6 lg:px-8">
-        {featuredItems.length > 0 ? (
+        {sortedFeaturedItems.length > 0 ? (
           <section className="mb-14">
             <div className="mb-7 flex items-end justify-between gap-4">
               <div>
@@ -340,18 +470,19 @@ export function HomeLanding({
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {featuredItems.map((item) => (
+              {sortedFeaturedItems.map((item) => (
                 <ShowcaseCard
                   key={item.id}
                   item={item}
                   buttonLabel="Ver local"
+                  userLocation={userLocation}
                 />
               ))}
             </div>
           </section>
         ) : null}
 
-        {latestItems.length > 0 ? (
+        {sortedLatestItems.length > 0 ? (
           <section>
             <div className="mb-7 flex items-end justify-between gap-4">
               <div>
@@ -365,12 +496,13 @@ export function HomeLanding({
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {latestItems.map((item, index) => (
+              {sortedLatestItems.map((item, index) => (
                 <ShowcaseCard
                   key={item.id}
                   item={item}
                   buttonLabel="Ver local"
                   eyebrow={latestMessages[index % latestMessages.length]}
+                  userLocation={userLocation}
                 />
               ))}
             </div>
