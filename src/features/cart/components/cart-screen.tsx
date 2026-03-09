@@ -161,15 +161,6 @@ export function CartScreen() {
                       {item.description}
                     </p>
                   </div>
-                  <span
-                    className="ml-auto inline-block w-fit shrink-0 self-start whitespace-nowrap text-2xl font-semibold leading-none text-white sm:text-5xl"
-                    style={{
-                      textShadow:
-                        "0 4px 16px rgba(0, 0, 0, 0.32), 0 0 18px rgba(31, 138, 112, 0.24)",
-                    }}
-                  >
-                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
-                  </span>
                 </div>
 
                 <div className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4">
@@ -204,6 +195,16 @@ export function CartScreen() {
                   >
                     Eliminar
                   </button>
+
+                  <span
+                    className="ml-auto inline-block w-fit shrink-0 whitespace-nowrap text-2xl font-semibold leading-none text-white sm:text-4xl"
+                    style={{
+                      textShadow:
+                        "0 4px 16px rgba(0, 0, 0, 0.32), 0 0 18px rgba(31, 138, 112, 0.24)",
+                    }}
+                  >
+                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  </span>
                 </div>
               </div>
             </article>

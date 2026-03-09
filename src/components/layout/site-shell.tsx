@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 import { MobileCartBar } from "@/components/cart/mobile-cart-bar";
 import { SiteHeader } from "@/components/layout/site-header";
+import { ActiveOrderWidget } from "@/components/orders/active-order-widget";
 
 type SiteShellProps = {
   children: ReactNode;
@@ -18,6 +19,7 @@ export function SiteShell({
       <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 sm:py-10 lg:px-8 lg:py-12">
         {children}
       </main>
+      <ActiveOrderWidget />
       <MobileCartBar />
       <footer className="px-5 pb-8 text-center text-sm text-[color:var(--muted)] sm:px-6 lg:px-8">
         by ZylenLabs

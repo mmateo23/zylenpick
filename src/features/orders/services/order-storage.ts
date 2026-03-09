@@ -4,6 +4,7 @@ import type { CartState } from "@/features/cart/types";
 import type { OrderRecord } from "@/features/orders/types";
 
 const ORDER_STORAGE_KEY = "zylenpick.orders";
+export const ORDER_UPDATED_EVENT = "zylenpick:order-updated";
 
 function readOrders(): OrderRecord[] {
   if (typeof window === "undefined") {
@@ -26,6 +27,7 @@ function readOrders(): OrderRecord[] {
 
 function writeOrders(orders: OrderRecord[]) {
   window.localStorage.setItem(ORDER_STORAGE_KEY, JSON.stringify(orders));
+  window.dispatchEvent(new Event(ORDER_UPDATED_EVENT));
 }
 
 function createOrderId() {
@@ -70,4 +72,8 @@ export function createOrderFromCart(input: {
 
 export function getOrderById(orderId: string) {
   return readOrders().find((order) => order.id === orderId) ?? null;
+}
+
+export function getLatestOrder() {
+  return readOrders()[0] ?? null;
 }
