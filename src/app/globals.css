@@ -10,10 +10,14 @@
   --surface-dark: #0b100f;
   --surface-dark-soft: #13201c;
   --border: rgba(255, 255, 255, 0.08);
-  --brand: #1f8a70;
-  --brand-strong: #166954;
-  --brand-soft: #13352d;
-  --accent: #6fcf97;
+  --zylen: #00df81;
+  --zylen-strong: #00c873;
+  --zylen-soft: #0f3125;
+  --zylen-accent: #7cffb8;
+  --brand: var(--zylen);
+  --brand-strong: var(--zylen-strong);
+  --brand-soft: var(--zylen-soft);
+  --accent: var(--zylen-accent);
   --muted: #9faaa5;
   --muted-strong: #cfd6d1;
   --shadow: 0 28px 70px rgba(0, 0, 0, 0.36);
@@ -50,14 +54,14 @@ video {
 }
 
 ::selection {
-  background: rgba(111, 207, 151, 0.24);
+  background: rgba(0, 223, 129, 0.24);
 }
 
 @layer base {
   body {
     background-image:
-      radial-gradient(circle at top left, rgba(31, 138, 112, 0.22), transparent 20%),
-      radial-gradient(circle at 85% 0%, rgba(111, 207, 151, 0.14), transparent 24%),
+      radial-gradient(circle at top left, rgba(0, 223, 129, 0.18), transparent 20%),
+      radial-gradient(circle at 85% 0%, rgba(124, 255, 184, 0.12), transparent 24%),
       linear-gradient(180deg, rgba(8, 12, 11, 0.92), rgba(13, 19, 18, 1));
   }
 }
@@ -136,8 +140,8 @@ video {
     inset: -35%;
     z-index: -1;
     background:
-      radial-gradient(circle at 24% 24%, rgba(111, 207, 151, 0.22), transparent 22%),
-      radial-gradient(circle at 82% 18%, rgba(31, 138, 112, 0.28), transparent 28%),
+      radial-gradient(circle at 24% 24%, rgba(0, 223, 129, 0.18), transparent 22%),
+      radial-gradient(circle at 82% 18%, rgba(0, 200, 115, 0.24), transparent 28%),
       radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 26%);
     pointer-events: none;
   }
@@ -164,11 +168,11 @@ video {
   .project-light-ray {
     background: linear-gradient(
       180deg,
-      rgba(111, 207, 151, 0),
-      rgba(111, 207, 151, 0.18) 22%,
+      rgba(0, 223, 129, 0),
+      rgba(0, 223, 129, 0.18) 22%,
       rgba(255, 255, 255, 0.2) 48%,
-      rgba(111, 207, 151, 0.08) 72%,
-      rgba(111, 207, 151, 0)
+      rgba(0, 223, 129, 0.08) 72%,
+      rgba(0, 223, 129, 0)
     );
     transform-origin: top center;
     animation-name: project-light-ray-drift;
