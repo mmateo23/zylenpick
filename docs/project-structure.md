@@ -1,5 +1,18 @@
 # Estructura del proyecto
 
+## Presentacion de marca
+
+Archivos relevantes:
+
+- `src/app/el-proyecto/page.tsx`
+- `src/components/project/project-page.tsx`
+
+Responsabilidades:
+
+- landing independiente de presentacion del proyecto
+- narrativa de marca y problema de producto
+- pagina editorial centrada en vision, recogida local y flujo del producto
+
 ## Solicitudes admin
 
 Archivos relevantes:

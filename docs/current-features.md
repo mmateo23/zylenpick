@@ -1,5 +1,12 @@
 # Funcionalidades actuales
 
+## Presentacion del proyecto
+
+- existe una landing independiente en `/el-proyecto`
+- presenta la vision del producto sin usar testimonios ni prueba social inventada
+- usa una estructura visual de marketing con tres bloques: problema, idea y como funciona
+- no forma parte del menu principal
+
 ## Panel admin
 
 ### Solicitudes
