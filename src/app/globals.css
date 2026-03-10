@@ -160,4 +160,42 @@ video {
     -webkit-box-shadow: 0 0 0 1000px #18181b inset;
     transition: background-color 9999s ease-in-out 0s;
   }
+
+  .project-light-ray {
+    background: linear-gradient(
+      180deg,
+      rgba(111, 207, 151, 0),
+      rgba(111, 207, 151, 0.18) 22%,
+      rgba(255, 255, 255, 0.2) 48%,
+      rgba(111, 207, 151, 0.08) 72%,
+      rgba(111, 207, 151, 0)
+    );
+    transform-origin: top center;
+    animation-name: project-light-ray-drift;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+}
+
+@keyframes project-light-ray-drift {
+  0% {
+    opacity: 0.14;
+    transform: translate3d(0, 0, 0) scaleY(0.94);
+  }
+
+  50% {
+    opacity: 0.36;
+    transform: translate3d(0, 14px, 0) scaleY(1.03);
+  }
+
+  100% {
+    opacity: 0.16;
+    transform: translate3d(0, 0, 0) scaleY(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-light-ray {
+    animation: none;
+  }
 }

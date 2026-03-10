@@ -12,6 +12,7 @@ Responsabilidades:
 - landing independiente de presentacion del proyecto
 - narrativa de marca y problema de producto
 - pagina editorial centrada en vision, recogida local y flujo del producto
+- componentes visuales especificos para storytelling y animacion ligera
 
 ## Solicitudes admin
 

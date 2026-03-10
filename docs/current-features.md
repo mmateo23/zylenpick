@@ -5,6 +5,7 @@
 - existe una landing independiente en `/el-proyecto`
 - presenta la vision del producto sin usar testimonios ni prueba social inventada
 - usa una estructura visual de marketing con tres bloques: problema, idea y como funciona
+- integra animacion ambiental sutil en hero y un bloque narrativo de pasos en como funciona
 - no forma parte del menu principal
 
 ## Panel admin
