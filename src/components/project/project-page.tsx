@@ -4,6 +4,25 @@ import { Logo } from "@/components/branding/logo";
 import { LightRays } from "@/components/project/light-rays";
 import { StoryCardSwap } from "@/components/project/story-card-swap";
 
+const valuePoints = [
+  {
+    positive: "Más comida local",
+    negative: "Menos delivery innecesario",
+  },
+  {
+    positive: "Más cerca",
+    negative: "Menos espera",
+  },
+  {
+    positive: "Más ciudad",
+    negative: "Menos algoritmo",
+  },
+  {
+    positive: "Más recogida real",
+    negative: "Menos fricción",
+  },
+];
+
 const journeySteps = [
   {
     title: "Descubre",
@@ -48,13 +67,14 @@ export function ProjectPage() {
           <p className="mt-8 text-xs font-medium uppercase tracking-[0.3em] text-white/54">
             El proyecto
           </p>
-          <h1 className="mt-5 max-w-[11ch] text-balance text-5xl font-semibold leading-[0.92] text-white sm:text-6xl lg:text-7xl">
-            Podrías pedir delivery. Pero a veces apetece algo mejor.
+          <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.9] text-white sm:text-6xl lg:text-7xl">
+            <span className="block">Podrías pedir delivery.</span>
+            <span className="mt-5 block">Pero a veces</span>
+            <span className="block text-[color:var(--brand)]">APETECE</span>
+            <span className="block">algo mejor.</span>
           </h1>
-          <p className="mt-6 max-w-[40rem] text-lg leading-8 text-white/78 sm:text-xl">
-            Hay momentos para quedarse en el sofá y otros para salir a por algo
-            que realmente merece la pena. ZylenPick quiere estar en ese segundo
-            momento: comida local, cerca, bien elegida y fácil de recoger.
+          <p className="mt-6 max-w-[28rem] text-lg font-medium tracking-[0.01em] text-white/76 sm:text-xl">
+            Comida local. Cerca. Lista para recoger.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -70,6 +90,32 @@ export function ProjectPage() {
               Unirme a ZylenPick
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <div className="max-w-2xl">
+          <p className="text-xs uppercase tracking-[0.26em] text-[color:var(--brand)]">
+            Por qué ZylenPick
+          </p>
+          <h2 className="mt-4 text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
+            Una forma más clara de elegir lo que realmente te apetece.
+          </h2>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {valuePoints.map((point) => (
+            <article
+              key={point.positive}
+              className="glass-panel rounded-[1.7rem] border border-white/10 px-5 py-5 shadow-[var(--card-shadow)]"
+            >
+              <p className="text-2xl font-semibold leading-tight text-white">
+                {point.positive}
+              </p>
+              <p className="mt-3 text-base leading-7 text-white/56">
+                {point.negative}
+              </p>
+            </article>
+          ))}
         </div>
       </section>
 
