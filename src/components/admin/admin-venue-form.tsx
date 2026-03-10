@@ -6,6 +6,7 @@ import {
 } from "@/features/venues/opening-hours";
 import type {
   AdminCityOption,
+  AdminJoinRequestPrefill,
   AdminVenueFormValues,
 } from "@/features/admin/services/venues-admin-service";
 
@@ -16,6 +17,7 @@ type AdminVenueFormProps = {
   action: (formData: FormData) => void;
   cities: AdminCityOption[];
   initialValues?: AdminVenueFormValues | null;
+  requestContext?: AdminJoinRequestPrefill | null;
 };
 
 function buildInitialValues(
@@ -56,6 +58,10 @@ function fieldClassName() {
   return "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
 }
 
+function readOnlyFieldClassName() {
+  return "mt-3 w-full rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3.5 text-sm text-[color:var(--foreground)]";
+}
+
 function ToggleField({
   name,
   label,
@@ -87,6 +93,20 @@ function ToggleField({
   );
 }
 
+function formatServiceType(value: string | null) {
+  if (value === "pickup") {
+    return "Recogida";
+  }
+  if (value === "delivery") {
+    return "Domicilio";
+  }
+  if (value === "both") {
+    return "Ambos";
+  }
+
+  return value ?? "No indicado";
+}
+
 export function AdminVenueForm({
   title,
   description,
@@ -94,6 +114,7 @@ export function AdminVenueForm({
   action,
   cities,
   initialValues,
+  requestContext,
 }: AdminVenueFormProps) {
   const values = buildInitialValues(initialValues);
 
@@ -112,6 +133,69 @@ export function AdminVenueForm({
       </div>
 
       <form action={action} className="mt-8 space-y-8">
+        {requestContext ? (
+          <section className="space-y-4">
+            <input type="hidden" name="linkedRequestId" value={requestContext.id} />
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
+                Datos de la solicitud
+              </p>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+                Esta alta parte de una solicitud previa. Los datos del local se
+                rellenan donde encajan y el resto queda visible como contexto para
+                completar manualmente el alta.
+              </p>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <label className="block">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Persona de contacto
+                </span>
+                <div className={readOnlyFieldClassName()}>
+                  {requestContext.contactName ?? "No indicado"}
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Teléfono de contacto
+                </span>
+                <div className={readOnlyFieldClassName()}>
+                  {requestContext.contactPhone ?? "No indicado"}
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Email de contacto
+                </span>
+                <div className={readOnlyFieldClassName()}>
+                  {requestContext.contactEmail ?? "No indicado"}
+                </div>
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Tipo de servicio
+                </span>
+                <div className={readOnlyFieldClassName()}>
+                  {formatServiceType(requestContext.serviceType)}
+                </div>
+              </label>
+
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Mensaje adicional
+                </span>
+                <div className={`${readOnlyFieldClassName()} min-h-[96px] whitespace-pre-wrap`}>
+                  {requestContext.message ?? "Sin mensaje adicional"}
+                </div>
+              </label>
+            </div>
+          </section>
+        ) : null}
+
         <div className="grid gap-5 md:grid-cols-2">
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">

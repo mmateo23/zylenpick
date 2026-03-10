@@ -22,11 +22,9 @@ function formatServiceType(value: string | null) {
   if (value === "pickup") {
     return "Recogida";
   }
-
   if (value === "delivery") {
     return "Domicilio";
   }
-
   if (value === "both") {
     return "Ambos";
   }
@@ -38,7 +36,6 @@ function statusLabel(status: "pending" | "approved" | "rejected") {
   if (status === "approved") {
     return "Aprobada";
   }
-
   if (status === "rejected") {
     return "Rechazada";
   }
@@ -50,7 +47,6 @@ function statusClassName(status: "pending" | "approved" | "rejected") {
   if (status === "approved") {
     return "bg-[color:var(--brand-soft)] text-[color:var(--accent)]";
   }
-
   if (status === "rejected") {
     return "bg-[#E5484D]/12 text-[#FFB4B4]";
   }
@@ -134,15 +130,15 @@ export default async function AdminJoinRequestDetailPage({
           <DetailRow label="Dirección" value={joinRequest.address ?? "No indicada"} />
           <DetailRow
             label="Teléfono del local"
-            value={joinRequest.venuePhone ?? "No indicado"}
+            value={joinRequest.venuePhone ?? "No facilitado"}
           />
           <DetailRow
             label="Email del local"
-            value={joinRequest.venueEmail ?? "No indicado"}
+            value={joinRequest.venueEmail ?? "No facilitado"}
           />
           <DetailRow
             label="Web o Instagram"
-            value={joinRequest.website ?? "No indicado"}
+            value={joinRequest.website ?? "No facilitado"}
           />
           <DetailRow
             label="Persona de contacto"
@@ -167,12 +163,16 @@ export default async function AdminJoinRequestDetailPage({
           <div className="md:col-span-2">
             <DetailRow
               label="Mensaje adicional"
-              value={joinRequest.message ?? "No indicado"}
+              value={joinRequest.message ?? "Sin mensaje adicional"}
             />
           </div>
           <DetailRow
             label="Privacidad aceptada"
             value={joinRequest.privacyAccepted ? "Sí" : "No"}
+          />
+          <DetailRow
+            label="Local vinculado"
+            value={joinRequest.linkedVenueId ?? "Aún no vinculado"}
           />
         </div>
       </section>
@@ -187,7 +187,7 @@ export default async function AdminJoinRequestDetailPage({
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
           Aprobar o rechazar esta solicitud no crea el local automáticamente. Si
           decides continuar, el siguiente paso es crear el local manualmente en el
-          panel de locales.
+          panel de locales con esta solicitud como contexto.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -208,11 +208,19 @@ export default async function AdminJoinRequestDetailPage({
             </button>
           </form>
           <Link
-            href="/panel/locales/nuevo"
+            href={`/panel/locales/nuevo?requestId=${joinRequest.id}`}
             className="magnetic-button inline-flex rounded-full border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-[color:var(--foreground)]"
           >
-            Crear local manualmente
+            Crear local desde esta solicitud
           </Link>
+          {joinRequest.linkedVenueId ? (
+            <Link
+              href={`/panel/locales/${joinRequest.linkedVenueId}`}
+              className="magnetic-button inline-flex rounded-full border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-[color:var(--foreground)]"
+            >
+              Ver local vinculado
+            </Link>
+          ) : null}
         </div>
       </section>
     </section>

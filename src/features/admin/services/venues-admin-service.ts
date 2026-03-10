@@ -41,6 +41,22 @@ export type AdminVenueFormValues = {
   openingHours: OpeningHoursValue;
 };
 
+export type AdminJoinRequestPrefill = {
+  id: string;
+  venueName: string;
+  businessType: string | null;
+  area: string | null;
+  address: string | null;
+  venuePhone: string | null;
+  venueEmail: string | null;
+  website: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  serviceType: string | null;
+  message: string | null;
+};
+
 export type AdminCityOption = {
   id: string;
   name: string;
@@ -147,6 +163,42 @@ export async function getAdminCities(): Promise<AdminCityOption[]> {
   }));
 }
 
+export function buildVenueInitialValuesFromJoinRequest(
+  cities: AdminCityOption[],
+  joinRequest: AdminJoinRequestPrefill,
+): AdminVenueFormValues {
+  const matchingCity =
+    cities.find(
+      (city) =>
+        city.name.trim().toLowerCase() === joinRequest.area?.trim().toLowerCase(),
+    ) ?? null;
+
+  return {
+    id: "",
+    name: joinRequest.venueName,
+    slug: joinRequest.venueName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, ""),
+    cityId: matchingCity?.id ?? "",
+    description: "",
+    address: joinRequest.address ?? "",
+    email: joinRequest.venueEmail ?? "",
+    phone: joinRequest.venuePhone ?? "",
+    pickupNotes: "",
+    pickupEtaMin: "",
+    coverUrl: "",
+    isActive: true,
+    isPublished: true,
+    isVerified: false,
+    subscriptionActive: false,
+    sortOrder: "",
+    openingHours: createDefaultOpeningHours(),
+  };
+}
+
 export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
   const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
@@ -220,31 +272,50 @@ export async function createVenueAction(formData: FormData) {
   "use server";
 
   const values = normalizeVenueFormValues(formData);
+  const linkedRequestId = String(formData.get("linkedRequestId") ?? "").trim();
   validateVenueFormValues(values);
   await ensureUniqueVenueSlug(values.slug);
 
   const supabase = createSupabaseServerClient();
-  const { error } = await supabase.from("venues").insert({
-    name: values.name,
-    slug: values.slug,
-    city_id: values.cityId || null,
-    description: values.description || null,
-    address: values.address || null,
-    email: values.email || null,
-    phone: values.phone || null,
-    pickup_notes: values.pickupNotes || null,
-    pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
-    cover_url: values.coverUrl || null,
-    is_active: values.isActive,
-    is_published: values.isPublished,
-    is_verified: values.isVerified,
-    subscription_active: values.subscriptionActive,
-    sort_order: values.sortOrder ? Number(values.sortOrder) : null,
-    opening_hours: values.openingHours,
-  });
+  const { data, error } = await supabase
+    .from("venues")
+    .insert({
+      name: values.name,
+      slug: values.slug,
+      city_id: values.cityId || null,
+      description: values.description || null,
+      address: values.address || null,
+      email: values.email || null,
+      phone: values.phone || null,
+      pickup_notes: values.pickupNotes || null,
+      pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
+      cover_url: values.coverUrl || null,
+      is_active: values.isActive,
+      is_published: values.isPublished,
+      is_verified: values.isVerified,
+      subscription_active: values.subscriptionActive,
+      sort_order: values.sortOrder ? Number(values.sortOrder) : null,
+      opening_hours: values.openingHours,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     throw new Error(`Unable to create venue: ${error.message}`);
+  }
+
+  if (linkedRequestId) {
+    const { error: linkError } = await supabase
+      .from("join_requests")
+      .update({
+        linked_venue_id: data.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", linkedRequestId);
+
+    if (linkError) {
+      throw new Error(`Unable to link join request: ${linkError.message}`);
+    }
   }
 
   redirect("/panel/locales");

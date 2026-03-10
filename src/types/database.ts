@@ -270,6 +270,7 @@ export type Database = {
           message: string | null;
           privacy_accepted: boolean;
           status: "pending" | "approved" | "rejected";
+          linked_venue_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -289,6 +290,7 @@ export type Database = {
           message?: string | null;
           privacy_accepted?: boolean;
           status?: "pending" | "approved" | "rejected";
+          linked_venue_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -308,10 +310,19 @@ export type Database = {
           message?: string | null;
           privacy_accepted?: boolean;
           status?: "pending" | "approved" | "rejected";
+          linked_venue_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "join_requests_linked_venue_id_fkey";
+            columns: ["linked_venue_id"];
+            isOneToOne: false;
+            referencedRelation: "venues";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       posts: {
         Row: {

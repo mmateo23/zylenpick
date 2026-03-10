@@ -1,107 +1,44 @@
 # Arquitectura de ZylenPick
 
-## Vision general
+## Flujo de captacion de locales
 
-ZylenPick es una web de pedidos locales para recoger construida con Next.js App Router. La aplicacion mezcla:
+El alta de locales queda separada en dos fases:
 
-- renderizado en servidor para leer datos de Supabase
-- componentes cliente para interaccion, `localStorage`, ubicacion y ticket
+1. solicitud publica sencilla
+2. alta completa manual desde panel admin
 
-El proyecto sigue un enfoque MVP:
+## Solicitud publica
 
-- experiencia visual fuerte
-- flujo simple
-- control centralizado desde panel admin
-- sin panel para locales en esta fase
+`/unete` recoge solo la informacion minima necesaria para valorar el negocio.
 
-## Backend y datos
+El endpoint:
 
-### Base de datos principal
+- valida campos obligatorios
+- guarda la solicitud en `join_requests`
+- envia email interno
 
-Supabase PostgreSQL.
+## Revision admin
 
-Tablas clave:
+Desde `/panel/solicitudes` el equipo puede:
 
-- `cities`
-- `venues`
-- `menu_items`
-- `join_requests`
+- revisar la solicitud
+- aprobar o rechazar
+- lanzar la creacion manual del local
 
-### Modelado actual de `venues`
+## Alta manual del local
 
-`venues` concentra ahora datos publicos, editoriales y operativos del local:
+La alta final del local se hace en `/panel/locales/nuevo`.
 
-- identidad basica
-- contacto
-- notas de recogida
-- tiempo de recogida
-- estado operativo
-- estado de publicacion
-- verificacion editorial
-- suscripcion activa
-- orden visual
-- horarios por dia
+Si viene desde una solicitud:
 
-### Verificacion y suscripcion
+- recibe `requestId`
+- precarga campos base del local
+- muestra el resto de datos de la solicitud como contexto
 
-El distintivo de ZylenPick no depende de cuenta reclamada ni de email validado.
+## Relacion entre solicitud y local
 
-Depende de dos condiciones persistidas:
+La tabla `join_requests` usa:
 
-- `is_verified`
-- `subscription_active`
+- `linked_venue_id`
 
-La UI publica solo muestra el isotipo cuando ambas son `true`.
-
-### Publicacion
-
-`is_published` controla si el local puede verse en la web publica.
-
-Esto permite:
-
-- mantener locales en panel
-- prepararlos editorialmente
-- publicarlos despues sin borrarlos ni desactivarlos operativamente
-
-### Horarios
-
-Los horarios se guardan como JSON por dia de la semana en `opening_hours`.
-
-Cada dia puede incluir:
-
-- abierto o cerrado
-- primer tramo
-- segundo tramo opcional
-
-El frontend interpreta esa estructura para:
-
-- pintar la rejilla `L M X J V S D`
-- marcar en rojo los dias cerrados
-- calcular `Abierto ahora` o `Cerrado ahora`
-
-## Panel admin
-
-### Alcance actual
-
-- dashboard
-- gestion de locales
-- gestion de platos por local
-- gestion de solicitudes
-
-### Flujo editorial de locales
-
-1. un negocio puede entrar por `/unete`
-2. la solicitud se guarda en `join_requests`
-3. el admin la revisa
-4. el local se crea o actualiza manualmente en `/panel/locales`
-5. el admin decide:
-   - si esta publicado
-   - si esta verificado
-   - si la suscripcion esta activa
-
-## Observaciones abiertas
-
-- no existe persistencia real de pedidos en backend
-- no existe panel de local
-- las politicas RLS de admin siguen siendo temporales de MVP
-- el naming interno continua mezclando `fknfood` con la marca visible
+Esto permite trazabilidad sin automatizar todo el flujo.

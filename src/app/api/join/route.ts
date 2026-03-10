@@ -34,20 +34,52 @@ function getServiceLabel(serviceType: string) {
 
 function normalizePayload(payload: JoinRequestPayload): JoinRequestPayload {
   return {
-    venueName: payload.venueName || "Solicitud de prueba desde /unete",
-    businessType: payload.businessType || "No indicado",
-    area: payload.area || "No indicado",
-    address: payload.address || "No indicada",
-    venuePhone: payload.venuePhone || "No indicado",
-    venueEmail: payload.venueEmail || "no-indicado@zylenpick.test",
-    website: payload.website || "",
-    contactName: payload.contactName || "No indicado",
-    contactPhone: payload.contactPhone || "No indicado",
-    contactEmail: payload.contactEmail || "no-indicado@zylenpick.test",
-    serviceType: payload.serviceType || "No indicado",
-    message: payload.message || "",
-    privacyAccepted: payload.privacyAccepted,
+    venueName: String(payload.venueName ?? "").trim(),
+    businessType: String(payload.businessType ?? "").trim(),
+    area: String(payload.area ?? "").trim(),
+    address: String(payload.address ?? "").trim(),
+    venuePhone: String(payload.venuePhone ?? "").trim(),
+    venueEmail: String(payload.venueEmail ?? "").trim(),
+    website: String(payload.website ?? "").trim(),
+    contactName: String(payload.contactName ?? "").trim(),
+    contactPhone: String(payload.contactPhone ?? "").trim(),
+    contactEmail: String(payload.contactEmail ?? "").trim(),
+    serviceType: String(payload.serviceType ?? "").trim(),
+    message: String(payload.message ?? "").trim(),
+    privacyAccepted: Boolean(payload.privacyAccepted),
   };
+}
+
+function validatePayload(payload: JoinRequestPayload) {
+  if (!payload.venueName) {
+    return "El nombre del local es obligatorio.";
+  }
+  if (!payload.businessType) {
+    return "El tipo de negocio es obligatorio.";
+  }
+  if (!payload.area) {
+    return "La ciudad o zona es obligatoria.";
+  }
+  if (!payload.address) {
+    return "La dirección es obligatoria.";
+  }
+  if (!payload.contactName) {
+    return "La persona de contacto es obligatoria.";
+  }
+  if (!payload.contactPhone) {
+    return "El teléfono de contacto es obligatorio.";
+  }
+  if (!payload.contactEmail) {
+    return "El email de contacto es obligatorio.";
+  }
+  if (!payload.serviceType) {
+    return "El tipo de servicio es obligatorio.";
+  }
+  if (!payload.privacyAccepted) {
+    return "Debes aceptar la política de privacidad para enviar la solicitud.";
+  }
+
+  return null;
 }
 
 function buildEmailHtml(payload: JoinRequestPayload) {
@@ -56,14 +88,14 @@ function buildEmailHtml(payload: JoinRequestPayload) {
     ["Tipo de negocio", payload.businessType],
     ["Ciudad o zona", payload.area],
     ["Dirección", payload.address],
-    ["Teléfono del local", payload.venuePhone],
-    ["Email del local", payload.venueEmail],
-    ["Web o Instagram", payload.website || "No indicado"],
+    ["Teléfono del local", payload.venuePhone || "No facilitado"],
+    ["Email del local", payload.venueEmail || "No facilitado"],
+    ["Web o Instagram", payload.website || "No facilitado"],
     ["Persona de contacto", payload.contactName],
     ["Teléfono de contacto", payload.contactPhone],
     ["Email de contacto", payload.contactEmail],
     ["Tipo de servicio", getServiceLabel(payload.serviceType)],
-    ["Mensaje adicional", payload.message || "No indicado"],
+    ["Mensaje adicional", payload.message || "Sin mensaje adicional"],
     ["Privacidad aceptada", payload.privacyAccepted ? "Sí" : "No"],
   ];
 
@@ -96,14 +128,14 @@ function buildEmailText(payload: JoinRequestPayload) {
     `Tipo de negocio: ${payload.businessType}`,
     `Ciudad o zona: ${payload.area}`,
     `Dirección: ${payload.address}`,
-    `Teléfono del local: ${payload.venuePhone}`,
-    `Email del local: ${payload.venueEmail}`,
-    `Web o Instagram: ${payload.website || "No indicado"}`,
+    `Teléfono del local: ${payload.venuePhone || "No facilitado"}`,
+    `Email del local: ${payload.venueEmail || "No facilitado"}`,
+    `Web o Instagram: ${payload.website || "No facilitado"}`,
     `Persona de contacto: ${payload.contactName}`,
     `Teléfono de contacto: ${payload.contactPhone}`,
     `Email de contacto: ${payload.contactEmail}`,
     `Tipo de servicio: ${getServiceLabel(payload.serviceType)}`,
-    `Mensaje adicional: ${payload.message || "No indicado"}`,
+    `Mensaje adicional: ${payload.message || "Sin mensaje adicional"}`,
     `Privacidad aceptada: ${payload.privacyAccepted ? "Sí" : "No"}`,
   ].join("\n");
 }
@@ -132,6 +164,12 @@ export async function POST(request: Request) {
   }
 
   const payload = normalizePayload((await request.json()) as JoinRequestPayload);
+  const validationError = validatePayload(payload);
+
+  if (validationError) {
+    return NextResponse.json({ message: validationError }, { status: 400 });
+  }
+
   const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
   const { error: insertError } = await supabase.from("join_requests").insert({
@@ -139,8 +177,8 @@ export async function POST(request: Request) {
     business_type: payload.businessType,
     area: payload.area,
     address: payload.address,
-    venue_phone: payload.venuePhone,
-    venue_email: payload.venueEmail,
+    venue_phone: payload.venuePhone || null,
+    venue_email: payload.venueEmail || null,
     website: payload.website || null,
     contact_name: payload.contactName,
     contact_phone: payload.contactPhone,
@@ -162,7 +200,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Punto central de notificación para poder añadir Telegram más adelante.
   const resendResponse = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {

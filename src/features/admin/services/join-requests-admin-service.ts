@@ -12,6 +12,7 @@ export type AdminJoinRequestListItem = {
   contactEmail: string | null;
   contactPhone: string | null;
   status: AdminJoinRequestStatus;
+  linkedVenueId: string | null;
   createdAt: string;
 };
 
@@ -31,6 +32,7 @@ export type AdminJoinRequestDetail = {
   message: string | null;
   privacyAccepted: boolean;
   status: AdminJoinRequestStatus;
+  linkedVenueId: string | null;
   createdAt: string;
 };
 
@@ -39,7 +41,7 @@ export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]
   const { data, error } = await supabase
     .from("join_requests")
     .select(
-      "id, venue_name, area, contact_name, contact_email, contact_phone, status, created_at",
+      "id, venue_name, area, contact_name, contact_email, contact_phone, status, linked_venue_id, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -55,6 +57,7 @@ export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]
     contactEmail: item.contact_email,
     contactPhone: item.contact_phone,
     status: item.status,
+    linkedVenueId: item.linked_venue_id,
     createdAt: item.created_at,
   }));
 }
@@ -66,7 +69,7 @@ export async function getAdminJoinRequestById(
   const { data, error } = await supabase
     .from("join_requests")
     .select(
-      "id, venue_name, business_type, area, address, venue_phone, venue_email, website, contact_name, contact_phone, contact_email, service_type, message, privacy_accepted, status, created_at",
+      "id, venue_name, business_type, area, address, venue_phone, venue_email, website, contact_name, contact_phone, contact_email, service_type, message, privacy_accepted, status, linked_venue_id, created_at",
     )
     .eq("id", requestId)
     .maybeSingle();
@@ -95,6 +98,7 @@ export async function getAdminJoinRequestById(
     message: data.message,
     privacyAccepted: data.privacy_accepted,
     status: data.status,
+    linkedVenueId: data.linked_venue_id,
     createdAt: data.created_at,
   };
 }

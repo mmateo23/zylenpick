@@ -19,7 +19,7 @@ const businessTypes = [
 ];
 
 function fieldClassName() {
-  return "w-full rounded-[1.1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition focus:border-[color:var(--brand)]";
+  return "w-full rounded-[1.1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
 }
 
 export function JoinForm() {
@@ -68,7 +68,7 @@ export function JoinForm() {
       if (!response.ok) {
         throw new Error(
           responseData.message ??
-            "No hemos podido enviar tu solicitud. Inténtalo de nuevo.",
+            "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
         );
       }
 
@@ -82,7 +82,7 @@ export function JoinForm() {
       setFeedback(
         error instanceof Error
           ? error.message
-          : "No hemos podido enviar tu solicitud. Inténtalo de nuevo.",
+          : "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
       );
     } finally {
       setIsSubmitting(false);
@@ -99,7 +99,11 @@ export function JoinForm() {
           <span className="text-sm font-medium text-[color:var(--foreground)]">
             Nombre del local
           </span>
-          <input name="venueName" className={fieldClassName()} />
+          <input
+            name="venueName"
+            className={fieldClassName()}
+            required
+          />
         </label>
 
         <label className="grid gap-2">
@@ -110,6 +114,7 @@ export function JoinForm() {
             name="businessType"
             className={fieldClassName()}
             defaultValue=""
+            required
           >
             <option value="" disabled>
               Selecciona una opción
@@ -126,50 +131,21 @@ export function JoinForm() {
           <span className="text-sm font-medium text-[color:var(--foreground)]">
             Ciudad o zona
           </span>
-          <input name="area" className={fieldClassName()} />
+          <input name="area" className={fieldClassName()} required />
         </label>
 
         <label className="grid gap-2">
           <span className="text-sm font-medium text-[color:var(--foreground)]">
             Dirección
           </span>
-          <input name="address" className={fieldClassName()} />
-        </label>
-
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[color:var(--foreground)]">
-            Teléfono del local
-          </span>
-          <input
-            name="venuePhone"
-            type="tel"
-            className={fieldClassName()}
-          />
-        </label>
-
-        <label className="grid gap-2">
-          <span className="text-sm font-medium text-[color:var(--foreground)]">
-            Email del local
-          </span>
-          <input
-            name="venueEmail"
-            type="email"
-            className={fieldClassName()}
-          />
-        </label>
-
-        <label className="grid gap-2 md:col-span-2">
-          <span className="text-sm font-medium text-[color:var(--foreground)]">
-            Web o Instagram
-          </span>
-          <input name="website" className={fieldClassName()} />
+          <input name="address" className={fieldClassName()} required />
         </label>
 
         <label className="grid gap-2">
           <span className="text-sm font-medium text-[color:var(--foreground)]">
             Nombre de la persona de contacto
           </span>
-          <input name="contactName" className={fieldClassName()} />
+          <input name="contactName" className={fieldClassName()} required />
         </label>
 
         <label className="grid gap-2">
@@ -180,6 +156,7 @@ export function JoinForm() {
             name="contactPhone"
             type="tel"
             className={fieldClassName()}
+            required
           />
         </label>
 
@@ -191,6 +168,7 @@ export function JoinForm() {
             name="contactEmail"
             type="email"
             className={fieldClassName()}
+            required
           />
         </label>
 
@@ -209,12 +187,34 @@ export function JoinForm() {
                   name="serviceType"
                   value={serviceOption.value}
                   className="h-4 w-4 accent-[color:var(--brand)]"
+                  required
                 />
                 <span>{serviceOption.label}</span>
               </label>
             ))}
           </div>
         </fieldset>
+
+        <label className="grid gap-2">
+          <span className="text-sm font-medium text-[color:var(--foreground)]">
+            Teléfono del local
+          </span>
+          <input name="venuePhone" type="tel" className={fieldClassName()} />
+        </label>
+
+        <label className="grid gap-2">
+          <span className="text-sm font-medium text-[color:var(--foreground)]">
+            Email del local
+          </span>
+          <input name="venueEmail" type="email" className={fieldClassName()} />
+        </label>
+
+        <label className="grid gap-2 md:col-span-2">
+          <span className="text-sm font-medium text-[color:var(--foreground)]">
+            Web o Instagram
+          </span>
+          <input name="website" className={fieldClassName()} />
+        </label>
 
         <label className="grid gap-2 md:col-span-2">
           <span className="text-sm font-medium text-[color:var(--foreground)]">
@@ -224,7 +224,7 @@ export function JoinForm() {
             name="message"
             rows={5}
             className={fieldClassName()}
-            placeholder="Cuéntanos un poco sobre tu local y qué te gustaría conseguir con ZylenPick."
+            placeholder="Cuéntanos brevemente qué tipo de local tienes y cómo encaja ZylenPick."
           />
         </label>
 
@@ -233,6 +233,7 @@ export function JoinForm() {
             type="checkbox"
             name="privacyAccepted"
             className="mt-1 h-4 w-4 accent-[color:var(--brand)]"
+            required
           />
           <span className="text-sm leading-6 text-[color:var(--muted-strong)]">
             Acepto la política de privacidad y autorizo a ZylenPick a ponerse en
@@ -243,8 +244,8 @@ export function JoinForm() {
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm leading-6 text-[color:var(--muted)]">
-          Modo prueba activo: puedes pulsar enviar directamente para comprobar
-          el correo y después volveremos a exigir todos los campos.
+          Primero revisamos tu solicitud y, si encaja, daremos de alta el local
+          manualmente desde nuestro panel interno.
         </p>
         <button
           type="submit"

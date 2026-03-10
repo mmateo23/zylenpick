@@ -92,10 +92,6 @@ export default async function VenuePage({ params }: VenuePageProps) {
           <span className="rounded-full border border-white/16 bg-white/10 px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/76 backdrop-blur">
             {venue.city.name}
           </span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-xs font-medium text-white/72 backdrop-blur">
-            <ClockIcon size={16} />
-            Recogida en {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "breve"}
-          </span>
           <span
             className={`inline-flex rounded-full border border-white/16 px-4 py-2 text-xs font-medium backdrop-blur ${
               venue.isOpenNow
