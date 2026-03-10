@@ -134,3 +134,39 @@ export async function updateJoinRequestStatusAction(
 
   redirect(`/panel/solicitudes/${requestId}`);
 }
+
+export async function deleteJoinRequestAction(requestId: string) {
+  "use server";
+
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("join_requests")
+    .select("linked_venue_id")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to validate join request deletion: ${error.message}`);
+  }
+
+  if (!data) {
+    redirect("/panel/solicitudes");
+  }
+
+  if (data.linked_venue_id) {
+    throw new Error(
+      "No se puede eliminar una solicitud que ya está vinculada a un local.",
+    );
+  }
+
+  const { error: deleteError } = await supabase
+    .from("join_requests")
+    .delete()
+    .eq("id", requestId);
+
+  if (deleteError) {
+    throw new Error(`Unable to delete join request: ${deleteError.message}`);
+  }
+
+  redirect("/panel/solicitudes");
+}

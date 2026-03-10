@@ -46,8 +46,8 @@ export default async function AdminJoinRequestsPage() {
           Solicitudes
         </h1>
         <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-          Revisa las solicitudes enviadas desde “Únete a ZylenPick” y decide si
-          continúan a la creación manual del local.
+          Revisa las solicitudes enviadas desde “Únete a ZylenPick” y distingue
+          rápidamente las pendientes, revisadas y ya convertidas en local real.
         </p>
       </div>
 
@@ -67,6 +67,7 @@ export default async function AdminJoinRequestsPage() {
                   <th className="px-5 py-4 font-medium">Email</th>
                   <th className="px-5 py-4 font-medium">Teléfono</th>
                   <th className="px-5 py-4 font-medium">Estado</th>
+                  <th className="px-5 py-4 font-medium">Conversión</th>
                   <th className="px-5 py-4 font-medium">Creada</th>
                   <th className="px-5 py-4 font-medium">Acción</th>
                 </tr>
@@ -95,6 +96,25 @@ export default async function AdminJoinRequestsPage() {
                       >
                         {statusLabel(request.status)}
                       </span>
+                    </td>
+                    <td className="px-5 py-4">
+                      {request.linkedVenueId ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="inline-flex rounded-full bg-[color:var(--brand-soft)] px-3 py-1.5 text-xs font-semibold text-[color:var(--accent)]">
+                            Convertida en local
+                          </span>
+                          <Link
+                            href={`/panel/locales/${request.linkedVenueId}`}
+                            className="text-xs font-semibold text-[color:var(--brand)]"
+                          >
+                            Ver local
+                          </Link>
+                        </div>
+                      ) : (
+                        <span className="inline-flex rounded-full bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/58">
+                          Sin convertir
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-4 text-[color:var(--muted-strong)]">
                       {formatDate(request.createdAt)}

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
+import { DeleteJoinRequestButton } from "@/components/admin/delete-join-request-button";
 import {
+  deleteJoinRequestAction,
   requireAdminJoinRequest,
   updateJoinRequestStatusAction,
 } from "@/features/admin/services/join-requests-admin-service";
@@ -85,6 +87,8 @@ export default async function AdminJoinRequestDetailPage({
     params.requestId,
     "rejected",
   );
+  const deleteAction = deleteJoinRequestAction.bind(null, params.requestId);
+  const isLinked = Boolean(joinRequest.linkedVenueId);
 
   return (
     <section className="space-y-6">
@@ -110,6 +114,11 @@ export default async function AdminJoinRequestDetailPage({
           >
             {statusLabel(joinRequest.status)}
           </span>
+          {isLinked ? (
+            <span className="inline-flex rounded-full bg-[color:var(--brand-soft)] px-4 py-2 text-xs font-semibold text-[color:var(--accent)]">
+              Convertida en local
+            </span>
+          ) : null}
           <Link
             href="/panel/solicitudes"
             className="magnetic-button inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-[color:var(--foreground)]"
@@ -221,7 +230,19 @@ export default async function AdminJoinRequestDetailPage({
               Ver local vinculado
             </Link>
           ) : null}
+          <DeleteJoinRequestButton action={deleteAction} disabled={isLinked} />
         </div>
+
+        {isLinked ? (
+          <p className="mt-4 rounded-[1rem] border border-[#E5484D]/25 bg-[#E5484D]/8 px-4 py-3 text-sm leading-6 text-[#FFB4B4]">
+            Esta solicitud ya está vinculada a un local real. Para evitar perder la
+            trazabilidad del alta, no se puede eliminar desde el panel.
+          </p>
+        ) : (
+          <p className="mt-4 rounded-[1rem] border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-[color:var(--muted-strong)]">
+            Esta acción no se puede deshacer.
+          </p>
+        )}
       </section>
     </section>
   );

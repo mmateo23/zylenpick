@@ -14,47 +14,38 @@
 - aprobar
 - rechazar
 - crear local desde una solicitud
+- eliminar solicitudes no vinculadas
 
-## Crear local desde solicitud
+## Conversion a local
 
-El flujo es manual y deliberadamente simple:
+Una solicitud se considera convertida cuando:
 
-1. el admin abre una solicitud
-2. pulsa `Crear local desde esta solicitud`
-3. entra en `/panel/locales/nuevo?requestId=...`
-4. el formulario del local llega con datos base precargados
-5. el admin completa el alta del local
+- `linked_venue_id` tiene valor
 
-### Datos que se precargan en el formulario de local
+En el panel:
 
-- nombre del local
-- slug sugerido
-- ciudad si coincide con una ciudad existente
-- direccion
-- telefono del local si existe
-- email del local si existe
+- el listado muestra un estado visual de `Convertida en local`
+- aparece un enlace directo al local creado
+- el detalle tambien muestra el local vinculado
 
-### Datos que se muestran como contexto de la solicitud
+## Borrado de solicitudes
 
-- persona de contacto
-- telefono de contacto
-- email de contacto
-- tipo de servicio
-- mensaje adicional
+El borrado esta pensado para:
 
-## Trazabilidad
+- solicitudes de prueba
+- solicitudes que no interesa conservar
 
-La tabla `join_requests` incluye:
+Comportamiento:
 
-- `linked_venue_id`
+- el boton `Eliminar solicitud` solo borra si la solicitud no esta vinculada
+- antes de borrar, pide confirmacion explicita
+- el mensaje deja claro que la accion no se puede deshacer
 
-Sirve para:
+### Limitacion actual
 
-- saber si una solicitud ya ha terminado en un local real
-- enlazar desde la solicitud al local creado
+Si la solicitud ya tiene `linked_venue_id`:
 
-## Observaciones
+- no se puede eliminar desde el panel
+- se muestra una advertencia clara
 
-- aprobar una solicitud no crea automaticamente el local
-- el panel sigue orientado a operacion interna
-- no hay panel para locales externos
+Esto evita perder la trazabilidad entre la solicitud y el local real.
