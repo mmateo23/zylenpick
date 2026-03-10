@@ -127,7 +127,7 @@ export function ProjectPage() {
           <h2 className="max-w-[11ch] text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
             Pedir para recoger debería sentirse tan natural como caminar por tu barrio.
           </h2>
-          <div className="max-w-xl space-y-4 text-base leading-7 text-white/72">
+          <div className="max-w-xl space-y-4 text-base leading-7 text-white/72 text-justify sm:text-left">
             <p>
               Muchas plataformas están diseñadas alrededor del delivery. La
               recogida queda como una opción secundaria, confusa y poco cuidada.
@@ -167,7 +167,7 @@ export function ProjectPage() {
           <h2 className="max-w-[12ch] text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
             Una forma más simple de descubrir comida local y recogerla bien.
           </h2>
-          <div className="max-w-xl space-y-4 text-base leading-7 text-white/72">
+          <div className="max-w-xl space-y-4 text-base leading-7 text-white/72 text-justify sm:text-left">
             <p>
               ZylenPick quiere ayudarte a encontrar restaurantes cercanos,
               elegir algo que realmente quieres y resolver la recogida con una
