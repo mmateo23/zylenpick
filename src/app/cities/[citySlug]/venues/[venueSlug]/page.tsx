@@ -3,13 +3,15 @@ import { notFound } from "next/navigation";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
-import { CityPreferenceSync } from "@/components/location/city-preference-sync";
-import { SiteShell } from "@/components/layout/site-shell";
 import { MapIcon } from "@/components/icons/map-icon";
 import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
+import { SiteShell } from "@/components/layout/site-shell";
+import { CityPreferenceSync } from "@/components/location/city-preference-sync";
 import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
 import { VenueArrivalCard } from "@/components/venues/venue-arrival-card";
+import { VenueOpeningHours } from "@/components/venues/venue-opening-hours";
+import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary";
 import { getVenueDetails } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -30,8 +32,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
             Supabase no está configurado.
           </p>
           <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-            Esta ruta necesita acceso a Supabase para mostrar el local y su
-            menú.
+            Esta ruta necesita acceso a Supabase para mostrar el local y su menú.
           </p>
         </section>
       </SiteShell>
@@ -62,7 +63,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     cityName: venue.city.name,
     address: venue.address,
     email: venue.email,
-    phone: null,
+    phone: venue.phone,
     pickupEtaMin: venue.pickupEtaMin,
   };
 
@@ -95,13 +96,30 @@ export default async function VenuePage({ params }: VenuePageProps) {
             <ClockIcon size={16} />
             Recogida en {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "breve"}
           </span>
+          <span
+            className={`inline-flex rounded-full border border-white/16 px-4 py-2 text-xs font-medium backdrop-blur ${
+              venue.isOpenNow
+                ? "bg-[color:var(--brand)]/16 text-white"
+                : "bg-[#E5484D]/14 text-white"
+            }`}
+          >
+            {venue.isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
+          </span>
         </div>
 
         <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_21rem]">
           <div>
-            <h1 className="max-w-[10ch] text-balance text-5xl font-semibold leading-[0.9] sm:text-6xl lg:text-7xl">
-              {venue.name}
-            </h1>
+            <div className="flex flex-wrap items-center gap-4">
+              <h1 className="max-w-[10ch] text-balance text-5xl font-semibold leading-[0.9] sm:text-6xl lg:text-7xl">
+                {venue.name}
+              </h1>
+              <VerifiedVenueBadge
+                isVerified={venue.isVerified}
+                subscriptionActive={venue.subscriptionActive}
+                withLabel
+              />
+            </div>
+
             <p className="mt-6 max-w-[58ch] text-lg leading-8 text-white/82">
               {venue.description}
             </p>
@@ -116,8 +134,8 @@ export default async function VenuePage({ params }: VenuePageProps) {
               {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Disponible"}
             </p>
             <p className="mt-4 text-sm leading-7 text-white/76">
-              Un local preparado para decidir rápido, guardar platos y pasar a
-              recoger sin complicaciones.
+              Un local preparado para decidir rápido, guardar platos y pasar a recoger
+              sin complicaciones.
             </p>
           </div>
         </div>
@@ -156,6 +174,10 @@ export default async function VenuePage({ params }: VenuePageProps) {
             venueName={venue.name}
             address={venue.address}
           />
+          <VenueOpeningHours
+            openingHours={venue.openingHours}
+            isOpenNow={venue.isOpenNow}
+          />
 
           <aside className="glass-panel rounded-[2.3rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
             <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
@@ -178,6 +200,15 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 </dt>
                 <dd className="mt-2 text-sm leading-7 text-[color:var(--foreground)]">
                   {venue.pickupNotes ?? "Indicaciones pendientes"}
+                </dd>
+              </div>
+              <div>
+                <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--muted)]">
+                  <PhoneIcon size={18} className="text-[color:var(--brand)]" />
+                  Teléfono
+                </dt>
+                <dd className="mt-2 text-sm leading-7 text-[color:var(--foreground)]">
+                  {venue.phone ?? "Teléfono pendiente"}
                 </dd>
               </div>
               <div>

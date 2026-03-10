@@ -1,12 +1,12 @@
-import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-
+import { getOpeningStatus, normalizeOpeningHours } from "@/features/venues/opening-hours";
 import type {
   HomeShowcaseItem,
   VenueDetails,
   VenueListItem,
   VenueMenuItem,
 } from "@/features/venues/types";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type CitySummary = {
   id: string;
@@ -24,6 +24,8 @@ function mapVenueListItem(row: {
   cover_url: string | null;
   address: string | null;
   pickup_eta_min: number | null;
+  is_verified: boolean;
+  subscription_active: boolean;
 }): VenueListItem {
   return {
     id: row.id,
@@ -33,6 +35,8 @@ function mapVenueListItem(row: {
     coverUrl: row.cover_url,
     address: row.address,
     pickupEtaMin: row.pickup_eta_min,
+    isVerified: row.is_verified,
+    subscriptionActive: row.subscription_active,
   };
 }
 
@@ -131,10 +135,12 @@ export async function getVenuesByCitySlug(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, address, pickup_eta_min, cities!inner(slug)",
+      "id, slug, name, description, cover_url, address, pickup_eta_min, is_verified, subscription_active, cities!inner(slug)",
     )
     .eq("is_active", true)
+    .eq("is_published", true)
     .eq("cities.slug", citySlug)
+    .order("sort_order", { ascending: true, nullsFirst: false })
     .order("name", { ascending: true });
 
   if (error) {
@@ -156,10 +162,11 @@ export async function getVenueDetails(
   const { data: venue, error: venueError } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, logo_url, address, email, pickup_notes, pickup_eta_min, cities!inner(slug, name)",
+      "id, slug, name, description, cover_url, logo_url, address, email, phone, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
     )
     .eq("slug", venueSlug)
     .eq("is_active", true)
+    .eq("is_published", true)
     .eq("cities.slug", citySlug)
     .maybeSingle();
 
@@ -185,6 +192,9 @@ export async function getVenueDetails(
     throw new Error(`Unable to load menu items: ${menuError.message}`);
   }
 
+  const openingHours = normalizeOpeningHours(venue.opening_hours);
+  const openingStatus = getOpeningStatus(openingHours);
+
   return {
     id: venue.id,
     slug: venue.slug,
@@ -194,8 +204,13 @@ export async function getVenueDetails(
     logoUrl: venue.logo_url,
     address: venue.address,
     email: venue.email,
+    phone: venue.phone,
     pickupNotes: venue.pickup_notes,
     pickupEtaMin: venue.pickup_eta_min,
+    isVerified: venue.is_verified,
+    subscriptionActive: venue.subscription_active,
+    openingHours,
+    isOpenNow: openingStatus.isOpenNow,
     city: {
       slug: venue.cities.slug,
       name: venue.cities.name,
@@ -219,10 +234,11 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, venues!inner(slug, name, pickup_eta_min, is_active, cities!inner(slug))",
+      "id, name, description, price_amount, currency, image_url, venues!inner(slug, name, pickup_eta_min, is_active, is_published, cities!inner(slug))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
+    .eq("venues.is_published", true)
     .not("image_url", "is", null)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })

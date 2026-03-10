@@ -15,6 +15,7 @@ import {
   getVenueCategory,
   getVenueCoordinates,
 } from "@/features/venues/venue-meta";
+import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 
 type ZoneVenueExplorerProps = {
   citySlug: string;
@@ -166,6 +167,13 @@ export function ZoneVenueExplorer({
             <h2 className="mt-5 max-w-[12ch] text-balance text-5xl font-semibold leading-[0.92] sm:text-6xl">
               {featuredVenue.name}
             </h2>
+            <div className="mt-4">
+              <VerifiedVenueBadge
+                isVerified={featuredVenue.isVerified}
+                subscriptionActive={featuredVenue.subscriptionActive}
+                withLabel
+              />
+            </div>
             <p className="mt-5 max-w-[44ch] text-lg leading-8 text-white/80">
               {featuredVenue.description}
             </p>
@@ -247,9 +255,15 @@ export function ZoneVenueExplorer({
                       <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
                         {getVenueCategory(venue.slug)}
                       </p>
-                      <h2 className="mt-3 text-4xl font-semibold leading-[0.98] text-[color:var(--foreground)]">
-                        {venue.name}
-                      </h2>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <h2 className="text-4xl font-semibold leading-[0.98] text-[color:var(--foreground)]">
+                          {venue.name}
+                        </h2>
+                        <VerifiedVenueBadge
+                          isVerified={venue.isVerified}
+                          subscriptionActive={venue.subscriptionActive}
+                        />
+                      </div>
                       <p className="mt-5 text-sm leading-7 text-[color:var(--muted-strong)]">
                         {venue.description}
                       </p>

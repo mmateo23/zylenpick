@@ -2,6 +2,12 @@ import Link from "next/link";
 
 import { getAdminVenues } from "@/features/admin/services/venues-admin-service";
 
+function statusClassName(isEnabled: boolean) {
+  return isEnabled
+    ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
+    : "bg-white/8 text-white/58";
+}
+
 export default async function AdminVenuesPage() {
   const venues = await getAdminVenues();
 
@@ -36,7 +42,10 @@ export default async function AdminVenuesPage() {
                 <th className="px-5 py-4 font-medium">Nombre</th>
                 <th className="px-5 py-4 font-medium">Ciudad</th>
                 <th className="px-5 py-4 font-medium">Slug</th>
+                <th className="px-5 py-4 font-medium">Teléfono</th>
                 <th className="px-5 py-4 font-medium">Email</th>
+                <th className="px-5 py-4 font-medium">Publicado</th>
+                <th className="px-5 py-4 font-medium">Verificación</th>
                 <th className="px-5 py-4 font-medium">Estado</th>
                 <th className="px-5 py-4 font-medium">Acción</th>
               </tr>
@@ -52,15 +61,36 @@ export default async function AdminVenuesPage() {
                     {venue.slug}
                   </td>
                   <td className="px-5 py-4 text-[color:var(--muted-strong)]">
+                    {venue.phone ?? "Sin teléfono"}
+                  </td>
+                  <td className="px-5 py-4 text-[color:var(--muted-strong)]">
                     {venue.email ?? "Sin email"}
                   </td>
                   <td className="px-5 py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-                        venue.isActive
-                          ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-                          : "bg-white/8 text-white/58"
-                      }`}
+                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                        venue.isPublished,
+                      )}`}
+                    >
+                      {venue.isPublished ? "Publicado" : "Oculto"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                        venue.isVerified && venue.subscriptionActive,
+                      )}`}
+                    >
+                      {venue.isVerified && venue.subscriptionActive
+                        ? "Distintivo activo"
+                        : "Sin distintivo"}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span
+                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                        venue.isActive,
+                      )}`}
                     >
                       {venue.isActive ? "Activo" : "Inactivo"}
                     </span>

@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import {
+  openingHourDayLabels,
+  openingHourDayOrder,
+} from "@/features/venues/opening-hours";
 import type {
   AdminCityOption,
   AdminVenueFormValues,
@@ -26,16 +30,61 @@ function buildInitialValues(
       description: "",
       address: "",
       email: "",
+      phone: "",
       pickupNotes: "",
       pickupEtaMin: "",
       coverUrl: "",
       isActive: true,
+      isPublished: true,
+      isVerified: false,
+      subscriptionActive: false,
+      sortOrder: "",
+      openingHours: {
+        mon: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        tue: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        wed: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        thu: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        fri: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        sat: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+        sun: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
+      },
     }
   );
 }
 
 function fieldClassName() {
   return "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
+}
+
+function ToggleField({
+  name,
+  label,
+  description,
+  defaultChecked,
+}: {
+  name: string;
+  label: string;
+  description: string;
+  defaultChecked: boolean;
+}) {
+  return (
+    <label className="flex items-start gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+      <input
+        name={name}
+        type="checkbox"
+        defaultChecked={defaultChecked}
+        className="mt-1 h-4 w-4 accent-[color:var(--brand)]"
+      />
+      <span>
+        <span className="block text-sm font-medium text-[color:var(--foreground)]">
+          {label}
+        </span>
+        <span className="mt-1 block text-sm leading-6 text-[color:var(--muted-strong)]">
+          {description}
+        </span>
+      </span>
+    </label>
+  );
 }
 
 export function AdminVenueForm({
@@ -62,7 +111,7 @@ export function AdminVenueForm({
         </p>
       </div>
 
-      <form action={action} className="mt-8 space-y-6">
+      <form action={action} className="mt-8 space-y-8">
         <div className="grid gap-5 md:grid-cols-2">
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
@@ -109,12 +158,13 @@ export function AdminVenueForm({
 
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Email
+              Orden visual
             </span>
             <input
-              name="email"
-              type="email"
-              defaultValue={values.email}
+              name="sortOrder"
+              type="number"
+              min="0"
+              defaultValue={values.sortOrder}
               className={fieldClassName()}
             />
           </label>
@@ -142,21 +192,48 @@ export function AdminVenueForm({
             />
           </label>
 
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Email
+            </span>
+            <input
+              name="email"
+              type="email"
+              defaultValue={values.email}
+              className={fieldClassName()}
+              required
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Teléfono
+            </span>
+            <input
+              name="phone"
+              type="tel"
+              defaultValue={values.phone}
+              className={fieldClassName()}
+              required
+            />
+          </label>
+
           <label className="block md:col-span-2">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Pickup notes
+              Notas de recogida
             </span>
             <textarea
               name="pickupNotes"
               rows={3}
               defaultValue={values.pickupNotes}
               className={`${fieldClassName()} resize-y`}
+              placeholder="Recoge tu pedido en barra, pide por tu nombre..."
             />
           </label>
 
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Pickup eta
+              Tiempo estimado de recogida
             </span>
             <input
               name="pickupEtaMin"
@@ -178,19 +255,133 @@ export function AdminVenueForm({
               className={fieldClassName()}
             />
           </label>
-
-          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4 md:col-span-2">
-            <input
-              name="isActive"
-              type="checkbox"
-              defaultChecked={values.isActive}
-              className="h-4 w-4 accent-[color:var(--brand)]"
-            />
-            <span className="text-sm text-[color:var(--muted-strong)]">
-              Local activo
-            </span>
-          </label>
         </div>
+
+        <section className="space-y-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
+              Estado editorial
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+              El distintivo de ZylenPick solo aparece cuando el local ha sido
+              revisado editorialmente y además mantiene una suscripción activa.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <ToggleField
+              name="isVerified"
+              label="Local verificado por ZylenPick"
+              description="El local ha sido revisado por ZylenPick y cumple estándares mínimos de calidad para recogida."
+              defaultChecked={values.isVerified}
+            />
+            <ToggleField
+              name="subscriptionActive"
+              label="Suscripción activa"
+              description="El local forma parte de la red activa de ZylenPick y puede mostrar el distintivo si también está verificado."
+              defaultChecked={values.subscriptionActive}
+            />
+            <ToggleField
+              name="isPublished"
+              label="Visible en la web pública"
+              description="Permite mantener el local en panel sin mostrarlo todavía en la web pública."
+              defaultChecked={values.isPublished}
+            />
+            <ToggleField
+              name="isActive"
+              label="Local activo en operaciones"
+              description="Control interno para mantener o retirar el local del catálogo administrado."
+              defaultChecked={values.isActive}
+            />
+          </div>
+        </section>
+
+        <section className="space-y-5">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
+              Horarios
+            </p>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+              Edita un tramo principal y un segundo tramo opcional por día. Si el
+              día está cerrado, se mostrará en rojo en la ficha pública.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {openingHourDayOrder.map((dayKey) => {
+              const dayValue = values.openingHours[dayKey];
+
+              return (
+                <div
+                  key={dayKey}
+                  className="grid gap-4 rounded-[1.4rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 lg:grid-cols-[4.5rem_minmax(0,1fr)]"
+                >
+                  <div className="flex items-start">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-[color:var(--foreground)]">
+                      {openingHourDayLabels[dayKey]}
+                    </span>
+                  </div>
+
+                  <div className="grid gap-4">
+                    <label className="flex items-center gap-3">
+                      <input
+                        name={`openingHours.${dayKey}.isOpen`}
+                        type="checkbox"
+                        defaultChecked={dayValue.isOpen}
+                        className="h-4 w-4 accent-[color:var(--brand)]"
+                      />
+                      <span className="text-sm text-[color:var(--foreground)]">
+                        Abierto ese día
+                      </span>
+                    </label>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="grid gap-3">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
+                          Tramo principal
+                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <input
+                            name={`openingHours.${dayKey}.firstOpen`}
+                            type="time"
+                            defaultValue={dayValue.firstOpen}
+                            className={fieldClassName()}
+                          />
+                          <input
+                            name={`openingHours.${dayKey}.firstClose`}
+                            type="time"
+                            defaultValue={dayValue.firstClose}
+                            className={fieldClassName()}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3">
+                        <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
+                          Segundo tramo opcional
+                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <input
+                            name={`openingHours.${dayKey}.secondOpen`}
+                            type="time"
+                            defaultValue={dayValue.secondOpen}
+                            className={fieldClassName()}
+                          />
+                          <input
+                            name={`openingHours.${dayKey}.secondClose`}
+                            type="time"
+                            defaultValue={dayValue.secondClose}
+                            className={fieldClassName()}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
 
         <div className="flex flex-wrap gap-3">
           <button

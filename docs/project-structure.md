@@ -32,15 +32,6 @@ Rutas activas principales:
 - `/panel/solicitudes/[requestId]`
 - `/api/join`
 
-Rutas heredadas que siguen existiendo pero no forman parte del flujo principal:
-
-- `/acceder`
-- `/cuenta`
-- `/favoritos`
-- `/panel-comercio`
-- `/pedidos`
-- `/carrito`
-
 ### `src/components`
 
 Componentes visuales reutilizables.
@@ -48,13 +39,13 @@ Componentes visuales reutilizables.
 Subcarpetas mas relevantes:
 
 - `branding`
-  - logo y marca
+  - logo e isotipo
 - `layout`
   - shell y cabecera publica
 - `home`
   - landing principal
 - `venues`
-  - exploracion por zona, cards y detalle de local
+  - exploracion por zona, cards, badge de verificacion y horarios del local
 - `cart`
   - barra movil de carrito
 - `orders`
@@ -81,6 +72,7 @@ Logica del dominio separada por area.
 - metadatos manuales de locales
 - seleccion de platos para Home
 - categorias y coordenadas por `slug`
+- modelado de horarios
 
 #### `features/cart`
 
@@ -115,13 +107,6 @@ Logica del dominio separada por area.
 
 Utilidades transversales.
 
-Subzonas:
-
-- `supabase`
-  - configuracion y clientes
-- `utils`
-  - helpers como formato de moneda
-
 ### `src/types`
 
 - tipos globales de base de datos (`database.ts`)
@@ -139,6 +124,13 @@ Incluyen:
 - politicas temporales para gestion admin de `venues`
 - columna `is_featured` y politicas temporales para `menu_items`
 - tabla `join_requests` y politicas temporales para solicitudes
+- campos editoriales y operativos de `venues`:
+  - telefono
+  - horarios
+  - verificacion
+  - suscripcion
+  - publicacion
+  - orden visual
 
 ## Bloques funcionales
 
@@ -149,29 +141,14 @@ Incluyen:
 - `src/features/cities/services/cities-service.ts`
 - `src/features/venues/services/venues-service.ts`
 
-### Cart
+### Locales y ficha publica
 
-- `src/app/cart/page.tsx`
-- `src/features/cart/components/cart-screen.tsx`
-- `src/features/cart/hooks/use-cart.ts`
-- `src/features/cart/services/cart-storage.ts`
-- `src/components/cart/mobile-cart-bar.tsx`
-
-### Orders
-
-- `src/app/checkout/success/[orderId]/page.tsx`
-- `src/app/checkout/success/[orderId]/ticket/page.tsx`
-- `src/features/orders/services/order-storage.ts`
-- `src/features/orders/components/order-ticket-screen.tsx`
-- `src/features/orders/components/printable-order-ticket.tsx`
-- `src/components/orders/active-order-widget.tsx`
-
-### Localizacion
-
-- `src/features/location/browser-location.ts`
-- `src/features/location/city-preference.ts`
-- `src/components/location/city-preference-sync.tsx`
-- `src/features/venues/venue-meta.ts`
+- `src/app/cities/[citySlug]/page.tsx`
+- `src/app/cities/[citySlug]/venues/[venueSlug]/page.tsx`
+- `src/components/venues/zone-venue-explorer.tsx`
+- `src/components/venues/verified-venue-badge.tsx`
+- `src/components/venues/venue-opening-hours.tsx`
+- `src/features/venues/opening-hours.ts`
 
 ### Panel admin
 
@@ -187,36 +164,14 @@ Incluyen:
 - `src/app/panel/(admin)/locales/[venueId]/platos/[menuItemId]/page.tsx`
 - `src/app/panel/(admin)/solicitudes/page.tsx`
 - `src/app/panel/(admin)/solicitudes/[requestId]/page.tsx`
-- `src/features/admin/services/admin-auth.ts`
-- `src/features/admin/services/dashboard-service.ts`
 - `src/features/admin/services/venues-admin-service.ts`
 - `src/features/admin/services/menu-items-admin-service.ts`
 - `src/features/admin/services/join-requests-admin-service.ts`
 - `src/components/admin/*`
 
-### Componentes compartidos
-
-- `src/components/layout/*`
-- `src/components/icons/*`
-- `src/components/branding/logo.tsx`
-
-### Estilos globales
-
-- `src/app/globals.css`
-
-Aqui viven:
-
-- variables de color
-- `hover-lift-card`
-- `magnetic-button`
-- `spotlight-panel`
-- `dark-form-field`
-
 ## Observaciones practicas
 
-- la estructura ya esta bastante orientada al MVP actual
-- el panel admin crece por fases sin introducir panel de local
-- los platos se administran desde cada local, no desde una vista global
-- las solicitudes se guardan desde `/unete` y se revisan desde el panel
-- conviven rutas y piezas heredadas del prototipo anterior
-- todavia hay naming antiguo `fknfood` en algunas capas internas
+- el panel admin sigue siendo la unica fuente de gestion del contenido
+- los locales pueden existir en panel sin estar publicados
+- el distintivo de ZylenPick depende de verificacion editorial y suscripcion activa
+- los horarios se guardan como JSON por dia con uno o dos tramos

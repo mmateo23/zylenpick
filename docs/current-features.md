@@ -2,7 +2,7 @@
 
 ## Estado general
 
-La app ya permite descubrir locales, explorar platos, anadir productos al carrito y completar un pedido local enteramente cliente-side. Tambien existe seguimiento basico del pedido activo, ticket imprimible y una tercera fase del panel admin orientada a locales, platos y solicitudes.
+La app ya permite descubrir locales, explorar platos, anadir productos al carrito y completar un pedido local enteramente cliente-side. Tambien existe seguimiento basico del pedido activo, ticket imprimible y un panel admin centralizado para locales, platos y solicitudes.
 
 ## Home
 
@@ -31,6 +31,7 @@ La app ya permite descubrir locales, explorar platos, anadir productos al carrit
   - tiempo andando
   - distancia
   - tiempo de recogida
+- distintivo de local verificado cuando se cumplen las condiciones editoriales
 
 ### Estado
 
@@ -47,10 +48,30 @@ La app ya permite descubrir locales, explorar platos, anadir productos al carrit
 - anadir al carrito
 - resumen del carrito del local
 - experiencia simple de llegada al local
+- telefono del local
+- horarios por dia
+- estado `Abierto ahora` o `Cerrado ahora`
 
 ### Estado
 
 - funcionalidad activa de MVP
+
+## Criterio de verificacion del local
+
+Un local verificado en ZylenPick no significa cuenta reclamada ni email validado.
+
+Significa que:
+
+- ha sido revisado por ZylenPick
+- cumple estandares minimos de calidad para recogida
+- esta preparado para una experiencia correcta de recogida
+- forma parte de la red de locales asociados
+- mantiene una suscripcion activa
+
+El distintivo visual solo aparece cuando:
+
+- `is_verified = true`
+- `subscription_active = true`
 
 ## Carrito y checkout
 
@@ -115,18 +136,6 @@ La app ya permite descubrir locales, explorar platos, anadir productos al carrit
 - MVP funcional
 - sin SDK de mapas
 
-## Contacto con el local
-
-### Que hace hoy
-
-- boton `Como llegar`
-- boton `Enviar email` cuando hay email
-- boton `Llamar` previsto, pero normalmente sin dato real consistente
-
-### Estado
-
-- parcial / provisional
-
 ## Captacion de negocios
 
 ### Que hace hoy
@@ -156,17 +165,16 @@ La app ya permite descubrir locales, explorar platos, anadir productos al carrit
   - listado
   - crear local
   - editar local
-- gestion centralizada de platos desde cada local:
-  - ver platos del local
-  - crear plato
-  - editar plato
-  - activar o desactivar
-  - marcar como destacado
-- gestion centralizada de solicitudes:
-  - listado
-  - detalle
-  - aprobar
-  - rechazar
+  - telefono
+  - horarios
+  - verificacion editorial
+  - suscripcion activa
+  - publicacion
+  - notas de recogida
+  - tiempo de recogida
+  - orden visual
+- gestion centralizada de platos desde cada local
+- gestion centralizada de solicitudes
 
 ### Que puede gestionar hoy
 
@@ -176,7 +184,7 @@ La app ya permite descubrir locales, explorar platos, anadir productos al carrit
 
 ### Estado
 
-- tercera fase activa
+- fase operativa activa
 - sin panel para locales
 - sin roles complejos
 - dashboard simple, sin analytics avanzadas

@@ -1,3 +1,5 @@
+import type { OpeningHoursValue } from "@/features/venues/opening-hours";
+
 export type VenueListItem = {
   id: string;
   slug: string;
@@ -6,6 +8,8 @@ export type VenueListItem = {
   coverUrl: string | null;
   address: string | null;
   pickupEtaMin: number | null;
+  isVerified: boolean;
+  subscriptionActive: boolean;
 };
 
 export type VenueMenuItem = {
@@ -28,8 +32,13 @@ export type VenueDetails = {
   logoUrl: string | null;
   address: string | null;
   email: string | null;
+  phone: string | null;
   pickupNotes: string | null;
   pickupEtaMin: number | null;
+  isVerified: boolean;
+  subscriptionActive: boolean;
+  openingHours: OpeningHoursValue;
+  isOpenNow: boolean;
   city: {
     slug: string;
     name: string;
