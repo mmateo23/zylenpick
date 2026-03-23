@@ -3,6 +3,8 @@ import { getCities } from "@/features/cities/services/cities-service";
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export const revalidate = 900;
+
 export default async function HomePage() {
   const configured = isSupabaseConfigured();
   const cities = configured ? await getCities() : [];

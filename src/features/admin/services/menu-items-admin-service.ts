@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -35,6 +36,11 @@ export type AdminMenuItemFormValues = {
 
 type NormalizedMenuItemFormValues = Omit<AdminMenuItemFormValues, "id" | "venueId">;
 
+type PublicVenuePathContext = {
+  citySlug: string;
+  venueSlug: string;
+};
+
 function isMissingFeaturedColumnError(message: string) {
   return message.toLowerCase().includes("menu_items.is_featured");
 }
@@ -66,6 +72,42 @@ function normalizeMenuItemFormValues(formData: FormData): NormalizedMenuItemForm
     isAvailable: formData.get("isAvailable") === "on",
     isFeatured: formData.get("isFeatured") === "on",
   };
+}
+
+async function getPublicVenuePathContextById(
+  venueId: string,
+): Promise<PublicVenuePathContext | null> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("venues")
+    .select("slug, cities!inner(slug)")
+    .eq("id", venueId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to load public venue path: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    citySlug: data.cities.slug,
+    venueSlug: data.slug,
+  };
+}
+
+function revalidatePublicVenuePaths(pathContext: PublicVenuePathContext | null) {
+  if (!pathContext) {
+    revalidatePath("/");
+    return;
+  }
+
+  revalidatePath("/");
+  revalidatePath("/cities");
+  revalidatePath(`/cities/${pathContext.citySlug}`);
+  revalidatePath(`/cities/${pathContext.citySlug}/venues/${pathContext.venueSlug}`);
 }
 
 export async function getAdminVenueContext(
@@ -226,6 +268,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
   const supabase = createSupabaseServerClient();
+  const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase.from("menu_items").insert({
     venue_id: venueId,
@@ -257,6 +300,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
       throw new Error(`Unable to create menu item: ${fallbackError.message}`);
     }
 
+    revalidatePublicVenuePaths(publicPath);
     redirect(`/panel/locales/${venueId}/platos`);
   }
 
@@ -264,6 +308,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
     throw new Error(`Unable to create menu item: ${error.message}`);
   }
 
+  revalidatePublicVenuePaths(publicPath);
   redirect(`/panel/locales/${venueId}/platos`);
 }
 
@@ -277,6 +322,7 @@ export async function updateMenuItemAction(
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
   const supabase = createSupabaseServerClient();
+  const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase
     .from("menu_items")
@@ -312,6 +358,7 @@ export async function updateMenuItemAction(
       throw new Error(`Unable to update menu item: ${fallbackError.message}`);
     }
 
+    revalidatePublicVenuePaths(publicPath);
     redirect(`/panel/locales/${venueId}/platos`);
   }
 
@@ -319,6 +366,7 @@ export async function updateMenuItemAction(
     throw new Error(`Unable to update menu item: ${error.message}`);
   }
 
+  revalidatePublicVenuePaths(publicPath);
   redirect(`/panel/locales/${venueId}/platos`);
 }
 
@@ -330,6 +378,7 @@ export async function toggleMenuItemAvailabilityAction(
   "use server";
 
   const supabase = createSupabaseServerClient();
+  const publicPath = await getPublicVenuePathContextById(venueId);
   const { error } = await supabase
     .from("menu_items")
     .update({
@@ -342,6 +391,7 @@ export async function toggleMenuItemAvailabilityAction(
     throw new Error(`Unable to toggle menu item availability: ${error.message}`);
   }
 
+  revalidatePublicVenuePaths(publicPath);
   redirect(`/panel/locales/${venueId}/platos`);
 }
 

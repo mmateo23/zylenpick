@@ -11,6 +11,8 @@ import {
 } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export const revalidate = 3600;
+
 type CityVenuesPageProps = {
   params: {
     citySlug: string;

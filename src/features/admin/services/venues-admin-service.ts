@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import {
@@ -143,6 +144,76 @@ async function ensureUniqueVenueSlug(slug: string, currentVenueId?: string) {
 
   if (data.length > 0) {
     throw new Error("Ya existe un local con ese slug.");
+  }
+}
+
+type PublicVenuePathContext = {
+  citySlug: string;
+  venueSlug: string;
+};
+
+async function getCitySlugById(cityId: string) {
+  if (!cityId) {
+    return null;
+  }
+
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("cities")
+    .select("slug")
+    .eq("id", cityId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to load city slug: ${error.message}`);
+  }
+
+  return data?.slug ?? null;
+}
+
+async function getPublicVenuePathContextById(
+  venueId: string,
+): Promise<PublicVenuePathContext | null> {
+  const supabase = createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("venues")
+    .select("slug, cities!inner(slug)")
+    .eq("id", venueId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Unable to load public venue path: ${error.message}`);
+  }
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    citySlug: data.cities.slug,
+    venueSlug: data.slug,
+  };
+}
+
+function revalidatePublicVenuePaths(paths: Array<PublicVenuePathContext | null>) {
+  const uniquePaths = new Set<string>();
+
+  for (const pathContext of paths) {
+    if (!pathContext) {
+      continue;
+    }
+
+    uniquePaths.add(`/cities/${pathContext.citySlug}`);
+    uniquePaths.add(
+      `/cities/${pathContext.citySlug}/venues/${pathContext.venueSlug}`,
+    );
+  }
+
+  uniquePaths.add("/");
+  uniquePaths.add("/cities");
+
+  for (const path of Array.from(uniquePaths)) {
+    revalidatePath(path);
   }
 }
 
@@ -318,12 +389,24 @@ export async function createVenueAction(formData: FormData) {
     }
   }
 
+  const nextCitySlug = await getCitySlugById(values.cityId);
+
+  revalidatePublicVenuePaths([
+    nextCitySlug
+      ? {
+          citySlug: nextCitySlug,
+          venueSlug: values.slug,
+        }
+      : null,
+  ]);
+
   redirect("/panel/locales");
 }
 
 export async function updateVenueAction(venueId: string, formData: FormData) {
   "use server";
 
+  const previousPublicPath = await getPublicVenuePathContextById(venueId);
   const values = normalizeVenueFormValues(formData);
   validateVenueFormValues(values);
   await ensureUniqueVenueSlug(values.slug, venueId);
@@ -354,6 +437,18 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
   if (error) {
     throw new Error(`Unable to update venue: ${error.message}`);
   }
+
+  const nextCitySlug = await getCitySlugById(values.cityId);
+
+  revalidatePublicVenuePaths([
+    previousPublicPath,
+    nextCitySlug
+      ? {
+          citySlug: nextCitySlug,
+          venueSlug: values.slug,
+        }
+      : null,
+  ]);
 
   redirect("/panel/locales");
 }

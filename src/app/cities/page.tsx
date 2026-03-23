@@ -4,6 +4,8 @@ import { SiteShell } from "@/components/layout/site-shell";
 import { getCities } from "@/features/cities/services/cities-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export const revalidate = 3600;
+
 export default async function CitiesPage() {
   const cities = await getCities();
   const isConfigured = isSupabaseConfigured();

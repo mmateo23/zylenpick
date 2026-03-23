@@ -16,6 +16,8 @@ import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary"
 import { getVenueDetails } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
+export const revalidate = 1800;
+
 type VenuePageProps = {
   params: {
     citySlug: string;

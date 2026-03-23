@@ -16,6 +16,10 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "ZylenPick — Comida local para recoger",
   description: "Pedidos locales para recoger de forma simple y visual.",
+  icons: {
+    icon: "/logo/ZylenPick_LOGO.svg",
+    shortcut: "/logo/ZylenPick_LOGO.svg",
+  },
 };
 
 export default function RootLayout({
