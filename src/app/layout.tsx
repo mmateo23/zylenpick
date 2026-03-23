@@ -17,8 +17,8 @@ export const metadata: Metadata = {
   title: "ZylenPick — Comida local para recoger",
   description: "Pedidos locales para recoger de forma simple y visual.",
   icons: {
-    icon: "/logo/ZylenPick_LOGO.svg",
-    shortcut: "/logo/ZylenPick_LOGO.svg",
+    icon: "/logo/ZylenPick_LOGO.svg?v=2",
+    shortcut: "/logo/ZylenPick_LOGO.svg?v=2",
   },
 };
 
