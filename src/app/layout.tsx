@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo/ZylenPick_LOGO.svg?v=2",
     shortcut: "/logo/ZylenPick_LOGO.svg?v=2",
+    apple: "/logo/ZylenPick_LOGO.png?v=1",
   },
 };
 
