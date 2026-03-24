@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+function isDevelopmentAdminBypassEnabled() {
+  return process.env.NODE_ENV === "development";
+}
+
 function getAllowedAdminEmails() {
   return (process.env.ADMIN_ALLOWED_EMAILS ?? "")
     .split(",")
@@ -19,6 +23,21 @@ export function isAdminEmail(email: string | null | undefined) {
 }
 
 export async function getAdminSessionState() {
+  if (isDevelopmentAdminBypassEnabled()) {
+    const fallbackEmail = getAllowedAdminEmails()[0] ?? null;
+
+    return {
+      configured: true,
+      // Bypass temporal solo para desarrollo local.
+      user: { id: "development-admin", email: fallbackEmail } as {
+        id: string;
+        email: string | null;
+      },
+      authorized: true,
+      email: fallbackEmail,
+    };
+  }
+
   if (!isSupabaseConfigured()) {
     return {
       configured: false,
