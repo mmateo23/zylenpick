@@ -10,10 +10,49 @@ type VenueOpeningHoursProps = {
   isOpenNow: boolean;
 };
 
+type OpeningHoursGroup = {
+  key: string;
+  label: string;
+  formattedHours: string;
+  isClosed: boolean;
+};
+
 export function VenueOpeningHours({
   openingHours,
   isOpenNow,
 }: VenueOpeningHoursProps) {
+  const groupedHours = openingHourDayOrder.reduce<OpeningHoursGroup[]>(
+    (groups, dayKey) => {
+      const dayValue = openingHours[dayKey];
+      const isClosed =
+        !dayValue.isOpen || !dayValue.firstOpen || !dayValue.firstClose;
+      const formattedHours = formatOpeningHoursDay(dayValue);
+      const dayLabel = openingHourDayLabels[dayKey];
+      const lastGroup = groups[groups.length - 1];
+
+      if (
+        lastGroup &&
+        lastGroup.formattedHours === formattedHours &&
+        lastGroup.isClosed === isClosed
+      ) {
+        const [firstLabel] = lastGroup.label.split(" - ");
+        lastGroup.label = `${firstLabel} - ${dayLabel}`;
+        lastGroup.key = `${lastGroup.key}-${dayKey}`;
+        return groups;
+      }
+
+      groups.push({
+        key: dayKey,
+        label: dayLabel,
+        formattedHours,
+        isClosed,
+      });
+
+      return groups;
+    },
+    [],
+  );
+
   return (
     <section className="glass-panel rounded-[2.3rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -37,44 +76,46 @@ export function VenueOpeningHours({
         </span>
       </div>
 
-      <div className="mt-6 grid gap-3 md:grid-cols-2">
-        {openingHourDayOrder.map((dayKey) => {
-          const dayValue = openingHours[dayKey];
-          const isClosed = !dayValue.isOpen || !dayValue.firstOpen || !dayValue.firstClose;
-
-          return (
-            <div
-              key={dayKey}
-              className={`grid grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-3 rounded-[1.2rem] border p-4 ${
-                isClosed
-                  ? "border-[#E5484D]/25 bg-[#E5484D]/8"
-                  : "border-white/10 bg-white/5"
-              }`}
-            >
-              <span
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold ${
-                  isClosed
-                    ? "bg-[#E5484D]/12 text-[#FFB4B4]"
-                    : "bg-[color:var(--surface-strong)] text-[color:var(--foreground)]"
+      <div className="mt-6 space-y-3">
+        {groupedHours.map((group) => (
+          <div
+            key={group.key}
+            className={`flex items-center justify-between gap-4 rounded-[1.2rem] border px-4 py-3 ${
+              group.isClosed
+                ? "border-[#E5484D]/25 bg-[#E5484D]/8"
+                : "border-white/10 bg-white/5"
+            }`}
+          >
+            <div className="min-w-0">
+              <p
+                className={`text-sm font-semibold ${
+                  group.isClosed
+                    ? "text-[#FFB4B4]"
+                    : "text-[color:var(--foreground)]"
                 }`}
               >
-                {openingHourDayLabels[dayKey]}
-              </span>
-              <div>
-                <p className="text-sm font-medium text-[color:var(--foreground)]">
-                  {formatOpeningHoursDay(dayValue)}
-                </p>
-                <p
-                  className={`mt-1 text-xs ${
-                    isClosed ? "text-[#FFB4B4]" : "text-[color:var(--muted)]"
-                  }`}
-                >
-                  {isClosed ? "Cerrado" : "Abierto"}
-                </p>
-              </div>
+                {group.label}
+              </p>
+              <p
+                className={`mt-1 text-sm ${
+                  group.isClosed
+                    ? "text-[#FFB4B4]"
+                    : "text-[color:var(--muted-strong)]"
+                }`}
+              >
+                {group.formattedHours}
+              </p>
             </div>
-          );
-        })}
+
+            <span
+              className={`shrink-0 text-xs font-medium uppercase tracking-[0.18em] ${
+                group.isClosed ? "text-[#FFB4B4]" : "text-[color:var(--muted)]"
+              }`}
+            >
+              {group.isClosed ? "Cerrado" : "Abierto"}
+            </span>
+          </div>
+        ))}
       </div>
     </section>
   );
