@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 import type {
   AdminMenuItemFormValues,
@@ -47,6 +50,16 @@ export function AdminMenuItemForm({
   initialValues,
 }: AdminMenuItemFormProps) {
   const values = buildInitialValues(venue.id, initialValues);
+  const [imageUrl, setImageUrl] = useState(values.imageUrl);
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setImageUrl(values.imageUrl);
+    setHasImageError(false);
+  }, [values.imageUrl]);
+
+  const trimmedImageUrl = imageUrl.trim();
+  const hasPreview = Boolean(trimmedImageUrl) && !hasImageError;
 
   return (
     <section className="glass-panel rounded-[1.8rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
@@ -131,18 +144,52 @@ export function AdminMenuItemForm({
             />
           </label>
 
-          <label className="block md:col-span-2">
-            <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Imagen
-            </span>
-            <input
-              name="imageUrl"
-              type="url"
-              defaultValue={values.imageUrl}
-              className={fieldClassName()}
-              placeholder="https://..."
-            />
-          </label>
+          <div className="grid gap-4 md:col-span-2 lg:grid-cols-[minmax(0,1fr)_16rem]">
+            <label className="block">
+              <span className="text-sm font-medium text-[color:var(--foreground)]">
+                Imagen
+              </span>
+              <input
+                name="imageUrl"
+                type="url"
+                defaultValue={values.imageUrl}
+                className={fieldClassName()}
+                placeholder="https://..."
+                onChange={(event) => {
+                  setImageUrl(event.target.value);
+                  setHasImageError(false);
+                }}
+              />
+            </label>
+
+            <div className="rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] p-3">
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--muted)]">
+                Vista previa
+              </p>
+
+              <div className="mt-3 overflow-hidden rounded-[1rem] border border-white/10 bg-white/5">
+                {trimmedImageUrl ? (
+                  hasPreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={trimmedImageUrl}
+                      alt="Vista previa de la imagen del plato"
+                      className="h-52 w-full object-cover"
+                      onError={() => setHasImageError(true)}
+                    />
+                  ) : (
+                    <div className="flex h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[color:var(--muted-strong)]">
+                      No hemos podido cargar la imagen con esta URL.
+                    </div>
+                  )
+                ) : (
+                  <div className="flex h-52 items-center justify-center px-4 text-center text-sm leading-6 text-[color:var(--muted-strong)]">
+                    Pega una URL para ver aquí la imagen del plato.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
           <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
             <input
