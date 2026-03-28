@@ -1,6 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 
+import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminVenueContext = {
@@ -267,7 +268,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
 
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
   const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase.from("menu_items").insert({
@@ -321,7 +322,7 @@ export async function updateMenuItemAction(
 
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
   const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase
@@ -377,7 +378,7 @@ export async function toggleMenuItemAvailabilityAction(
 ) {
   "use server";
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
   const publicPath = await getPublicVenuePathContextById(venueId);
   const { error } = await supabase
     .from("menu_items")

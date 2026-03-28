@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  isSupabaseAdminConfigured,
+  isSupabaseConfigured,
+} from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function isDevelopmentAdminBypassEnabled() {
@@ -72,4 +76,30 @@ export async function requireAdminSession() {
   }
 
   return sessionState;
+}
+
+export async function requireAuthorizedAdminSession() {
+  const sessionState = await requireAdminSession();
+
+  if (!sessionState.authorized) {
+    redirect("/panel/login");
+  }
+
+  return sessionState;
+}
+
+export async function createAdminMutationClient() {
+  const sessionState = await requireAuthorizedAdminSession();
+
+  if (isSupabaseAdminConfigured()) {
+    return createSupabaseAdminClient();
+  }
+
+  if (sessionState.user?.id === "development-admin") {
+    throw new Error(
+      "Las acciones de escritura del panel en desarrollo requieren SUPABASE_SERVICE_ROLE_KEY en .env.local.",
+    );
+  }
+
+  return createSupabaseServerClient();
 }

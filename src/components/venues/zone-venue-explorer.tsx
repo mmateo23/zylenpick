@@ -16,6 +16,7 @@ import {
   getVenueCoordinates,
 } from "@/features/venues/venue-meta";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 type ZoneVenueExplorerProps = {
   citySlug: string;
@@ -197,6 +198,13 @@ export function ZoneVenueExplorer({
 
             <Link
               href={`/cities/${citySlug}/venues/${featuredVenue.slug}`}
+              onClick={() =>
+                trackEvent("select_venue", {
+                  venue_slug: featuredVenue.slug,
+                  venue_name: featuredVenue.name,
+                  city_slug: citySlug,
+                })
+              }
               className="magnetic-button mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
             >
               Ver menú
@@ -239,6 +247,13 @@ export function ZoneVenueExplorer({
               <Link
                 key={venue.id}
                 href={`/cities/${citySlug}/venues/${venue.slug}`}
+                onClick={() =>
+                  trackEvent("select_venue", {
+                    venue_slug: venue.slug,
+                    venue_name: venue.name,
+                    city_slug: citySlug,
+                  })
+                }
                 className="editorial-card hover-lift-card group overflow-hidden rounded-[2.5rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)]"
               >
                 <div

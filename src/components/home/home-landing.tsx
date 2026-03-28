@@ -17,6 +17,7 @@ import {
 import { saveSelectedCity } from "@/features/location/city-preference";
 import { getVenueCoordinates } from "@/features/venues/venue-meta";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 type HomeLandingProps = {
   cities: City[];
@@ -212,6 +213,11 @@ export function HomeLanding({
         slug: selectedCityData.slug,
         name: selectedCityData.name,
       });
+      trackEvent("select_city", {
+        city_slug: selectedCityData.slug,
+        city_name: selectedCityData.name,
+        source: "manual",
+      });
     }
 
     setFeedback(null);
@@ -266,6 +272,11 @@ export function HomeLanding({
         saveSelectedCity({
           slug: matchedCity.slug,
           name: matchedCity.name,
+        });
+        trackEvent("select_city", {
+          city_slug: matchedCity.slug,
+          city_name: matchedCity.name,
+          source: "geolocation",
         });
         router.push(`/cities/${matchedCity.slug}`);
       },

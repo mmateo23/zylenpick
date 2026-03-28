@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   createDefaultOpeningHours,
@@ -7,7 +8,9 @@ import {
   openingHourDayOrder,
   type OpeningHoursValue,
 } from "@/features/venues/opening-hours";
+import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/types/database";
 
 export type AdminVenueListItem = {
   id: string;
@@ -128,8 +131,11 @@ function validateVenueFormValues(values: NormalizedVenueFormValues) {
   }
 }
 
-async function ensureUniqueVenueSlug(slug: string, currentVenueId?: string) {
-  const supabase = createSupabaseServerClient();
+async function ensureUniqueVenueSlug(
+  supabase: SupabaseClient<Database>,
+  slug: string,
+  currentVenueId?: string,
+) {
   let query = supabase.from("venues").select("id").eq("slug", slug);
 
   if (currentVenueId) {
@@ -345,9 +351,8 @@ export async function createVenueAction(formData: FormData) {
   const values = normalizeVenueFormValues(formData);
   const linkedRequestId = String(formData.get("linkedRequestId") ?? "").trim();
   validateVenueFormValues(values);
-  await ensureUniqueVenueSlug(values.slug);
-
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
+  await ensureUniqueVenueSlug(supabase, values.slug);
   const { data, error } = await supabase
     .from("venues")
     .insert({
@@ -409,9 +414,8 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
   const previousPublicPath = await getPublicVenuePathContextById(venueId);
   const values = normalizeVenueFormValues(formData);
   validateVenueFormValues(values);
-  await ensureUniqueVenueSlug(values.slug, venueId);
-
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
+  await ensureUniqueVenueSlug(supabase, values.slug, venueId);
   const { error } = await supabase
     .from("venues")
     .update({

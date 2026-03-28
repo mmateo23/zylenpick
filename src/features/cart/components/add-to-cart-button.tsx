@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { CartVenue } from "@/features/cart/types";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 type AddToCartButtonProps = {
   venue: CartVenue;
@@ -39,6 +40,14 @@ export function AddToCartButton({
       setFeedback(`Tu carrito pertenece a ${result.conflictingVenueName}.`);
       return;
     }
+
+    trackEvent("add_to_cart", {
+      item_id: item.id,
+      item_name: item.name,
+      venue_name: venue.name,
+      price: item.priceAmount / 100,
+      currency: item.currency,
+    });
 
     setFeedback("Añadido al carrito.");
   };

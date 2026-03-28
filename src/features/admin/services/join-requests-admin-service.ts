@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminJoinRequestStatus = "pending" | "approved" | "rejected";
@@ -119,7 +120,7 @@ export async function updateJoinRequestStatusAction(
 ) {
   "use server";
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
   const { error } = await supabase
     .from("join_requests")
     .update({
@@ -138,7 +139,7 @@ export async function updateJoinRequestStatusAction(
 export async function deleteJoinRequestAction(requestId: string) {
   "use server";
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminMutationClient();
   const { data, error } = await supabase
     .from("join_requests")
     .select("linked_venue_id")
