@@ -1,6 +1,7 @@
 import { getOpeningStatus, normalizeOpeningHours } from "@/features/venues/opening-hours";
 import type {
   HomeShowcaseItem,
+  MenuItemAllergen,
   VenueDetails,
   VenueListItem,
   VenueMenuItem,
@@ -14,6 +15,10 @@ function isMissingVenueFeaturedColumnError(message: string) {
 
 function isMissingHomeFeaturedColumnError(message: string) {
   return message.toLowerCase().includes("menu_items.is_home_featured");
+}
+
+function isMissingMenuItemAllergensColumnError(message: string) {
+  return message.toLowerCase().includes("menu_items.allergens");
 }
 
 function isMissingSubscriptionTierColumnError(message: string) {
@@ -32,6 +37,33 @@ export type CitySummary = {
   heroImageUrl: string | null;
   heroVideoUrl: string | null;
 };
+
+const knownMenuItemAllergens = new Set<MenuItemAllergen>([
+  "gluten",
+  "crustaceos",
+  "huevo",
+  "pescado",
+  "cacahuetes",
+  "soja",
+  "leche",
+  "frutos_de_cascara",
+  "apio",
+  "mostaza",
+  "sesamo",
+  "sulfitos",
+  "altramuces",
+  "moluscos",
+]);
+
+function mapMenuItemAllergens(value?: string[] | null): MenuItemAllergen[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((allergen): allergen is MenuItemAllergen =>
+    knownMenuItemAllergens.has(allergen as MenuItemAllergen),
+  );
+}
 
 function mapVenueListItem(row: {
   id: string;
@@ -70,6 +102,7 @@ function mapVenueMenuItem(row: {
   price_amount: number;
   currency: string;
   image_url: string | null;
+  allergens?: string[] | null;
   category_name: string | null;
   is_featured: boolean;
   is_home_featured: boolean;
@@ -83,6 +116,7 @@ function mapVenueMenuItem(row: {
     currency: row.currency,
     imageUrl: row.image_url,
     categoryName: row.category_name,
+    allergens: mapMenuItemAllergens(row.allergens),
     isFeatured: row.is_featured,
     isHomeFeatured: row.is_home_featured,
     isPickupMonthHighlight: row.is_pickup_month_highlight,
@@ -96,6 +130,7 @@ function mapHomeShowcaseItem(row: {
   price_amount: number;
   currency: string;
   image_url: string | null;
+  allergens?: string[] | null;
   category_name: string | null;
   is_featured: boolean;
   is_home_featured: boolean;
@@ -121,6 +156,7 @@ function mapHomeShowcaseItem(row: {
     currency: row.currency,
     imageUrl: row.image_url,
     categoryName: row.category_name,
+    allergens: mapMenuItemAllergens(row.allergens),
     pickupEtaMin: row.venues.pickup_eta_min,
     isFeatured: row.is_featured,
     isHomeFeatured: row.is_home_featured,
@@ -294,14 +330,18 @@ export async function getVenueDetails(
     const { data: menuItems, error: menuError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+        "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
       )
       .eq("venue_id", fallbackVenue.id)
       .eq("is_available", true)
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true });
 
-    if (menuError && isMissingHomeFeaturedColumnError(menuError.message)) {
+    if (
+      menuError &&
+      (isMissingHomeFeaturedColumnError(menuError.message) ||
+        isMissingMenuItemAllergensColumnError(menuError.message))
+    ) {
       const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
         .from("menu_items")
         .select(
@@ -344,6 +384,7 @@ export async function getVenueDetails(
           mapVenueMenuItem({
             ...item,
             is_home_featured: false,
+            allergens: [],
           }),
         ),
       };
@@ -392,14 +433,18 @@ export async function getVenueDetails(
   const { data: menuItems, error: menuError } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
     )
     .eq("venue_id", venue.id)
     .eq("is_available", true)
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true });
 
-  if (menuError && isMissingHomeFeaturedColumnError(menuError.message)) {
+  if (
+    menuError &&
+    (isMissingHomeFeaturedColumnError(menuError.message) ||
+      isMissingMenuItemAllergensColumnError(menuError.message))
+  ) {
     const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
       .from("menu_items")
       .select(
@@ -442,6 +487,7 @@ export async function getVenueDetails(
         mapVenueMenuItem({
           ...item,
           is_home_featured: false,
+          allergens: [],
         }),
       ),
     };
@@ -494,7 +540,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(slug, name, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(slug, name, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -509,6 +555,7 @@ export async function getHomeShowcase(): Promise<{
   if (
     error &&
     (isMissingHomeFeaturedColumnError(error.message) ||
+      isMissingMenuItemAllergensColumnError(error.message) ||
       isMissingSubscriptionTierColumnError(error.message))
   ) {
     const { data: fallbackData, error: fallbackError } = await supabase
@@ -534,6 +581,7 @@ export async function getHomeShowcase(): Promise<{
     const featuredItems = [...featuredRows, ...regularRows].map((item) =>
         mapHomeShowcaseItem({
           ...item,
+          allergens: [],
           is_home_featured: false,
           venues: {
             ...item.venues,
@@ -544,6 +592,7 @@ export async function getHomeShowcase(): Promise<{
     const latestItems = regularRows.map((item) =>
       mapHomeShowcaseItem({
         ...item,
+        allergens: [],
         is_home_featured: false,
         venues: {
           ...item.venues,

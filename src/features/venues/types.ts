@@ -1,5 +1,21 @@
 import type { OpeningHoursValue } from "@/features/venues/opening-hours";
 
+export type MenuItemAllergen =
+  | "gluten"
+  | "crustaceos"
+  | "huevo"
+  | "pescado"
+  | "cacahuetes"
+  | "soja"
+  | "leche"
+  | "frutos_de_cascara"
+  | "apio"
+  | "mostaza"
+  | "sesamo"
+  | "sulfitos"
+  | "altramuces"
+  | "moluscos";
+
 export type VenueListItem = {
   id: string;
   slug: string;
@@ -24,6 +40,7 @@ export type VenueMenuItem = {
   imageUrl: string | null;
   secondaryImageUrl?: string | null;
   categoryName: string | null;
+  allergens: MenuItemAllergen[];
   isFeatured: boolean;
   isHomeFeatured: boolean;
   isPickupMonthHighlight: boolean;
@@ -61,6 +78,7 @@ export type HomeShowcaseItem = {
   currency: string;
   imageUrl: string | null;
   categoryName: string | null;
+  allergens: MenuItemAllergen[];
   pickupEtaMin: number | null;
   isFeatured: boolean;
   isHomeFeatured: boolean;

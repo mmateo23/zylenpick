@@ -110,49 +110,49 @@ export function VenueArrivalCard({
 
   return (
     <>
-      <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
-        <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
+      <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
           Llegada
         </p>
-        <p className="mt-3 text-2xl font-semibold leading-tight text-[#10130f]">
+        <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
           Cómo llegar.
         </p>
 
         {arrivalMetrics ? (
           <div className="mt-5 grid gap-2.5">
-            <div className="flex items-center gap-3 rounded-[0.9rem] border border-black/10 bg-white/60 px-3 py-2.5">
-              <WalkIcon size={19} className="text-[#1f8a70]" />
+            <div className="flex items-center gap-3 rounded-[0.9rem] border border-border-subtle bg-surface-muted px-3 py-2.5">
+              <WalkIcon size={19} className="text-icon-highlight" />
               <div>
-                <p className="text-sm text-black/50">Andando</p>
-                <p className="text-base font-semibold text-[#10130f]">
+                <p className="text-sm text-text-muted">Andando</p>
+                <p className="text-base font-semibold text-text-primary">
                   {arrivalMetrics.walkingMinutes} min
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-[0.9rem] border border-black/10 bg-white/60 px-3 py-2.5">
-              <LocationPinIcon size={19} className="text-[#1f8a70]" />
+            <div className="flex items-center gap-3 rounded-[0.9rem] border border-border-subtle bg-surface-muted px-3 py-2.5">
+              <LocationPinIcon size={19} className="text-icon-highlight" />
               <div>
-                <p className="text-sm text-black/50">Distancia</p>
-                <p className="text-base font-semibold text-[#10130f]">
+                <p className="text-sm text-text-muted">Distancia</p>
+                <p className="text-base font-semibold text-text-primary">
                   {arrivalMetrics.distanceMeters} m
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 rounded-[0.9rem] border border-black/10 bg-white/60 px-3 py-2.5">
-              <StepsIcon size={19} className="text-[#1f8a70]" />
+            <div className="flex items-center gap-3 rounded-[0.9rem] border border-border-subtle bg-surface-muted px-3 py-2.5">
+              <StepsIcon size={19} className="text-icon-highlight" />
               <div>
-                <p className="text-sm text-black/50">Pasos</p>
-                <p className="text-base font-semibold text-[#10130f]">
+                <p className="text-sm text-text-muted">Pasos</p>
+                <p className="text-base font-semibold text-text-primary">
                   {arrivalMetrics.steps}
                 </p>
               </div>
             </div>
           </div>
         ) : (
-          <div className="mt-5 rounded-[0.9rem] border border-black/10 bg-white/60 px-3 py-3">
-            <p className="text-sm leading-6 text-black/60">
+          <div className="mt-5 rounded-[0.9rem] border border-border-subtle bg-surface-muted px-3 py-3">
+            <p className="text-sm leading-6 text-text-secondary">
               Activa ubicación para ver distancia y tiempo aproximado.
             </p>
           </div>
@@ -163,12 +163,12 @@ export function VenueArrivalCard({
             type="button"
             onClick={handleUseLocation}
             disabled={isLocating}
-            className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-[#10130f] transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
+            className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:bg-surface-muted disabled:cursor-not-allowed disabled:opacity-60"
           >
             {arrivalMetrics ? (
-              <ClockIcon size={18} className="text-[#1f8a70]" />
+              <ClockIcon size={18} className="text-icon-highlight" />
             ) : (
-              <LocationPinIcon size={18} className="text-[#1f8a70]" />
+              <LocationPinIcon size={18} className="text-icon-highlight" />
             )}
             {isLocating
               ? arrivalMetrics
@@ -182,7 +182,7 @@ export function VenueArrivalCard({
           <button
             type="button"
             onClick={() => setIsRouteOpen(true)}
-            className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-[#1f8a70]/20 bg-[#1f8a70]/10 px-4 py-2.5 text-sm font-semibold text-[#11624f] transition hover:bg-[#1f8a70]/20"
+            className="magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
           >
             <LocationPinIcon size={18} />
             Cómo llegar
@@ -190,7 +190,7 @@ export function VenueArrivalCard({
         </div>
 
         {feedback ? (
-          <p className="mt-4 text-sm leading-6 text-black/50">{feedback}</p>
+          <p className="mt-4 text-sm leading-6 text-text-muted">{feedback}</p>
         ) : null}
       </div>
 

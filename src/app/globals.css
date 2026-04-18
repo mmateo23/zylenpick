@@ -3,6 +3,43 @@
 @tailwind utilities;
 
 :root {
+  /* Theme foundation: stable base tokens */
+  --bg-page: #f6f1e6;
+  --bg-page-alt: #e8e1d2;
+  --bg-surface: rgba(255, 255, 255, 0.7);
+  --bg-surface-strong: #ffffff;
+  --bg-surface-muted: rgba(255, 255, 255, 0.48);
+  --text-primary: #181816;
+  --text-secondary: rgba(24, 24, 22, 0.62);
+  --text-muted: rgba(24, 24, 22, 0.42);
+  --text-inverse: #ffffff;
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --overlay-hero-from: rgba(6, 18, 13, 0.62);
+  --overlay-hero-to: rgba(5, 8, 22, 0.82);
+  --overlay-card-from: rgba(6, 10, 11, 0.04);
+  --overlay-card-mid: rgba(6, 10, 11, 0.18);
+  --overlay-card-to: rgba(6, 10, 11, 0.88);
+  --shadow-soft: 0 18px 60px rgba(5, 8, 22, 0.1);
+  --status-danger: #e5484d;
+  --status-warning: #d6a648;
+
+  /* Theme foundation: interchangeable accent tokens */
+  --brand-accent: #5ee6a3;
+  --brand-accent-strong: #00df81;
+  --brand-accent-bright: #7cffb8;
+  --brand-accent-soft: rgba(94, 230, 163, 0.12);
+  --brand-accent-border: rgba(94, 230, 163, 0.28);
+  --brand-accent-shadow: rgba(94, 230, 163, 0.18);
+  --cta-primary-bg: var(--brand-accent);
+  --cta-primary-hover: var(--brand-accent-bright);
+  --cta-primary-text: #07100d;
+  --icon-highlight: var(--brand-accent-strong);
+  --focus-ring: var(--brand-accent);
+  --selection-bg: var(--brand-accent-soft);
+  --price-highlight: var(--brand-accent-strong);
+
+  /* Legacy color aliases kept while pages migrate to the theme foundation. */
   --background: #0d1312;
   --foreground: #f3efe8;
   --surface: #151c1a;
@@ -23,6 +60,35 @@
   --shadow: 0 28px 70px rgba(0, 0, 0, 0.36);
   --soft-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
   --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+.dark {
+  --bg-page: #050816;
+  --bg-page-alt: #07100d;
+  --bg-surface: rgba(255, 255, 255, 0.06);
+  --bg-surface-strong: #0b1211;
+  --bg-surface-muted: rgba(255, 255, 255, 0.04);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.64);
+  --text-muted: rgba(255, 255, 255, 0.44);
+  --text-inverse: #ffffff;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --overlay-hero-from: rgba(6, 18, 13, 0.66);
+  --overlay-hero-to: rgba(5, 8, 22, 0.86);
+  --overlay-card-from: rgba(6, 10, 11, 0.04);
+  --overlay-card-mid: rgba(6, 10, 11, 0.18);
+  --overlay-card-to: rgba(6, 10, 11, 0.9);
+  --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.32);
+  --status-danger: #ff6b70;
+  --status-warning: #f3d58d;
+
+  --brand-accent: #7cffb8;
+  --brand-accent-strong: #5ee6a3;
+  --brand-accent-bright: #9dffca;
+  --brand-accent-soft: rgba(124, 255, 184, 0.12);
+  --brand-accent-border: rgba(124, 255, 184, 0.28);
+  --brand-accent-shadow: rgba(124, 255, 184, 0.18);
 }
 
 * {

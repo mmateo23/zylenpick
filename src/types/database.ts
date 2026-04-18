@@ -16,6 +16,7 @@ export type Database = {
           name: string;
           region: string | null;
           hero_image_url: string | null;
+          hero_video_url: string | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -26,6 +27,7 @@ export type Database = {
           name: string;
           region?: string | null;
           hero_image_url?: string | null;
+          hero_video_url?: string | null;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -36,6 +38,7 @@ export type Database = {
           name?: string;
           region?: string | null;
           hero_image_url?: string | null;
+          hero_video_url?: string | null;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -64,6 +67,7 @@ export type Database = {
           is_featured: boolean;
           is_verified: boolean;
           subscription_active: boolean;
+          subscription_tier: "basic" | "oro" | "titanio";
           is_published: boolean;
           sort_order: number | null;
           is_active: boolean;
@@ -91,6 +95,7 @@ export type Database = {
           is_featured?: boolean;
           is_verified?: boolean;
           subscription_active?: boolean;
+          subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;
           sort_order?: number | null;
           is_active?: boolean;
@@ -118,6 +123,7 @@ export type Database = {
           is_featured?: boolean;
           is_verified?: boolean;
           subscription_active?: boolean;
+          subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;
           sort_order?: number | null;
           is_active?: boolean;
@@ -212,6 +218,7 @@ export type Database = {
           price_amount: number;
           currency: string;
           image_url: string | null;
+          allergens: string[];
             category_name: string | null;
             sort_order: number;
             is_available: boolean;
@@ -229,6 +236,7 @@ export type Database = {
           price_amount: number;
           currency?: string;
           image_url?: string | null;
+          allergens?: string[];
             category_name?: string | null;
             sort_order?: number;
             is_available?: boolean;
@@ -246,6 +254,7 @@ export type Database = {
           price_amount?: number;
           currency?: string;
           image_url?: string | null;
+          allergens?: string[];
             category_name?: string | null;
             sort_order?: number;
             is_available?: boolean;

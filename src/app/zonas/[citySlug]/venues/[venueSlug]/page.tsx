@@ -53,14 +53,14 @@ export async function generateMetadata({
 export default async function VenuePage({ params }: VenuePageProps) {
   if (!isSupabaseConfigured()) {
     return (
-      <div className="min-h-screen bg-[#050816] text-white">
+      <div className="min-h-screen bg-page text-text-primary">
         <SiteHeader />
         <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <section className="rounded-[1.8rem] border border-dashed border-white/12 bg-white/[0.04] p-8 shadow-[var(--soft-shadow)] backdrop-blur-xl">
-            <p className="text-lg font-semibold text-white">
+          <section className="rounded-[1.8rem] border border-dashed border-accent/45 bg-surface-muted p-8 shadow-[var(--soft-shadow)] ring-1 ring-accent-soft backdrop-blur-xl">
+            <p className="text-lg font-semibold text-text-primary">
               Supabase no está configurado.
             </p>
-            <p className="mt-3 text-sm leading-6 text-white/60">
+            <p className="mt-3 text-sm leading-6 text-text-secondary">
               Esta ruta necesita acceso a Supabase para mostrar el local y su
               menú.
             </p>
@@ -101,45 +101,45 @@ export default async function VenuePage({ params }: VenuePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white">
+    <div className="min-h-screen bg-page text-text-primary">
       <SiteHeader />
       <CityPreferenceSync city={{ slug: venue.city.slug, name: venue.city.name }} />
 
       <main>
-        <section className="relative -mt-[5.4rem] overflow-hidden bg-[#050816] pt-[5.4rem]">
+        <section className="relative -mt-[5.4rem] overflow-hidden bg-[var(--overlay-hero-to)] pt-[5.4rem] text-text-inverse">
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
               backgroundImage: venue.coverUrl
                 ? `url(${venue.coverUrl})`
-                : "linear-gradient(135deg, rgba(31, 138, 112, 0.74), rgba(15, 22, 20, 0.92))",
+                : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,223,129,0.12),transparent_26%),linear-gradient(90deg,rgba(5,8,7,0.9)_0%,rgba(5,8,7,0.62)_46%,rgba(5,8,7,0.2)_100%),linear-gradient(180deg,rgba(5,8,7,0.1)_0%,rgba(5,8,7,0.86)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--brand-accent-soft),transparent_24%),linear-gradient(90deg,rgba(5,8,22,0.88)_0%,rgba(5,8,22,0.74)_36%,rgba(5,8,22,0.22)_68%,transparent_100%),linear-gradient(180deg,rgba(5,8,22,0.08)_0%,rgba(5,8,22,0.34)_50%,rgba(5,8,22,0.9)_100%)]" />
 
           <div className="relative z-10 mx-auto flex min-h-[calc(78svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
             <div className="max-w-4xl">
               <Link
                 href={`/zonas/${venue.city.slug}`}
-                className="inline-flex w-fit text-xs font-semibold uppercase tracking-[0.2em] text-white/60 transition hover:text-white"
+                className="inline-flex w-fit text-xs font-semibold uppercase tracking-[0.2em] text-text-inverse/60 transition hover:text-text-inverse"
               >
                 Volver a {venue.city.name}
               </Link>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-white/75 backdrop-blur-xl">
+                <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-text-inverse/75 backdrop-blur-xl">
                   {venue.city.name}
                 </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-medium text-white/75 backdrop-blur-xl">
+                <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl">
                   {venue.pickupEtaMin
                     ? `${venue.pickupEtaMin} min recogida`
                     : "Recogida disponible"}
                 </span>
                 <span
-                  className={`rounded-full border border-white/10 px-4 py-2 text-xs font-medium backdrop-blur-xl ${
+                  className={`rounded-full border border-text-inverse/10 px-4 py-2 text-xs font-medium backdrop-blur-xl ${
                     venue.isOpenNow
-                      ? "bg-[color:var(--brand)]/20 text-white"
-                      : "bg-white/[0.045] text-white/75"
+                      ? "bg-accent-soft text-text-inverse"
+                      : "bg-text-inverse/[0.045] text-text-inverse/75"
                   }`}
                 >
                   {venue.isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
@@ -157,33 +157,33 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 />
               </div>
 
-              <p className="mt-6 max-w-[50rem] text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+              <p className="mt-6 max-w-[50rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
                 {venue.description}
               </p>
 
-              <p className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-white/60">
-                <WalkIcon size={18} className="text-[color:var(--accent)]" />
+              <p className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-text-inverse/60">
+                <WalkIcon size={18} className="text-accent-bright" />
                 Carta visual con {totalMenuItems} platos seleccionados.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="bg-[#f4f0e8] text-[#10130f]">
+        <section className="bg-page text-text-primary">
           <div className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
             <div className="space-y-12">
               {menuSections.map(([categoryName, items]) => (
                 <section key={categoryName}>
                   <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-[0.26em] text-[#1f8a70]">
+                      <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
                         Carta
                       </p>
-                      <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-[#10130f]">
+                      <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
                         {categoryName}
                       </h2>
                     </div>
-                    <span className="rounded-full border border-black/10 bg-white/60 px-4 py-2 text-xs font-semibold text-black/50">
+                    <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
                       {items.length} platos
                     </span>
                   </div>
@@ -214,44 +214,44 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 isOpenNow={venue.isOpenNow}
               />
 
-              <aside className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
-                <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
+              <aside className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
                   Información del local
                 </p>
                 <dl className="mt-5 space-y-4">
                   <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-black/40">
-                      <MapIcon size={17} className="text-[#1f8a70]" />
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <MapIcon size={17} className="text-icon-highlight" />
                       Dirección
                     </dt>
-                    <dd className="mt-2 text-sm leading-6 text-black/70">
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
                       {venue.address ?? "Dirección pendiente"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-black/40">
-                      <ClockIcon size={17} className="text-[#1f8a70]" />
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <ClockIcon size={17} className="text-icon-highlight" />
                       Recogida
                     </dt>
-                    <dd className="mt-2 text-sm leading-6 text-black/70">
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
                       {venue.pickupNotes ?? "Indicaciones pendientes"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-black/40">
-                      <PhoneIcon size={17} className="text-[#1f8a70]" />
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <PhoneIcon size={17} className="text-icon-highlight" />
                       Teléfono
                     </dt>
-                    <dd className="mt-2 text-sm leading-6 text-black/70">
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
                       {venue.phone ?? "Teléfono pendiente"}
                     </dd>
                   </div>
                   <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-black/40">
-                      <LocationPinIcon size={17} className="text-[#1f8a70]" />
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <LocationPinIcon size={17} className="text-icon-highlight" />
                       Zona
                     </dt>
-                    <dd className="mt-2 text-sm leading-6 text-black/70">
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
                       {venue.city.name}
                     </dd>
                   </div>
