@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { Logo } from "@/components/branding/logo";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
+import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
+import { BorderBeam } from "@/components/magicui/border-beam";
 import type { City } from "@/features/cities/types";
 import {
   getDistanceInKm,
@@ -22,6 +24,7 @@ import { trackEvent } from "@/lib/analytics/track-event";
 type HomeLandingProps = {
   cities: City[];
   isConfigured: boolean;
+  heroImageUrl: string;
   featuredItems: HomeShowcaseItem[];
   latestItems: HomeShowcaseItem[];
 };
@@ -92,11 +95,16 @@ function FeaturedDishCard({
   userLocation: UserLocation | null;
 }) {
   const journey = getItemJourney(item, userLocation);
+  const highlightClassName = item.isPickupMonthHighlight
+    ? "border-[rgba(31,138,112,0.42)] shadow-[0_0_0_1px_rgba(31,138,112,0.22),0_20px_42px_rgba(31,138,112,0.18)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(31,138,112,0.72)] group-hover:shadow-[0_0_0_1px_rgba(31,138,112,0.28),0_0_32px_rgba(31,138,112,0.24),0_22px_52px_rgba(31,138,112,0.24)]"
+    : item.isFeatured
+      ? "gold-spotlight-card border-[rgba(214,166,72,0.42)] shadow-[0_0_0_1px_rgba(214,166,72,0.22),0_20px_42px_rgba(214,166,72,0.16)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(214,166,72,0.74)] group-hover:shadow-[0_0_0_1px_rgba(214,166,72,0.28),0_0_28px_rgba(214,166,72,0.2),0_22px_52px_rgba(214,166,72,0.22)]"
+      : "border-white/10 shadow-[var(--soft-shadow)] transition-[box-shadow,border-color,transform] duration-300";
 
   return (
     <Link
-      href={`/cities/${item.venue.citySlug}/venues/${item.venue.slug}`}
-      className="editorial-card hover-lift-card group overflow-hidden rounded-[2.2rem] border border-white/10 shadow-[var(--soft-shadow)]"
+      href={`/zonas/${item.venue.citySlug}/venues/${item.venue.slug}#plato-${item.id}`}
+      className={`editorial-card hover-lift-card group overflow-hidden rounded-[2.2rem] border ${highlightClassName}`}
       style={{
         backgroundImage: item.imageUrl
           ? `linear-gradient(180deg, rgba(5, 8, 7, 0.08), rgba(5, 8, 7, 0.86)), url(${item.imageUrl})`
@@ -105,9 +113,33 @@ function FeaturedDishCard({
         backgroundPosition: "center",
       }}
     >
-      <div className="min-h-[25rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]" />
-      <div className="relative z-10 -mt-36 flex min-h-[16rem] flex-col justify-end bg-[linear-gradient(180deg,rgba(6,9,8,0),rgba(6,9,8,0.5)_18%,rgba(6,9,8,0.88))] px-6 pb-6 pt-16">
+      {item.isFeatured ? (
+        <BorderBeam
+          size={320}
+          duration={8}
+          borderWidth={2}
+          className="from-transparent via-[#f3d58d] to-transparent opacity-95"
+        />
+      ) : null}
+      <div className="gold-spotlight-content min-h-[25rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]" />
+      <div className="gold-spotlight-content relative z-10 -mt-36 flex min-h-[16rem] flex-col justify-end bg-[linear-gradient(180deg,rgba(6,9,8,0),rgba(6,9,8,0.5)_18%,rgba(6,9,8,0.88))] px-6 pb-6 pt-16">
         <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {item.isFeatured ? (
+              <span
+                title="Destacado"
+                aria-label="Destacado"
+                className="featured-badge-animated inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(214,166,72,0.38)] bg-[rgba(214,166,72,0.16)] text-[#f3d58d]"
+              >
+                <FeaturedBadgeIcon size={18} />
+              </span>
+            ) : null}
+            {item.isPickupMonthHighlight ? (
+              <span className="rounded-full border border-[rgba(31,138,112,0.34)] bg-[rgba(31,138,112,0.16)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8ae0c1]">
+                Top del mes
+              </span>
+            ) : null}
+          </div>
           <p className="text-sm text-white/72">{item.venue.name}</p>
           <h3 className="max-w-[12ch] text-balance text-3xl font-semibold leading-[0.95] text-white sm:text-[2rem]">
             {item.name}
@@ -127,6 +159,7 @@ function FeaturedDishCard({
 export function HomeLanding({
   cities,
   isConfigured,
+  heroImageUrl,
   featuredItems,
   latestItems,
 }: HomeLandingProps) {
@@ -221,7 +254,7 @@ export function HomeLanding({
     }
 
     setFeedback(null);
-    router.push(`/cities/${selectedCity}`);
+    router.push(`/zonas/${selectedCity}`);
   };
 
   const handleUseLocation = () => {
@@ -278,7 +311,7 @@ export function HomeLanding({
           city_name: matchedCity.name,
           source: "geolocation",
         });
-        router.push(`/cities/${matchedCity.slug}`);
+      router.push(`/zonas/${matchedCity.slug}`);
       },
       () => {
         setIsLocating(false);
@@ -298,8 +331,7 @@ export function HomeLanding({
       <section
         className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-5 py-6 sm:px-6 lg:px-8"
         style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(6, 9, 8, 0.22), rgba(6, 9, 8, 0.86)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=80')",
+          backgroundImage: `linear-gradient(180deg, rgba(6, 9, 8, 0.22), rgba(6, 9, 8, 0.86)), url('${heroImageUrl}')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

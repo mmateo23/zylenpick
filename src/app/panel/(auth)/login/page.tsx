@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { AdminAuthForm } from "@/components/admin/admin-auth-form";
 import { AdminUnauthorizedState } from "@/components/admin/admin-unauthorized-state";
 import { getAdminSessionState } from "@/features/admin/services/admin-auth";
+import { getNoIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getNoIndexMetadata({
+  title: "Acceso al panel",
+  description: "Área privada para acceder al panel de administración.",
+});
 
 export default async function AdminLoginPage() {
   const sessionState = await getAdminSessionState();

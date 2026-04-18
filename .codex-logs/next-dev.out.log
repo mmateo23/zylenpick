@@ -1,0 +1,186 @@
+
+> fknfood@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.32
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1570ms
+ ○ Compiling /demo/zonas/[citySlug] ...
+ ✓ Compiled /demo/zonas/[citySlug] in 6.9s (953 modules)
+ ✓ Compiled in 335ms (921 modules)
+ GET /demo/zonas/talavera-de-la-reina 200 in 7315ms
+ GET /_next/static/webpack/3add6dcbcb68affc.webpack.hot-update.json 404 in 7507ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 418ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 978ms (1147 modules)
+ ○ Compiling /demo ...
+ ✓ Compiled /demo in 2.2s (1972 modules)
+ ○ Compiling /zonas/[citySlug]/venues/[venueSlug] ...
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 1699ms (2067 modules)
+ GET /zonas/talavera-de-la-reina/venues/la-comida-de-los-dados 200 in 2538ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 368ms
+ ○ Compiling / ...
+ ✓ Compiled / in 624ms (2054 modules)
+ GET / 200 in 1197ms
+ ○ Compiling /demo/platos ...
+ ✓ Compiled /demo/platos in 1067ms (2022 modules)
+ ✓ Compiled /favicon.ico in 300ms (2025 modules)
+ ✓ Compiled (2057 modules)
+ GET /favicon.ico 200 in 573ms
+ GET /apple-touch-icon-precomposed.png 404 in 747ms
+ GET /apple-touch-icon.png 404 in 573ms
+ GET /favicon.ico 200 in 9ms
+ ✓ Compiled in 1575ms (2020 modules)
+ ✓ Compiled in 492ms (1061 modules)
+ ✓ Compiled / in 190ms (961 modules)
+ GET / 200 in 1545ms
+ ✓ Compiled /platos in 427ms (2024 modules)
+ GET /platos 200 in 494ms
+ ✓ Compiled /demo/platos in 247ms (2028 modules)
+ GET /demo/platos 307 in 299ms
+ ✓ Compiled /el-proyecto in 495ms (2067 modules)
+ ✓ Compiled /unete in 409ms (2075 modules)
+ ✓ Compiled /zonas in 334ms (2079 modules)
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 288ms (1055 modules)
+ GET /platos 200 in 271ms
+ ○ Compiling /demo/zonas ...
+ ✓ Compiled /demo/zonas in 592ms (2115 modules)
+ ✓ Compiled in 1339ms (2048 modules)
+ ✓ Compiled in 257ms (977 modules)
+ ✓ Compiled in 727ms (2048 modules)
+ ✓ Compiled in 726ms (2048 modules)
+ GET /platos 200 in 316ms
+ ○ Compiling /zonas ...
+ ✓ Compiled /zonas in 544ms (995 modules)
+ GET /zonas 200 in 861ms
+ ✓ Compiled /el-proyecto in 200ms (1016 modules)
+ GET /el-proyecto 200 in 495ms
+ ✓ Compiled in 593ms (2087 modules)
+ ✓ Compiled /favicon.ico in 476ms (2108 modules)
+ GET /favicon.ico 200 in 719ms
+ GET /favicon.ico 200 in 721ms
+ GET /apple-touch-icon-precomposed.png 404 in 734ms
+ GET /apple-touch-icon.png 404 in 726ms
+ ✓ Compiled /demo/zonas in 137ms (1016 modules)
+ GET /_next/static/chunks/app/LayoutGroupContext.mjs.map 404 in 64ms
+ GET /_next/static/chunks/app/demo/LayoutGroupContext.mjs.map 404 in 64ms
+ ✓ Compiled in 1032ms (2051 modules)
+ GET /demo/zonas/talavera-de-la-reina 200 in 1108ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 769ms
+ ✓ Compiled /zonas in 125ms (995 modules)
+ ✓ Compiled /el-proyecto in 132ms (1016 modules)
+ ✓ Compiled /unete in 282ms (1022 modules)
+ ○ Compiling /zonas/[citySlug] ...
+ ✓ Compiled /zonas/[citySlug] in 974ms (2098 modules)
+ ✓ Compiled in 1062ms (2052 modules)
+ ✓ Compiled /zonas/[citySlug] in 228ms (1007 modules)
+ GET /zonas/talavera-de-la-reina 200 in 610ms
+ ✓ Compiled /el-proyecto in 237ms (1013 modules)
+ ✓ Compiled /zonas in 131ms (1016 modules)
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1092ms (2087 modules)
+ GET /favicon.ico 200 in 1214ms
+ GET /apple-touch-icon-precomposed.png 404 in 1223ms
+ GET /apple-touch-icon.png 404 in 1223ms
+ ✓ Compiled /_error in 377ms (2075 modules)
+ GET /platos 500 in 1634ms
+ ✓ Compiled /zonas in 240ms (995 modules)
+ ✓ Compiled /el-proyecto in 426ms (1016 modules)
+ ✓ Compiled in 1003ms (2091 modules)
+ GET /el-proyecto 200 in 789ms
+ ✓ Compiled /zonas/[citySlug] in 331ms (1007 modules)
+ ✓ Compiled /zonas in 124ms (1010 modules)
+ ✓ Compiled /el-proyecto in 145ms (1031 modules)
+ GET /platos 200 in 271ms
+ GET / 200 in 376ms
+ GET /demo 200 in 201ms
+ ✓ Compiled /demo/platos in 235ms (1034 modules)
+ GET /demo/platos 307 in 389ms
+ GET /platos 200 in 192ms
+ ✓ Compiled /demo/zonas in 375ms (1040 modules)
+ GET /demo/zonas 200 in 641ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 580ms (2150 modules)
+ GET /favicon.ico 200 in 851ms
+ GET /apple-touch-icon.png 404 in 868ms
+ GET /apple-touch-icon-precomposed.png 404 in 871ms
+ GET /demo/zonas 200 in 875ms
+ GET /favicon.ico 200 in 9ms
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 302ms (1097 modules)
+ GET /apple-touch-icon-precomposed.png 404 in 62ms
+ GET /favicon.ico 200 in 64ms
+ GET /apple-touch-icon.png 404 in 64ms
+ GET /favicon.ico 200 in 30ms
+ GET /zonas 200 in 213ms
+ GET / 200 in 226ms
+ GET /demo 200 in 393ms
+ GET /demo/platos 307 in 112ms
+ GET /platos 200 in 211ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 269ms
+ GET /demo/zonas 200 in 261ms
+ GET /apple-touch-icon-precomposed.png 404 in 21ms
+ GET /favicon.ico 200 in 21ms
+ GET /apple-touch-icon.png 404 in 20ms
+ GET /demo/zonas 200 in 233ms
+ GET /favicon.ico 200 in 29ms
+ GET /apple-touch-icon-precomposed.png 404 in 33ms
+ GET /favicon.ico 200 in 19ms
+ GET /apple-touch-icon.png 404 in 19ms
+ GET /favicon.ico 200 in 24ms
+ ✓ Compiled in 846ms (2087 modules)
+ ✓ Compiled in 281ms (1077 modules)
+ ○ Compiling /zonas ...
+ ✓ Compiled /zonas in 616ms (2082 modules)
+ GET /zonas 200 in 1048ms
+ ✓ Compiled /demo/zonas in 171ms (1022 modules)
+ GET /demo/zonas 200 in 451ms
+ GET / 200 in 415ms
+ GET / 200 in 280ms
+ GET / 200 in 271ms
+ GET /zonas 200 in 285ms
+ ✓ Compiled /zonas/[citySlug] in 281ms (1015 modules)
+ ✓ Compiled /favicon.ico in 324ms (2110 modules)
+ GET /apple-touch-icon-precomposed.png 404 in 577ms
+ GET /favicon.ico 200 in 566ms
+ GET /favicon.ico 200 in 573ms
+ GET /apple-touch-icon.png 404 in 569ms
+ GET /apple-touch-icon-precomposed.png 404 in 43ms
+ GET /favicon.ico 200 in 18ms
+ GET /apple-touch-icon.png 404 in 19ms
+ GET /favicon.ico 200 in 16ms
+ GET /zonas 200 in 384ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 437ms
+ ✓ Compiled in 760ms (2055 modules)
+ ✓ Compiled in 301ms (1074 modules)
+ ○ Compiling /zonas/[citySlug] ...
+ ✓ Compiled /zonas/[citySlug] in 581ms (2043 modules)
+ GET /zonas/talavera-de-la-reina 200 in 1127ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 243ms
+ GET /zonas/talavera-de-la-reina 200 in 350ms
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 360ms (1038 modules)
+ ✓ Compiled /cart in 422ms (2116 modules)
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 512ms (2137 modules)
+ GET /favicon.ico 200 in 777ms
+ GET /favicon.ico 200 in 778ms
+ GET /apple-touch-icon-precomposed.png 404 in 788ms
+ GET /apple-touch-icon.png 404 in 777ms
+ ✓ Compiled in 1548ms (2054 modules)
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 159ms (1035 modules)
+ GET /zonas/talavera-de-la-reina/venues/taberna-plaza-mayor 200 in 1418ms
+ GET / 200 in 580ms
+ ✓ Compiled in 267ms (1073 modules)
+ ✓ Compiled /zonas/[citySlug] in 140ms (1038 modules)
+ GET / 200 in 390ms
+ GET /platos 200 in 272ms
+ ✓ Compiled /zonas in 354ms (1044 modules)
+ GET /zonas 200 in 573ms
+ GET /zonas/talavera-de-la-reina 200 in 304ms
+ ✓ Compiled /demo/zonas in 164ms (1046 modules)
+ GET /demo/zonas 200 in 486ms
+ ✓ Compiled /el-proyecto in 227ms (1054 modules)
+ ✓ Compiled /unete in 237ms (1060 modules)
+ ✓ Compiled /cart in 356ms (1030 modules)

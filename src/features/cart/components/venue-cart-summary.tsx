@@ -14,16 +14,15 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
 
   if (!cart.venue) {
     return (
-      <div className="glass-panel rounded-[2.3rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
-        <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
+      <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
           Carrito
         </p>
-        <p className="mt-4 text-3xl font-semibold leading-tight text-[color:var(--foreground)]">
+        <p className="mt-3 text-2xl font-semibold leading-tight text-[#10130f]">
           Guarda platos y sigue explorando.
         </p>
-        <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-          El resumen del pedido aparecerá aquí cuando empieces a añadir
-          productos.
+        <p className="mt-3 text-sm leading-6 text-black/60">
+          El resumen aparecerá cuando añadas productos.
         </p>
       </div>
     );
@@ -31,20 +30,19 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
 
   if (cart.venue.id !== venueId) {
     return (
-      <div className="glass-panel rounded-[2.3rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
-        <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
+      <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
+        <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
           Carrito
         </p>
-        <p className="mt-4 text-3xl font-semibold leading-tight text-[color:var(--foreground)]">
-          Ya tienes un pedido en otro local.
+        <p className="mt-3 text-2xl font-semibold leading-tight text-[#10130f]">
+          Pedido en otro local.
         </p>
-        <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-          Tienes productos guardados de {cart.venue.name}. Vacía el carrito
-          antes de añadir productos de este local.
+        <p className="mt-3 text-sm leading-6 text-black/60">
+          Tienes platos de {cart.venue.name}.
         </p>
         <Link
           href="/cart"
-          className="mt-6 inline-flex rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
+          className="mt-5 inline-flex rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-[#10130f] transition hover:bg-black/5"
         >
           Ver carrito
         </Link>
@@ -55,20 +53,19 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
   const currency = cart.items[0]?.currency ?? "EUR";
 
   return (
-    <div className="rounded-[2.3rem] border border-white/35 bg-[color:var(--surface-dark)] p-6 text-white shadow-[var(--soft-shadow)]">
-      <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/58">
+    <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
+      <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
         Carrito
       </p>
-      <p className="mt-4 text-3xl font-semibold leading-tight">
-        {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"} en tu
-        pedido
+      <p className="mt-3 text-2xl font-semibold leading-tight text-[#10130f]">
+        {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
       </p>
-      <p className="mt-4 text-sm leading-7 text-white/78">
+      <p className="mt-3 text-sm leading-6 text-black/60">
         Total {formatPrice(totals.totalAmount, currency)}
       </p>
       <Link
         href="/cart"
-        className="mt-6 inline-flex rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+        className="mt-5 inline-flex rounded-full border border-[#1f8a70]/20 bg-[#1f8a70]/10 px-4 py-2.5 text-sm font-semibold text-[#11624f] transition hover:bg-[#1f8a70]/20"
       >
         Ver carrito
       </Link>

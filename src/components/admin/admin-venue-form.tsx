@@ -29,6 +29,7 @@ function buildInitialValues(
       name: "",
       slug: "",
       cityId: "",
+      discoveryCategory: "",
       description: "",
       address: "",
       email: "",
@@ -40,6 +41,7 @@ function buildInitialValues(
       isPublished: true,
       isVerified: false,
       subscriptionActive: false,
+      subscriptionTier: "basic",
       sortOrder: "",
       openingHours: {
         mon: { isOpen: false, firstOpen: "", firstClose: "", secondOpen: "", secondClose: "" },
@@ -106,6 +108,12 @@ function formatServiceType(value: string | null) {
 
   return value ?? "No indicado";
 }
+
+const subscriptionTierOptions = [
+  { value: "basic", label: "Basic" },
+  { value: "oro", label: "Oro" },
+  { value: "titanio", label: "Titanio" },
+];
 
 export function AdminVenueForm({
   title,
@@ -253,6 +261,18 @@ export function AdminVenueForm({
             />
           </label>
 
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Categoría visual
+            </span>
+            <input
+              name="discoveryCategory"
+              defaultValue={values.discoveryCategory}
+              className={fieldClassName()}
+              placeholder="Burgers, Pizza, Sushi..."
+            />
+          </label>
+
           <label className="block md:col-span-2">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Descripción
@@ -285,7 +305,7 @@ export function AdminVenueForm({
               type="email"
               defaultValue={values.email}
               className={fieldClassName()}
-              required
+              placeholder="Opcional"
             />
           </label>
 
@@ -338,6 +358,23 @@ export function AdminVenueForm({
               defaultValue={values.coverUrl}
               className={fieldClassName()}
             />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Nivel de suscripción
+            </span>
+            <select
+              name="subscriptionTier"
+              defaultValue={values.subscriptionTier}
+              className={fieldClassName()}
+            >
+              {subscriptionTierOptions.map((tier) => (
+                <option key={tier.value} value={tier.value}>
+                  {tier.label}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 

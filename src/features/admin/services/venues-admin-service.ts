@@ -22,6 +22,7 @@ export type AdminVenueListItem = {
   isPublished: boolean;
   isVerified: boolean;
   subscriptionActive: boolean;
+  subscriptionTier: "basic" | "oro" | "titanio";
   cityName: string | null;
 };
 
@@ -30,6 +31,7 @@ export type AdminVenueFormValues = {
   name: string;
   slug: string;
   cityId: string;
+  discoveryCategory: string;
   description: string;
   address: string;
   email: string;
@@ -41,6 +43,7 @@ export type AdminVenueFormValues = {
   isPublished: boolean;
   isVerified: boolean;
   subscriptionActive: boolean;
+  subscriptionTier: "basic" | "oro" | "titanio";
   sortOrder: string;
   openingHours: OpeningHoursValue;
 };
@@ -93,6 +96,7 @@ function normalizeVenueFormValues(
     name: String(formData.get("name") ?? "").trim(),
     slug: String(formData.get("slug") ?? "").trim(),
     cityId: String(formData.get("cityId") ?? "").trim(),
+    discoveryCategory: String(formData.get("discoveryCategory") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     address: String(formData.get("address") ?? "").trim(),
     email: String(formData.get("email") ?? "").trim(),
@@ -104,6 +108,11 @@ function normalizeVenueFormValues(
     isPublished: formData.get("isPublished") === "on",
     isVerified: formData.get("isVerified") === "on",
     subscriptionActive: formData.get("subscriptionActive") === "on",
+    subscriptionTier:
+      (String(formData.get("subscriptionTier") ?? "").trim() as
+        | "basic"
+        | "oro"
+        | "titanio") || "basic",
     sortOrder: String(formData.get("sortOrder") ?? "").trim(),
     openingHours: buildOpeningHoursFromFormData(formData),
   };
@@ -128,6 +137,26 @@ function validateVenueFormValues(values: NormalizedVenueFormValues) {
 
   if (!values.email) {
     throw new Error("El email del local es obligatorio.");
+  }
+}
+
+void validateVenueFormValues;
+
+function validateVenuePanelFormValues(values: NormalizedVenueFormValues) {
+  if (!values.name) {
+    throw new Error("El nombre del local es obligatorio.");
+  }
+
+  if (!values.slug) {
+    throw new Error("El slug del local es obligatorio.");
+  }
+
+  if (!values.cityId) {
+    throw new Error("La ciudad del local es obligatoria.");
+  }
+
+  if (!values.phone) {
+    throw new Error("El teléfono del local es obligatorio.");
   }
 }
 
@@ -209,14 +238,14 @@ function revalidatePublicVenuePaths(paths: Array<PublicVenuePathContext | null>)
       continue;
     }
 
-    uniquePaths.add(`/cities/${pathContext.citySlug}`);
+    uniquePaths.add(`/zonas/${pathContext.citySlug}`);
     uniquePaths.add(
-      `/cities/${pathContext.citySlug}/venues/${pathContext.venueSlug}`,
+      `/zonas/${pathContext.citySlug}/venues/${pathContext.venueSlug}`,
     );
   }
 
   uniquePaths.add("/");
-  uniquePaths.add("/cities");
+  uniquePaths.add("/zonas");
 
   for (const path of Array.from(uniquePaths)) {
     revalidatePath(path);
@@ -260,6 +289,7 @@ export function buildVenueInitialValuesFromJoinRequest(
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, ""),
     cityId: matchingCity?.id ?? "",
+    discoveryCategory: "",
     description: "",
     address: joinRequest.address ?? "",
     email: joinRequest.venueEmail ?? "",
@@ -271,6 +301,7 @@ export function buildVenueInitialValuesFromJoinRequest(
     isPublished: true,
     isVerified: false,
     subscriptionActive: false,
+    subscriptionTier: "basic",
     sortOrder: "",
     openingHours: createDefaultOpeningHours(),
   };
@@ -281,7 +312,7 @@ export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, cities(name)",
+      "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, cities(name)",
     )
     .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
@@ -300,6 +331,7 @@ export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
     isPublished: venue.is_published,
     isVerified: venue.is_verified,
     subscriptionActive: venue.subscription_active,
+    subscriptionTier: venue.subscription_tier ?? "basic",
     cityName: venue.cities?.name ?? null,
   }));
 }
@@ -311,7 +343,7 @@ export async function getAdminVenueById(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, city_id, description, address, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, sort_order, opening_hours",
+      "id, name, slug, city_id, discovery_category, description, address, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
     )
     .eq("id", venueId)
     .maybeSingle();
@@ -329,6 +361,7 @@ export async function getAdminVenueById(
     name: data.name,
     slug: data.slug,
     cityId: data.city_id ?? "",
+    discoveryCategory: data.discovery_category ?? "",
     description: data.description ?? "",
     address: data.address ?? "",
     email: data.email ?? "",
@@ -340,6 +373,7 @@ export async function getAdminVenueById(
     isPublished: data.is_published,
     isVerified: data.is_verified,
     subscriptionActive: data.subscription_active,
+    subscriptionTier: data.subscription_tier ?? "basic",
     sortOrder: data.sort_order?.toString() ?? "",
     openingHours: normalizeOpeningHours(data.opening_hours),
   };
@@ -350,7 +384,7 @@ export async function createVenueAction(formData: FormData) {
 
   const values = normalizeVenueFormValues(formData);
   const linkedRequestId = String(formData.get("linkedRequestId") ?? "").trim();
-  validateVenueFormValues(values);
+  validateVenuePanelFormValues(values);
   const supabase = await createAdminMutationClient();
   await ensureUniqueVenueSlug(supabase, values.slug);
   const { data, error } = await supabase
@@ -359,6 +393,7 @@ export async function createVenueAction(formData: FormData) {
       name: values.name,
       slug: values.slug,
       city_id: values.cityId || null,
+      discovery_category: values.discoveryCategory || null,
       description: values.description || null,
       address: values.address || null,
       email: values.email || null,
@@ -370,6 +405,7 @@ export async function createVenueAction(formData: FormData) {
       is_published: values.isPublished,
       is_verified: values.isVerified,
       subscription_active: values.subscriptionActive,
+      subscription_tier: values.subscriptionTier,
       sort_order: values.sortOrder ? Number(values.sortOrder) : null,
       opening_hours: values.openingHours,
     })
@@ -413,7 +449,7 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
 
   const previousPublicPath = await getPublicVenuePathContextById(venueId);
   const values = normalizeVenueFormValues(formData);
-  validateVenueFormValues(values);
+  validateVenuePanelFormValues(values);
   const supabase = await createAdminMutationClient();
   await ensureUniqueVenueSlug(supabase, values.slug, venueId);
   const { error } = await supabase
@@ -422,6 +458,7 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
       name: values.name,
       slug: values.slug,
       city_id: values.cityId || null,
+      discovery_category: values.discoveryCategory || null,
       description: values.description || null,
       address: values.address || null,
       email: values.email || null,
@@ -433,6 +470,7 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
       is_published: values.isPublished,
       is_verified: values.isVerified,
       subscription_active: values.subscriptionActive,
+      subscription_tier: values.subscriptionTier,
       sort_order: values.sortOrder ? Number(values.sortOrder) : null,
       opening_hours: values.openingHours,
     })

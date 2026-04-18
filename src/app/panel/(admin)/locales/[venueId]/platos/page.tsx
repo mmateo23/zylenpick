@@ -68,6 +68,7 @@ export default async function AdminVenueMenuItemsPage({
                   <th className="px-5 py-4 font-medium">Orden</th>
                   <th className="px-5 py-4 font-medium">Estado</th>
                   <th className="px-5 py-4 font-medium">Destacado</th>
+                  <th className="px-5 py-4 font-medium">Top del mes</th>
                   <th className="px-5 py-4 font-medium">Acciones</th>
                 </tr>
               </thead>
@@ -134,6 +135,17 @@ export default async function AdminVenueMenuItemsPage({
                           }`}
                         >
                           {item.isFeatured ? "Sí" : "No"}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
+                            item.isPickupMonthHighlight
+                              ? "bg-[rgba(31,138,112,0.18)] text-[color:var(--accent)]"
+                              : "bg-white/8 text-white/58"
+                          }`}
+                        >
+                          {item.isPickupMonthHighlight ? "SÃ­" : "No"}
                         </span>
                       </td>
                       <td className="px-5 py-4">

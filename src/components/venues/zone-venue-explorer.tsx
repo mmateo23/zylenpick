@@ -5,18 +5,19 @@ import Link from "next/link";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
+import { BorderBeam } from "@/components/magicui/border-beam";
 import {
   getDistanceInKm,
   readUserLocation,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { trackEvent } from "@/lib/analytics/track-event";
+import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import type { VenueListItem } from "@/features/venues/types";
 import {
-  getVenueCategory,
   getVenueCoordinates,
+  resolveVenueCategory,
 } from "@/features/venues/venue-meta";
-import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
-import { trackEvent } from "@/lib/analytics/track-event";
 
 type ZoneVenueExplorerProps = {
   citySlug: string;
@@ -99,7 +100,11 @@ export function ZoneVenueExplorer({
 
   const categories = useMemo(() => {
     const availableCategories = Array.from(
-      new Set(venues.map((venue) => getVenueCategory(venue.slug))),
+      new Set(
+        venues.map((venue) =>
+          resolveVenueCategory(venue.slug, venue.discoveryCategory),
+        ),
+      ),
     );
 
     return [
@@ -115,7 +120,9 @@ export function ZoneVenueExplorer({
       selectedCategory === "Todas"
         ? venues
         : venues.filter(
-            (venue) => getVenueCategory(venue.slug) === selectedCategory,
+            (venue) =>
+              resolveVenueCategory(venue.slug, venue.discoveryCategory) ===
+              selectedCategory,
           );
 
     if (!userLocation) {
@@ -153,7 +160,11 @@ export function ZoneVenueExplorer({
       {featuredVenue ? (
         <section className="mt-8">
           <article
-            className="editorial-card spotlight-panel overflow-hidden rounded-[2.8rem] border border-white/10 px-8 py-10 text-white shadow-[var(--shadow)] sm:px-10 sm:py-12"
+            className={`editorial-card spotlight-panel overflow-hidden rounded-[2.8rem] border px-8 py-10 text-white shadow-[var(--shadow)] sm:px-10 sm:py-12 ${
+              featuredVenue.isFeatured
+                ? "gold-spotlight-card border-[rgba(214,166,72,0.42)]"
+                : "border-white/10"
+            }`}
             style={{
               backgroundImage: featuredVenue.coverUrl
                 ? `linear-gradient(180deg, rgba(12, 14, 13, 0.28), rgba(12, 14, 13, 0.84)), url(${featuredVenue.coverUrl})`
@@ -162,53 +173,66 @@ export function ZoneVenueExplorer({
               backgroundPosition: "center",
             }}
           >
-            <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/68">
-              Restaurante destacado
-            </p>
-            <h2 className="mt-5 max-w-[12ch] text-balance text-5xl font-semibold leading-[0.92] sm:text-6xl">
-              {featuredVenue.name}
-            </h2>
-            <div className="mt-4">
-              <VerifiedVenueBadge
-                isVerified={featuredVenue.isVerified}
-                subscriptionActive={featuredVenue.subscriptionActive}
-                withLabel
+            {featuredVenue.isFeatured ? (
+              <BorderBeam
+                size={360}
+                duration={9}
+                borderWidth={2}
+                className="from-transparent via-[#f3d58d] to-transparent opacity-95"
               />
-            </div>
-            <p className="mt-5 max-w-[44ch] text-lg leading-8 text-white/80">
-              {featuredVenue.description}
-            </p>
-
-            {featuredJourney ? (
-              <div className="mt-6 space-y-2 text-sm text-white/80">
-                <p className="inline-flex items-center gap-2">
-                  <LocationPinIcon size={18} className="text-[color:var(--accent)]" />
-                  A {featuredJourney.walkingMinutes} min andando ·{" "}
-                  {featuredJourney.distanceLabel}
-                </p>
-                <p className="inline-flex items-center gap-2">
-                  <ClockIcon size={18} className="text-[color:var(--accent)]" />
-                  Recogida en{" "}
-                  {featuredVenue.pickupEtaMin
-                    ? `${featuredVenue.pickupEtaMin} min`
-                    : "breve"}
-                </p>
-              </div>
             ) : null}
+            <div className="gold-spotlight-content">
+              <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/68">
+                Restaurante destacado
+              </p>
+              <h2 className="mt-5 max-w-[12ch] text-balance text-5xl font-semibold leading-[0.92] sm:text-6xl">
+                {featuredVenue.name}
+              </h2>
+              <div className="mt-4">
+                <VerifiedVenueBadge
+                  isVerified={featuredVenue.isVerified}
+                  subscriptionActive={featuredVenue.subscriptionActive}
+                  withLabel
+                />
+              </div>
+              <p className="mt-5 max-w-[44ch] text-lg leading-8 text-white/80">
+                {featuredVenue.description}
+              </p>
 
-            <Link
-              href={`/cities/${citySlug}/venues/${featuredVenue.slug}`}
-              onClick={() =>
-                trackEvent("select_venue", {
-                  venue_slug: featuredVenue.slug,
-                  venue_name: featuredVenue.name,
-                  city_slug: citySlug,
-                })
-              }
-              className="magnetic-button mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
-            >
-              Ver menú
-            </Link>
+              {featuredJourney ? (
+                <div className="mt-6 space-y-2 text-sm text-white/80">
+                  <p className="inline-flex items-center gap-2">
+                    <LocationPinIcon
+                      size={18}
+                      className="text-[color:var(--accent)]"
+                    />
+                    A {featuredJourney.walkingMinutes} min andando ·{" "}
+                    {featuredJourney.distanceLabel}
+                  </p>
+                  <p className="inline-flex items-center gap-2">
+                    <ClockIcon size={18} className="text-[color:var(--accent)]" />
+                    Recogida en{" "}
+                    {featuredVenue.pickupEtaMin
+                      ? `${featuredVenue.pickupEtaMin} min`
+                      : "breve"}
+                  </p>
+                </div>
+              ) : null}
+
+              <Link
+                href={`/zonas/${citySlug}/venues/${featuredVenue.slug}`}
+                onClick={() =>
+                  trackEvent("select_venue", {
+                    venue_slug: featuredVenue.slug,
+                    venue_name: featuredVenue.name,
+                    city_slug: citySlug,
+                  })
+                }
+                className="magnetic-button mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+              >
+                Ver menú
+              </Link>
+            </div>
           </article>
         </section>
       ) : null}
@@ -246,7 +270,7 @@ export function ZoneVenueExplorer({
             return (
               <Link
                 key={venue.id}
-                href={`/cities/${citySlug}/venues/${venue.slug}`}
+                href={`/zonas/${citySlug}/venues/${venue.slug}`}
                 onClick={() =>
                   trackEvent("select_venue", {
                     venue_slug: venue.slug,
@@ -254,21 +278,33 @@ export function ZoneVenueExplorer({
                     city_slug: citySlug,
                   })
                 }
-                className="editorial-card hover-lift-card group overflow-hidden rounded-[2.5rem] border border-[color:var(--border)] bg-[color:var(--surface)] shadow-[var(--soft-shadow)]"
+                className={`editorial-card hover-lift-card group overflow-hidden rounded-[2.5rem] border bg-[color:var(--surface)] ${
+                  venue.isFeatured
+                    ? "gold-spotlight-card border-[rgba(214,166,72,0.42)] shadow-[0_0_0_1px_rgba(214,166,72,0.2),0_18px_38px_rgba(214,166,72,0.12)]"
+                    : "border-[color:var(--border)] shadow-[var(--soft-shadow)]"
+                }`}
               >
+                {venue.isFeatured ? (
+                  <BorderBeam
+                    size={320}
+                    duration={8}
+                    borderWidth={2}
+                    className="from-transparent via-[#f3d58d] to-transparent opacity-95"
+                  />
+                ) : null}
                 <div
-                  className="min-h-[24rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]"
+                  className="gold-spotlight-content min-h-[24rem] bg-cover bg-center transition duration-500 group-hover:scale-[1.03]"
                   style={{
                     backgroundImage: venue.coverUrl
                       ? `linear-gradient(180deg, rgba(23, 17, 14, 0.22), rgba(23, 17, 14, 0.58)), url(${venue.coverUrl})`
                       : "linear-gradient(180deg, rgba(31, 138, 112, 0.32), rgba(15, 22, 20, 0.52))",
                   }}
                 />
-                <div className="p-7">
+                <div className="gold-spotlight-content p-7">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
-                        {getVenueCategory(venue.slug)}
+                        {resolveVenueCategory(venue.slug, venue.discoveryCategory)}
                       </p>
                       <div className="mt-3 flex flex-wrap items-center gap-3">
                         <h2 className="text-4xl font-semibold leading-[0.98] text-[color:var(--foreground)]">
@@ -300,7 +336,8 @@ export function ZoneVenueExplorer({
 
                       {journey ? (
                         <p className="text-sm text-[color:var(--muted-strong)]">
-                          A {journey.walkingMinutes} min andando · {journey.distanceLabel}
+                          A {journey.walkingMinutes} min andando ·{" "}
+                          {journey.distanceLabel}
                         </p>
                       ) : null}
                     </div>

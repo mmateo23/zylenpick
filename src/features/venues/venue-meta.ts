@@ -57,3 +57,10 @@ export function isFeaturedVenue(venueSlug: string) {
 export function getVenueCategory(venueSlug: string) {
   return venueCategoryBySlug[venueSlug] ?? "Otros";
 }
+
+export function resolveVenueCategory(
+  venueSlug: string,
+  discoveryCategory?: string | null,
+) {
+  return discoveryCategory?.trim() || getVenueCategory(venueSlug);
+}

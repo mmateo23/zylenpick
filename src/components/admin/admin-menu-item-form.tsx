@@ -33,6 +33,8 @@ function buildInitialValues(
       sortOrder: "0",
       isAvailable: true,
       isFeatured: false,
+      isHomeFeatured: false,
+      isPickupMonthHighlight: false,
     }
   );
 }
@@ -212,6 +214,30 @@ export function AdminMenuItemForm({
             />
             <span className="text-sm text-[color:var(--muted-strong)]">
               Marcar como destacado
+            </span>
+          </label>
+
+          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+            <input
+              name="isHomeFeatured"
+              type="checkbox"
+              defaultChecked={values.isHomeFeatured}
+              className="h-4 w-4 accent-[color:var(--brand)]"
+            />
+            <span className="text-sm text-[color:var(--muted-strong)]">
+              Mostrar en destacados de la home
+            </span>
+          </label>
+
+          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+            <input
+              name="isPickupMonthHighlight"
+              type="checkbox"
+              defaultChecked={values.isPickupMonthHighlight}
+              className="h-4 w-4 accent-[color:var(--accent)]"
+            />
+            <span className="text-sm text-[color:var(--muted-strong)]">
+              Marcar como más recogido del mes
             </span>
           </label>
         </div>

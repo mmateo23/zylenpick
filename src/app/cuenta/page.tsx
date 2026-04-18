@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
@@ -6,6 +7,12 @@ import {
   getOwnedVenuesForCurrentUser,
   requireUser,
 } from "@/features/auth/services/auth-service";
+import { getNoIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getNoIndexMetadata({
+  title: "Tu cuenta",
+  description: "Área privada con datos de perfil y ownership del usuario.",
+});
 
 export default async function AccountPage() {
   await requireUser();

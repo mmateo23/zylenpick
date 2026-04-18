@@ -4,12 +4,15 @@ export type VenueListItem = {
   id: string;
   slug: string;
   name: string;
+  discoveryCategory: string | null;
   description: string | null;
   coverUrl: string | null;
   address: string | null;
   pickupEtaMin: number | null;
+  isFeatured: boolean;
   isVerified: boolean;
   subscriptionActive: boolean;
+  subscriptionTier: "basic" | "oro" | "titanio";
 };
 
 export type VenueMenuItem = {
@@ -21,6 +24,9 @@ export type VenueMenuItem = {
   imageUrl: string | null;
   secondaryImageUrl?: string | null;
   categoryName: string | null;
+  isFeatured: boolean;
+  isHomeFeatured: boolean;
+  isPickupMonthHighlight: boolean;
 };
 
 export type VenueDetails = {
@@ -37,6 +43,7 @@ export type VenueDetails = {
   pickupEtaMin: number | null;
   isVerified: boolean;
   subscriptionActive: boolean;
+  subscriptionTier: "basic" | "oro" | "titanio";
   openingHours: OpeningHoursValue;
   isOpenNow: boolean;
   city: {
@@ -53,10 +60,18 @@ export type HomeShowcaseItem = {
   priceAmount: number;
   currency: string;
   imageUrl: string | null;
+  categoryName: string | null;
   pickupEtaMin: number | null;
+  isFeatured: boolean;
+  isHomeFeatured: boolean;
+  isPickupMonthHighlight: boolean;
   venue: {
     slug: string;
     name: string;
+    coverUrl: string | null;
     citySlug: string;
+    cityName: string;
+    subscriptionActive: boolean;
+    subscriptionTier: "basic" | "oro" | "titanio";
   };
 };

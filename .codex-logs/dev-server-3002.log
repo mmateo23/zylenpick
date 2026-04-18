@@ -1,0 +1,14 @@
+
+> fknfood@0.1.0 dev
+> next dev -p 3002
+
+  ▲ Next.js 14.2.32
+  - Local:        http://localhost:3002
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1502ms
+ ○ Compiling /zonas/[citySlug]/venues/[venueSlug] ...
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 4.4s (1009 modules)
+ ✓ Compiled in 263ms (440 modules)
+ GET /zonas/talavera-de-la-reina/venues/taberna-plaza-mayor 200 in 5194ms

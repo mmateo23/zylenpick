@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthForm } from "@/features/auth/components/auth-form";
 import { getCurrentUser } from "@/features/auth/services/auth-service";
+import { getNoIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getNoIndexMetadata({
+  title: "Acceso a tu cuenta",
+  description: "Área privada para iniciar sesión o crear una cuenta de usuario.",
+});
 
 type LoginPageProps = {
   searchParams?: {

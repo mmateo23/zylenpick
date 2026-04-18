@@ -1,10 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { Logo } from "@/components/branding/logo";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
@@ -21,10 +21,13 @@ type SiteHeaderProps = {
 };
 
 const navigationItems = [
-  { label: "Inicio", href: "/" },
-  { label: "Zonas", href: "/cities" },
-  { label: "Carrito", href: "/cart" },
+  { label: "Platos", href: "/platos" },
+  { label: "Zonas", href: "/zonas" },
+  { label: "Proyecto", href: "/el-proyecto" },
+  { label: "Unete", href: "/unete" },
 ];
+
+const logoSrc = "/logo/ZyelnpickLOGO_green.png";
 
 function getBadgeLabel(totalItems: number) {
   return totalItems > 9 ? "9+" : String(totalItems);
@@ -40,7 +43,7 @@ function CartBadge({ totalItems }: CartBadgeProps) {
   }
 
   return (
-    <span className="absolute -right-2 -top-2 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[#E5484D] px-1.5 text-[10px] font-semibold leading-none text-white shadow-[var(--card-shadow)]">
+    <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[9px] font-semibold leading-none text-white shadow-[0_6px_16px_rgba(0,0,0,0.18)]">
       {getBadgeLabel(totalItems)}
     </span>
   );
@@ -80,102 +83,175 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  const isItemActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`);
+  const zoneHref = selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
+
+  const dockRailClassName =
+    "border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
+  const dockButtonClassName =
+    "border-white/10 bg-white/[0.05] text-white hover:-translate-y-[1px] hover:bg-white/[0.09]";
+  const cityButtonClassName = selectedCity?.slug
+    ? "border-[#7cffb8]/18 bg-[#7cffb8]/10 text-[#7cffb8] hover:bg-[#7cffb8]/16"
+    : dockButtonClassName;
+
   return (
     <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="flex items-center justify-between gap-4 rounded-[1.8rem] border border-white/10 bg-[color:var(--surface-dark)]/94 px-5 py-4 text-white shadow-[var(--soft-shadow)] backdrop-blur sm:px-6">
-          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <Link href="/" className="flex shrink-0 items-center gap-4">
-              <Logo
-                priority
-                mode="full"
-                iconClassName="h-7 w-auto sm:h-8"
-                textClassName="text-xl font-semibold text-white"
-              />
-            </Link>
+        <div className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.9),rgba(6,14,20,0.82))] px-3.5 py-2 text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)] backdrop-blur-2xl transition-colors sm:px-4">
+          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
+            {showNavigation ? (
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen((value) => !value)}
+                aria-expanded={isMobileMenuOpen}
+                aria-controls="mobile-navigation"
+                aria-label={isMobileMenuOpen ? "Cerrar menu" : "Abrir menu"}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
+              >
+                {isMobileMenuOpen ? <CloseIcon size={16} /> : <MenuIcon size={16} />}
+              </button>
+            ) : (
+              <span className="h-9 w-9" aria-hidden="true" />
+            )}
+
+            <div className="flex justify-center">
+              <Link
+                href="/"
+                className="inline-flex min-h-[22px] items-center justify-center"
+                aria-label="Ir al inicio"
+              >
+                <Image
+                  src={logoSrc}
+                  alt="ZylenPick"
+                  width={210}
+                  height={42}
+                  priority
+                  className="h-auto w-[50px]"
+                />
+              </Link>
+            </div>
 
             <Link
-              href="/cities"
-              className="inline-flex min-w-0 items-center gap-2 rounded-full border border-white/8 bg-white/5 px-3 py-2 text-sm text-white/70 transition hover:bg-white/8 hover:text-white"
+              href="/cart"
+              aria-label="Carrito"
+              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${dockButtonClassName}`}
             >
-              <LocationPinIcon
-                size={17}
-                className="shrink-0 text-[color:var(--accent)]"
-              />
-              <span className="max-w-[8rem] truncate sm:max-w-[14rem]">
-                {selectedCity?.name ?? "Elegir zona"}
-              </span>
+              <CartIcon size={16} />
+              <CartBadge totalItems={totals.totalItems} />
             </Link>
           </div>
 
-          {showNavigation ? (
-            <>
-              <nav aria-label="Navegación principal" className="hidden md:block">
-                <ul className="flex flex-wrap items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1.5">
-                  {navigationItems.map((item) => {
-                    const isCartLink = item.href === "/cart";
-
-                    return (
-                      <li key={item.href}>
-                        <Link
-                          href={item.href}
-                          className="inline-flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium text-white/76 transition hover:bg-white/10 hover:text-white"
-                        >
-                          {isCartLink ? (
-                            <span className="relative inline-flex h-5 w-5 items-center justify-center">
-                              <CartIcon size={18} />
-                              <CartBadge totalItems={totals.totalItems} />
-                            </span>
-                          ) : null}
-                          <span>{item.label}</span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </nav>
-
-              <button
-                type="button"
-                onClick={() => setIsMobileMenuOpen((currentValue) => !currentValue)}
-                aria-expanded={isMobileMenuOpen}
-                aria-controls="mobile-navigation"
-                aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10 md:hidden"
+          <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
+            <div className="flex items-center justify-start">
+              <Link
+                href="/"
+                className="inline-flex min-h-[22px] items-center justify-center"
+                aria-label="Ir al inicio"
               >
-                {isMobileMenuOpen ? <CloseIcon size={18} /> : <MenuIcon size={18} />}
-              </button>
-            </>
-          ) : null}
+                <Image
+                  src={logoSrc}
+                  alt="ZylenPick"
+                  width={210}
+                  height={42}
+                  priority
+                  className="h-auto w-[54px]"
+                />
+              </Link>
+            </div>
+
+            {showNavigation ? (
+              <nav aria-label="Navegacion principal" className="flex justify-center">
+                <div
+                  className={`inline-flex items-center gap-1 rounded-[999px] border px-1.5 py-1.5 ${dockRailClassName}`}
+                >
+                  {navigationItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition ${
+                        isItemActive(item.href)
+                          ? "bg-[#7cffb8]/12 text-white shadow-[0_10px_24px_rgba(0,0,0,0.2)]"
+                          : "text-white/60 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </nav>
+            ) : null}
+
+            <div
+              className={`inline-flex items-center justify-self-end gap-1 rounded-[999px] border px-1.5 py-1.5 ${dockRailClassName}`}
+            >
+              <Link
+                href="/cart"
+                aria-label="Carrito"
+                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
+              >
+                <CartIcon size={16} />
+                <CartBadge totalItems={totals.totalItems} />
+              </Link>
+
+              <Link
+                href={zoneHref}
+                aria-label={selectedCity?.name ?? "Elegir zona"}
+                className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
+              >
+                <LocationPinIcon size={14} className="shrink-0" />
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/10 bg-[#071611]/92 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/82 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                  {selectedCity?.name ?? "Elegir zona"}
+                </span>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {showNavigation && isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(18rem,calc(100vw-2rem))] rounded-[1.6rem] border border-white/10 bg-[color:var(--surface-dark)]/98 p-3 text-white shadow-[var(--shadow)] backdrop-blur"
+            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.96),rgba(6,14,20,0.92))] p-3 text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:hidden"
           >
-            <nav aria-label="Navegación móvil">
+            <nav aria-label="Navegacion movil">
               <ul className="grid gap-2">
-                {navigationItems.map((item) => {
-                  const isCartLink = item.href === "/cart";
-
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium text-white/76 transition hover:bg-white/8 hover:text-white"
-                      >
-                        {isCartLink ? (
-                          <span className="relative inline-flex h-5 w-5 items-center justify-center">
-                            <CartIcon size={18} />
-                            <CartBadge totalItems={totals.totalItems} />
-                          </span>
-                        ) : null}
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
+                <li>
+                  <Link
+                    href={zoneHref}
+                    className={`flex items-center gap-3 rounded-[1rem] border px-4 py-3 text-sm font-medium transition ${cityButtonClassName}`}
+                  >
+                    <LocationPinIcon size={16} className="shrink-0" />
+                    <span className="truncate">
+                      {selectedCity?.name ?? "Elegir zona"}
+                    </span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/cart"
+                    className="flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium text-white/76 transition hover:bg-white/[0.05]"
+                  >
+                    <span className="relative inline-flex h-5 w-5 items-center justify-center">
+                      <CartIcon size={18} />
+                      <CartBadge totalItems={totals.totalItems} />
+                    </span>
+                    <span>Carrito</span>
+                  </Link>
+                </li>
+                {navigationItems.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={`flex items-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
+                        isItemActive(item.href)
+                          ? "bg-white/[0.08] text-white"
+                          : "text-white/76 hover:bg-white/[0.05]"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </nav>
           </div>

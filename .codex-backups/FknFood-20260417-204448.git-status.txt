@@ -1,0 +1,97 @@
+﻿ M .env.example
+ M next.config.mjs
+ M package-lock.json
+ M package.json
+ M src/app/acceder/page.tsx
+ M src/app/carrito/page.tsx
+ M src/app/cart/page.tsx
+ M src/app/checkout/success/[orderId]/page.tsx
+ M src/app/checkout/success/[orderId]/ticket/page.tsx
+ M src/app/cities/[citySlug]/page.tsx
+ M src/app/cities/[citySlug]/venues/[venueSlug]/page.tsx
+ M src/app/cities/page.tsx
+ M src/app/cuenta/page.tsx
+ M src/app/demo/cities/[citySlug]/page.tsx
+ M src/app/demo/cities/[citySlug]/platos/page.tsx
+ M src/app/el-proyecto/page.tsx
+ M src/app/favoritos/page.tsx
+ M src/app/globals.css
+ M src/app/layout.tsx
+ M src/app/page.tsx
+ M src/app/panel-comercio/page.tsx
+ M src/app/panel/(admin)/layout.tsx
+ M src/app/panel/(admin)/locales/[venueId]/platos/page.tsx
+ M src/app/panel/(auth)/login/page.tsx
+ M src/app/pedidos/page.tsx
+ M src/app/unete/page.tsx
+ M src/components/admin/admin-menu-item-form.tsx
+ M src/components/admin/admin-sidebar.tsx
+ M src/components/admin/admin-venue-form.tsx
+ M src/components/home/home-landing.tsx
+ M src/components/join/join-form.tsx
+ M src/components/layout/site-header.tsx
+ M src/components/project/project-page.tsx
+ M src/components/venues/menu-item-gallery-card.tsx
+ M src/components/venues/zone-venue-explorer.tsx
+ M src/features/admin/services/menu-items-admin-service.ts
+ M src/features/admin/services/venues-admin-service.ts
+ M src/features/cart/components/cart-screen.tsx
+ M src/features/cities/services/cities-service.ts
+ M src/features/cities/types.ts
+ M src/features/venues/services/venues-service.ts
+ M src/features/venues/types.ts
+ M src/features/venues/venue-meta.ts
+ M src/types/database.ts
+?? .codex-backups/
+?? .codex-logs/
+?? components.json
+?? lib/
+?? public/logo/ZyelnpickLOGO_282828.svg
+?? public/logo/ZyelnpickLOGO_BLANCO.svg
+?? public/logo/ZyelnpickLOGO_greeb.svg
+?? public/logo/ZyelnpickLOGO_green.png
+?? public/logo/ZyelnpickLOGO_orange.svg
+?? scripts/
+?? seraui.config.json
+?? src/app/api/emailing/
+?? src/app/api/map-art/
+?? src/app/cartografia/
+?? src/app/demo/locales/
+?? src/app/demo/page.tsx
+?? src/app/demo/platos/
+?? src/app/demo/zonas/
+?? src/app/designer/
+?? src/app/panel/(admin)/destacados/
+?? src/app/panel/(admin)/imagenes/
+?? src/app/robots.ts
+?? src/app/sitemap.ts
+?? src/app/zonas/
+?? src/components/admin/spotlight-card.js
+?? src/components/admin/spotlightcard.tsx
+?? src/components/demo/
+?? src/components/emailing/
+?? src/components/icons/featured-badge-icon.tsx
+?? src/components/join/join-visual-showcase.tsx
+?? src/components/layout/zylenpick-footer.tsx
+?? src/components/magicui/
+?? src/components/map-art/
+?? src/components/ui/aurora-text.tsx
+?? src/components/ui/dock.tsx
+?? src/components/ui/magic-card.tsx
+?? src/components/ui/smooth-cursor.tsx
+?? src/components/ui/text-animate.tsx
+?? src/components/ui/tooltip.tsx
+?? src/components/ui/video-text.tsx
+?? src/features/admin/services/media-admin-service.ts
+?? src/features/emailing/
+?? src/features/map-art/
+?? src/features/site-media/
+?? src/lib/seo.ts
+?? src/lib/utils.ts
+?? src/templates/
+?? supabase/migrations/20260329120000_venues_discovery_category.sql
+?? supabase/migrations/20260329143000_menu_items_pickup_month_highlight.sql
+?? supabase/migrations/20260329170000_site_media_assets.sql
+?? supabase/migrations/20260329183000_venue_and_home_highlights.sql
+?? supabase/migrations/20260402173000_venues_subscription_tier.sql
+?? supabase/migrations/20260402194500_cities_hero_video_url.sql

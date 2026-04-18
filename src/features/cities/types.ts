@@ -4,4 +4,5 @@ export type City = {
   name: string;
   region: string | null;
   heroImageUrl: string | null;
+  heroVideoUrl: string | null;
 };

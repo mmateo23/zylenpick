@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
 import { SiteShell } from "@/components/layout/site-shell";
 import { ZoneVenueExplorer } from "@/components/venues/zone-venue-explorer";
-import { isFeaturedVenue } from "@/features/venues/venue-meta";
 import {
   getCityBySlug,
   getVenuesByCitySlug,
@@ -46,7 +45,7 @@ export default async function DemoCityVenuesPage({
     notFound();
   }
 
-  const featuredVenue = venues.find((venue) => isFeaturedVenue(venue.slug)) ?? null;
+  const featuredVenue = venues.find((venue) => venue.isFeatured) ?? venues[0] ?? null;
 
   return (
     <SiteShell>
@@ -62,23 +61,11 @@ export default async function DemoCityVenuesPage({
         <p className="mt-6 max-w-[46ch] text-lg leading-8 text-[color:var(--muted-strong)]">
           Encuentra antes una buena opción para recoger cerca de ti.
         </p>
-
-        <div className="mt-8 inline-flex max-w-[26rem] flex-col rounded-[1.6rem] border border-white/8 bg-white/4 px-5 py-4 shadow-[var(--card-shadow)]">
-          <p className="text-sm text-[color:var(--muted-strong)]">
-            ¿No sabes qué pedir?
-          </p>
-          <Link
-            href={`/demo/cities/${city.slug}/platos`}
-            className="mt-2 text-lg font-semibold text-[color:var(--foreground)] transition hover:text-[color:var(--brand)]"
-          >
-            Déjate llevar por los ojos
-          </Link>
-        </div>
       </section>
 
       <div className="mt-8 flex justify-end sm:mt-10">
         <Link
-          href="/cities"
+        href="/zonas"
           className="inline-flex items-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
         >
           Cambiar zona

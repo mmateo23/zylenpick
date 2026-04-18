@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminUnauthorizedState } from "@/components/admin/admin-unauthorized-state";
 import { requireAdminSession } from "@/features/admin/services/admin-auth";
+import { getNoIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getNoIndexMetadata({
+  title: "Panel admin",
+  description: "Área privada de gestión interna del panel admin.",
+});
 
 export default async function AdminProtectedLayout({
   children,

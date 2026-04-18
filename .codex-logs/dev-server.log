@@ -1,0 +1,27 @@
+
+> fknfood@0.1.0 dev
+> next dev -p 3001
+
+  ▲ Next.js 14.2.32
+  - Local:        http://localhost:3001
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1508ms
+ ○ Compiling /zonas/[citySlug]/venues/[venueSlug] ...
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 5s (1009 modules)
+ ✓ Compiled in 271ms (440 modules)
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 5807ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 4256ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 260ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 255ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 151ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 144ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 164ms
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 192ms
+ ✓ Compiled /_not-found in 327ms (971 modules)
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 404 in 463ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1909ms (1794 modules)
+ GET / 200 in 2328ms
+[?25h

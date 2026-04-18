@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import {
   getOwnedVenuesForCurrentUser,
   requireMerchant,
 } from "@/features/auth/services/auth-service";
+import { getNoIndexMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = getNoIndexMetadata({
+  title: "Espacio merchant",
+  description: "Área privada del merchant y ownership de locales.",
+});
 
 export default async function MerchantPage() {
   await requireMerchant();

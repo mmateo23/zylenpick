@@ -44,11 +44,12 @@ export type Database = {
       };
       venues: {
         Row: {
-          id: string;
-          city_id: string | null;
-          slug: string;
-          name: string;
-          description: string | null;
+            id: string;
+            city_id: string | null;
+            slug: string;
+            name: string;
+            discovery_category: string | null;
+            description: string | null;
           cover_url: string | null;
           logo_url: string | null;
           website: string | null;
@@ -60,6 +61,7 @@ export type Database = {
           pickup_eta_min: number | null;
           delivery_time_min: number | null;
           delivery_time_max: number | null;
+          is_featured: boolean;
           is_verified: boolean;
           subscription_active: boolean;
           is_published: boolean;
@@ -69,11 +71,12 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-          id?: string;
-          city_id?: string | null;
-          slug: string;
-          name: string;
-          description?: string | null;
+            id?: string;
+            city_id?: string | null;
+            slug: string;
+            name: string;
+            discovery_category?: string | null;
+            description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
           website?: string | null;
@@ -85,6 +88,7 @@ export type Database = {
           pickup_eta_min?: number | null;
           delivery_time_min?: number | null;
           delivery_time_max?: number | null;
+          is_featured?: boolean;
           is_verified?: boolean;
           subscription_active?: boolean;
           is_published?: boolean;
@@ -94,11 +98,12 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-          id?: string;
-          city_id?: string | null;
-          slug?: string;
-          name?: string;
-          description?: string | null;
+            id?: string;
+            city_id?: string | null;
+            slug?: string;
+            name?: string;
+            discovery_category?: string | null;
+            description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
           website?: string | null;
@@ -110,6 +115,7 @@ export type Database = {
           pickup_eta_min?: number | null;
           delivery_time_min?: number | null;
           delivery_time_max?: number | null;
+          is_featured?: boolean;
           is_verified?: boolean;
           subscription_active?: boolean;
           is_published?: boolean;
@@ -206,12 +212,14 @@ export type Database = {
           price_amount: number;
           currency: string;
           image_url: string | null;
-          category_name: string | null;
-          sort_order: number;
-          is_available: boolean;
-          is_featured: boolean;
-          created_at: string;
-          updated_at: string;
+            category_name: string | null;
+            sort_order: number;
+            is_available: boolean;
+            is_featured: boolean;
+            is_home_featured: boolean;
+            is_pickup_month_highlight: boolean;
+            created_at: string;
+            updated_at: string;
         };
         Insert: {
           id?: string;
@@ -221,12 +229,14 @@ export type Database = {
           price_amount: number;
           currency?: string;
           image_url?: string | null;
-          category_name?: string | null;
-          sort_order?: number;
-          is_available?: boolean;
-          is_featured?: boolean;
-          created_at?: string;
-          updated_at?: string;
+            category_name?: string | null;
+            sort_order?: number;
+            is_available?: boolean;
+            is_featured?: boolean;
+            is_home_featured?: boolean;
+            is_pickup_month_highlight?: boolean;
+            created_at?: string;
+            updated_at?: string;
         };
         Update: {
           id?: string;
@@ -236,12 +246,14 @@ export type Database = {
           price_amount?: number;
           currency?: string;
           image_url?: string | null;
-          category_name?: string | null;
-          sort_order?: number;
-          is_available?: boolean;
-          is_featured?: boolean;
-          created_at?: string;
-          updated_at?: string;
+            category_name?: string | null;
+            sort_order?: number;
+            is_available?: boolean;
+            is_featured?: boolean;
+            is_home_featured?: boolean;
+            is_pickup_month_highlight?: boolean;
+            created_at?: string;
+            updated_at?: string;
         };
         Relationships: [
           {
@@ -323,6 +335,57 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      site_media_assets: {
+        Row: {
+          key:
+            | "home_hero"
+            | "join_hero"
+            | "project_hero"
+            | "project_problem"
+            | "project_idea"
+            | "project_step_discover"
+            | "project_step_order"
+            | "project_step_pickup";
+          label: string;
+          description: string | null;
+          image_url: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          key:
+            | "home_hero"
+            | "join_hero"
+            | "project_hero"
+            | "project_problem"
+            | "project_idea"
+            | "project_step_discover"
+            | "project_step_order"
+            | "project_step_pickup";
+          label: string;
+          description?: string | null;
+          image_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?:
+            | "home_hero"
+            | "join_hero"
+            | "project_hero"
+            | "project_problem"
+            | "project_idea"
+            | "project_step_discover"
+            | "project_step_order"
+            | "project_step_pickup";
+          label?: string;
+          description?: string | null;
+          image_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       posts: {
         Row: {
