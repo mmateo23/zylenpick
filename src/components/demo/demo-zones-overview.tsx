@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
@@ -29,28 +29,42 @@ function buildHeroCities(cities: City[]) {
   return cities.slice(0, 6);
 }
 
+function getCityDecisionContext(city: City, index: number) {
+  if (city.heroVideoUrl || city.heroImageUrl) {
+    return "platos y locales";
+  }
+
+  if (index < 3) {
+    return "para decidir rápido";
+  }
+
+  return "locales cercanos";
+}
+
+function getCityDecisionSignal(city: City, index: number) {
+  if (city.heroVideoUrl || city.slug === "talavera-de-la-reina") {
+    return "Ver esta zona";
+  }
+
+  if (city.heroImageUrl) {
+    return "Platos y locales";
+  }
+
+  if (index < 3) {
+    return "Decidir rápido";
+  }
+
+  return "Locales cerca";
+}
+
 export function DemoZonesOverview({
   cities,
   variant = "demo",
 }: DemoZonesOverviewProps) {
   const rootRef = useRef<HTMLElement>(null);
   const heroCities = useMemo(() => buildHeroCities(cities), [cities]);
-  const [isLightTheme, setIsLightTheme] = useState(false);
+  const isLightTheme = false;
   const cityHrefBase = variant === "public" ? "/zonas" : "/demo/zonas";
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      setIsLightTheme(event.matches);
-    };
-
-    setIsLightTheme(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange);
-    };
-  }, []);
 
   useGSAP(
     () => {
@@ -130,7 +144,6 @@ export function DemoZonesOverview({
       ) : (
         <DemoSiteHeader
           isLightTheme={isLightTheme}
-          onToggleTheme={() => setIsLightTheme((value) => !value)}
         />
       )}
 
@@ -239,7 +252,7 @@ export function DemoZonesOverview({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-            {cities.map((city) => (
+            {cities.map((city, index) => (
               <Link
                 key={city.id}
                 href={`${cityHrefBase}/${city.slug}`}
@@ -275,7 +288,7 @@ export function DemoZonesOverview({
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.04),rgba(6,10,11,0.18)_42%,rgba(6,10,11,0.88)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
                     <span className="rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-white/72 backdrop-blur-xl">
-                      {city.region ?? "Zona"}
+                      {getCityDecisionSignal(city, index)}
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
                       <ArrowUpRight className="h-4 w-4" />
@@ -283,11 +296,10 @@ export function DemoZonesOverview({
                   </div>
                   <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                     <p className="text-[1.5rem] font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-[2rem]">
-                      {city.name}
+                      {city.name} · {getCityDecisionContext(city, index)}
                     </p>
                     <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/58">
-                      Entrar en la ciudad y explorar locales preparados para
-                      recogida.
+                      Descubre locales de esta zona.
                     </p>
                   </div>
                 </div>

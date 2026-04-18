@@ -100,6 +100,16 @@ export default async function VenuePage({ params }: VenuePageProps) {
     phone: venue.phone,
     pickupEtaMin: venue.pickupEtaMin,
   };
+  const mapsHref = venue.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        venue.address,
+      )}`
+    : null;
+  const websiteHref = venue.website
+    ? venue.website.startsWith("http")
+      ? venue.website
+      : `https://${venue.website}`
+    : null;
 
   return (
     <div className="min-h-screen bg-page text-text-primary">
@@ -232,7 +242,17 @@ export default async function VenuePage({ params }: VenuePageProps) {
                       Dirección
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.address ?? "Dirección pendiente"}
+                      {mapsHref ? (
+                        <a
+                          href={mapsHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {venue.address}
+                        </a>
+                      ) : (
+                        "Dirección pendiente"
+                      )}
                     </dd>
                   </div>
                   <div>
@@ -250,7 +270,43 @@ export default async function VenuePage({ params }: VenuePageProps) {
                       Teléfono
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.phone ?? "Teléfono pendiente"}
+                      {venue.phone ? (
+                        <a href={`tel:${venue.phone}`}>{venue.phone}</a>
+                      ) : (
+                        "Teléfono pendiente"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <MapIcon size={17} className="text-icon-highlight" />
+                      Email
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
+                      {venue.email ? (
+                        <a href={`mailto:${venue.email}`}>{venue.email}</a>
+                      ) : (
+                        "Email pendiente"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <MapIcon size={17} className="text-icon-highlight" />
+                      Web
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
+                      {websiteHref ? (
+                        <a
+                          href={websiteHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {venue.website}
+                        </a>
+                      ) : (
+                        "Web pendiente"
+                      )}
                     </dd>
                   </div>
                   <div>

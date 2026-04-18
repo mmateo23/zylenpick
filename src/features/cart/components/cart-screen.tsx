@@ -79,11 +79,11 @@ export function CartScreen() {
                 Carrito
               </p>
               <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                Elige platos antes de recoger.
+                Elige platos para recoger.
               </h1>
               <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
-                Tu selección aparecerá aquí cuando guardes platos desde un
-                local.
+                Tu pedido aparecerá aquí cuando guardes platos desde un local.
+                Después solo tendrás que confirmar la hora de recogida.
               </p>
               <Link
                 href="/zonas"
@@ -188,8 +188,8 @@ export function CartScreen() {
               Revisa tu recogida.
             </h1>
             <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
-              Ajusta cantidades y confirma la hora antes de enviar el pedido al
-              local.
+              Tu pedido se prepara en el local para que solo tengas que llegar
+              y recoger.
             </p>
           </div>
         </div>
@@ -291,13 +291,17 @@ export function CartScreen() {
 
         <aside className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 text-text-primary shadow-[var(--shadow-soft)] ring-1 ring-accent-soft xl:sticky xl:top-28 xl:self-start">
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-            Confirmación
+            Recogida en local
           </p>
           <h2 className="mt-3 text-2xl font-semibold leading-tight">
             {cart.venue.name}
           </h2>
           <p className="mt-4 text-sm leading-6 text-text-secondary">
             {cart.venue.cityName}
+          </p>
+          <p className="mt-4 rounded-[0.9rem] border border-border-subtle bg-surface-muted p-4 text-sm leading-6 text-text-secondary">
+            Recogerás tu pedido directamente en el local, sin esperas
+            innecesarias.
           </p>
           <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-text-secondary">
             <LocationPinIcon size={18} className="mt-0.5 text-icon-highlight" />
@@ -387,12 +391,15 @@ export function CartScreen() {
             ) : null}
 
             <div className="space-y-3 pt-1">
+              <p className="text-sm leading-6 text-text-secondary">
+                El local prepara tu pedido para recoger a la hora elegida.
+              </p>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover disabled:opacity-60"
               >
-                {isSubmitting ? "Confirmando pedido..." : "Confirmar pedido"}
+                {isSubmitting ? "Preparando pedido..." : "Preparar para recoger"}
               </button>
 
               <button

@@ -88,17 +88,17 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const zoneHref = selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
 
   const dockRailClassName =
-    "border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
+    "border-white/16 bg-white/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]";
   const dockButtonClassName =
-    "border-white/10 bg-white/[0.05] text-white hover:-translate-y-[1px] hover:bg-white/[0.09]";
+    "border-white/16 bg-white/[0.09] text-white hover:-translate-y-[1px] hover:bg-white/[0.15]";
   const cityButtonClassName = selectedCity?.slug
-    ? "border-[#7cffb8]/18 bg-[#7cffb8]/10 text-[#7cffb8] hover:bg-[#7cffb8]/16"
+    ? "border-white/18 bg-white/[0.11] text-white hover:bg-white/[0.16]"
     : dockButtonClassName;
 
   return (
     <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.9),rgba(6,14,20,0.82))] px-3.5 py-2 text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)] backdrop-blur-2xl transition-colors sm:px-4">
+        <div className="rounded-[1.55rem] border border-white/16 bg-white/[0.10] px-3.5 py-2 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 transition-colors sm:px-4">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
             {showNavigation ? (
               <button
@@ -171,7 +171,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition ${
                         isItemActive(item.href)
-                          ? "bg-[#7cffb8]/12 text-white shadow-[0_10px_24px_rgba(0,0,0,0.2)]"
+                          ? "bg-white/[0.16] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]"
                           : "text-white/60 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
                       }`}
                     >
@@ -200,7 +200,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
                 <LocationPinIcon size={14} className="shrink-0" />
-                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/10 bg-[#071611]/92 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/82 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.28)] backdrop-blur-xl transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/82 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>
               </Link>
@@ -211,7 +211,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
         {showNavigation && isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.96),rgba(6,14,20,0.92))] p-3 text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)] backdrop-blur-2xl md:hidden"
+            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-white/16 bg-white/[0.10] p-3 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
             <nav aria-label="Navegacion movil">
               <ul className="grid gap-2">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { MapPinned, Menu, Moon, Sun, X } from "lucide-react";
+import { MapPinned, Menu, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
 
@@ -13,7 +13,6 @@ type DemoSiteHeaderProps = {
   currentCityName?: string | null;
   currentCitySlug?: string | null;
   isLightTheme: boolean;
-  onToggleTheme: () => void;
 };
 
 type NavItem = {
@@ -43,17 +42,10 @@ export function DemoSiteHeader({
   currentCityName = null,
   currentCitySlug = null,
   isLightTheme,
-  onToggleTheme,
 }: DemoSiteHeaderProps) {
   const pathname = usePathname();
   const { totals } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const isZonesRoute =
-    pathname === "/zonas" ||
-    pathname.startsWith("/zonas/") ||
-    pathname === "/demo/zonas" ||
-    pathname.startsWith("/demo/zonas/");
-
   const navigationItems = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [
       { label: "Zonas", href: "/zonas" },
@@ -79,46 +71,36 @@ export function DemoSiteHeader({
   };
 
   const shellClassName = isLightTheme
-    ? isZonesRoute
-      ? "border-black/8 bg-[linear-gradient(180deg,rgba(248,242,231,0.95),rgba(242,235,224,0.88))] text-[#181816] shadow-[0_22px_48px_rgba(20,20,20,0.08)]"
-      : "border-black/8 bg-[#f5efe4]/76 text-[#181816] shadow-[0_16px_36px_rgba(20,20,20,0.05)]"
-    : isZonesRoute
-      ? "border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.9),rgba(6,14,20,0.82))] text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)]"
-      : "border-white/10 bg-[#071611]/70 text-white shadow-[0_16px_36px_rgba(0,0,0,0.18)]";
+    ? "border-white/60 bg-white/58 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)]"
+    : "border-white/16 bg-white/[0.10] text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)]";
 
   const cityPillClassName = isLightTheme
     ? currentCitySlug
-      ? "border-[#168453]/18 bg-[#168453]/10 text-[#168453] hover:bg-[#168453]/16"
+      ? "border-black/10 bg-white/45 text-[#181816] hover:bg-white/62"
       : "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.045]"
     : currentCitySlug
-      ? "border-[#7cffb8]/18 bg-[#7cffb8]/10 text-[#7cffb8] hover:bg-[#7cffb8]/16"
-      : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]";
+      ? "border-white/18 bg-white/[0.11] text-white hover:bg-white/[0.16]"
+      : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
 
   const iconButtonClassName = isLightTheme
-    ? "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.045]"
-    : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]";
+    ? "border-black/8 bg-white/42 text-[#181816] hover:bg-white/62"
+    : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
 
   const desktopNavRailClassName = isLightTheme
-    ? isZonesRoute
-      ? "border-black/8 bg-black/[0.035] shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
-      : "border-black/8 bg-black/[0.02]"
-    : isZonesRoute
-      ? "border-white/10 bg-white/[0.06] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
-      : "border-white/10 bg-white/[0.03]";
+    ? "border-white/55 bg-white/42 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
+    : "border-white/16 bg-white/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]";
 
   const desktopNavItemClassName = isLightTheme
     ? "text-[#181816]/62 hover:text-[#181816] hover:bg-black/[0.045] hover:-translate-y-[1px]"
     : "text-white/60 hover:text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
 
   const desktopNavItemActiveClassName = isLightTheme
-    ? "bg-white text-[#181816] shadow-[0_10px_24px_rgba(20,20,20,0.1)]"
-    : "bg-[#7cffb8]/12 text-white shadow-[0_10px_24px_rgba(0,0,0,0.2)]";
+    ? "bg-white/78 text-[#181816] shadow-[0_10px_24px_rgba(20,20,20,0.1)]"
+    : "bg-white/[0.16] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]";
 
   const desktopDockIconClassName = isLightTheme
-    ? "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.05] hover:-translate-y-[1px]"
-    : isZonesRoute
-      ? "border-white/10 bg-white/[0.06] text-white hover:bg-white/[0.1] hover:-translate-y-[1px]"
-      : "border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
+    ? "border-black/8 bg-white/42 text-[#181816] hover:bg-white/62 hover:-translate-y-[1px]"
+    : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15] hover:-translate-y-[1px]";
 
   const mobileNavItemClassName = isLightTheme
     ? "text-[#181816]/68 hover:bg-black/[0.04]"
@@ -128,7 +110,7 @@ export function DemoSiteHeader({
     <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
         <div
-          className={`rounded-[1.55rem] border px-3.5 py-2 backdrop-blur-2xl transition-colors sm:px-4 ${shellClassName}`}
+          className={`rounded-[1.55rem] border px-3.5 py-2 backdrop-blur-2xl backdrop-saturate-150 transition-colors sm:px-4 ${shellClassName}`}
         >
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
             <button
@@ -158,14 +140,14 @@ export function DemoSiteHeader({
               </Link>
             </div>
 
-            <button
-              type="button"
-              onClick={onToggleTheme}
-              aria-label={isLightTheme ? "Cambiar a oscuro" : "Cambiar a claro"}
-              className={`inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${iconButtonClassName}`}
+            <Link
+              href="/cart"
+              aria-label="Carrito"
+              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${iconButtonClassName}`}
             >
-              {isLightTheme ? <Moon size={14} /> : <Sun size={14} />}
-            </button>
+              <CartIcon size={16} />
+              <CartBadge totalItems={totals.totalItems} />
+            </Link>
           </div>
 
           <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
@@ -224,15 +206,6 @@ export function DemoSiteHeader({
               >
                 <MapPinned size={13} className="shrink-0" />
               </Link>
-
-              <button
-                type="button"
-                onClick={onToggleTheme}
-                aria-label={isLightTheme ? "Cambiar a oscuro" : "Cambiar a claro"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${desktopDockIconClassName}`}
-              >
-                {isLightTheme ? <Moon size={13} /> : <Sun size={13} />}
-              </button>
             </div>
           </div>
         </div>
@@ -240,7 +213,7 @@ export function DemoSiteHeader({
         {isMobileMenuOpen ? (
           <div
             id="demo-mobile-navigation"
-            className={`absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border p-3 backdrop-blur-2xl md:hidden ${shellClassName}`}
+            className={`absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border p-3 backdrop-blur-2xl backdrop-saturate-150 md:hidden ${shellClassName}`}
           >
             <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">

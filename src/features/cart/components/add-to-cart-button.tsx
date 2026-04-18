@@ -20,6 +20,7 @@ type AddToCartButtonProps = {
   buttonClassName?: string;
   feedbackClassName?: string;
   source?: string;
+  label?: string;
 };
 
 export function AddToCartButton({
@@ -29,6 +30,7 @@ export function AddToCartButton({
   buttonClassName,
   feedbackClassName,
   source = "add_to_cart_button",
+  label = "Añadir al carrito",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -68,7 +70,7 @@ export function AddToCartButton({
           "magnetic-button inline-flex items-center rounded-full bg-[color:var(--surface-dark)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
         }
       >
-        Añadir al carrito
+        {label}
       </button>
       {feedback ? (
         <p

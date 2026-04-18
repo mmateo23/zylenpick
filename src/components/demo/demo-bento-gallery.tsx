@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import { Sparkles } from "lucide-react";
+import { ShieldCheck, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -93,7 +93,7 @@ export function DemoBentoGallery({
   zoneHeroVideoUrl = null,
 }: DemoBentoGalleryProps) {
   const rootRef = useRef<HTMLElement>(null);
-  const [isLightTheme, setIsLightTheme] = useState(false);
+  const isLightTheme = false;
   const selectedItems = useMemo(() => pickBentoItems(items), [items]);
   const galleryItems = useMemo(() => pickBentoItems(items), [items]);
   const venueLabels = useMemo(() => {
@@ -119,28 +119,14 @@ export function DemoBentoGallery({
   ).length;
   const isZoneMode = mode === "zonas";
   const primaryCitySlug = items[0]?.venue.citySlug ?? null;
-  const heroEyebrow = isZoneMode ? "Demo de ciudad" : "Demo de locales";
+  const heroEyebrow = isZoneMode ? "Locales para recoger" : "Demo de locales";
   const heroTitle = isZoneMode
-    ? zoneName ?? "\u00bfQu\u00e9 ciudad nos apetece hoy?"
+    ? `Elige un local en ${zoneName ?? "tu zona"}`
     : "\u00bfQu\u00e9 local nos apetece hoy?";
-  const heroDescription = isZoneMode
-    ? `Una composici\u00f3n visual para descubrir locales en ${zoneName ?? "tu ciudad"} con una direcci\u00f3n m\u00e1s editorial, inmersiva y pensada para explorar mejor.`
-    : "Una composici\u00f3n visual para descubrir locales con una direcci\u00f3n m\u00e1s editorial, inmersiva y pensada para explorar mejor.";
-  const labelsTitle = isZoneMode ? "Locales en la ciudad" : "Locales destacados";
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      setIsLightTheme(event.matches);
-    };
-
-    setIsLightTheme(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange);
-    };
-  }, []);
+  const zoneDisplayName = zoneName ?? "tu zona";
+  const heroDescription =
+    "Una composici\u00f3n visual para descubrir locales con una direcci\u00f3n m\u00e1s editorial, inmersiva y pensada para explorar mejor.";
+  const labelsTitle = isZoneMode ? "Locales para elegir" : "Locales destacados";
 
   useGSAP(
     () => {
@@ -243,7 +229,6 @@ export function DemoBentoGallery({
           currentCityName={isZoneMode ? zoneName : null}
           currentCitySlug={isZoneMode ? primaryCitySlug : null}
           isLightTheme={isLightTheme}
-          onToggleTheme={() => setIsLightTheme((value) => !value)}
         />
       )}
       <section className="relative overflow-hidden border-b border-white/6">
@@ -298,7 +283,17 @@ export function DemoBentoGallery({
                   {heroTitle}
                 </h1>
                 <p className="max-w-[34rem] text-[0.95rem] leading-6 text-white/56 sm:max-w-[36rem] sm:text-base sm:leading-7">
-                  {heroDescription}
+                  {isZoneMode ? (
+                    <>
+                      Mira locales de{" "}
+                      <strong className="font-semibold text-white">
+                        {zoneDisplayName}
+                      </strong>
+                      , abre su carta y elige qu\u00e9 recoger sin complicarte.
+                    </>
+                  ) : (
+                    heroDescription
+                  )}
                 </p>
               </div>
               <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-7">
@@ -306,10 +301,10 @@ export function DemoBentoGallery({
                   {activeVenueCount} locales activos
                 </span>
                 <span className="rounded-full border border-[#7cffb8]/14 bg-[#7cffb8]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7cffb8] backdrop-blur-xl">
-                  {featuredVenueCount} con suscripción
+                  {featuredVenueCount} verificados
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
-                  {premiumVenueCount} premium
+                  {premiumVenueCount} carta clara
                 </span>
               </div>
             </div>
@@ -321,7 +316,7 @@ export function DemoBentoGallery({
                     {labelsTitle}
                   </p>
                   <p className="mt-2 text-sm text-white/58">
-                    Una lectura rápida de los nombres que están moviendo la ciudad.
+                    Toca un local para ver su carta y elegir qué recoger.
                   </p>
                 </div>
                 <span className="rounded-full border border-white/10 bg-black/14 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-white/54 backdrop-blur-xl">
@@ -370,7 +365,7 @@ export function DemoBentoGallery({
                   isLightTheme ? "text-[#181816]" : "text-white"
                 }`}
               >
-                Locales con presencia visual de app editorial.
+                Elige un local y entra en su carta.
               </h2>
             </div>
             <Link
@@ -385,7 +380,7 @@ export function DemoBentoGallery({
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 lg:auto-rows-[13rem] lg:grid-flow-dense lg:gap-4 xl:auto-rows-[14rem]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 lg:auto-rows-[13rem] lg:grid-flow-dense lg:gap-4 xl:auto-rows-[14rem]">
             {galleryItems.map((item, index) => (
               <Link
                 key={item.id}
@@ -406,12 +401,9 @@ export function DemoBentoGallery({
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.02),rgba(6,10,11,0.12)_42%,rgba(6,10,11,0.88)_100%)]" />
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
-                  <span className="rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-white/72 backdrop-blur-xl">
-                    {item.subscriptionTier}
-                  </span>
                   {item.subscriptionActive ? (
-                    <span className="rounded-full border border-[#7cffb8]/16 bg-[#7cffb8]/10 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#d9ffe8] backdrop-blur-xl">
-                      ⭐ Verificado
+                    <span className="rounded-full border border-white/10 bg-black/18 p-2 text-white/72 backdrop-blur-xl" aria-label="Local verificado">
+                      <ShieldCheck className="h-4 w-4 text-[#7cffb8]" />
                     </span>
                   ) : null}
                 </div>
@@ -421,7 +413,7 @@ export function DemoBentoGallery({
                   </p>
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="text-[0.9rem] font-bold italic text-[#7cffb8] sm:text-[0.96rem]">
-                      {item.cityName}
+                      Ver carta
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/58 backdrop-blur-xl">
                       {item.categoryName ?? "Local"}

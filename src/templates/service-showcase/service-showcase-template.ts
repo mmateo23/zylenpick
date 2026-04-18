@@ -43,10 +43,10 @@ export const serviceShowcaseTemplate: {
       "En cuanto haya platos con imagen, esta pantalla usara ese contenido real para construir el explorador visual.",
     backLabel: "Volver al inicio",
     backCompactLabel: "Inicio",
-    heroEyebrow: "Explorador visual",
-    heroTitle: "¿Que nos apetece hoy?",
+    heroEyebrow: "Decide rápido",
+    heroTitle: "Elige qué comer ahora",
     heroDescription:
-      "Una forma visual de descubrir platos: foto primero, contexto justo y detalle solo al abrir.",
+      "Mira platos reales de locales cercanos y elige uno para recoger sin darle mil vueltas.",
     searchLabel: "Buscar platos",
     searchInputId: "demo-platos-search",
     searchPlaceholder: "Buscar plato, local o categoria",

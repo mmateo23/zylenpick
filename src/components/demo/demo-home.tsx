@@ -52,9 +52,9 @@ const FALLBACK_BACKGROUND =
 const DEMO_BACKGROUND_VIDEO =
   "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4";
 const FEATURED_LINKS = [
-  { label: "Temas", href: "/el-proyecto#temas" },
+  { label: "Para personas", href: "/platos" },
+  { label: "Para locales", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
-  { label: "Únete", href: "/unete" },
 ];
 const QUICK_LINKS = [
   { label: "🍔 #DobleCheese", href: "/platos?focus=doble-cheese" },
@@ -437,11 +437,12 @@ export function DemoHome({
           </div>
 
           <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.5rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.08em] text-white sm:mt-6 sm:max-w-5xl">
-            Bienvenido a ZylenPick.
+            Decide qué comer en segundos
           </h1>
 
           <p className="mt-3 max-w-xl text-balance text-[13px] leading-5 text-white/68 sm:mt-4 sm:max-w-2xl sm:text-base sm:leading-7 md:text-lg">
-            Descubre platos y zonas para recoger comida de forma visual, rápida y directa.
+            Mira platos reales de locales cercanos y elige qué recoger sin
+            reseñas eternas, llamadas ni complicaciones.
           </p>
 
           <div className="mt-6 flex w-full max-w-3xl flex-row gap-2 sm:mt-10 sm:gap-4">
@@ -458,7 +459,7 @@ export function DemoHome({
                     {"Platos"}
                   </p>
                   <p className="mt-1.5 text-[8px] uppercase tracking-[0.24em] text-white/42 sm:text-[10px] sm:tracking-[0.28em]">
-                    #Explora
+                    Decidir ahora
                   </p>
                 </div>
               </div>
@@ -477,7 +478,7 @@ export function DemoHome({
                     {"Zonas"}
                   </p>
                   <p className="mt-1.5 text-[8px] uppercase tracking-[0.24em] text-white/40 sm:text-[10px] sm:tracking-[0.28em]">
-                    #Explora
+                    Ver cerca
                   </p>
                 </div>
               </div>

@@ -140,7 +140,7 @@ export function MenuItemGalleryCard({
                 {formatPrice(item.priceAmount, item.currency)}
               </span>
               <span className="rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] px-3.5 py-1.5 text-xs font-semibold text-text-inverse/90 backdrop-blur-xl">
-                Ver plato
+                Ver detalle
               </span>
             </div>
           </div>
@@ -159,6 +159,7 @@ export function MenuItemGalleryCard({
             }}
             className="mt-0"
             source="dish_card"
+            label="Añadir para recoger"
             buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-accent-soft px-5 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
             feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
           />
@@ -168,8 +169,8 @@ export function MenuItemGalleryCard({
       {isViewerOpen ? (
         <div className="fixed inset-0 z-50 bg-[color-mix(in_srgb,var(--overlay-hero-to)_84%,transparent)] backdrop-blur-sm">
           <div className="flex h-full min-h-0 items-center justify-center p-2 sm:p-6">
-            <section className="grid max-h-[calc(100svh-1rem)] w-full max-w-6xl overflow-hidden rounded-[1.25rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:max-h-[calc(100svh-3rem)] sm:rounded-[1.6rem] lg:grid-cols-[minmax(0,1.12fr)_25rem]">
-              <div className="relative min-h-[17rem] overflow-hidden sm:min-h-[24rem] lg:min-h-0">
+            <section className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(12rem,36svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(16rem,42svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-auto lg:max-h-[calc(100svh-3rem)] lg:grid-cols-[minmax(0,1.12fr)_25rem] lg:grid-rows-none">
+              <div className="relative min-h-0 overflow-hidden">
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
@@ -215,12 +216,12 @@ export function MenuItemGalleryCard({
                 ) : null}
               </div>
 
-              <aside className="flex min-h-0 flex-col overflow-y-auto bg-[color-mix(in_srgb,var(--overlay-hero-to)_72%,var(--text-inverse)_8%)]">
+              <aside className="flex min-h-0 flex-col overflow-y-auto overscroll-contain bg-[color-mix(in_srgb,var(--overlay-hero-to)_72%,var(--text-inverse)_8%)]">
                 <div className="space-y-5 p-5 sm:p-6">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
-                        Plato
+                        Plato del local
                       </p>
                       {item.categoryName ? (
                         <span className="rounded-full border border-text-inverse/16 bg-text-inverse/[0.08] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-text-inverse/78">
@@ -234,6 +235,9 @@ export function MenuItemGalleryCard({
                     <p className="mt-4 text-2xl font-semibold text-text-inverse">
                       {formatPrice(item.priceAmount, item.currency)}
                     </p>
+                    <p className="mt-2 text-sm leading-6 text-text-inverse/70">
+                      Preparado por un local de tu zona.
+                    </p>
                   </div>
 
                   {item.description ? (
@@ -244,14 +248,14 @@ export function MenuItemGalleryCard({
 
                   <div className="grid gap-2 rounded-[1rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-card-to)_28%,transparent)] p-3 text-sm text-text-inverse/76">
                     <div className="flex items-center justify-between gap-4">
-                      <span>Precio</span>
+                      <span>Precio para recoger</span>
                       <span className="font-semibold text-text-inverse">
                         {formatPrice(item.priceAmount, item.currency)}
                       </span>
                     </div>
                     {item.categoryName ? (
                       <div className="flex items-center justify-between gap-4">
-                        <span>Categoria</span>
+                        <span>Tipo de plato</span>
                         <span className="text-right font-semibold text-text-inverse">
                           {item.categoryName}
                         </span>
@@ -259,9 +263,9 @@ export function MenuItemGalleryCard({
                     ) : null}
                     {item.isPickupMonthHighlight ? (
                       <div className="flex items-center justify-between gap-4">
-                        <span>Destacado</span>
+                        <span>Muy elegido</span>
                         <span className="text-right font-semibold text-accent-bright">
-                          Mas recogido del mes
+                          De los más pedidos
                         </span>
                       </div>
                     ) : null}
@@ -270,7 +274,7 @@ export function MenuItemGalleryCard({
                   {item.allergens.length > 0 ? (
                     <div className="rounded-[1rem] border border-text-inverse/14 bg-text-inverse/[0.06] p-3">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-inverse/74">
-                        Alergenos
+                        Puede contener
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {item.allergens.map((allergen) => (
@@ -320,6 +324,9 @@ export function MenuItemGalleryCard({
                 </div>
 
                 <div className="sticky bottom-0 mt-auto border-t border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_96%,transparent)] p-4 backdrop-blur-2xl sm:p-5">
+                  <p className="mb-3 text-center text-xs font-medium text-text-inverse/68">
+                    Recógelo en el local sin llamadas ni esperas.
+                  </p>
                   <AddToCartButton
                     venue={venue}
                     item={{
@@ -332,6 +339,7 @@ export function MenuItemGalleryCard({
                     }}
                     className="mt-0"
                     source="dish_detail"
+                    label="Añadir para recoger"
                     buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
                     feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/76"
                   />
