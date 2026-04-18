@@ -115,7 +115,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--brand-accent-soft),transparent_26%),linear-gradient(90deg,var(--overlay-hero-to)_0%,var(--overlay-hero-from)_46%,transparent_100%),linear-gradient(180deg,transparent_0%,var(--overlay-hero-to)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--brand-accent-soft),transparent_24%),linear-gradient(90deg,rgba(5,8,22,0.88)_0%,rgba(5,8,22,0.74)_36%,rgba(5,8,22,0.22)_68%,transparent_100%),linear-gradient(180deg,rgba(5,8,22,0.08)_0%,rgba(5,8,22,0.34)_50%,rgba(5,8,22,0.9)_100%)]" />
 
           <div className="relative z-10 mx-auto flex min-h-[calc(78svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
             <div className="max-w-4xl">

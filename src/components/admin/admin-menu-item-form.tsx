@@ -7,6 +7,7 @@ import type {
   AdminMenuItemFormValues,
   AdminVenueContext,
 } from "@/features/admin/services/menu-items-admin-service";
+import type { MenuItemAllergen } from "@/features/venues/types";
 
 type AdminMenuItemFormProps = {
   title: string;
@@ -16,6 +17,23 @@ type AdminMenuItemFormProps = {
   venue: AdminVenueContext;
   initialValues?: AdminMenuItemFormValues | null;
 };
+
+const allergenOptions: { value: MenuItemAllergen; label: string }[] = [
+  { value: "gluten", label: "Gluten" },
+  { value: "crustaceos", label: "Crustaceos" },
+  { value: "huevo", label: "Huevo" },
+  { value: "pescado", label: "Pescado" },
+  { value: "cacahuetes", label: "Cacahuetes" },
+  { value: "soja", label: "Soja" },
+  { value: "leche", label: "Leche" },
+  { value: "frutos_de_cascara", label: "Frutos de cascara" },
+  { value: "apio", label: "Apio" },
+  { value: "mostaza", label: "Mostaza" },
+  { value: "sesamo", label: "Sesamo" },
+  { value: "sulfitos", label: "Sulfitos" },
+  { value: "altramuces", label: "Altramuces" },
+  { value: "moluscos", label: "Moluscos" },
+];
 
 function buildInitialValues(
   venueId: string,
@@ -35,6 +53,7 @@ function buildInitialValues(
       isFeatured: false,
       isHomeFeatured: false,
       isPickupMonthHighlight: false,
+      allergens: [],
     }
   );
 }
@@ -145,6 +164,32 @@ export function AdminMenuItemForm({
               className={`${fieldClassName()} resize-y`}
             />
           </label>
+
+          <fieldset className="rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 md:col-span-2">
+            <legend className="px-1 text-sm font-medium text-[color:var(--foreground)]">
+              Alergenos
+            </legend>
+            <p className="mt-2 text-xs leading-5 text-[color:var(--muted-strong)]">
+              Marca solo los alergenos confirmados para este plato.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {allergenOptions.map((option) => (
+                <label
+                  key={option.value}
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-[color:var(--muted-strong)] transition hover:border-[color:var(--brand)] hover:text-[color:var(--foreground)]"
+                >
+                  <input
+                    name="allergens"
+                    type="checkbox"
+                    value={option.value}
+                    defaultChecked={values.allergens.includes(option.value)}
+                    className="h-3.5 w-3.5 accent-[color:var(--brand)]"
+                  />
+                  {option.label}
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <div className="grid gap-4 md:col-span-2 lg:grid-cols-[minmax(0,1fr)_16rem]">
             <label className="block">

@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 
 import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import type { MenuItemAllergen } from "@/features/venues/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminVenueContext = {
@@ -51,6 +52,7 @@ export type AdminMenuItemFormValues = {
   isFeatured: boolean;
   isHomeFeatured: boolean;
   isPickupMonthHighlight: boolean;
+  allergens: MenuItemAllergen[];
 };
 
 type NormalizedMenuItemFormValues = Omit<AdminMenuItemFormValues, "id" | "venueId">;
@@ -74,12 +76,41 @@ function isMissingHomeFeaturedColumnError(message: string) {
   return message.toLowerCase().includes("menu_items.is_home_featured");
 }
 
+function isMissingMenuItemAllergensColumnError(message: string) {
+  return message.toLowerCase().includes("menu_items.allergens");
+}
+
 function isMissingHighlightColumnError(message: string) {
   return (
     isMissingFeaturedColumnError(message) ||
     isMissingHomeFeaturedColumnError(message) ||
     isMissingPickupMonthHighlightColumnError(message)
   );
+}
+
+const knownMenuItemAllergens = new Set<MenuItemAllergen>([
+  "gluten",
+  "crustaceos",
+  "huevo",
+  "pescado",
+  "cacahuetes",
+  "soja",
+  "leche",
+  "frutos_de_cascara",
+  "apio",
+  "mostaza",
+  "sesamo",
+  "sulfitos",
+  "altramuces",
+  "moluscos",
+]);
+
+function normalizeMenuItemAllergens(values: FormDataEntryValue[]) {
+  return values
+    .map((value) => String(value))
+    .filter((value): value is MenuItemAllergen =>
+      knownMenuItemAllergens.has(value as MenuItemAllergen),
+    );
 }
 
 function parsePriceToMinorUnits(price: string) {
@@ -110,6 +141,7 @@ function normalizeMenuItemFormValues(formData: FormData): NormalizedMenuItemForm
     isFeatured: formData.get("isFeatured") === "on",
     isHomeFeatured: formData.get("isHomeFeatured") === "on",
     isPickupMonthHighlight: formData.get("isPickupMonthHighlight") === "on",
+    allergens: normalizeMenuItemAllergens(formData.getAll("allergens")),
   };
 }
 
@@ -253,11 +285,46 @@ export async function getAdminMenuItemById(
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, venue_id, name, description, price_amount, category_name, image_url, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight",
+      "id, venue_id, name, description, price_amount, category_name, image_url, allergens, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight",
     )
     .eq("venue_id", venueId)
     .eq("id", menuItemId)
     .maybeSingle();
+
+  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+    const { data: fallbackData, error: fallbackError } = await supabase
+      .from("menu_items")
+      .select(
+        "id, venue_id, name, description, price_amount, category_name, image_url, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight",
+      )
+      .eq("venue_id", venueId)
+      .eq("id", menuItemId)
+      .maybeSingle();
+
+    if (fallbackError) {
+      throw new Error(`Unable to load admin menu item: ${fallbackError.message}`);
+    }
+
+    if (!fallbackData) {
+      return null;
+    }
+
+    return {
+      id: fallbackData.id,
+      venueId: fallbackData.venue_id,
+      name: fallbackData.name,
+      description: fallbackData.description ?? "",
+      price: (fallbackData.price_amount / 100).toFixed(2).replace(".", ","),
+      categoryName: fallbackData.category_name ?? "",
+      imageUrl: fallbackData.image_url ?? "",
+      sortOrder: fallbackData.sort_order.toString(),
+      isAvailable: fallbackData.is_available,
+      isFeatured: fallbackData.is_featured,
+      isHomeFeatured: fallbackData.is_home_featured,
+      isPickupMonthHighlight: fallbackData.is_pickup_month_highlight,
+      allergens: [],
+    };
+  }
 
   if (error && isMissingHighlightColumnError(error.message)) {
     const { data: fallbackData, error: fallbackError } = await supabase
@@ -290,6 +357,7 @@ export async function getAdminMenuItemById(
       isFeatured: false,
       isHomeFeatured: false,
       isPickupMonthHighlight: false,
+      allergens: [],
     };
   }
 
@@ -314,6 +382,7 @@ export async function getAdminMenuItemById(
     isFeatured: data.is_featured,
     isHomeFeatured: data.is_home_featured,
     isPickupMonthHighlight: data.is_pickup_month_highlight,
+    allergens: normalizeMenuItemAllergens(data.allergens ?? []),
   };
 }
 
@@ -333,12 +402,37 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
     currency: "EUR",
     image_url: values.imageUrl || null,
     category_name: values.categoryName || null,
+    allergens: values.allergens,
     sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
     is_available: values.isAvailable,
     is_featured: values.isFeatured,
     is_home_featured: values.isHomeFeatured,
     is_pickup_month_highlight: values.isPickupMonthHighlight,
   });
+
+  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+    const { error: fallbackError } = await supabase.from("menu_items").insert({
+      venue_id: venueId,
+      name: values.name,
+      description: values.description || null,
+      price_amount: priceAmount,
+      currency: "EUR",
+      image_url: values.imageUrl || null,
+      category_name: values.categoryName || null,
+      sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
+      is_available: values.isAvailable,
+      is_featured: values.isFeatured,
+      is_home_featured: values.isHomeFeatured,
+      is_pickup_month_highlight: values.isPickupMonthHighlight,
+    });
+
+    if (fallbackError) {
+      throw new Error(`Unable to create menu item: ${fallbackError.message}`);
+    }
+
+    revalidatePublicVenuePaths(publicPath);
+    redirect(`/panel/locales/${venueId}/platos`);
+  }
 
   if (error && isMissingHighlightColumnError(error.message)) {
     const { error: fallbackError } = await supabase.from("menu_items").insert({
@@ -389,6 +483,7 @@ export async function updateMenuItemAction(
       price_amount: priceAmount,
       image_url: values.imageUrl || null,
       category_name: values.categoryName || null,
+      allergens: values.allergens,
       sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
       is_available: values.isAvailable,
       is_featured: values.isFeatured,
@@ -397,6 +492,32 @@ export async function updateMenuItemAction(
     })
     .eq("venue_id", venueId)
     .eq("id", menuItemId);
+
+  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+    const { error: fallbackError } = await supabase
+      .from("menu_items")
+      .update({
+        name: values.name,
+        description: values.description || null,
+        price_amount: priceAmount,
+        image_url: values.imageUrl || null,
+        category_name: values.categoryName || null,
+        sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
+        is_available: values.isAvailable,
+        is_featured: values.isFeatured,
+        is_home_featured: values.isHomeFeatured,
+        is_pickup_month_highlight: values.isPickupMonthHighlight,
+      })
+      .eq("venue_id", venueId)
+      .eq("id", menuItemId);
+
+    if (fallbackError) {
+      throw new Error(`Unable to update menu item: ${fallbackError.message}`);
+    }
+
+    revalidatePublicVenuePaths(publicPath);
+    redirect(`/panel/locales/${venueId}/platos`);
+  }
 
   if (error && isMissingHighlightColumnError(error.message)) {
     const { error: fallbackError } = await supabase

@@ -8,8 +8,28 @@ import { BorderBeam } from "@/components/magicui/border-beam";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { CartVenue } from "@/features/cart/types";
 import { getMenuItemSecondaryImage } from "@/features/venues/menu-item-media";
-import type { VenueMenuItem } from "@/features/venues/types";
+import type {
+  MenuItemAllergen,
+  VenueMenuItem,
+} from "@/features/venues/types";
 import { formatPrice } from "@/lib/utils/currency";
+
+const allergenLabels: Record<MenuItemAllergen, string> = {
+  gluten: "Gluten",
+  crustaceos: "Crustaceos",
+  huevo: "Huevo",
+  pescado: "Pescado",
+  cacahuetes: "Cacahuetes",
+  soja: "Soja",
+  leche: "Leche",
+  frutos_de_cascara: "Frutos de cascara",
+  apio: "Apio",
+  mostaza: "Mostaza",
+  sesamo: "Sesamo",
+  sulfitos: "Sulfitos",
+  altramuces: "Altramuces",
+  moluscos: "Moluscos",
+};
 
 type MenuItemGalleryCardProps = {
   item: VenueMenuItem;
@@ -137,21 +157,21 @@ export function MenuItemGalleryCard({
       {isViewerOpen ? (
         <div className="fixed inset-0 z-50 bg-[color-mix(in_srgb,var(--overlay-hero-to)_84%,transparent)] backdrop-blur-sm">
           <div className="flex h-full min-h-0 items-center justify-center p-2 sm:p-6">
-            <section className="grid max-h-[calc(100svh-1rem)] w-full max-w-6xl overflow-hidden rounded-[1.25rem] border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-hero-to)_92%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:max-h-[calc(100svh-3rem)] sm:rounded-[1.6rem] lg:grid-cols-[minmax(0,1.12fr)_25rem]">
+            <section className="grid max-h-[calc(100svh-1rem)] w-full max-w-6xl overflow-hidden rounded-[1.25rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:max-h-[calc(100svh-3rem)] sm:rounded-[1.6rem] lg:grid-cols-[minmax(0,1.12fr)_25rem]">
               <div className="relative min-h-[17rem] overflow-hidden sm:min-h-[24rem] lg:min-h-0">
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: selectedImage
-                      ? `linear-gradient(180deg, var(--overlay-card-from), var(--overlay-card-mid)), url(${selectedImage})`
+                      ? `url(${selectedImage})`
                       : "linear-gradient(180deg, var(--brand-accent-soft), var(--overlay-hero-from))",
                   }}
                 />
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from)_0%,var(--overlay-card-mid)_48%,var(--overlay-card-to)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,7,0.04)_0%,rgba(4,8,7,0.02)_42%,rgba(4,8,7,0.34)_100%)]" />
                 <button
                   type="button"
                   onClick={() => setIsViewerOpen(false)}
-                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_28%,transparent)] text-text-inverse backdrop-blur-xl sm:right-4 sm:top-4"
+                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-card-to)_42%,transparent)] text-text-inverse backdrop-blur-xl sm:right-4 sm:top-4"
                   aria-label="Cerrar visor"
                 >
                   <CloseIcon size={18} />
@@ -169,7 +189,7 @@ export function MenuItemGalleryCard({
                           className={`h-14 w-14 shrink-0 overflow-hidden rounded-[0.85rem] border transition ${
                             isActive
                               ? "border-accent shadow-[var(--card-shadow)]"
-                              : "border-text-inverse/10"
+                              : "border-text-inverse/18"
                           }`}
                           aria-label={`Ver imagen ${index + 1} de ${item.name}`}
                         >
@@ -184,7 +204,7 @@ export function MenuItemGalleryCard({
                 ) : null}
               </div>
 
-              <aside className="flex min-h-0 flex-col overflow-y-auto bg-text-inverse/[0.045]">
+              <aside className="flex min-h-0 flex-col overflow-y-auto bg-[color-mix(in_srgb,var(--overlay-hero-to)_72%,var(--text-inverse)_8%)]">
                 <div className="space-y-5 p-5 sm:p-6">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -192,7 +212,7 @@ export function MenuItemGalleryCard({
                         Plato
                       </p>
                       {item.categoryName ? (
-                        <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.06] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-text-inverse/62">
+                        <span className="rounded-full border border-text-inverse/16 bg-text-inverse/[0.08] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-text-inverse/78">
                           {item.categoryName}
                         </span>
                       ) : null}
@@ -206,12 +226,12 @@ export function MenuItemGalleryCard({
                   </div>
 
                   {item.description ? (
-                    <p className="text-base leading-7 text-text-inverse/68">
+                    <p className="text-base leading-7 text-text-inverse/82">
                       {item.description}
                     </p>
                   ) : null}
 
-                  <div className="grid gap-2 rounded-[1rem] border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_16%,transparent)] p-3 text-sm text-text-inverse/64">
+                  <div className="grid gap-2 rounded-[1rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-card-to)_28%,transparent)] p-3 text-sm text-text-inverse/76">
                     <div className="flex items-center justify-between gap-4">
                       <span>Precio</span>
                       <span className="font-semibold text-text-inverse">
@@ -236,6 +256,30 @@ export function MenuItemGalleryCard({
                     ) : null}
                   </div>
 
+                  {item.allergens.length > 0 ? (
+                    <div className="rounded-[1rem] border border-text-inverse/14 bg-text-inverse/[0.06] p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-text-inverse/74">
+                        Alergenos
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.allergens.map((allergen) => (
+                          <span
+                            key={allergen}
+                            className="inline-flex items-center gap-2 rounded-full border border-text-inverse/16 bg-[color-mix(in_srgb,var(--text-inverse)_10%,transparent)] px-3 py-1.5 text-xs font-semibold text-text-inverse/90"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-accent-border bg-accent-soft text-[10px] font-bold leading-none text-accent-bright"
+                            >
+                              i
+                            </span>
+                            {allergenLabels[allergen]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
                   {images.length > 1 ? (
                     <div className="hidden gap-3 overflow-x-auto pb-1 lg:flex">
                       {images.map((image, index) => {
@@ -249,7 +293,7 @@ export function MenuItemGalleryCard({
                             className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
                               isActive
                                 ? "border-accent shadow-[var(--card-shadow)]"
-                                : "border-text-inverse/10"
+                                : "border-text-inverse/18"
                             }`}
                             aria-label={`Ver imagen ${index + 1} de ${item.name}`}
                           >
@@ -264,7 +308,7 @@ export function MenuItemGalleryCard({
                   ) : null}
                 </div>
 
-                <div className="sticky bottom-0 mt-auto border-t border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] p-4 backdrop-blur-2xl sm:p-5">
+                <div className="sticky bottom-0 mt-auto border-t border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_96%,transparent)] p-4 backdrop-blur-2xl sm:p-5">
                   <AddToCartButton
                     venue={venue}
                     item={{
@@ -276,8 +320,8 @@ export function MenuItemGalleryCard({
                       imageUrl: item.imageUrl,
                     }}
                     className="mt-0"
-                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
-                    feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/60"
+                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
+                    feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/76"
                   />
                 </div>
               </aside>
