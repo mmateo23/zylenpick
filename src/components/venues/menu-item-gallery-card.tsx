@@ -136,68 +136,40 @@ export function MenuItemGalleryCard({
 
       {isViewerOpen ? (
         <div className="fixed inset-0 z-50 bg-[rgba(4,8,7,0.84)] backdrop-blur-sm">
-          <div className="flex h-full min-h-0 flex-col p-3 sm:p-6">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-[1.35rem] border border-white/10 bg-white/[0.06] px-4 py-3 text-white shadow-[var(--soft-shadow)] backdrop-blur-2xl sm:px-5">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/50">
-                  Plato
-                </p>
-                <h3 className="mt-1 text-xl font-semibold sm:text-2xl">
-                  {item.name}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsViewerOpen(false)}
-                className="magnetic-button inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
-                aria-label="Cerrar visor"
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-
-            <div className="mx-auto mt-3 grid min-h-0 w-full max-w-6xl flex-1 gap-3 lg:grid-cols-[minmax(0,1.2fr)_24rem]">
-              <section className="min-h-[45vh] overflow-hidden rounded-[1.35rem] border border-white/10 bg-white/[0.04] shadow-[var(--shadow)] backdrop-blur-xl">
+          <div className="flex h-full min-h-0 items-center justify-center p-2 sm:p-6">
+            <section className="grid max-h-[calc(100svh-1rem)] w-full max-w-6xl overflow-hidden rounded-[1.25rem] border border-white/10 bg-[#07100d]/92 text-white shadow-[var(--shadow)] backdrop-blur-2xl sm:max-h-[calc(100svh-3rem)] sm:rounded-[1.6rem] lg:grid-cols-[minmax(0,1.12fr)_25rem]">
+              <div className="relative min-h-[17rem] overflow-hidden sm:min-h-[24rem] lg:min-h-0">
                 <div
-                  className="h-full min-h-[45vh] bg-cover bg-center"
+                  className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: selectedImage
                       ? `linear-gradient(180deg, rgba(10, 12, 11, 0.04), rgba(10, 12, 11, 0.2)), url(${selectedImage})`
                       : "linear-gradient(180deg, rgba(31, 138, 112, 0.32), rgba(15, 22, 20, 0.46))",
                   }}
                 />
-              </section>
-
-              <aside className="overflow-y-auto rounded-[1.35rem] border border-white/10 bg-white/[0.04] p-6 shadow-[var(--soft-shadow)] backdrop-blur-xl">
-                <p className="text-sm uppercase tracking-[0.2em] text-[color:var(--brand)]">
-                  Vista del plato
-                </p>
-                <h4 className="mt-4 text-4xl font-semibold leading-[0.96] text-white">
-                  {item.name}
-                </h4>
-                {item.description ? (
-                  <p className="mt-4 text-base leading-8 text-white/60">
-                    {item.description}
-                  </p>
-                ) : null}
-                <p className="mt-6 text-2xl font-semibold text-white">
-                  {formatPrice(item.priceAmount, item.currency)}
-                </p>
-
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,8,7,0.02)_0%,rgba(4,8,7,0.1)_48%,rgba(4,8,7,0.58)_100%)]" />
+                <button
+                  type="button"
+                  onClick={() => setIsViewerOpen(false)}
+                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-black/28 text-white backdrop-blur-xl sm:right-4 sm:top-4"
+                  aria-label="Cerrar visor"
+                >
+                  <CloseIcon size={18} />
+                </button>
                 {images.length > 1 ? (
-                  <div className="mt-6 flex gap-3 overflow-x-auto pb-1">
+                  <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto p-3 sm:p-4 lg:hidden">
                     {images.map((image, index) => {
                       const isActive = index === selectedImageIndex;
 
                       return (
                         <button
-                          key={`${item.id}-${index}`}
+                          key={`${item.id}-mobile-${index}`}
                           type="button"
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
+                          className={`h-14 w-14 shrink-0 overflow-hidden rounded-[0.85rem] border transition ${
                             isActive
                               ? "border-[color:var(--brand)] shadow-[var(--card-shadow)]"
-                              : "border-white/10"
+                              : "border-white/14"
                           }`}
                           aria-label={`Ver imagen ${index + 1} de ${item.name}`}
                         >
@@ -210,8 +182,89 @@ export function MenuItemGalleryCard({
                     })}
                   </div>
                 ) : null}
+              </div>
 
-                <div className="mt-8">
+              <aside className="flex min-h-0 flex-col overflow-y-auto bg-white/[0.045]">
+                <div className="space-y-5 p-5 sm:p-6">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-[color:var(--brand)]">
+                        Plato
+                      </p>
+                      {item.categoryName ? (
+                        <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-white/62">
+                          {item.categoryName}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h4 className="mt-3 text-[clamp(2rem,8vw,3.6rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-white lg:text-4xl">
+                      {item.name}
+                    </h4>
+                    <p className="mt-4 text-2xl font-semibold text-white">
+                      {formatPrice(item.priceAmount, item.currency)}
+                    </p>
+                  </div>
+
+                  {item.description ? (
+                    <p className="text-base leading-7 text-white/68">
+                      {item.description}
+                    </p>
+                  ) : null}
+
+                  <div className="grid gap-2 rounded-[1rem] border border-white/10 bg-black/16 p-3 text-sm text-white/64">
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Precio</span>
+                      <span className="font-semibold text-white">
+                        {formatPrice(item.priceAmount, item.currency)}
+                      </span>
+                    </div>
+                    {item.categoryName ? (
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Categoria</span>
+                        <span className="text-right font-semibold text-white">
+                          {item.categoryName}
+                        </span>
+                      </div>
+                    ) : null}
+                    {item.isPickupMonthHighlight ? (
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Destacado</span>
+                        <span className="text-right font-semibold text-[color:var(--accent)]">
+                          Mas recogido del mes
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {images.length > 1 ? (
+                    <div className="hidden gap-3 overflow-x-auto pb-1 lg:flex">
+                      {images.map((image, index) => {
+                        const isActive = index === selectedImageIndex;
+
+                        return (
+                          <button
+                            key={`${item.id}-${index}`}
+                            type="button"
+                            onClick={() => setSelectedImageIndex(index)}
+                            className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
+                              isActive
+                                ? "border-[color:var(--brand)] shadow-[var(--card-shadow)]"
+                                : "border-white/10"
+                            }`}
+                            aria-label={`Ver imagen ${index + 1} de ${item.name}`}
+                          >
+                            <span
+                              className="block h-full w-full bg-cover bg-center"
+                              style={{ backgroundImage: `url(${image})` }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="sticky bottom-0 mt-auto border-t border-white/10 bg-[#07100d]/94 p-4 backdrop-blur-2xl sm:p-5">
                   <AddToCartButton
                     venue={venue}
                     item={{
@@ -223,12 +276,12 @@ export function MenuItemGalleryCard({
                       imageUrl: item.imageUrl,
                     }}
                     className="mt-0"
-                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
+                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full bg-[color:var(--brand)] px-5 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
                     feedbackClassName="mt-3 text-sm leading-6 text-white/60"
                   />
                 </div>
               </aside>
-            </div>
+            </section>
           </div>
         </div>
       ) : null}

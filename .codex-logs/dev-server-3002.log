@@ -72,3 +72,14 @@
  GET /zonas/talavera-de-la-reina/venues/manhattan-burger 200 in 654ms
  GET /zonas/talavera-de-la-reina/venues/manhattan-burger 200 in 305ms
  ✓ Compiled in 1630ms (1428 modules)
+ ✓ Compiled in 387ms (886 modules)
+ ✓ Compiled in 271ms (886 modules)
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 199ms (542 modules)
+ GET /zonas/talavera-de-la-reina/venues/manhattan-burger 200 in 729ms
+ GET /zonas/talavera-de-la-reina/venues/manhattan-burger 200 in 214ms
+ ✓ Compiled /platos in 329ms (566 modules)
+ ✓ Compiled /cart in 230ms (572 modules)
+ ✓ Compiled /el-proyecto in 174ms (587 modules)
+ ✓ Compiled /zonas in 118ms (597 modules)
+ ✓ Compiled /zonas/[citySlug] in 147ms (603 modules)
+ GET /zonas/talavera-de-la-reina/venues/manhattan-burger 200 in 238ms
