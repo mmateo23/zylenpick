@@ -12,7 +12,7 @@ export const metadata: Metadata = getNoIndexMetadata({
 
 export default function CartPage() {
   return (
-    <div className="min-h-screen bg-[#f6f1e6] text-[#181816]">
+    <div className="min-h-screen bg-page text-text-primary">
       <SiteHeader />
       <CartScreen />
       <ZylenPickFooter />

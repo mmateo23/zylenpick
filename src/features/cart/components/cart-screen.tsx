@@ -34,7 +34,7 @@ function buildPickupOptions(pickupEtaMin: number | null) {
 }
 
 const inputClassName =
-  "mt-3 w-full rounded-[0.9rem] border border-black/10 bg-white/70 px-4 py-3 text-[#181816] outline-none transition placeholder:text-black/35 focus:border-[#5ee6a3] focus:bg-white focus:outline-none focus:ring-0";
+  "mt-3 w-full rounded-[0.9rem] border border-border-subtle bg-surface px-4 py-3 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:bg-surface-strong focus:outline-none focus:ring-0";
 
 export function CartScreen() {
   const router = useRouter();
@@ -62,8 +62,8 @@ export function CartScreen() {
 
   if (!cart.venue || cart.items.length === 0) {
     return (
-      <main className="relative -mt-[5.4rem] overflow-hidden bg-[#f6f1e6] pt-[5.4rem] text-[#181816]">
-        <section className="relative overflow-hidden bg-[#050816] text-white">
+      <main className="relative -mt-[5.4rem] overflow-hidden bg-page pt-[5.4rem] text-text-primary">
+        <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
@@ -71,23 +71,23 @@ export function CartScreen() {
                 "url('https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1800&q=80')",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,255,184,0.1),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.66)_0%,rgba(5,8,22,0.84)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
 
           <div className="relative z-10 mx-auto flex min-h-[calc(76svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
             <div className="max-w-3xl">
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-white/60">
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
                 Carrito
               </p>
               <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
                 Elige platos antes de recoger.
               </h1>
-              <p className="mt-6 max-w-[42rem] text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+              <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
                 Tu selección aparecerá aquí cuando guardes platos desde un
                 local.
               </p>
               <Link
                 href="/zonas"
-                className="magnetic-button mt-8 inline-flex w-fit rounded-full border border-[#7cffb8]/24 bg-[#5ee6a3] px-6 py-3 text-sm font-semibold text-[#07100d] shadow-[var(--card-shadow)] transition hover:bg-[#7cffb8]"
+                className="magnetic-button mt-8 inline-flex w-fit rounded-full border border-accent-border bg-cta px-6 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
               >
                 Ver zonas
               </Link>
@@ -97,24 +97,24 @@ export function CartScreen() {
 
         <section className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#1fcf83]">
+            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
                 1
               </p>
               <p className="mt-3 text-2xl font-semibold leading-tight">
                 Entra en una zona.
               </p>
             </div>
-            <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#1fcf83]">
+            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
                 2
               </p>
               <p className="mt-3 text-2xl font-semibold leading-tight">
                 Abre un local.
               </p>
             </div>
-            <div className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 shadow-[0_16px_44px_rgba(31,36,28,0.08)]">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#1fcf83]">
+            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
                 3
               </p>
               <p className="mt-3 text-2xl font-semibold leading-tight">
@@ -159,35 +159,35 @@ export function CartScreen() {
   };
 
   return (
-    <main className="relative -mt-[5.4rem] overflow-hidden bg-[#f6f1e6] pt-[5.4rem] text-[#181816]">
-      <section className="relative overflow-hidden bg-[#050816] text-white">
+    <main className="relative -mt-[5.4rem] overflow-hidden bg-page pt-[5.4rem] text-text-primary">
+      <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
           style={{
             backgroundImage: cart.items[0]?.imageUrl
               ? `url(${cart.items[0].imageUrl})`
-              : "linear-gradient(135deg, rgba(0, 223, 129, 0.22), rgba(5, 8, 22, 0.96))",
+              : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,255,184,0.1),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.66)_0%,rgba(5,8,22,0.84)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
 
         <div className="relative z-10 mx-auto flex min-h-[calc(68svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
           <div className="max-w-4xl">
-            <p className="text-xs font-medium uppercase tracking-[0.28em] text-white/60">
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
               Carrito
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-white/75 backdrop-blur-xl">
+              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-text-inverse/75 backdrop-blur-xl">
                 {cart.venue.name}
               </span>
-              <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-xs font-medium text-white/75 backdrop-blur-xl">
+              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl">
                 {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               </span>
             </div>
             <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
               Revisa tu recogida.
             </h1>
-            <p className="mt-6 max-w-[42rem] text-base leading-7 text-white/75 sm:text-lg sm:leading-8">
+            <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
               Ajusta cantidades y confirma la hora antes de enviar el pedido al
               local.
             </p>
@@ -199,14 +199,14 @@ export function CartScreen() {
         <div>
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.26em] text-[#1fcf83]">
+              <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
                 Selección
               </p>
-              <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-[#181816]">
+              <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
                 Platos guardados.
               </h2>
             </div>
-            <span className="rounded-full border border-black/10 bg-white/60 px-4 py-2 text-xs font-semibold text-black/50">
+            <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
               {formatPrice(totals.totalAmount, currency)}
             </span>
           </div>
@@ -215,7 +215,7 @@ export function CartScreen() {
             {cart.items.map((item) => (
               <article
                 key={item.id}
-                className="group relative overflow-hidden rounded-[0.9rem] border border-black/10 bg-white text-left shadow-[0_12px_30px_rgba(31,36,28,0.08)] transition-[border-color,box-shadow] duration-300 hover:border-black/20 hover:shadow-[0_18px_44px_rgba(31,36,28,0.12)] sm:rounded-[1.05rem]"
+                className="group relative overflow-hidden rounded-[0.9rem] border border-border-subtle bg-surface-strong text-left shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-300 hover:border-border-strong hover:shadow-[var(--shadow-soft)] sm:rounded-[1.05rem]"
               >
                 <div className="relative min-h-[18rem] overflow-hidden sm:min-h-[20rem]">
                   <div
@@ -223,27 +223,27 @@ export function CartScreen() {
                     style={{
                       backgroundImage: item.imageUrl
                         ? `url(${item.imageUrl})`
-                        : "linear-gradient(180deg, rgba(124, 255, 184, 0.16), rgba(5, 8, 22, 0.82))",
+                        : "linear-gradient(180deg, var(--brand-accent-soft), var(--overlay-hero-to))",
                     }}
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.02),rgba(6,10,11,0.08)_42%,rgba(6,10,11,0.78)_100%)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from),var(--overlay-card-mid)_42%,var(--overlay-card-to)_100%)]" />
 
                   <div className="relative z-10 flex min-h-[18rem] flex-col justify-between p-4 sm:min-h-[20rem] sm:p-5">
                     <div className="flex items-start justify-between gap-3">
-                      <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur-xl">
+                      <span className="rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
                         {item.quantity} ud.
                       </span>
-                      <span className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur-xl">
+                      <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.08] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
                         {formatPrice(item.priceAmount * item.quantity, item.currency)}
                       </span>
                     </div>
 
                     <div>
-                      <h2 className="line-clamp-2 text-[1.45rem] font-semibold leading-[0.96] tracking-[-0.045em] text-white sm:text-[1.7rem]">
+                      <h2 className="line-clamp-2 text-[1.45rem] font-semibold leading-[0.96] tracking-[-0.045em] text-text-inverse sm:text-[1.7rem]">
                         {item.name}
                       </h2>
                       {item.description ? (
-                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/70">
+                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-text-inverse/70">
                           {item.description}
                         </p>
                       ) : null}
@@ -251,18 +251,18 @@ export function CartScreen() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/10 bg-white px-4 py-3 sm:px-5">
-                  <div className="inline-flex items-center rounded-full border border-black/10 bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle bg-surface-strong px-4 py-3 sm:px-5">
+                  <div className="inline-flex items-center rounded-full border border-border-subtle bg-surface-strong">
                     <button
                       type="button"
                       onClick={() =>
                         updateCartItemQuantity(item.id, item.quantity - 1)
                       }
-                      className="px-4 py-2.5 text-sm font-semibold text-[#181816]"
+                      className="px-4 py-2.5 text-sm font-semibold text-text-primary"
                     >
                       -
                     </button>
-                    <span className="min-w-10 text-center text-sm font-semibold text-[#181816]">
+                    <span className="min-w-10 text-center text-sm font-semibold text-text-primary">
                       {item.quantity}
                     </span>
                     <button
@@ -270,7 +270,7 @@ export function CartScreen() {
                       onClick={() =>
                         updateCartItemQuantity(item.id, item.quantity + 1)
                       }
-                      className="px-4 py-2.5 text-sm font-semibold text-[#181816]"
+                      className="px-4 py-2.5 text-sm font-semibold text-text-primary"
                     >
                       +
                     </button>
@@ -279,7 +279,7 @@ export function CartScreen() {
                   <button
                     type="button"
                     onClick={() => removeCartItem(item.id)}
-                    className="magnetic-button inline-flex rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-black/60 transition hover:bg-black/5"
+                    className="magnetic-button inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-muted"
                   >
                     Eliminar
                   </button>
@@ -289,30 +289,30 @@ export function CartScreen() {
           </div>
         </div>
 
-        <aside className="rounded-[1.2rem] border border-black/10 bg-white/70 p-5 text-[#181816] shadow-[0_16px_44px_rgba(0,0,0,0.08)] xl:sticky xl:top-28 xl:self-start">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-black/40">
+        <aside className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 text-text-primary shadow-[var(--shadow-soft)] ring-1 ring-accent-soft xl:sticky xl:top-28 xl:self-start">
+          <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
             Confirmación
           </p>
           <h2 className="mt-3 text-2xl font-semibold leading-tight">
             {cart.venue.name}
           </h2>
-          <p className="mt-4 text-sm leading-6 text-black/60">
+          <p className="mt-4 text-sm leading-6 text-text-secondary">
             {cart.venue.cityName}
           </p>
-          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-black/60">
-            <LocationPinIcon size={18} className="mt-0.5 text-[#1fcf83]" />
+          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-text-secondary">
+            <LocationPinIcon size={18} className="mt-0.5 text-icon-highlight" />
             {cart.venue.address ?? "Dirección pendiente"}
           </p>
-          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-black/60">
-            <ClockIcon size={18} className="mt-0.5 text-[#1fcf83]" />
+          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-text-secondary">
+            <ClockIcon size={18} className="mt-0.5 text-icon-highlight" />
             Recogida base en{" "}
             {cart.venue.pickupEtaMin
               ? `${cart.venue.pickupEtaMin} min`
               : "tiempo pendiente"}
           </p>
 
-          <div className="mt-6 rounded-[0.9rem] border border-black/10 bg-white/60 p-4">
-            <div className="flex items-center justify-between text-sm text-black/60">
+          <div className="mt-6 rounded-[0.9rem] border border-border-subtle bg-surface-muted p-4">
+            <div className="flex items-center justify-between text-sm text-text-secondary">
               <span>Productos</span>
               <span>{totals.totalItems}</span>
             </div>
@@ -324,7 +324,7 @@ export function CartScreen() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <div>
-              <label htmlFor="customer-name" className="text-sm text-black/70">
+              <label htmlFor="customer-name" className="text-sm text-text-secondary">
                 Nombre
               </label>
               <input
@@ -338,7 +338,7 @@ export function CartScreen() {
             </div>
 
             <div>
-              <label htmlFor="customer-phone" className="text-sm text-black/70">
+              <label htmlFor="customer-phone" className="text-sm text-text-secondary">
                 Teléfono
               </label>
               <input
@@ -352,7 +352,7 @@ export function CartScreen() {
             </div>
 
             <div>
-              <label htmlFor="pickup-at" className="text-sm text-black/70">
+              <label htmlFor="pickup-at" className="text-sm text-text-secondary">
                 Hora estimada de recogida
               </label>
               <select
@@ -370,7 +370,7 @@ export function CartScreen() {
             </div>
 
             <div>
-              <label htmlFor="notes" className="text-sm text-black/70">
+              <label htmlFor="notes" className="text-sm text-text-secondary">
                 Notas opcionales
               </label>
               <textarea
@@ -383,14 +383,14 @@ export function CartScreen() {
             </div>
 
             {feedback ? (
-              <p className="text-sm leading-6 text-black/60">{feedback}</p>
+              <p className="text-sm leading-6 text-text-secondary">{feedback}</p>
             ) : null}
 
             <div className="space-y-3 pt-1">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-[#7cffb8]/24 bg-[#5ee6a3] px-5 py-3.5 text-sm font-semibold text-[#07100d] shadow-[var(--card-shadow)] transition hover:bg-[#7cffb8] disabled:opacity-60"
+                className="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover disabled:opacity-60"
               >
                 {isSubmitting ? "Confirmando pedido..." : "Confirmar pedido"}
               </button>
@@ -398,14 +398,14 @@ export function CartScreen() {
               <button
                 type="button"
                 onClick={() => clearCart()}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-semibold text-[#181816] transition hover:bg-black/5"
+                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
               >
                 Vaciar carrito
               </button>
 
               <Link
                 href={`/zonas/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-semibold text-[#181816] transition hover:bg-black/5"
+                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
               >
                 Volver al local
               </Link>

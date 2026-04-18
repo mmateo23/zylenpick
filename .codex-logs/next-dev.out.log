@@ -184,3 +184,421 @@
  ✓ Compiled /el-proyecto in 227ms (1054 modules)
  ✓ Compiled /unete in 237ms (1060 modules)
  ✓ Compiled /cart in 356ms (1030 modules)
+ GET / 200 in 567ms
+ GET /demo 200 in 289ms
+ ✓ Compiled /demo/locales in 442ms (2042 modules)
+ GET /demo/locales 200 in 699ms
+ ✓ Compiled /demo/platos in 251ms (986 modules)
+ GET /demo/platos 307 in 408ms
+ ✓ Compiled /zonas in 143ms (992 modules)
+ GET /zonas 200 in 438ms
+ ✓ Compiled /zonas/[citySlug] in 289ms (997 modules)
+ GET /zonas/talavera-de-la-reina 200 in 613ms
+ ○ Compiling /cartografia ...
+ ✓ Compiled /cartografia in 789ms (2078 modules)
+ GET /cartografia 200 in 918ms
+ ✓ Compiled /unete in 380ms (1038 modules)
+ GET /unete 200 in 638ms
+ ○ Compiling /panel ...
+ ✓ Compiled /panel in 866ms (2222 modules)
+ GET /panel 200 in 1109ms
+ ✓ Compiled /demo/zonas in 419ms (987 modules)
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 399ms (1041 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 686ms (2105 modules)
+ GET /zonas/talavera-de-la-reina/venues 404 in 831ms
+ GET /zonas/talavera-de-la-reina/venues 404 in 59ms
+ ✓ Compiled /zonas/[citySlug] in 146ms (987 modules)
+ GET /zonas/talavera-de-la-reina 200 in 936ms
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 209ms (1039 modules)
+ ✓ Compiled /cart in 230ms (1044 modules)
+ ✓ Compiled in 1147ms (2116 modules)
+ ✓ Compiled in 342ms (1135 modules)
+ ✓ Compiled /cart in 477ms (2112 modules)
+ ✓ Compiled in 599ms (2102 modules)
+ ✓ Compiled in 627ms (1135 modules)
+ ✓ Compiled in 209ms (1121 modules)
+ ✓ Compiled in 653ms (1135 modules)
+ ✓ Compiled in 331ms (1135 modules)
+ ✓ Compiled in 643ms (1135 modules)
+ ✓ Compiled in 267ms (1135 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 672ms (2119 modules)
+ GET /platos 200 in 825ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 39ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 14ms
+ ✓ Compiled /zonas in 421ms (988 modules)
+ GET /zonas 200 in 852ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 36ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 14ms
+ GET /zonas 200 in 362ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 26ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 15ms
+ ✓ Compiled /el-proyecto in 347ms (1020 modules)
+ GET /el-proyecto 200 in 539ms
+ GET /_next/static/css/app/el-proyecto/page.css?v=1776460393710 404 in 29ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 21ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 12ms
+ GET /platos 200 in 196ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 34ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 11ms
+ GET /zonas 200 in 272ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 45ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 13ms
+ ✓ Compiled /zonas/[citySlug] in 195ms (1025 modules)
+ GET /zonas/talavera-de-la-reina 200 in 526ms
+ GET /_next/static/chunks/app/zonas/%5BcitySlug%5D/page.js 404 in 31ms
+ GET /_next/static/chunks/app/zonas/%5BcitySlug%5D/page.js 404 in 16ms
+ ✓ Compiled /cart in 280ms (1031 modules)
+ GET /cart 200 in 363ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 35ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 125ms
+ GET /zonas 200 in 272ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 55ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 24ms
+ GET /cart 200 in 56ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 48ms
+ GET /zonas 200 in 170ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 29ms
+ ✓ Compiled /_error in 504ms (2128 modules)
+ GET /zonas/talavera-de-la-reina 500 in 795ms
+ GET /zonas/talavera-de-la-reina 500 in 306ms
+ GET /zonas/talavera-de-la-reina 500 in 298ms
+ GET /zonas/talavera-de-la-reina 500 in 258ms
+ GET /zonas/talavera-de-la-reina 500 in 256ms
+ GET /zonas/talavera-de-la-reina 500 in 267ms
+ GET /zonas/talavera-de-la-reina 500 in 260ms
+ GET /zonas/talavera-de-la-reina 500 in 264ms
+ GET /zonas/talavera-de-la-reina 500 in 267ms
+ GET /zonas/talavera-de-la-reina 500 in 271ms
+ GET /zonas/talavera-de-la-reina 500 in 263ms
+ GET /zonas/talavera-de-la-reina 500 in 290ms
+ GET /zonas/talavera-de-la-reina 500 in 269ms
+ GET /zonas/talavera-de-la-reina 500 in 285ms
+ GET /zonas/talavera-de-la-reina 500 in 275ms
+ GET /zonas/talavera-de-la-reina 500 in 254ms
+ GET /zonas/talavera-de-la-reina 500 in 261ms
+ GET /zonas/talavera-de-la-reina 500 in 292ms
+ GET /zonas/talavera-de-la-reina 500 in 265ms
+ GET /zonas/talavera-de-la-reina 500 in 271ms
+ GET /zonas/talavera-de-la-reina 500 in 247ms
+ GET /zonas/talavera-de-la-reina 500 in 262ms
+ GET /zonas/talavera-de-la-reina 500 in 240ms
+ GET /zonas/talavera-de-la-reina 500 in 275ms
+ GET /zonas/talavera-de-la-reina 500 in 237ms
+ GET /zonas/talavera-de-la-reina 404 in 17ms
+ GET /zonas/talavera-de-la-reina 404 in 16ms
+ GET /zonas/talavera-de-la-reina 200 in 666ms
+ GET /zonas/talavera-de-la-reina 200 in 248ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 616ms (1020 modules)
+ GET /favicon.ico 200 in 678ms
+ ✓ Compiled /zonas in 239ms (987 modules)
+ GET /zonas 200 in 618ms
+ ✓ Compiled /zonas/[citySlug] in 146ms (992 modules)
+ ○ Compiling /zonas/[citySlug]/venues/[venueSlug] ...
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 782ms (2160 modules)
+ ✓ Compiled /cart in 251ms (1045 modules)
+ ✓ Compiled in 1175ms (2116 modules)
+ ✓ Compiled in 413ms (1135 modules)
+ ✓ Compiled in 230ms (1121 modules)
+ ✓ Compiled in 460ms (1135 modules)
+ ✓ Compiled in 291ms (1135 modules)
+ ✓ Compiled in 385ms (1135 modules)
+ ✓ Compiled in 240ms (1121 modules)
+ ✓ Compiled in 378ms (1135 modules)
+ ✓ Compiled in 493ms (1135 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 693ms (2119 modules)
+ GET / 500 in 485ms
+ GET /_next/static/chunks/app/page.js 404 in 16ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 689ms (2137 modules)
+ GET /favicon.ico 200 in 818ms
+ GET /_next/static/chunks/app/page.js 404 in 768ms
+ GET / 200 in 322ms
+ GET /_next/static/chunks/app/page.js 404 in 35ms
+ GET /_next/static/chunks/app/page.js 404 in 16ms
+ GET / 200 in 301ms
+ GET /_next/static/chunks/app/page.js 404 in 28ms
+ GET /_next/static/chunks/app/page.js 404 in 15ms
+ GET /_next/static/chunks/app/page.js 404 in 49ms
+ GET / 200 in 152ms
+ GET /_next/static/chunks/app/page.js 404 in 12ms
+ GET /favicon.ico 200 in 11ms
+ ✓ Compiled /cart in 428ms (991 modules)
+ GET /cart 200 in 546ms
+ ✓ Compiled /_not-found in 411ms (2115 modules)
+ GET /_next/static/chunks/app/cart/page.js 404 in 487ms
+ GET /_next/static/chunks/app/cart/page.js 404 in 13ms
+ ✓ Compiled /zonas in 242ms (998 modules)
+ GET /zonas 200 in 1589ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 45ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 55ms
+ ✓ Compiled /el-proyecto in 429ms (1026 modules)
+ GET /el-proyecto 200 in 802ms
+ GET /_next/static/css/app/el-proyecto/page.css?v=1776462218169 404 in 24ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 17ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 14ms
+ GET /zonas 200 in 748ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 26ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 14ms
+ GET /platos 200 in 589ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 18ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 16ms
+ GET / 200 in 515ms
+ GET /_next/static/chunks/app/page.js 404 in 12ms
+ GET / 200 in 331ms
+ GET / 200 in 203ms
+ GET /_next/static/chunks/app/page.js 404 in 14ms
+ GET /demo 200 in 259ms
+ GET /_next/static/chunks/app/demo/page.js 404 in 25ms
+ GET /zonas 200 in 211ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 43ms
+ GET /_next/static/chunks/app/zonas/page.js 404 in 15ms
+ GET /el-proyecto 200 in 89ms
+ GET /_next/static/css/app/el-proyecto/page.css?v=1776462250118 404 in 23ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 17ms
+ GET /_next/static/chunks/app/el-proyecto/page.js 404 in 27ms
+ GET /platos 200 in 237ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 36ms
+ GET /_next/static/chunks/app/platos/page.js 404 in 15ms
+ GET / 200 in 250ms
+ GET /_next/static/chunks/app/page.js 404 in 18ms
+ GET /_next/static/chunks/app/page.js 404 in 15ms
+ GET / 200 in 247ms
+ GET /_next/static/chunks/app/page.js 404 in 21ms
+ GET /_next/static/chunks/app/page.js 404 in 16ms
+ ✓ Compiled /zonas/[citySlug] in 301ms (1025 modules)
+ GET /zonas/talavera-de-la-reina 200 in 751ms
+ GET /_next/static/chunks/app/zonas/%5BcitySlug%5D/page.js 404 in 31ms
+ GET /_next/static/chunks/app/zonas/%5BcitySlug%5D/page.js 404 in 14ms
+ ✓ Compiled /_error in 363ms (2164 modules)
+ GET /zonas/talavera-de-la-reina 500 in 656ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 775ms (2182 modules)
+ GET /zonas/talavera-de-la-reina 500 in 807ms
+ GET /favicon.ico 200 in 842ms
+ GET /zonas/talavera-de-la-reina 500 in 257ms
+ GET /zonas/talavera-de-la-reina 500 in 260ms
+ GET /zonas/talavera-de-la-reina 500 in 261ms
+ GET /favicon.ico 200 in 30ms
+ GET /zonas/talavera-de-la-reina 500 in 297ms
+ GET /zonas/talavera-de-la-reina 500 in 260ms
+ GET /favicon.ico 200 in 9ms
+ GET /zonas/talavera-de-la-reina 500 in 268ms
+ GET /zonas/talavera-de-la-reina 500 in 268ms
+ GET /favicon.ico 200 in 18ms
+ GET /zonas/talavera-de-la-reina 500 in 269ms
+ GET /zonas/talavera-de-la-reina 500 in 247ms
+ GET /_next/static/webpack/0818f75f5e560718.webpack.hot-update.json 404 in 136ms
+ GET /demo/zonas/talavera-de-la-reina 200 in 459ms
+ GET /_next/static/chunks/app/demo/zonas/%5BcitySlug%5D/page.js 404 in 27ms
+ GET /_next/static/chunks/app/demo/zonas/%5BcitySlug%5D/page.js 404 in 17ms
+ GET /favicon.ico 200 in 9ms
+ GET / 200 in 814ms
+ GET /_next/static/chunks/app/page.js 404 in 20ms
+ GET /_next/static/chunks/app/page.js 404 in 12ms
+ ✓ Compiled in 810ms (1135 modules)
+ ✓ Compiled /_not-found in 468ms (2119 modules)
+ GET / 404 in 610ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1760ms (2121 modules)
+ GET / 404 in 13ms
+ GET / 404 in 11ms
+ GET / 404 in 13ms
+ ✓ Compiled /favicon.ico in 123ms (1015 modules)
+ GET /favicon.ico 200 in 175ms
+ GET / 404 in 12ms
+ GET / 404 in 11ms
+ GET / 404 in 9ms
+ GET / 404 in 15ms
+ GET / 404 in 17ms
+ GET / 404 in 12ms
+ GET / 404 in 16ms
+ GET / 404 in 15ms
+ GET / 404 in 35ms
+ GET / 404 in 11ms
+ GET / 404 in 15ms
+ GET / 404 in 10ms
+ GET / 404 in 10ms
+ GET / 404 in 15ms
+ GET / 404 in 33ms
+ GET / 404 in 13ms
+ GET / 404 in 25ms
+ GET / 404 in 42ms
+ GET / 404 in 12ms
+ GET / 404 in 11ms
+ GET / 404 in 14ms
+ GET / 404 in 28ms
+ GET / 404 in 9ms
+ GET / 404 in 17ms
+ GET / 404 in 12ms
+ GET / 404 in 10ms
+ GET / 404 in 20ms
+ GET / 404 in 13ms
+ GET / 404 in 20ms
+ GET / 404 in 9ms
+ GET / 404 in 9ms
+ GET / 404 in 9ms
+ GET / 404 in 17ms
+ GET / 404 in 14ms
+ GET / 404 in 14ms
+ GET / 404 in 11ms
+ GET / 404 in 12ms
+ GET / 404 in 24ms
+ GET / 404 in 12ms
+ GET / 404 in 11ms
+ GET / 404 in 11ms
+ GET / 404 in 16ms
+ GET / 404 in 10ms
+ GET / 404 in 10ms
+ GET / 404 in 25ms
+ GET / 404 in 10ms
+ GET / 404 in 9ms
+ GET / 404 in 10ms
+ GET / 404 in 15ms
+ GET /favicon.ico 200 in 15ms
+ GET / 404 in 19ms
+ GET / 404 in 11ms
+ GET / 404 in 16ms
+ GET /favicon.ico 200 in 16ms
+ GET / 404 in 11ms
+ GET / 404 in 10ms
+ GET / 404 in 10ms
+ GET / 404 in 13ms
+ GET / 404 in 10ms
+ GET / 404 in 9ms
+ GET / 404 in 9ms
+ GET / 404 in 9ms
+ GET / 404 in 23ms
+ GET / 404 in 38ms
+ GET / 404 in 29ms
+ GET / 404 in 11ms
+ GET / 404 in 17ms
+ GET / 404 in 10ms
+ GET / 404 in 17ms
+ GET / 404 in 14ms
+ GET / 404 in 10ms
+ GET / 404 in 12ms
+ GET / 404 in 15ms
+ GET / 404 in 11ms
+ GET / 404 in 11ms
+ GET / 404 in 11ms
+ GET / 404 in 13ms
+ GET / 404 in 21ms
+ GET / 404 in 21ms
+ GET / 404 in 10ms
+ GET / 404 in 24ms
+ GET / 404 in 10ms
+ GET / 404 in 26ms
+ GET / 404 in 10ms
+ GET / 404 in 33ms
+ GET / 404 in 10ms
+ GET / 404 in 15ms
+ GET / 404 in 33ms
+ GET / 404 in 14ms
+ GET / 404 in 15ms
+ GET / 404 in 16ms
+ GET / 404 in 13ms
+ GET / 404 in 34ms
+ GET / 404 in 15ms
+ GET / 404 in 21ms
+ GET / 404 in 10ms
+ GET / 404 in 9ms
+ GET / 404 in 10ms
+ GET / 404 in 36ms
+ GET / 404 in 26ms
+ GET / 404 in 42ms
+ GET / 404 in 27ms
+ GET / 404 in 11ms
+ GET / 404 in 18ms
+ GET / 404 in 14ms
+ GET / 404 in 31ms
+ GET / 404 in 15ms
+ GET / 404 in 32ms
+ GET / 404 in 28ms
+ GET / 404 in 23ms
+ GET / 404 in 9ms
+ GET / 404 in 38ms
+ GET / 404 in 24ms
+ GET / 404 in 14ms
+ GET / 404 in 12ms
+ GET / 404 in 28ms
+ GET / 404 in 17ms
+ GET / 404 in 8ms
+ GET / 404 in 19ms
+ GET / 404 in 10ms
+ GET / 404 in 11ms
+ GET / 404 in 9ms
+ GET / 404 in 43ms
+ GET / 404 in 33ms
+ GET / 404 in 14ms
+ GET / 404 in 33ms
+ GET / 404 in 19ms
+ GET / 404 in 11ms
+ GET / 404 in 11ms
+ GET / 404 in 10ms
+ GET / 404 in 10ms
+ GET / 404 in 69ms
+ GET / 404 in 75ms
+ GET / 404 in 80ms
+ GET / 404 in 62ms
+ GET / 404 in 103ms
+ GET / 404 in 97ms
+ GET / 404 in 106ms
+ GET / 404 in 83ms
+ GET / 404 in 74ms
+ GET / 404 in 62ms
+ GET / 404 in 60ms
+ GET / 404 in 59ms
+ GET / 404 in 63ms
+ GET / 404 in 97ms
+ GET / 404 in 63ms
+ GET / 404 in 42ms
+ GET / 404 in 86ms
+ GET / 404 in 78ms
+ GET / 404 in 97ms
+ GET / 404 in 61ms
+ GET / 404 in 48ms
+ GET / 200 in 682ms
+ GET / 200 in 444ms
+ GET / 200 in 180ms
+ GET / 200 in 243ms
+ ○ Compiling /zonas/[citySlug] ...
+ ✓ Compiled /zonas/[citySlug] in 873ms (988 modules)
+ GET /zonas/talavera-de-la-reina 500 in 264ms
+ GET /zonas/talavera-de-la-reina 500 in 252ms
+ GET /zonas/talavera-de-la-reina 500 in 253ms
+ GET /zonas/talavera-de-la-reina 500 in 256ms
+ GET /zonas/talavera-de-la-reina 500 in 266ms
+ GET /zonas/talavera-de-la-reina 500 in 325ms
+ GET /zonas/talavera-de-la-reina 500 in 256ms
+ GET /zonas/talavera-de-la-reina 404 in 11ms
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 1933ms (2139 modules)
+ GET /favicon.ico 200 in 2053ms
+ GET /demo 404 in 2084ms
+ ✓ Compiled in 409ms (1138 modules)
+ ✓ Compiled in 617ms (1135 modules)
+ ✓ Compiled in 353ms (1121 modules)
+ ✓ Compiled /_not-found in 420ms (2105 modules)
+ GET /_next/static/webpack/c568993383374c96.webpack.hot-update.json 404 in 535ms
+ GET /demo/zonas/talavera-de-la-reina 404 in 539ms
+ ✓ Compiled /demo/zonas in 486ms (987 modules)
+ GET /demo/zonas 200 in 930ms
+ ✓ Compiled /_not-found in 498ms (2111 modules)
+ GET /_next/static/chunks/app/demo/zonas/page.js 404 in 553ms
+ GET /_next/static/chunks/app/demo/zonas/page.js 404 in 14ms
+ ✓ Compiled in 1706ms (2116 modules)
+ ✓ Compiled in 1067ms (1135 modules)
+ ✓ Compiled in 1299ms (2121 modules)
+ ✓ Compiled in 1023ms (2121 modules)
+ ✓ Compiled in 516ms (1137 modules)
+ ✓ Compiled in 175ms (1137 modules)
+ ✓ Compiled in 285ms (1123 modules)
+ ✓ Compiled in 463ms (1137 modules)
+ ✓ Compiled in 379ms (1137 modules)
+ ✓ Compiled in 232ms (1123 modules)
+ ✓ Compiled in 475ms (1137 modules)
+ ✓ Compiled in 470ms (1137 modules)
