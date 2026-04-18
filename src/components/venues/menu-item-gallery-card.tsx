@@ -136,65 +136,37 @@ export function MenuItemGalleryCard({
 
       {isViewerOpen ? (
         <div className="fixed inset-0 z-50 bg-[color-mix(in_srgb,var(--overlay-hero-to)_84%,transparent)] backdrop-blur-sm">
-          <div className="flex h-full min-h-0 flex-col p-3 sm:p-6">
-            <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-[1.35rem] border border-text-inverse/10 bg-text-inverse/[0.06] px-4 py-3 text-text-inverse shadow-[var(--soft-shadow)] backdrop-blur-2xl sm:px-5">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-inverse/50">
-                  Plato
-                </p>
-                <h3 className="mt-1 text-xl font-semibold sm:text-2xl">
-                  {item.name}
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsViewerOpen(false)}
-                className="magnetic-button inline-flex h-11 w-11 items-center justify-center rounded-full border border-text-inverse/10 bg-text-inverse/5 text-text-inverse"
-                aria-label="Cerrar visor"
-              >
-                <CloseIcon size={18} />
-              </button>
-            </div>
-
-            <div className="mx-auto mt-3 grid min-h-0 w-full max-w-6xl flex-1 gap-3 lg:grid-cols-[minmax(0,1.2fr)_24rem]">
-              <section className="min-h-[45vh] overflow-hidden rounded-[1.35rem] border border-text-inverse/10 bg-text-inverse/[0.04] shadow-[var(--shadow)] backdrop-blur-xl">
+          <div className="flex h-full min-h-0 items-center justify-center p-2 sm:p-6">
+            <section className="grid max-h-[calc(100svh-1rem)] w-full max-w-6xl overflow-hidden rounded-[1.25rem] border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-hero-to)_92%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:max-h-[calc(100svh-3rem)] sm:rounded-[1.6rem] lg:grid-cols-[minmax(0,1.12fr)_25rem]">
+              <div className="relative min-h-[17rem] overflow-hidden sm:min-h-[24rem] lg:min-h-0">
                 <div
-                  className="h-full min-h-[45vh] bg-cover bg-center"
+                  className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: selectedImage
                       ? `linear-gradient(180deg, var(--overlay-card-from), var(--overlay-card-mid)), url(${selectedImage})`
                       : "linear-gradient(180deg, var(--brand-accent-soft), var(--overlay-hero-from))",
                   }}
                 />
-              </section>
-
-              <aside className="overflow-y-auto rounded-[1.35rem] border border-text-inverse/10 bg-text-inverse/[0.04] p-6 shadow-[var(--soft-shadow)] backdrop-blur-xl">
-                <p className="text-sm uppercase tracking-[0.2em] text-accent">
-                  Vista del plato
-                </p>
-                <h4 className="mt-4 text-4xl font-semibold leading-[0.96] text-text-inverse">
-                  {item.name}
-                </h4>
-                {item.description ? (
-                  <p className="mt-4 text-base leading-8 text-text-inverse/60">
-                    {item.description}
-                  </p>
-                ) : null}
-                <p className="mt-6 text-2xl font-semibold text-text-inverse">
-                  {formatPrice(item.priceAmount, item.currency)}
-                </p>
-
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from)_0%,var(--overlay-card-mid)_48%,var(--overlay-card-to)_100%)]" />
+                <button
+                  type="button"
+                  onClick={() => setIsViewerOpen(false)}
+                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_28%,transparent)] text-text-inverse backdrop-blur-xl sm:right-4 sm:top-4"
+                  aria-label="Cerrar visor"
+                >
+                  <CloseIcon size={18} />
+                </button>
                 {images.length > 1 ? (
-                  <div className="mt-6 flex gap-3 overflow-x-auto pb-1">
+                  <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto p-3 sm:p-4 lg:hidden">
                     {images.map((image, index) => {
                       const isActive = index === selectedImageIndex;
 
                       return (
                         <button
-                          key={`${item.id}-${index}`}
+                          key={`${item.id}-mobile-${index}`}
                           type="button"
                           onClick={() => setSelectedImageIndex(index)}
-                          className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
+                          className={`h-14 w-14 shrink-0 overflow-hidden rounded-[0.85rem] border transition ${
                             isActive
                               ? "border-accent shadow-[var(--card-shadow)]"
                               : "border-text-inverse/10"
@@ -210,8 +182,89 @@ export function MenuItemGalleryCard({
                     })}
                   </div>
                 ) : null}
+              </div>
 
-                <div className="mt-8">
+              <aside className="flex min-h-0 flex-col overflow-y-auto bg-text-inverse/[0.045]">
+                <div className="space-y-5 p-5 sm:p-6">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-medium uppercase tracking-[0.2em] text-accent">
+                        Plato
+                      </p>
+                      {item.categoryName ? (
+                        <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.06] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-text-inverse/62">
+                          {item.categoryName}
+                        </span>
+                      ) : null}
+                    </div>
+                    <h4 className="mt-3 text-[clamp(2rem,8vw,3.6rem)] font-semibold leading-[0.9] tracking-[-0.055em] text-text-inverse lg:text-4xl">
+                      {item.name}
+                    </h4>
+                    <p className="mt-4 text-2xl font-semibold text-text-inverse">
+                      {formatPrice(item.priceAmount, item.currency)}
+                    </p>
+                  </div>
+
+                  {item.description ? (
+                    <p className="text-base leading-7 text-text-inverse/68">
+                      {item.description}
+                    </p>
+                  ) : null}
+
+                  <div className="grid gap-2 rounded-[1rem] border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_16%,transparent)] p-3 text-sm text-text-inverse/64">
+                    <div className="flex items-center justify-between gap-4">
+                      <span>Precio</span>
+                      <span className="font-semibold text-text-inverse">
+                        {formatPrice(item.priceAmount, item.currency)}
+                      </span>
+                    </div>
+                    {item.categoryName ? (
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Categoria</span>
+                        <span className="text-right font-semibold text-text-inverse">
+                          {item.categoryName}
+                        </span>
+                      </div>
+                    ) : null}
+                    {item.isPickupMonthHighlight ? (
+                      <div className="flex items-center justify-between gap-4">
+                        <span>Destacado</span>
+                        <span className="text-right font-semibold text-accent-bright">
+                          Mas recogido del mes
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {images.length > 1 ? (
+                    <div className="hidden gap-3 overflow-x-auto pb-1 lg:flex">
+                      {images.map((image, index) => {
+                        const isActive = index === selectedImageIndex;
+
+                        return (
+                          <button
+                            key={`${item.id}-${index}`}
+                            type="button"
+                            onClick={() => setSelectedImageIndex(index)}
+                            className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
+                              isActive
+                                ? "border-accent shadow-[var(--card-shadow)]"
+                                : "border-text-inverse/10"
+                            }`}
+                            aria-label={`Ver imagen ${index + 1} de ${item.name}`}
+                          >
+                            <span
+                              className="block h-full w-full bg-cover bg-center"
+                              style={{ backgroundImage: `url(${image})` }}
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="sticky bottom-0 mt-auto border-t border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] p-4 backdrop-blur-2xl sm:p-5">
                   <AddToCartButton
                     venue={venue}
                     item={{
@@ -223,12 +276,12 @@ export function MenuItemGalleryCard({
                       imageUrl: item.imageUrl,
                     }}
                     className="mt-0"
-                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full bg-cta px-5 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
+                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
                     feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/60"
                   />
                 </div>
               </aside>
-            </div>
+            </section>
           </div>
         </div>
       ) : null}
