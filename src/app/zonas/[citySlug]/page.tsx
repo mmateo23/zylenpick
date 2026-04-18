@@ -13,7 +13,8 @@ import { getBaseMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-const talaveraDemoVideoSrc = "https://cdn.pixabay.com/video/2026/04/02/344075.mp4";
+const talaveraDemoVideoSrc =
+  "https://cdn.pixabay.com/video/2026/04/02/344075.mp4";
 
 type CityVenuesPageProps = {
   params: {
@@ -56,9 +57,7 @@ export async function generateMetadata({
   });
 }
 
-export default async function CityVenuesPage({
-  params,
-}: CityVenuesPageProps) {
+export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
   const city = isSupabaseConfigured()
     ? await getCityBySlug(params.citySlug)
     : null;

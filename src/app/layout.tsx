@@ -5,9 +5,9 @@ import Script from "next/script";
 import { AnalyticsAttribution } from "@/components/analytics/analytics-attribution";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSiteUrl } from "@/lib/seo";
+import { cn } from "@/lib/utils";
 
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { ThemeProvider } from "./theme-provider";
 
 const geistSans = localFont({
@@ -31,9 +31,9 @@ export const metadata: Metadata = {
   description:
     "Descubre comida local, explora locales cercanos y pide para recoger de forma simple, visual y rápida.",
   icons: {
-    icon: "/logo/ZylenPick_LOGO.svg?v=2",
-    shortcut: "/logo/ZylenPick_LOGO.svg?v=2",
-    apple: "/logo/ZylenPick_LOGO.png?v=1",
+    icon: "/logo/ZyelnpickLOGO_green.png",
+    shortcut: "/logo/ZyelnpickLOGO_green.png",
+    apple: "/logo/ZyelnpickLOGO_green.png",
   },
   openGraph: {
     title: "ZylenPick | Comida local para recoger",
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo/ZylenPick_LOGO.png?v=1",
+        url: "/logo/ZyelnpickLOGO_green.png",
         width: 1200,
         height: 630,
         alt: "ZylenPick",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "ZylenPick | Comida local para recoger",
     description:
       "Descubre comida local, explora locales cercanos y pide para recoger de forma simple, visual y rápida.",
-    images: ["/logo/ZylenPick_LOGO.png?v=1"],
+    images: ["/logo/ZyelnpickLOGO_green.png"],
   },
 };
 
@@ -67,7 +67,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={cn("font-sans", geistSans.variable)} suppressHydrationWarning>
+    <html
+      lang="es"
+      className={cn("font-sans", geistSans.variable)}
+      suppressHydrationWarning
+    >
       <head>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-CVNZF0EVMY"

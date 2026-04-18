@@ -47,12 +47,12 @@ export type Database = {
       };
       venues: {
         Row: {
-            id: string;
-            city_id: string | null;
-            slug: string;
-            name: string;
-            discovery_category: string | null;
-            description: string | null;
+          id: string;
+          city_id: string | null;
+          slug: string;
+          name: string;
+          discovery_category: string | null;
+          description: string | null;
           cover_url: string | null;
           logo_url: string | null;
           website: string | null;
@@ -75,12 +75,12 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-            id?: string;
-            city_id?: string | null;
-            slug: string;
-            name: string;
-            discovery_category?: string | null;
-            description?: string | null;
+          id?: string;
+          city_id?: string | null;
+          slug: string;
+          name: string;
+          discovery_category?: string | null;
+          description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
           website?: string | null;
@@ -103,12 +103,12 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-            id?: string;
-            city_id?: string | null;
-            slug?: string;
-            name?: string;
-            discovery_category?: string | null;
-            description?: string | null;
+          id?: string;
+          city_id?: string | null;
+          slug?: string;
+          name?: string;
+          discovery_category?: string | null;
+          description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
           website?: string | null;
@@ -219,14 +219,14 @@ export type Database = {
           currency: string;
           image_url: string | null;
           allergens: string[];
-            category_name: string | null;
-            sort_order: number;
-            is_available: boolean;
-            is_featured: boolean;
-            is_home_featured: boolean;
-            is_pickup_month_highlight: boolean;
-            created_at: string;
-            updated_at: string;
+          category_name: string | null;
+          sort_order: number;
+          is_available: boolean;
+          is_featured: boolean;
+          is_home_featured: boolean;
+          is_pickup_month_highlight: boolean;
+          created_at: string;
+          updated_at: string;
         };
         Insert: {
           id?: string;
@@ -237,14 +237,14 @@ export type Database = {
           currency?: string;
           image_url?: string | null;
           allergens?: string[];
-            category_name?: string | null;
-            sort_order?: number;
-            is_available?: boolean;
-            is_featured?: boolean;
-            is_home_featured?: boolean;
-            is_pickup_month_highlight?: boolean;
-            created_at?: string;
-            updated_at?: string;
+          category_name?: string | null;
+          sort_order?: number;
+          is_available?: boolean;
+          is_featured?: boolean;
+          is_home_featured?: boolean;
+          is_pickup_month_highlight?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
         Update: {
           id?: string;
@@ -255,14 +255,14 @@ export type Database = {
           currency?: string;
           image_url?: string | null;
           allergens?: string[];
-            category_name?: string | null;
-            sort_order?: number;
-            is_available?: boolean;
-            is_featured?: boolean;
-            is_home_featured?: boolean;
-            is_pickup_month_highlight?: boolean;
-            created_at?: string;
-            updated_at?: string;
+          category_name?: string | null;
+          sort_order?: number;
+          is_available?: boolean;
+          is_featured?: boolean;
+          is_home_featured?: boolean;
+          is_pickup_month_highlight?: boolean;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -391,6 +391,27 @@ export type Database = {
           label?: string;
           description?: string | null;
           image_url?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      site_design_settings: {
+        Row: {
+          key: "texts" | "media" | "zones";
+          value: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: "texts" | "media" | "zones";
+          value?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: "texts" | "media" | "zones";
+          value?: Json;
           created_at?: string;
           updated_at?: string;
         };

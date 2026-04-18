@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
+import type { SiteDesignConfig } from "@/features/design/site-design-config";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import {
   clearCart,
@@ -36,7 +37,11 @@ function buildPickupOptions(pickupEtaMin: number | null) {
 const inputClassName =
   "mt-3 w-full rounded-[0.9rem] border border-border-subtle bg-surface px-4 py-3 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:bg-surface-strong focus:outline-none focus:ring-0";
 
-export function CartScreen() {
+type CartScreenProps = {
+  design?: SiteDesignConfig;
+};
+
+export function CartScreen({ design }: CartScreenProps) {
   const router = useRouter();
   const { cart, totals } = useCart();
   const [customerName, setCustomerName] = useState("");
@@ -67,8 +72,7 @@ export function CartScreen() {
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1800&q=80')",
+              backgroundImage: `url('${design?.media.cartEmptyImageUrl ?? "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1800&q=80"}')`,
             }}
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
@@ -79,17 +83,17 @@ export function CartScreen() {
                 Carrito
               </p>
               <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                Elige platos para recoger.
+                {design?.texts.cart.emptyTitle ?? "Elige platos para recoger."}
               </h1>
               <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
-                Tu pedido aparecerá aquí cuando guardes platos desde un local.
-                Después solo tendrás que confirmar la hora de recogida.
+                {design?.texts.cart.emptySubtitle ??
+                  "Tu pedido aparecerá aquí cuando guardes platos desde un local. Después solo tendrás que confirmar la hora de recogida."}
               </p>
               <Link
                 href="/zonas"
                 className="magnetic-button mt-8 inline-flex w-fit rounded-full border border-accent-border bg-cta px-6 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
               >
-                Ver zonas
+                {design?.texts.cart.emptyCta ?? "Ver zonas"}
               </Link>
             </div>
           </div>
@@ -185,11 +189,11 @@ export function CartScreen() {
               </span>
             </div>
             <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-              Revisa tu recogida.
+              {design?.texts.cart.filledTitle ?? "Revisa tu recogida."}
             </h1>
             <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
-              Tu pedido se prepara en el local para que solo tengas que llegar
-              y recoger.
+              {design?.texts.cart.filledSubtitle ??
+                "Tu pedido se prepara en el local para que solo tengas que llegar y recoger."}
             </p>
           </div>
         </div>
@@ -234,7 +238,10 @@ export function CartScreen() {
                         {item.quantity} ud.
                       </span>
                       <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.08] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
-                        {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                        {formatPrice(
+                          item.priceAmount * item.quantity,
+                          item.currency,
+                        )}
                       </span>
                     </div>
 
@@ -328,7 +335,10 @@ export function CartScreen() {
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <div>
-              <label htmlFor="customer-name" className="text-sm text-text-secondary">
+              <label
+                htmlFor="customer-name"
+                className="text-sm text-text-secondary"
+              >
                 Nombre
               </label>
               <input
@@ -342,7 +352,10 @@ export function CartScreen() {
             </div>
 
             <div>
-              <label htmlFor="customer-phone" className="text-sm text-text-secondary">
+              <label
+                htmlFor="customer-phone"
+                className="text-sm text-text-secondary"
+              >
                 Teléfono
               </label>
               <input
@@ -356,7 +369,10 @@ export function CartScreen() {
             </div>
 
             <div>
-              <label htmlFor="pickup-at" className="text-sm text-text-secondary">
+              <label
+                htmlFor="pickup-at"
+                className="text-sm text-text-secondary"
+              >
                 Hora estimada de recogida
               </label>
               <select
@@ -387,19 +403,25 @@ export function CartScreen() {
             </div>
 
             {feedback ? (
-              <p className="text-sm leading-6 text-text-secondary">{feedback}</p>
+              <p className="text-sm leading-6 text-text-secondary">
+                {feedback}
+              </p>
             ) : null}
 
             <div className="space-y-3 pt-1">
               <p className="text-sm leading-6 text-text-secondary">
-                El local prepara tu pedido para recoger a la hora elegida.
+                {design?.texts.cart.ctaMicrocopy ??
+                  "El local prepara tu pedido para recoger a la hora elegida."}
               </p>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover disabled:opacity-60"
               >
-                {isSubmitting ? "Preparando pedido..." : "Preparar para recoger"}
+                {isSubmitting
+                  ? "Preparando pedido..."
+                  : (design?.texts.globalLabels.prepareForPickup ??
+                    "Preparar para recoger")}
               </button>
 
               <button

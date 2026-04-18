@@ -33,7 +33,6 @@ export async function generateMetadata({
   params,
 }: VenuePageProps): Promise<Metadata> {
   const venue = await getVenueDetails(params.citySlug, params.venueSlug);
-
   if (!venue) {
     return getBaseMetadata({
       title: "Local de comida local",
@@ -77,15 +76,14 @@ export default async function VenuePage({ params }: VenuePageProps) {
     notFound();
   }
 
-  const groupedItems = venue.menuItems.reduce<Record<string, typeof venue.menuItems>>(
-    (accumulator, item) => {
-      const key = item.categoryName ?? "Menú";
-      accumulator[key] ??= [];
-      accumulator[key].push(item);
-      return accumulator;
-    },
-    {},
-  );
+  const groupedItems = venue.menuItems.reduce<
+    Record<string, typeof venue.menuItems>
+  >((accumulator, item) => {
+    const key = item.categoryName ?? "Menú";
+    accumulator[key] ??= [];
+    accumulator[key].push(item);
+    return accumulator;
+  }, {});
   const menuSections = Object.entries(groupedItems);
   const totalMenuItems = venue.menuItems.length;
 
@@ -114,7 +112,9 @@ export default async function VenuePage({ params }: VenuePageProps) {
   return (
     <div className="min-h-screen bg-page text-text-primary">
       <SiteHeader />
-      <CityPreferenceSync city={{ slug: venue.city.slug, name: venue.city.name }} />
+      <CityPreferenceSync
+        city={{ slug: venue.city.slug, name: venue.city.name }}
+      />
       <VenueViewTracker
         citySlug={venue.city.slug}
         cityName={venue.city.name}
@@ -311,7 +311,10 @@ export default async function VenuePage({ params }: VenuePageProps) {
                   </div>
                   <div>
                     <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <LocationPinIcon size={17} className="text-icon-highlight" />
+                      <LocationPinIcon
+                        size={17}
+                        className="text-icon-highlight"
+                      />
                       Zona
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">

@@ -3,6 +3,7 @@ import Link from "next/link";
 const navigationItems = [
   { label: "Dashboard", href: "/panel", enabled: true },
   { label: "Locales", href: "/panel/locales", enabled: true },
+  { label: "Diseño", href: "/panel/diseno", enabled: true },
   { label: "Imagenes", href: "/panel/imagenes", enabled: true },
   { label: "Destacados", href: "/panel/destacados", enabled: true },
   { label: "Pedidos", href: "#", enabled: false },

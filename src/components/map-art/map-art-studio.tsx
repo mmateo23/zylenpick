@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { motion } from "motion/react";
 import {
   Download,
@@ -442,13 +449,13 @@ export function MapArtStudio({ initialQuery }: MapArtStudioProps) {
     [frameId],
   );
 
-  const applyLocationLabels = (payload: MapArtResponse) => {
+  const applyLocationLabels = useCallback((payload: MapArtResponse) => {
     const parts = payload.location.split(",").map((part) => part.trim());
     setTitle(parts[0] || payload.query);
     setSubtitle(parts.at(-1) || "Ubicación personalizada");
-  };
+  }, []);
 
-  const loadMap = (nextQuery: string) => {
+  const loadMap = useCallback((nextQuery: string) => {
     const trimmedQuery = nextQuery.trim();
 
     if (!trimmedQuery) {
@@ -482,7 +489,7 @@ export function MapArtStudio({ initialQuery }: MapArtStudioProps) {
         setError("No se pudo conectar con el generador.");
       }
     });
-  };
+  }, [applyLocationLabels]);
 
   const loadMapByCoordinates = (latitude: number, longitude: number) => {
     startTransition(async () => {
@@ -546,7 +553,7 @@ export function MapArtStudio({ initialQuery }: MapArtStudioProps) {
 
   useEffect(() => {
     loadMap(initialQuery);
-  }, [initialQuery]);
+  }, [initialQuery, loadMap]);
 
   return (
     <main className="h-screen w-screen overflow-hidden bg-[#ece6dc] text-[#171717]">

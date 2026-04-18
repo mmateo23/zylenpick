@@ -369,7 +369,7 @@ export function DemoBentoGallery({
               </h2>
             </div>
             <Link
-                      href="/zonas"
+              href="/zonas"
               className={`hidden rounded-full border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] backdrop-blur-xl transition sm:inline-flex ${
                 isLightTheme
                   ? "border-black/8 bg-black/[0.04] text-[#181816]/68 hover:bg-black/[0.06]"
@@ -402,7 +402,10 @@ export function DemoBentoGallery({
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.02),rgba(6,10,11,0.12)_42%,rgba(6,10,11,0.88)_100%)]" />
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
                   {item.subscriptionActive ? (
-                    <span className="rounded-full border border-white/10 bg-black/18 p-2 text-white/72 backdrop-blur-xl" aria-label="Local verificado">
+                    <span
+                      className="rounded-full border border-white/10 bg-black/18 p-2 text-white/72 backdrop-blur-xl"
+                      aria-label="Local verificado"
+                    >
                       <ShieldCheck className="h-4 w-4 text-[#7cffb8]" />
                     </span>
                   ) : null}

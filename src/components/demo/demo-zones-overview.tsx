@@ -12,12 +12,14 @@ import { DemoSiteHeader } from "@/components/demo/demo-site-header";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import type { City } from "@/features/cities/types";
+import type { SiteDesignConfig } from "@/features/design/site-design-config";
 
 gsap.registerPlugin(useGSAP);
 
 type DemoZonesOverviewProps = {
   cities: City[];
   variant?: "demo" | "public";
+  design?: SiteDesignConfig;
 };
 
 const fallbackVideoSrc =
@@ -60,11 +62,14 @@ function getCityDecisionSignal(city: City, index: number) {
 export function DemoZonesOverview({
   cities,
   variant = "demo",
+  design,
 }: DemoZonesOverviewProps) {
   const rootRef = useRef<HTMLElement>(null);
   const heroCities = useMemo(() => buildHeroCities(cities), [cities]);
   const isLightTheme = false;
   const cityHrefBase = variant === "public" ? "/zonas" : "/demo/zonas";
+  const zonesHeroMediaType = design?.media.zonesHeroMediaType ?? "video";
+  const zonesHeroMediaUrl = design?.media.zonesHeroMediaUrl || fallbackVideoSrc;
 
   useGSAP(
     () => {
@@ -142,23 +147,33 @@ export function DemoZonesOverview({
       {variant === "public" ? (
         <SiteHeader />
       ) : (
-        <DemoSiteHeader
-          isLightTheme={isLightTheme}
-        />
+        <DemoSiteHeader isLightTheme={isLightTheme} />
       )}
 
       <section className="relative overflow-hidden border-b border-white/6">
         <div className="absolute inset-0 overflow-hidden">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            className="absolute inset-0 h-full w-full scale-[1.04] object-cover"
-          >
-            <source src={fallbackVideoSrc} type="video/mp4" />
-          </video>
+          {zonesHeroMediaType === "image" ? (
+            <Image
+              src={zonesHeroMediaUrl}
+              alt=""
+              aria-hidden="true"
+              fill
+              priority
+              sizes="100vw"
+              className="scale-[1.04] object-cover"
+            />
+          ) : (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              className="absolute inset-0 h-full w-full scale-[1.04] object-cover"
+            >
+              <source src={zonesHeroMediaUrl} type="video/mp4" />
+            </video>
+          )}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,223,129,0.12),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
           <div className="zones-hero-glow absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(124,255,184,0.12),transparent_62%)] blur-3xl" />
         </div>
@@ -175,12 +190,12 @@ export function DemoZonesOverview({
                 Demo de ciudades
               </p>
               <h1 className="max-w-[12ch] text-[clamp(2.35rem,8.6vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
-                Elige dónde empieza tu próxima recogida.
+                {design?.zones.title ??
+                  "Elige dónde empieza tu próxima recogida."}
               </h1>
               <p className="max-w-[36rem] text-[0.95rem] leading-6 text-white/56 sm:text-base sm:leading-7">
-                El mismo contenido de cities, pero llevado a una lectura más
-                visual, más limpia y más actual para entrar en cada ciudad sin
-                ruido innecesario.
+                {design?.zones.subtitle ??
+                  "Explora zonas activas, entra en cada una y descubre locales preparados para recoger sin complicarte."}
               </p>
             </div>
 
@@ -246,7 +261,8 @@ export function DemoZonesOverview({
                   isLightTheme ? "text-[#181816]" : "text-white"
                 }`}
               >
-                Ciudades preparadas para descubrir locales.
+                {design?.zones.sectionTitle ??
+                  "Ciudades preparadas para descubrir locales."}
               </h2>
             </div>
           </div>
@@ -288,7 +304,8 @@ export function DemoZonesOverview({
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.04),rgba(6,10,11,0.18)_42%,rgba(6,10,11,0.88)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
                     <span className="rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-white/72 backdrop-blur-xl">
-                      {getCityDecisionSignal(city, index)}
+                      {design?.zones.cardCtaLabel ??
+                        getCityDecisionSignal(city, index)}
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
                       <ArrowUpRight className="h-4 w-4" />
@@ -299,7 +316,8 @@ export function DemoZonesOverview({
                       {city.name} · {getCityDecisionContext(city, index)}
                     </p>
                     <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/58">
-                      Descubre locales de esta zona.
+                      {design?.zones.cardMicrocopy ??
+                        "Descubre locales de esta zona."}
                     </p>
                   </div>
                 </div>

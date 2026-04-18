@@ -8,10 +8,7 @@ import { BorderBeam } from "@/components/magicui/border-beam";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { CartVenue } from "@/features/cart/types";
 import { getMenuItemSecondaryImage } from "@/features/venues/menu-item-media";
-import type {
-  MenuItemAllergen,
-  VenueMenuItem,
-} from "@/features/venues/types";
+import type { MenuItemAllergen, VenueMenuItem } from "@/features/venues/types";
 import { trackEvent } from "@/lib/analytics/track-event";
 import { formatPrice } from "@/lib/utils/currency";
 
@@ -36,12 +33,17 @@ type MenuItemGalleryCardProps = {
   item: VenueMenuItem;
   venue: CartVenue;
   anchorId?: string;
+  labels?: {
+    viewDetail: string;
+    addForPickup: string;
+  };
 };
 
 export function MenuItemGalleryCard({
   item,
   venue,
   anchorId,
+  labels,
 }: MenuItemGalleryCardProps) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -140,7 +142,7 @@ export function MenuItemGalleryCard({
                 {formatPrice(item.priceAmount, item.currency)}
               </span>
               <span className="rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] px-3.5 py-1.5 text-xs font-semibold text-text-inverse/90 backdrop-blur-xl">
-                Ver detalle
+                {labels?.viewDetail ?? "Ver detalle"}
               </span>
             </div>
           </div>
@@ -159,7 +161,7 @@ export function MenuItemGalleryCard({
             }}
             className="mt-0"
             source="dish_card"
-            label="Añadir para recoger"
+            label={labels?.addForPickup ?? "Añadir para recoger"}
             buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-accent-soft px-5 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
             feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
           />
@@ -339,7 +341,7 @@ export function MenuItemGalleryCard({
                     }}
                     className="mt-0"
                     source="dish_detail"
-                    label="Añadir para recoger"
+                    label={labels?.addForPickup ?? "Añadir para recoger"}
                     buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
                     feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/76"
                   />

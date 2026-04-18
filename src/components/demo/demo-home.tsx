@@ -7,6 +7,7 @@ import { Bell } from "lucide-react";
 
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import type { City } from "@/features/cities/types";
+import type { SiteDesignConfig } from "@/features/design/site-design-config";
 import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
@@ -42,6 +43,7 @@ export type DemoHomeTemplate = {
 type DemoHomeProps = {
   cities: City[];
   heroImageUrl: string;
+  design?: SiteDesignConfig;
   featuredItems: HomeShowcaseItem[];
   latestItems: HomeShowcaseItem[];
   template?: DemoHomeTemplate;
@@ -70,10 +72,7 @@ function getZonesHref(selectedCity: StoredCity | null) {
   return selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
 }
 
-export function DemoHome({
-  heroImageUrl,
-  template,
-}: DemoHomeProps) {
+export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [showLoader, setShowLoader] = useState(true);
   const [isLoaderVisible, setIsLoaderVisible] = useState(true);
@@ -158,6 +157,8 @@ export function DemoHome({
   }, [showLoader]);
 
   const zoneLabel = selectedCity?.name ?? "Tu zona";
+  const heroMediaUrl = design?.media.homeHeroMediaUrl || heroImageUrl;
+  const heroMediaType = design?.media.homeHeroMediaType ?? "video";
 
   return (
     <main
@@ -174,7 +175,9 @@ export function DemoHome({
         >
           <div
             className={`flex flex-col items-center gap-4 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              showLoader ? "translate-y-0 opacity-100" : "-translate-y-2 opacity-0"
+              showLoader
+                ? "translate-y-0 opacity-100"
+                : "-translate-y-2 opacity-0"
             } motion-reduce:transition-none`}
           >
             <div className="w-28 sm:w-32">
@@ -188,7 +191,9 @@ export function DemoHome({
               />
             </div>
             <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.32em] text-[#282828]">
-              <span className="animate-pulse [animation-delay:0ms]">Loading</span>
+              <span className="animate-pulse [animation-delay:0ms]">
+                Loading
+              </span>
               <span className="animate-pulse [animation-delay:120ms]">.</span>
               <span className="animate-pulse [animation-delay:240ms]">.</span>
               <span className="animate-pulse [animation-delay:360ms]">.</span>
@@ -204,18 +209,34 @@ export function DemoHome({
           showLoader ? "scale-[1.025] opacity-0" : "scale-100 opacity-100"
         } motion-reduce:transition-none`}
       >
-        <video
-          className="absolute inset-0 h-full w-full object-cover opacity-38"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={heroImageUrl || FALLBACK_BACKGROUND}
-          onLoadedData={() => setIsVisualReady(true)}
-          onCanPlay={() => setIsVisualReady(true)}
-        >
-          <source src={DEMO_BACKGROUND_VIDEO} type="video/mp4" />
-        </video>
+        {heroMediaType === "image" ? (
+          <Image
+            src={heroMediaUrl || FALLBACK_BACKGROUND}
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover opacity-38"
+            onLoad={() => setIsVisualReady(true)}
+          />
+        ) : (
+          <video
+            className="absolute inset-0 h-full w-full object-cover opacity-38"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={heroImageUrl || FALLBACK_BACKGROUND}
+            onLoadedData={() => setIsVisualReady(true)}
+            onCanPlay={() => setIsVisualReady(true)}
+          >
+            <source
+              src={heroMediaUrl || DEMO_BACKGROUND_VIDEO}
+              type="video/mp4"
+            />
+          </video>
+        )}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_24%),radial-gradient(circle_at_82%_16%,_rgba(191,219,254,0.05),_transparent_20%),linear-gradient(180deg,_rgba(255,255,255,0.005)_0%,_rgba(255,255,255,0.0)_28%,_rgba(15,23,42,0.1)_62%,_rgba(2,6,23,0.28)_100%)] backdrop-blur-[3px]" />
         <div className="absolute -left-[18vw] bottom-[-8vh] h-[24vh] w-[52vw] rounded-full bg-emerald-400/12 blur-3xl" />
       </div>
@@ -350,99 +371,99 @@ export function DemoHome({
                 </div>
 
                 <div className="pointer-events-none absolute left-full top-[20%] z-20 ml-3 hidden -translate-y-1/2 sm:block">
-                <div className="pointer-events-auto relative flex flex-col items-start gap-2">
-                  {locationAccepted ? (
-                    <div className="relative z-10 ml-4 rounded-full border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
-                      <span className="text-[10px] font-medium tracking-[0.04em] text-[#355747] sm:whitespace-nowrap">
-                        {zoneLabel}
-                      </span>
-                    </div>
-                  ) : null}
-
-                  <div className="relative">
-                    <span className="absolute left-0 top-1/2 z-0 h-2.5 w-2.5 -translate-x-[45%] -translate-y-1/2 rotate-45 rounded-[2px] bg-[#eefaf4]" />
-                    {locationPromptExpanded ? (
-                      <div className="relative z-10 w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] p-3 text-left shadow-[0_10px_24px_rgba(0,0,0,0.1)]">
-                        <div className="flex items-start gap-2.5">
-                          <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center">
-                            <Bell
-                              className={`h-4 w-4 ${locationAccepted ? "text-[#168453]" : "text-[#dc2626]"}`}
-                              strokeWidth={2}
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[12px] font-medium leading-4 text-[#0d2a1e]">
-                              Activa la ubicación para ver zonas cercanas.
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="mt-2.5 flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setLocationPromptExpanded(false);
-                              setShowLocationPrompt(false);
-                            }}
-                            className="rounded-full border border-[#b8f3da]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#355747] transition hover:bg-white/90 hover:text-[#0d2a1e]"
-                          >
-                            Ahora no
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setLocationAccepted(true);
-                              setLocationPromptExpanded(false);
-                            }}
-                            className="rounded-full bg-[#168453] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-white transition hover:bg-[#147549]"
-                          >
-                            Permitir
-                          </button>
-                        </div>
+                  <div className="pointer-events-auto relative flex flex-col items-start gap-2">
+                    {locationAccepted ? (
+                      <div className="relative z-10 ml-4 rounded-full border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
+                        <span className="text-[10px] font-medium tracking-[0.04em] text-[#355747] sm:whitespace-nowrap">
+                          {zoneLabel}
+                        </span>
                       </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!locationAccepted) {
-                            setLocationPromptExpanded(true);
-                          }
-                        }}
-                        className="relative z-10 flex items-center gap-1.5 rounded-full border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)] transition hover:bg-[#f7fffb]"
-                      >
-                        <span className="inline-flex items-center justify-center">
-                          <span
-                            className={
-                              locationAccepted
-                                ? "inline-block"
-                                : "inline-block animate-[bellRing_1.8s_ease-in-out_infinite]"
+                    ) : null}
+
+                    <div className="relative">
+                      <span className="absolute left-0 top-1/2 z-0 h-2.5 w-2.5 -translate-x-[45%] -translate-y-1/2 rotate-45 rounded-[2px] bg-[#eefaf4]" />
+                      {locationPromptExpanded ? (
+                        <div className="relative z-10 w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] p-3 text-left shadow-[0_10px_24px_rgba(0,0,0,0.1)]">
+                          <div className="flex items-start gap-2.5">
+                            <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center">
+                              <Bell
+                                className={`h-4 w-4 ${locationAccepted ? "text-[#168453]" : "text-[#dc2626]"}`}
+                                strokeWidth={2}
+                              />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[12px] font-medium leading-4 text-[#0d2a1e]">
+                                Activa la ubicación para ver zonas cercanas.
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="mt-2.5 flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLocationPromptExpanded(false);
+                                setShowLocationPrompt(false);
+                              }}
+                              className="rounded-full border border-[#b8f3da]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#355747] transition hover:bg-white/90 hover:text-[#0d2a1e]"
+                            >
+                              Ahora no
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setLocationAccepted(true);
+                                setLocationPromptExpanded(false);
+                              }}
+                              className="rounded-full bg-[#168453] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-white transition hover:bg-[#147549]"
+                            >
+                              Permitir
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!locationAccepted) {
+                              setLocationPromptExpanded(true);
                             }
-                          >
-                            <Bell
-                              className={`h-3.5 w-3.5 ${locationAccepted ? "text-[#168453]" : "text-[#dc2626]"}`}
-                              strokeWidth={2}
-                            />
+                          }}
+                          className="relative z-10 flex items-center gap-1.5 rounded-full border border-[#b8f3da]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,250,244,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)] transition hover:bg-[#f7fffb]"
+                        >
+                          <span className="inline-flex items-center justify-center">
+                            <span
+                              className={
+                                locationAccepted
+                                  ? "inline-block"
+                                  : "inline-block animate-[bellRing_1.8s_ease-in-out_infinite]"
+                              }
+                            >
+                              <Bell
+                                className={`h-3.5 w-3.5 ${locationAccepted ? "text-[#168453]" : "text-[#dc2626]"}`}
+                                strokeWidth={2}
+                              />
+                            </span>
                           </span>
-                        </span>
-                        <span className="text-[10px] font-medium tracking-[0.04em] text-[#355747]">
-                          {locationAccepted ? "Ubicación" : "Permisos"}
-                        </span>
-                      </button>
-                    )}
+                          <span className="text-[10px] font-medium tracking-[0.04em] text-[#355747]">
+                            {locationAccepted ? "Ubicación" : "Permisos"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
                 </div>
               </>
             ) : null}
           </div>
 
           <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.5rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.08em] text-white sm:mt-6 sm:max-w-5xl">
-            Decide qué comer en segundos
+            {design?.texts.home.heroTitle ?? "Decide qué comer en segundos"}
           </h1>
 
           <p className="mt-3 max-w-xl text-balance text-[13px] leading-5 text-white/68 sm:mt-4 sm:max-w-2xl sm:text-base sm:leading-7 md:text-lg">
-            Mira platos reales de locales cercanos y elige qué recoger sin
-            reseñas eternas, llamadas ni complicaciones.
+            {design?.texts.home.heroSubtitle ??
+              "Mira platos reales de locales cercanos y elige qué recoger sin reseñas eternas, llamadas ni complicaciones."}
           </p>
 
           <div className="mt-6 flex w-full max-w-3xl flex-row gap-2 sm:mt-10 sm:gap-4">
