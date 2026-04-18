@@ -1,2 +1,15 @@
  ⚠ Blocked cross-origin request from 192.168.68.102 to /_next/* resource. To allow this, configure "allowedDevOrigins" in next.config
 Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: EPERM: operation not permitted, rename 'C:\Users\Manu\Documents\FknFood\.next\cache\webpack\client-development\2.pack.gz_' -> 'C:\Users\Manu\Documents\FknFood\.next\cache\webpack\client-development\2.pack.gz'
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=900&q=80 404
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=900&q=80 404
+ ⨯ ./src/app/theme-provider.tsx
+Error: Failed to read source code from C:\Users\Manu\Documents\FknFood\src\app\theme-provider.tsx
+
+Caused by:
+    El sistema no puede encontrar el archivo especificado. (os error 2)
+
+Import trace for requested module:
+./src/app/theme-provider.tsx
