@@ -20,6 +20,7 @@ import {
   getOrderById,
 } from "@/features/orders/services/order-storage";
 import { getVenueCoordinates } from "@/features/venues/venue-meta";
+import { trackEvent } from "@/lib/analytics/track-event";
 import { formatPrice } from "@/lib/utils/currency";
 
 type OrderTicketScreenProps = {
@@ -494,6 +495,19 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
             <a
               href={order.venue.phone ? `tel:${order.venue.phone}` : undefined}
               aria-disabled={!order.venue.phone}
+              onClick={() => {
+                if (!order.venue.phone) {
+                  return;
+                }
+
+                trackEvent("click_call", {
+                  city_slug: order.venue.citySlug,
+                  city_name: order.venue.cityName,
+                  venue_slug: order.venue.slug,
+                  venue_name: order.venue.name,
+                  source: "order_ticket",
+                });
+              }}
               className={`magnetic-button inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3.5 text-sm font-semibold ${
                 order.venue.phone
                   ? "border-white/10 bg-white/8 text-white"
@@ -507,6 +521,19 @@ export function OrderTicketScreen({ orderId }: OrderTicketScreenProps) {
             <a
               href={order.venue.email ? `mailto:${order.venue.email}` : undefined}
               aria-disabled={!order.venue.email}
+              onClick={() => {
+                if (!order.venue.email) {
+                  return;
+                }
+
+                trackEvent("click_email", {
+                  city_slug: order.venue.citySlug,
+                  city_name: order.venue.cityName,
+                  venue_slug: order.venue.slug,
+                  venue_name: order.venue.name,
+                  source: "order_ticket",
+                });
+              }}
               className={`magnetic-button inline-flex w-full items-center justify-center rounded-full border px-5 py-3.5 text-sm font-semibold ${
                 order.venue.email
                   ? "border-white/10 bg-white/8 text-white"

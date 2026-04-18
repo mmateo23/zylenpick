@@ -19,6 +19,7 @@ type AddToCartButtonProps = {
   className?: string;
   buttonClassName?: string;
   feedbackClassName?: string;
+  source?: string;
 };
 
 export function AddToCartButton({
@@ -27,6 +28,7 @@ export function AddToCartButton({
   className,
   buttonClassName,
   feedbackClassName,
+  source = "add_to_cart_button",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -42,9 +44,13 @@ export function AddToCartButton({
     }
 
     trackEvent("add_to_cart", {
+      city_slug: venue.citySlug,
+      city_name: venue.cityName,
+      venue_slug: venue.slug,
+      venue_name: venue.name,
       item_id: item.id,
       item_name: item.name,
-      venue_name: venue.name,
+      source,
       price: item.priceAmount / 100,
       currency: item.currency,
     });

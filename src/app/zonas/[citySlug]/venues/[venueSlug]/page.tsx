@@ -7,6 +7,7 @@ import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
 import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
+import { VenueViewTracker } from "@/components/analytics/venue-view-tracker";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
@@ -104,6 +105,12 @@ export default async function VenuePage({ params }: VenuePageProps) {
     <div className="min-h-screen bg-page text-text-primary">
       <SiteHeader />
       <CityPreferenceSync city={{ slug: venue.city.slug, name: venue.city.name }} />
+      <VenueViewTracker
+        citySlug={venue.city.slug}
+        cityName={venue.city.name}
+        venueSlug={venue.slug}
+        venueName={venue.name}
+      />
 
       <main>
         <section className="relative -mt-[5.4rem] overflow-hidden bg-[var(--overlay-hero-to)] pt-[5.4rem] text-text-inverse">

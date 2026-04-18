@@ -12,6 +12,7 @@ import type {
   MenuItemAllergen,
   VenueMenuItem,
 } from "@/features/venues/types";
+import { trackEvent } from "@/lib/analytics/track-event";
 import { formatPrice } from "@/lib/utils/currency";
 
 const allergenLabels: Record<MenuItemAllergen, string> = {
@@ -60,6 +61,15 @@ export function MenuItemGalleryCard({
   const handleOpenViewer = () => {
     setSelectedImageIndex(0);
     setIsViewerOpen(true);
+    trackEvent("view_dish", {
+      city_slug: venue.citySlug,
+      city_name: venue.cityName,
+      venue_slug: venue.slug,
+      venue_name: venue.name,
+      item_id: item.id,
+      item_name: item.name,
+      source: "dish_card",
+    });
   };
 
   const highlightClassName = item.isPickupMonthHighlight
@@ -148,6 +158,7 @@ export function MenuItemGalleryCard({
               imageUrl: item.imageUrl,
             }}
             className="mt-0"
+            source="dish_card"
             buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-accent-soft px-5 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
             feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
           />
@@ -320,6 +331,7 @@ export function MenuItemGalleryCard({
                       imageUrl: item.imageUrl,
                     }}
                     className="mt-0"
+                    source="dish_detail"
                     buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
                     feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/76"
                   />
