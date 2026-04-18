@@ -15,9 +15,7 @@ import {
   MapPin,
   MoveLeft,
   MoveRight,
-  Moon,
   Search,
-  Sun,
   X,
 } from "lucide-react";
 
@@ -166,6 +164,52 @@ function formatPrice(item: HomeShowcaseItem) {
     currency: item.currency,
     minimumFractionDigits: 2,
   }).format(normalizedAmount);
+}
+
+function getDishDisplayName(item: HomeShowcaseItem) {
+  const normalizedName = item.name.trim().toLocaleLowerCase("es");
+  const genericNames = new Set([
+    "plato",
+    "menu",
+    "menú",
+    "especial",
+    "clasico",
+    "clásico",
+    "combo",
+    "racion",
+    "ración",
+    "tapa",
+  ]);
+
+  if (
+    genericNames.has(normalizedName) &&
+    item.categoryName &&
+    item.categoryName.toLocaleLowerCase("es") !== normalizedName
+  ) {
+    return `${item.name} de ${item.categoryName}`;
+  }
+
+  return item.name;
+}
+
+function getDecisionSignal(item: HomeShowcaseItem) {
+  if (item.isFeatured || item.isHomeFeatured) {
+    return "Muy elegido";
+  }
+
+  if (item.isPickupMonthHighlight) {
+    return "De los más pedidos";
+  }
+
+  if (item.pickupEtaMin) {
+    return "Rápido";
+  }
+
+  return "Para recoger";
+}
+
+function getCardMicroContext(item: HomeShowcaseItem) {
+  return item.venue.name;
 }
 
 function getVenueHref(item: HomeShowcaseItem) {
@@ -451,7 +495,7 @@ function renderHoverTitle(item: HomeShowcaseItem) {
     <p
       className={`${titleClassName} relative translate-y-3 scale-[0.96] opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:scale-100 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:scale-100 group-focus-visible:lg:opacity-100`}
     >
-      {item.name}
+      {getDishDisplayName(item)}
     </p>
   );
 }
@@ -879,10 +923,6 @@ export function DemoDishesCarousel({
   );
   const touchStartYRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [systemTheme, setSystemTheme] = useState<"dark" | "light">("dark");
-  const [previewTheme, setPreviewTheme] = useState<"dark" | "light" | null>(
-    null,
-  );
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
   const [curationFilter, setCurationFilter] = useState<CurationFilter>("all");
   const [activeCurationInfo, setActiveCurationInfo] = useState<CurationFilter | null>(null);
@@ -975,8 +1015,7 @@ export function DemoDishesCarousel({
     () => (activeIndex === null ? null : filteredItems[activeIndex] ?? null),
     [activeIndex, filteredItems],
   );
-  const effectiveTheme = previewTheme ?? systemTheme;
-  const isLightTheme = effectiveTheme === "light";
+  const isLightTheme = false;
   const activeLogoSrc = isLightTheme
     ? content.logoLightSrc ?? content.logoSrc
     : content.logoDarkSrc ?? content.logoSrc;
@@ -1125,21 +1164,6 @@ export function DemoDishesCarousel({
       getContextualNavigationIndex(filteredItems, activeIndex, direction),
     );
   };
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const syncTheme = () => {
-      setSystemTheme(mediaQuery.matches ? "dark" : "light");
-    };
-
-    syncTheme();
-    mediaQuery.addEventListener("change", syncTheme);
-
-    return () => {
-      mediaQuery.removeEventListener("change", syncTheme);
-    };
-  }, []);
 
   useEffect(() => {
     if (activeIndex === null) {
@@ -1501,8 +1525,8 @@ export function DemoDishesCarousel({
             <div
               className={
                 isLightTheme
-                  ? "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-black/8 bg-[linear-gradient(180deg,rgba(248,242,231,0.95),rgba(242,235,224,0.88))] px-3.5 py-2 text-[#181816] shadow-[0_22px_48px_rgba(20,20,20,0.08)] backdrop-blur-2xl sm:px-4"
-                  : "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-white/10 bg-[linear-gradient(180deg,rgba(8,18,24,0.9),rgba(6,14,20,0.82))] px-3.5 py-2 text-white shadow-[0_24px_54px_rgba(0,0,0,0.26)] backdrop-blur-2xl sm:px-4"
+                  ? "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-white/60 bg-white/58 px-3.5 py-2 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)] backdrop-blur-2xl backdrop-saturate-150 sm:px-4"
+                  : "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-white/16 bg-white/[0.10] px-3.5 py-2 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 sm:px-4"
               }
             >
               <Link
@@ -1524,8 +1548,8 @@ export function DemoDishesCarousel({
                 <div
                   className={
                     isLightTheme
-                      ? "inline-flex items-center gap-1 rounded-[999px] border border-black/8 bg-black/[0.035] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
-                      : "inline-flex items-center gap-1 rounded-[999px] border border-white/10 bg-white/[0.06] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"
+                      ? "inline-flex items-center gap-1 rounded-[999px] border border-white/55 bg-white/42 px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
+                      : "inline-flex items-center gap-1 rounded-[999px] border border-white/16 bg-white/[0.10] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
                   }
                 >
                   {[
@@ -1540,8 +1564,8 @@ export function DemoDishesCarousel({
                       className={
                         item.href === "/platos"
                           ? isLightTheme
-                            ? "rounded-full bg-white px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#181816] shadow-[0_10px_24px_rgba(20,20,20,0.1)] transition"
-                            : "rounded-full bg-[#7cffb8]/12 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(0,0,0,0.2)] transition"
+                            ? "rounded-full bg-white/78 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#181816] shadow-[0_10px_24px_rgba(20,20,20,0.1)] transition"
+                            : "rounded-full bg-white/[0.16] px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)] transition"
                           : isLightTheme
                             ? "rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#181816]/62 transition hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
                             : "rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white/60 transition hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
@@ -1553,31 +1577,19 @@ export function DemoDishesCarousel({
                 </div>
               </nav>
 
-              <div className="inline-flex items-center justify-self-end gap-1 rounded-[999px] border border-white/10 bg-white/[0.05] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+              <div className={isLightTheme ? "inline-flex items-center justify-self-end gap-1 rounded-[999px] border border-white/55 bg-white/42 px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]" : "inline-flex items-center justify-self-end gap-1 rounded-[999px] border border-white/16 bg-white/[0.10] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"}>
                 <Link
                   href="/cart"
                   aria-label="Carrito"
                   className={
                     isLightTheme
-                      ? "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-black/[0.03] text-[#181816] transition hover:-translate-y-[1px] hover:bg-black/[0.05]"
-                      : "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white transition hover:-translate-y-[1px] hover:bg-white/[0.1]"
+                      ? "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white/42 text-[#181816] transition hover:-translate-y-[1px] hover:bg-white/62"
+                      : "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/16 bg-white/[0.09] text-white transition hover:-translate-y-[1px] hover:bg-white/[0.15]"
                   }
                 >
                   <CartIcon size={16} />
                   <CartBadge totalItems={totals.totalItems} />
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => setPreviewTheme(isLightTheme ? "dark" : "light")}
-                  className={
-                    isLightTheme
-                      ? "inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-black/[0.03] text-[#181816] transition hover:-translate-y-[1px] hover:bg-black/[0.05]"
-                      : "inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white transition hover:-translate-y-[1px] hover:bg-white/[0.1]"
-                  }
-                  aria-label={isLightTheme ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
-                >
-                  {isLightTheme ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                </button>
               </div>
             </div>
 
@@ -1807,13 +1819,15 @@ export function DemoDishesCarousel({
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
                         <div className="flex max-w-[88%] flex-col items-center">
                           {renderHoverTitle(item)}
-                          <p className="mt-3 translate-y-2 font-serif text-[1.28rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{formatPrice(item)}</p>
+                          <p className="mt-3 translate-y-2 font-serif text-[1.28rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{formatPrice(item)} · {getDecisionSignal(item)}</p>
+                          <p className="mt-2 translate-y-2 text-[0.68rem] font-medium uppercase tracking-[0.22em] text-white/72 opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{getCardMicroContext(item)}</p>
                         </div>
                       </div>
                       <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-10 sm:px-5 sm:pb-5">
                         <div className="translate-y-0 transition-[transform,opacity] duration-500 ease-out will-change-transform group-hover:sm:-translate-y-2 group-focus-visible:sm:-translate-y-2 group-hover:lg:opacity-0 group-focus-visible:lg:opacity-0">
-                          <p className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.22rem]">{item.name}</p>
-                          <p className="mt-2 font-serif text-[1rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)] sm:hidden">{formatPrice(item)}</p>
+                          <p className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.22rem]">{getDishDisplayName(item)}</p>
+                          <p className="mt-2 font-serif text-[1rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{formatPrice(item)} · {getDecisionSignal(item)}</p>
+                          <p className="mt-1 text-[0.62rem] font-medium uppercase tracking-[0.2em] text-white/72 drop-shadow-[0_3px_10px_rgba(0,0,0,0.34)]">{getCardMicroContext(item)}</p>
                         </div>
                       </div>
                     </div>
@@ -1949,11 +1963,11 @@ export function DemoDishesCarousel({
                       Plato
                     </p>
                     <h2 className={isLightTheme ? "mt-2 text-[1.95rem] font-semibold leading-[0.94] tracking-[-0.06em] text-black" : "mt-2 text-[1.95rem] font-semibold leading-[0.94] tracking-[-0.06em] text-white"}>
-                      {activeItem.name}
+                      {getDishDisplayName(activeItem)}
                     </h2>
                     <div className="mt-3 flex flex-wrap items-center gap-2.5">
                       <span className={isLightTheme ? "rounded-full border border-[#7cffb8]/35 bg-[#7cffb8]/10 px-3 py-1.5 text-sm font-bold text-[#00df81]" : "rounded-full border border-[#7cffb8]/28 bg-[#7cffb8]/10 px-3 py-1.5 text-sm font-bold text-[#7cffb8]"}>
-                        {formatPrice(activeItem)}
+                        {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
                       </span>
                       {activeItem.pickupEtaMin ? (
                         <span className={isLightTheme ? "inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-black/[0.04] px-3 py-1.5 text-xs text-black/72" : "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/72"}>
@@ -2092,7 +2106,7 @@ export function DemoDishesCarousel({
                   </div>
 
                   <h2 className={isLightTheme ? "mt-4 text-[clamp(2.2rem,4vw,4.2rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-black" : "mt-4 text-[clamp(2.2rem,4vw,4.2rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white"}>
-                    {activeItem.name}
+                    {getDishDisplayName(activeItem)}
                   </h2>
 
                   <div className="mt-4">
@@ -2106,7 +2120,7 @@ export function DemoDishesCarousel({
 
                   <div className={isLightTheme ? "mt-5 flex flex-wrap items-center gap-3 text-sm text-black/74" : "mt-5 flex flex-wrap items-center gap-3 text-sm text-white/74"}>
                     <span className={isLightTheme ? "rounded-full border border-[#7cffb8]/35 bg-[#7cffb8]/10 px-3.5 py-2 font-bold text-[#00df81]" : "rounded-full border border-[#7cffb8]/28 bg-[#7cffb8]/10 px-3.5 py-2 font-bold text-[#7cffb8]"}>
-                      {formatPrice(activeItem)}
+                      {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
                     </span>
                     {activeItem.pickupEtaMin ? (
                       <span className={isLightTheme ? "inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-2" : "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2"}>

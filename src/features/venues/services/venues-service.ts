@@ -299,7 +299,7 @@ export async function getVenueDetails(
   const { data: venue, error: venueError } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, logo_url, address, email, phone, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, subscription_tier, cities!inner(slug, name)",
+      "id, slug, name, description, cover_url, logo_url, address, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, subscription_tier, cities!inner(slug, name)",
     )
     .eq("slug", venueSlug)
     .eq("is_active", true)
@@ -311,7 +311,7 @@ export async function getVenueDetails(
     const { data: fallbackVenue, error: fallbackVenueError } = await supabase
       .from("venues")
       .select(
-        "id, slug, name, description, cover_url, logo_url, address, email, phone, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
+        "id, slug, name, description, cover_url, logo_url, address, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
       )
       .eq("slug", venueSlug)
       .eq("is_active", true)
@@ -369,6 +369,7 @@ export async function getVenueDetails(
         address: fallbackVenue.address,
         email: fallbackVenue.email,
         phone: fallbackVenue.phone,
+        website: fallbackVenue.website,
         pickupNotes: fallbackVenue.pickup_notes,
         pickupEtaMin: fallbackVenue.pickup_eta_min,
         isVerified: fallbackVenue.is_verified,
@@ -407,6 +408,7 @@ export async function getVenueDetails(
       address: fallbackVenue.address,
       email: fallbackVenue.email,
       phone: fallbackVenue.phone,
+      website: fallbackVenue.website,
       pickupNotes: fallbackVenue.pickup_notes,
       pickupEtaMin: fallbackVenue.pickup_eta_min,
       isVerified: fallbackVenue.is_verified,
@@ -472,6 +474,7 @@ export async function getVenueDetails(
       address: venue.address,
       email: venue.email,
       phone: venue.phone,
+      website: venue.website,
       pickupNotes: venue.pickup_notes,
       pickupEtaMin: venue.pickup_eta_min,
       isVerified: venue.is_verified,
@@ -510,6 +513,7 @@ export async function getVenueDetails(
     address: venue.address,
     email: venue.email,
     phone: venue.phone,
+    website: venue.website,
     pickupNotes: venue.pickup_notes,
       pickupEtaMin: venue.pickup_eta_min,
       isVerified: venue.is_verified,

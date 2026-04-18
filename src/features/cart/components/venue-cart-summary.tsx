@@ -22,7 +22,7 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
           Guarda platos y sigue explorando.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          El resumen aparecerá cuando añadas productos.
+          El resumen aparecerá cuando añadas platos para recoger.
         </p>
       </div>
     );
@@ -38,13 +38,13 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
           Pedido en otro local.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          Tienes platos de {cart.venue.name}.
+          Tienes platos para recoger en {cart.venue.name}.
         </p>
         <Link
           href="/cart"
           className="mt-5 inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
         >
-          Ver carrito
+          Ver recogida
         </Link>
       </div>
     );
@@ -61,13 +61,13 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
         {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
       </p>
       <p className="mt-3 text-sm leading-6 text-text-secondary">
-        Total {formatPrice(totals.totalAmount, currency)}
+        Total {formatPrice(totals.totalAmount, currency)} para recoger.
       </p>
       <Link
         href="/cart"
         className="mt-5 inline-flex rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
       >
-        Ver carrito
+        Ver recogida
       </Link>
     </div>
   );

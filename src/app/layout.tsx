@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 
+import { AnalyticsAttribution } from "@/components/analytics/analytics-attribution";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSiteUrl } from "@/lib/seo";
 
@@ -85,6 +86,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
+          <AnalyticsAttribution />
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>

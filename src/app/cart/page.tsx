@@ -7,7 +7,7 @@ import { getNoIndexMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = getNoIndexMetadata({
   title: "Carrito",
-  description: "Área privada del carrito de compra.",
+  description: "Revisa tu pedido para recoger en el local.",
 });
 
 export default function CartPage() {

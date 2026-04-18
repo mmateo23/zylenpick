@@ -7,6 +7,7 @@ import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
 import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
+import { VenueViewTracker } from "@/components/analytics/venue-view-tracker";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
@@ -99,11 +100,27 @@ export default async function VenuePage({ params }: VenuePageProps) {
     phone: venue.phone,
     pickupEtaMin: venue.pickupEtaMin,
   };
+  const mapsHref = venue.address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        venue.address,
+      )}`
+    : null;
+  const websiteHref = venue.website
+    ? venue.website.startsWith("http")
+      ? venue.website
+      : `https://${venue.website}`
+    : null;
 
   return (
     <div className="min-h-screen bg-page text-text-primary">
       <SiteHeader />
       <CityPreferenceSync city={{ slug: venue.city.slug, name: venue.city.name }} />
+      <VenueViewTracker
+        citySlug={venue.city.slug}
+        cityName={venue.city.name}
+        venueSlug={venue.slug}
+        venueName={venue.name}
+      />
 
       <main>
         <section className="relative -mt-[5.4rem] overflow-hidden bg-[var(--overlay-hero-to)] pt-[5.4rem] text-text-inverse">
@@ -225,7 +242,17 @@ export default async function VenuePage({ params }: VenuePageProps) {
                       Dirección
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.address ?? "Dirección pendiente"}
+                      {mapsHref ? (
+                        <a
+                          href={mapsHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {venue.address}
+                        </a>
+                      ) : (
+                        "Dirección pendiente"
+                      )}
                     </dd>
                   </div>
                   <div>
@@ -243,7 +270,43 @@ export default async function VenuePage({ params }: VenuePageProps) {
                       Teléfono
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.phone ?? "Teléfono pendiente"}
+                      {venue.phone ? (
+                        <a href={`tel:${venue.phone}`}>{venue.phone}</a>
+                      ) : (
+                        "Teléfono pendiente"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <MapIcon size={17} className="text-icon-highlight" />
+                      Email
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
+                      {venue.email ? (
+                        <a href={`mailto:${venue.email}`}>{venue.email}</a>
+                      ) : (
+                        "Email pendiente"
+                      )}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
+                      <MapIcon size={17} className="text-icon-highlight" />
+                      Web
+                    </dt>
+                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
+                      {websiteHref ? (
+                        <a
+                          href={websiteHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {venue.website}
+                        </a>
+                      ) : (
+                        "Web pendiente"
+                      )}
                     </dd>
                   </div>
                   <div>

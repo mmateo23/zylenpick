@@ -19,6 +19,8 @@ type AddToCartButtonProps = {
   className?: string;
   buttonClassName?: string;
   feedbackClassName?: string;
+  source?: string;
+  label?: string;
 };
 
 export function AddToCartButton({
@@ -27,6 +29,8 @@ export function AddToCartButton({
   className,
   buttonClassName,
   feedbackClassName,
+  source = "add_to_cart_button",
+  label = "Añadir al carrito",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -42,9 +46,13 @@ export function AddToCartButton({
     }
 
     trackEvent("add_to_cart", {
+      city_slug: venue.citySlug,
+      city_name: venue.cityName,
+      venue_slug: venue.slug,
+      venue_name: venue.name,
       item_id: item.id,
       item_name: item.name,
-      venue_name: venue.name,
+      source,
       price: item.priceAmount / 100,
       currency: item.currency,
     });
@@ -62,7 +70,7 @@ export function AddToCartButton({
           "magnetic-button inline-flex items-center rounded-full bg-[color:var(--surface-dark)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
         }
       >
-        Añadir al carrito
+        {label}
       </button>
       {feedback ? (
         <p

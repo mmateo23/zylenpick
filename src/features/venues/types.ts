@@ -56,6 +56,7 @@ export type VenueDetails = {
   address: string | null;
   email: string | null;
   phone: string | null;
+  website: string | null;
   pickupNotes: string | null;
   pickupEtaMin: number | null;
   isVerified: boolean;

@@ -11,7 +11,6 @@ import {
   readUserLocation,
   type UserLocation,
 } from "@/features/location/browser-location";
-import { trackEvent } from "@/lib/analytics/track-event";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import type { VenueListItem } from "@/features/venues/types";
 import {
@@ -221,13 +220,6 @@ export function ZoneVenueExplorer({
 
               <Link
                 href={`/zonas/${citySlug}/venues/${featuredVenue.slug}`}
-                onClick={() =>
-                  trackEvent("select_venue", {
-                    venue_slug: featuredVenue.slug,
-                    venue_name: featuredVenue.name,
-                    city_slug: citySlug,
-                  })
-                }
                 className="magnetic-button mt-8 inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--brand-strong)]"
               >
                 Ver menú
@@ -271,13 +263,6 @@ export function ZoneVenueExplorer({
               <Link
                 key={venue.id}
                 href={`/zonas/${citySlug}/venues/${venue.slug}`}
-                onClick={() =>
-                  trackEvent("select_venue", {
-                    venue_slug: venue.slug,
-                    venue_name: venue.name,
-                    city_slug: citySlug,
-                  })
-                }
                 className={`editorial-card hover-lift-card group overflow-hidden rounded-[2.5rem] border bg-[color:var(--surface)] ${
                   venue.isFeatured
                     ? "gold-spotlight-card border-[rgba(214,166,72,0.42)] shadow-[0_0_0_1px_rgba(214,166,72,0.2),0_18px_38px_rgba(214,166,72,0.12)]"
