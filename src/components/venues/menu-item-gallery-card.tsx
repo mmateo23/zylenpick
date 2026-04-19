@@ -102,6 +102,8 @@ export function MenuItemGalleryCard({
           aria-label={`Ver ${item.name}`}
         >
           <div
+            role="img"
+            aria-label={`${item.name} en ${venue.cityName}`}
             className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-[1.04]"
             style={{
               backgroundImage: primaryImage
@@ -174,6 +176,8 @@ export function MenuItemGalleryCard({
             <section className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(12rem,36svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-hero-to)_94%,transparent)] text-text-inverse shadow-[var(--shadow)] backdrop-blur-2xl sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(16rem,42svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-auto lg:max-h-[calc(100svh-3rem)] lg:grid-cols-[minmax(0,1.12fr)_25rem] lg:grid-rows-none">
               <div className="relative min-h-0 overflow-hidden">
                 <div
+                  role="img"
+                  aria-label={`${item.name} en ${venue.cityName}`}
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
                     backgroundImage: selectedImage

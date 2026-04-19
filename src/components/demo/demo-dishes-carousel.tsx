@@ -21,11 +21,18 @@ import {
 
 import { CartIcon } from "@/components/icons/cart-icon";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { useCart } from "@/features/cart/hooks/use-cart";
+import type { SiteChip } from "@/features/chips/types";
+import {
+  defaultSiteFunnelSettings,
+  type SiteFunnelSettings,
+} from "@/features/funnel/site-funnel-settings";
 import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
 } from "@/features/location/city-preference";
+import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 
 gsap.registerPlugin(useGSAP);
@@ -49,6 +56,8 @@ function CartBadge({ totalItems }: { totalItems: number }) {
 type DemoDishesCarouselProps = {
   items: HomeShowcaseItem[];
   template?: DemoDishesTemplate;
+  funnelSettings?: SiteFunnelSettings;
+  chips?: SiteChip[];
 };
 
 export type DemoDishesTemplate = {
@@ -121,7 +130,11 @@ const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
 
 type FeedEntry =
   | {
-      type: "item";
+      type: "dish";
+      item: HomeShowcaseItem;
+    }
+  | {
+      type: "featured";
       item: HomeShowcaseItem;
     }
   | {
@@ -216,8 +229,28 @@ function getVenueHref(item: HomeShowcaseItem) {
   return `/zonas/${item.venue.citySlug}/venues/${item.venue.slug}`;
 }
 
-function getMenuItemHref(item: HomeShowcaseItem) {
-  return `${getVenueHref(item)}#plato-${item.id}`;
+function getCartVenueFromShowcaseItem(item: HomeShowcaseItem): CartVenue {
+  return {
+    id: item.venue.id,
+    slug: item.venue.slug,
+    name: item.venue.name,
+    citySlug: item.venue.citySlug,
+    cityName: item.venue.cityName,
+    address: item.venue.address,
+    coverUrl: item.venue.coverUrl,
+    pickupEtaMin: item.pickupEtaMin,
+  };
+}
+
+function getCartItemFromShowcaseItem(item: HomeShowcaseItem) {
+  return {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    priceAmount: item.priceAmount,
+    currency: item.currency,
+    imageUrl: item.imageUrl,
+  };
 }
 
 function getWrappedIndex(itemsLength: number, index: number) {
@@ -373,6 +406,7 @@ function getExploreCardClassName(
   item: HomeShowcaseItem,
   index: number,
   isLightTheme: boolean,
+  isPromoted = false,
 ) {
   const surfaceClassName = isLightTheme
     ? "bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)]"
@@ -383,6 +417,10 @@ function getExploreCardClassName(
     (item.categoryName?.length ?? 0);
   const shouldUseTallCard =
     contentScore >= 76 && getStableHash(`${item.id}:${index}:feed`) % 4 === 0;
+
+  if (isPromoted) {
+    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName} ring-1 ring-white/14`;
+  }
 
   if (item.isFeatured || item.isHomeFeatured) {
     return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
@@ -902,6 +940,8 @@ function getFilteredItems(
 export function DemoDishesCarousel({
   items,
   template,
+  funnelSettings = defaultSiteFunnelSettings,
+  chips = [],
 }: DemoDishesCarouselProps) {
   const { totals } = useCart();
   const content = {
@@ -926,6 +966,7 @@ export function DemoDishesCarousel({
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
   const [curationFilter, setCurationFilter] = useState<CurationFilter>("all");
   const [activeCurationInfo, setActiveCurationInfo] = useState<CurationFilter | null>(null);
+  const [activeChipSlug, setActiveChipSlug] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -959,7 +1000,7 @@ export function DemoDishesCarousel({
       ).sort((left, right) => left.localeCompare(right, "es")),
     [displayItems],
   );
-  const filteredItems = useMemo(
+  const baseFilteredItems = useMemo(
     () =>
       getFilteredItems(
         displayItems,
@@ -970,28 +1011,67 @@ export function DemoDishesCarousel({
       ),
     [categoryFilter, curationFilter, displayItems, primaryCity, searchQuery],
   );
-  const feedEntries = useMemo<FeedEntry[]>(() => {
-    if (filteredItems.length < 6) {
-      return filteredItems.map((item) => ({ type: "item", item }));
+  const visibleChips = useMemo(() => {
+    const availableItemIds = new Set(baseFilteredItems.map((item) => item.id));
+
+    return chips
+      .map((chip) => ({
+        ...chip,
+        itemIds: chip.itemIds.filter((itemId) => availableItemIds.has(itemId)),
+      }))
+      .filter((chip) => chip.itemIds.length > 0);
+  }, [baseFilteredItems, chips]);
+  const activeChip = useMemo(
+    () => visibleChips.find((chip) => chip.slug === activeChipSlug) ?? null,
+    [activeChipSlug, visibleChips],
+  );
+  const filteredItems = useMemo(() => {
+    if (!activeChip) {
+      return baseFilteredItems;
     }
 
-    const entries = filteredItems.map<FeedEntry>((item) => ({ type: "item", item }));
-    const promoInsertions: Array<{ index: number; id: PromoTileId }> = [
-      { index: 3, id: "mira-que-pollo" },
-      { index: 8, id: "simpre-fit" },
-      { index: 14, id: "huelaa-bbq" },
-      { index: 18, id: "sabor-en-video" },
-    ];
+    const chipItemIds = new Set(activeChip.itemIds);
+    return baseFilteredItems.filter((item) => chipItemIds.has(item.id));
+  }, [activeChip, baseFilteredItems]);
+  const quickDecisionItems = useMemo(() => {
+    const config = funnelSettings.platos.quickDecision;
 
-    promoInsertions
-      .filter(({ index }) => entries.length > index)
-      .sort((left, right) => right.index - left.index)
-      .forEach(({ index, id }) => {
-        entries.splice(index, 0, { type: "promo", id });
-      });
+    if (!config.enabled || config.itemIds.length === 0) {
+      return [];
+    }
+
+    const itemById = new Map(filteredItems.map((item) => [item.id, item]));
+
+    return config.itemIds
+      .map((itemId) => itemById.get(itemId))
+      .filter((item): item is HomeShowcaseItem => Boolean(item));
+  }, [filteredItems, funnelSettings]);
+  const feedEntries = useMemo<FeedEntry[]>(() => {
+    const quickDecisionItemIds = new Set(quickDecisionItems.map((item) => item.id));
+    const featuredConfig = funnelSettings.platos.featuredFeed;
+    const featuredItem =
+      featuredConfig.enabled && featuredConfig.itemId
+        ? filteredItems.find((item) => item.id === featuredConfig.itemId) ?? null
+        : null;
+    const feedItems = filteredItems.filter(
+      (item) =>
+        !quickDecisionItemIds.has(item.id) && item.id !== featuredItem?.id,
+    );
+    const entries = feedItems.map<FeedEntry>((item) => ({ type: "dish", item }));
+
+    if (!featuredItem) {
+      return entries;
+    }
+
+    const insertIndex = Math.min(
+      Math.max(featuredConfig.insertAfter, 0),
+      entries.length,
+    );
+
+    entries.splice(insertIndex, 0, { type: "featured", item: featuredItem });
 
     return entries;
-  }, [filteredItems]);
+  }, [filteredItems, funnelSettings, quickDecisionItems]);
   const itemIndexById = useMemo(
     () =>
       new Map(filteredItems.map((item, index) => [item.id, index] as const)),
@@ -1031,6 +1111,12 @@ export function DemoDishesCarousel({
     () => getCurationInfoSurface(activeCurationInfo ?? "all", isLightTheme),
     [activeCurationInfo, isLightTheme],
   );
+
+  useEffect(() => {
+    if (activeChipSlug && !activeChip) {
+      setActiveChipSlug(null);
+    }
+  }, [activeChip, activeChipSlug]);
 
   useEffect(() => {
     const syncSelectedCity = () => {
@@ -1623,8 +1709,12 @@ export function DemoDishesCarousel({
                 </div>
               </div>
 
-              <div className="mt-5 space-y-2.5 pb-3 sm:mt-7 sm:space-y-3 sm:pb-4">
-                <div className="flex flex-wrap gap-2 pb-1">
+              <div className="mt-5 space-y-4 pb-3 sm:mt-7 sm:space-y-5 sm:pb-4">
+                <div className="space-y-2">
+                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                    Qué plan llevas hoy
+                  </p>
+                  <div className="flex flex-wrap gap-2 pb-1">
                   {[
                     { id: "all", label: "Todo" },
                     { id: "worldCup", label: "\uD83C\uDFC6\u26BD #EspecialMundial26" },
@@ -1674,6 +1764,7 @@ export function DemoDishesCarousel({
                       </button>
                     );
                   })}
+                  </div>
                 </div>
 
                 {activeCurationInfoText ? (
@@ -1706,7 +1797,62 @@ export function DemoDishesCarousel({
                   </div>
                 ) : null}
 
-                <div className="flex flex-wrap gap-2 pb-1">
+                {visibleChips.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                      Destacados ahora
+                    </p>
+                    <div className="flex flex-wrap gap-2 pb-1">
+                    <button
+                      type="button"
+                      onClick={() => setActiveChipSlug(null)}
+                      className={
+                        activeChipSlug === null
+                          ? isLightTheme
+                            ? "rounded-full border border-black/10 bg-[#141414] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-white transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            : "rounded-full border border-white/12 bg-white px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#07100d] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                          : isLightTheme
+                            ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                      }
+                    >
+                      Todos los platos
+                    </button>
+                    {visibleChips.map((chip) => {
+                      const isActive = activeChipSlug === chip.slug;
+
+                      return (
+                        <button
+                          key={chip.id}
+                          type="button"
+                          onClick={() =>
+                            setActiveChipSlug((current) =>
+                              current === chip.slug ? null : chip.slug,
+                            )
+                          }
+                          className={
+                            isActive
+                              ? isLightTheme
+                                ? "rounded-full border border-[#00df81]/28 bg-[#00df81]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#00a560] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#7cffb8]/28 bg-[#7cffb8]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#7cffb8] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                              : isLightTheme
+                                ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                          }
+                        >
+                          {chip.name}
+                        </button>
+                      );
+                    })}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="space-y-2">
+                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                    Busca por antojo
+                  </p>
+                  <div className="flex flex-wrap gap-2 pb-1">
                   <button type="button" onClick={() => setCategoryFilter("all")} className={categoryFilter === "all" ? (isLightTheme ? "rounded-full border border-black/10 bg-[#141414] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/12 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#07100d] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-black/8 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
                     Todas
                   </button>
@@ -1718,6 +1864,7 @@ export function DemoDishesCarousel({
                       </button>
                     );
                   })}
+                  </div>
                 </div>
 
                 <div className="flex justify-center pt-1.5 sm:pt-2">
@@ -1730,8 +1877,59 @@ export function DemoDishesCarousel({
           </div>
 
           {filteredItems.length > 0 ? (
-            <div className="mt-6 grid grid-cols-2 auto-rows-[6.4rem] gap-1 sm:mt-10 sm:gap-3 md:grid-cols-3 md:auto-rows-[8.4rem] lg:auto-rows-[13rem] lg:grid-flow-dense lg:gap-4 xl:auto-rows-[14rem]">
-              {feedEntries.map((entry, index) => {
+            <>
+              {quickDecisionItems.length > 0 ? (
+                <section className="mt-6 sm:mt-10" aria-labelledby="quick-decision-title">
+                  <div className="mb-3 flex items-end justify-between gap-4 px-1 sm:mb-4">
+                    <h2
+                      id="quick-decision-title"
+                      className={isLightTheme ? "text-lg font-semibold tracking-[-0.03em] text-black sm:text-xl" : "text-lg font-semibold tracking-[-0.03em] text-white sm:text-xl"}
+                    >
+                      {funnelSettings.platos.quickDecision.title}
+                    </h2>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1 sm:gap-3 md:grid-cols-4">
+                    {quickDecisionItems.map((item) => (
+                      <article
+                        key={`quick-${item.id}`}
+                        className={isLightTheme ? "group relative min-h-[12rem] overflow-hidden rounded-none bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)] sm:rounded-[1rem] md:min-h-[14rem]" : "group relative min-h-[12rem] overflow-hidden rounded-none bg-black/10 sm:rounded-[1rem] md:min-h-[14rem]"}
+                      >
+                        <Image
+                          src={item.imageUrl ?? ""}
+                          alt={item.name}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw"
+                          className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
+                        />
+                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.1)_30%,rgba(4,7,11,0.64))]" />
+                        <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-10 sm:px-4 sm:pb-4">
+                          <div className="space-y-2">
+                            <p className="line-clamp-2 text-[0.98rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.08rem]">
+                              {getDishDisplayName(item)}
+                            </p>
+                            <p className="font-serif text-[0.95rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">
+                              {formatPrice(item)}
+                            </p>
+                            <AddToCartButton
+                              venue={getCartVenueFromShowcaseItem(item)}
+                              item={getCartItemFromShowcaseItem(item)}
+                              label={funnelSettings.platos.featuredFeed.ctaLabel}
+                              source="platos_quick_decision"
+                              className="pt-1"
+                              buttonClassName="inline-flex w-full items-center justify-center rounded-full border border-white/85 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#07100d] shadow-[0_10px_24px_rgba(0,0,0,0.34)] transition hover:bg-white/94"
+                              feedbackClassName="mt-2 inline-flex rounded-full bg-black/48 px-2.5 py-1 text-xs font-semibold leading-5 text-white shadow-[0_8px_18px_rgba(0,0,0,0.28)] backdrop-blur-md"
+                            />
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+
+              <div className="mt-6 grid grid-cols-2 auto-rows-[6.4rem] gap-1 sm:mt-10 sm:gap-3 md:grid-cols-3 md:auto-rows-[8.4rem] lg:auto-rows-[13rem] lg:grid-flow-dense lg:gap-4 xl:auto-rows-[14rem]">
+                {feedEntries.map((entry, index) => {
                 if (entry.type === "promo") {
                   const promo = getPromoTileConfig(entry.id, content.promoHrefs);
 
@@ -1810,6 +2008,39 @@ export function DemoDishesCarousel({
                   return null;
                 }
 
+                if (entry.type === "featured") {
+                  return (
+                    <article
+                      key={`featured-${item.id}`}
+                      className={getExploreCardClassName(item, index, isLightTheme, true)}
+                    >
+                      <div className="relative h-full overflow-hidden rounded-[inherit]">
+                        <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
+                        <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
+                        <div className="absolute left-3 top-3 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-xl">
+                          Destacado
+                        </div>
+                        <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-10 sm:px-5 sm:pb-5">
+                          <div className="space-y-2">
+                            <p className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.22rem]">{getDishDisplayName(item)}</p>
+                            <p className="font-serif text-[1rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{formatPrice(item)}</p>
+                            <p className="text-[0.62rem] font-medium uppercase tracking-[0.2em] text-white/72 drop-shadow-[0_3px_10px_rgba(0,0,0,0.34)]">{getCardMicroContext(item)}</p>
+                            <AddToCartButton
+                              venue={getCartVenueFromShowcaseItem(item)}
+                              item={getCartItemFromShowcaseItem(item)}
+                              label={funnelSettings.platos.featuredFeed.ctaLabel}
+                              source="platos_featured_card"
+                              className="pt-1"
+                              buttonClassName="inline-flex w-full items-center justify-center rounded-full border border-white/85 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#07100d] shadow-[0_10px_24px_rgba(0,0,0,0.34)] transition hover:bg-white/94 sm:px-4 sm:py-2.5 sm:text-xs"
+                              feedbackClassName="mt-2 inline-flex rounded-full bg-black/48 px-2.5 py-1 text-xs font-semibold leading-5 text-white shadow-[0_8px_18px_rgba(0,0,0,0.28)] backdrop-blur-md"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                }
+
                 return (
                   <button key={item.id} type="button" onClick={() => setActiveIndex(itemIndex)} className={getExploreCardClassName(item, index, isLightTheme)} aria-label={`Abrir ${item.name}`}>
                     <div className="relative h-full overflow-hidden rounded-[inherit]">
@@ -1833,8 +2064,9 @@ export function DemoDishesCarousel({
                     </div>
                   </button>
                 );
-              })}
-            </div>
+                })}
+              </div>
+            </>
           ) : (
             <div className={isLightTheme ? "mt-6 rounded-[1.5rem] border border-black/8 bg-white/56 px-5 py-8 text-center shadow-[0_16px_36px_rgba(0,0,0,0.06)] backdrop-blur-xl sm:mt-10" : "mt-6 rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-5 py-8 text-center backdrop-blur-xl sm:mt-10"}>
               <p className={isLightTheme ? "text-[11px] font-medium uppercase tracking-[0.28em] text-black/42" : "text-[11px] font-medium uppercase tracking-[0.28em] text-white/42"}>{content.noResultsEyebrow}</p>
@@ -1980,6 +2212,23 @@ export function DemoDishesCarousel({
                       <MapPin className="h-4 w-4" />
                       <span>{activeItem.venue.name}</span>
                     </div>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <AddToCartButton
+                        venue={getCartVenueFromShowcaseItem(activeItem)}
+                        item={getCartItemFromShowcaseItem(activeItem)}
+                        label={"A\u00f1adir para recoger"}
+                        source="platos_modal"
+                        className="w-full"
+                        buttonClassName={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full bg-[#141414] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/92" : "inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#07100d] transition hover:bg-white/92"}
+                        feedbackClassName={isLightTheme ? "mt-2 text-xs leading-5 text-black/58" : "mt-2 text-xs leading-5 text-white/58"}
+                      />
+                      <Link
+                        href={getVenueHref(activeItem)}
+                        className={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:bg-white/[0.09]"}
+                      >
+                        Ver m&aacute;s
+                      </Link>
+                    </div>
                     <div
                       className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${
                         isMobileSheetExpanded ? "mt-4 max-h-52 opacity-100" : "mt-0 max-h-0 opacity-0"
@@ -2025,12 +2274,6 @@ export function DemoDishesCarousel({
                             <MoveRight className="h-4 w-4" />
                           </button>
                         </div>
-                        <Link
-                          href={getMenuItemHref(activeItem)}
-                          className={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92"}
-                        >
-                          {"Ver m\u00e1s"}
-                        </Link>
                     </div>
                   </div>
                 </div>
@@ -2109,12 +2352,21 @@ export function DemoDishesCarousel({
                     {getDishDisplayName(activeItem)}
                   </h2>
 
-                  <div className="mt-4">
+                  <div className="mt-4 flex flex-wrap items-start gap-3">
+                    <AddToCartButton
+                      venue={getCartVenueFromShowcaseItem(activeItem)}
+                      item={getCartItemFromShowcaseItem(activeItem)}
+                      label={"A\u00f1adir para recoger"}
+                      source="platos_modal"
+                      className="min-w-[13rem]"
+                      buttonClassName={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
+                      feedbackClassName={isLightTheme ? "mt-2 max-w-[16rem] text-xs leading-5 text-black/58" : "mt-2 max-w-[16rem] text-xs leading-5 text-white/58"}
+                    />
                     <Link
-                      href={getMenuItemHref(activeItem)}
-                      className={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
+                      href={getVenueHref(activeItem)}
+                      className={isLightTheme ? "inline-flex items-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-black/72 transition hover:bg-black/[0.08] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/72 transition hover:bg-white/[0.09] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
                     >
-                      {"Ver m\u00e1s"}
+                      Ver m&aacute;s
                     </Link>
                   </div>
 

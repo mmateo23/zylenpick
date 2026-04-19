@@ -7,7 +7,7 @@ import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-
 export const metadata: Metadata = {
   title: "ZylenPick — El proyecto",
   description:
-    "Landing de presentación del proyecto ZylenPick, centrada en su visión de recogida local y experiencia de marca.",
+    "Por qué existe ZylenPick: una forma más simple de elegir comida local, recoger sin complicaciones y dar más visibilidad a los locales.",
 };
 
 export default async function ProjectRoutePage() {

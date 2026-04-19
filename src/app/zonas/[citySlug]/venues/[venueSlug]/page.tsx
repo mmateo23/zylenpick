@@ -43,8 +43,8 @@ export async function generateMetadata({
   }
 
   return getBaseMetadata({
-    title: `${venue.name} en ${venue.city.name}`,
-    description: `${venue.name} en ${venue.city.name}. Consulta carta, tiempos de recogida, dirección y platos disponibles para pedir localmente.`,
+    title: `Qué pedir en ${venue.name} | ZylenPick`,
+    description: `Descubre qué pedir en ${venue.name}, ${venue.city.name}. Consulta platos, precios y opciones de recogida rápida.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
     image: venue.coverUrl ?? venue.logoUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
   });
@@ -94,6 +94,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     citySlug: venue.city.slug,
     cityName: venue.city.name,
     address: venue.address,
+    coverUrl: venue.coverUrl,
     email: venue.email,
     phone: venue.phone,
     pickupEtaMin: venue.pickupEtaMin,
@@ -165,7 +166,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
               <div className="mt-6 flex flex-wrap items-end gap-4">
                 <h1 className="max-w-[13ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                  {venue.name}
+                  Qué pedir en {venue.name}
                 </h1>
                 <VerifiedVenueBadge
                   isVerified={venue.isVerified}
@@ -181,6 +182,10 @@ export default async function VenuePage({ params }: VenuePageProps) {
               <p className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-text-inverse/60">
                 <WalkIcon size={18} className="text-accent-bright" />
                 Carta visual con {totalMenuItems} platos seleccionados.
+              </p>
+              <p className="mt-4 max-w-[46rem] text-sm leading-6 text-text-inverse/62">
+                Descubre qué pedir en {venue.name}. Explora platos, precios y
+                opciones de recogida rápida en {venue.city.name} sin dar vueltas.
               </p>
             </div>
           </div>
@@ -293,7 +298,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                   <div>
                     <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
                       <MapIcon size={17} className="text-icon-highlight" />
-                      Web
+                      Enlaces
                     </dt>
                     <dd className="mt-2 text-sm leading-6 text-text-secondary">
                       {websiteHref ? (
@@ -305,7 +310,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                           {venue.website}
                         </a>
                       ) : (
-                        "Web pendiente"
+                        "Enlaces pendientes"
                       )}
                     </dd>
                   </div>

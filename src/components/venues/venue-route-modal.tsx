@@ -40,6 +40,11 @@ export function VenueRouteModal({
   isLocating,
 }: VenueRouteModalProps) {
   const venueCoordinates = getVenueCoordinates(venueSlug);
+  const destinationQuery = address?.trim()
+    ? `${venueName}, ${address}`
+    : venueCoordinates
+      ? `${venueCoordinates.latitude},${venueCoordinates.longitude}`
+      : null;
 
   const metrics = useMemo(() => {
     if (!userLocation || !venueCoordinates) {
@@ -60,18 +65,21 @@ export function VenueRouteModal({
     };
   }, [userLocation, venueCoordinates]);
 
-  if (!isOpen || !venueCoordinates) {
+  if (!isOpen || !destinationQuery) {
     return null;
   }
 
-  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${getMapBounds(
-    venueCoordinates.latitude,
-    venueCoordinates.longitude,
-  )}&layer=mapnik&marker=${venueCoordinates.latitude}%2C${venueCoordinates.longitude}`;
+  const mapUrl = venueCoordinates
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${getMapBounds(
+        venueCoordinates.latitude,
+        venueCoordinates.longitude,
+      )}&layer=mapnik&marker=${venueCoordinates.latitude}%2C${venueCoordinates.longitude}`
+    : null;
+  const encodedDestination = encodeURIComponent(destinationQuery);
 
   const googleMapsUrl = userLocation
-    ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${venueCoordinates.latitude},${venueCoordinates.longitude}&travelmode=walking`
-    : `https://www.google.com/maps/search/?api=1&query=${venueCoordinates.latitude},${venueCoordinates.longitude}`;
+    ? `https://www.google.com/maps/dir/?api=1&origin=${userLocation.latitude},${userLocation.longitude}&destination=${encodedDestination}&travelmode=walking`
+    : `https://www.google.com/maps/search/?api=1&query=${encodedDestination}`;
 
   return (
     <div className="fixed inset-0 z-50 bg-[rgba(4,8,7,0.82)] backdrop-blur-sm">
@@ -94,12 +102,21 @@ export function VenueRouteModal({
 
         <div className="grid min-h-0 flex-1 gap-0 lg:grid-cols-[minmax(0,1fr)_24rem]">
           <div className="min-h-[45vh] bg-[color:var(--surface-dark)]">
-            <iframe
-              title={`Mapa de ${venueName}`}
-              src={mapUrl}
-              className="h-full min-h-[45vh] w-full border-0"
-              loading="lazy"
-            />
+            {mapUrl ? (
+              <iframe
+                title={`Mapa de ${venueName}`}
+                src={mapUrl}
+                className="h-full min-h-[45vh] w-full border-0"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-full min-h-[45vh] items-center justify-center px-6 text-center text-white/70">
+                <p className="max-w-sm text-sm leading-6">
+                  Abre Google Maps para ver la ruta exacta con la dirección del
+                  local.
+                </p>
+              </div>
+            )}
           </div>
 
           <aside className="overflow-y-auto border-t border-white/10 bg-[color:var(--surface-dark)] p-5 text-white lg:border-l lg:border-t-0 lg:p-6">

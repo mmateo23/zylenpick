@@ -121,7 +121,7 @@ export function DemoBentoGallery({
   const primaryCitySlug = items[0]?.venue.citySlug ?? null;
   const heroEyebrow = isZoneMode ? "Locales para recoger" : "Demo de locales";
   const heroTitle = isZoneMode
-    ? `Elige un local en ${zoneName ?? "tu zona"}`
+    ? `Qué comer en ${zoneName ?? "tu zona"}`
     : "\u00bfQu\u00e9 local nos apetece hoy?";
   const zoneDisplayName = zoneName ?? "tu zona";
   const heroDescription =
@@ -247,7 +247,7 @@ export function DemoBentoGallery({
           ) : isZoneMode && zoneHeroImageUrl ? (
             <Image
               src={zoneHeroImageUrl}
-              alt={zoneName ?? "Zona"}
+              alt={`Locales donde comer en ${zoneName ?? "tu zona"}`}
               fill
               priority
               sizes="100vw"
@@ -308,6 +308,14 @@ export function DemoBentoGallery({
                 </span>
               </div>
             </div>
+
+            {isZoneMode ? (
+              <div className="mt-6 max-w-[42rem] rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm leading-6 text-white/62 backdrop-blur-xl">
+                Descubre qué comer en {zoneDisplayName}. Explora locales,
+                platos y opciones de recogida rápida para elegir sin
+                complicarte.
+              </div>
+            ) : null}
 
             <div className="zone-labels-shell mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6">
               <div className="flex flex-wrap items-end justify-between gap-4">
@@ -394,7 +402,7 @@ export function DemoBentoGallery({
               >
                 <Image
                   src={item.imageUrl ?? ""}
-                  alt={item.name}
+                  alt={`Local ${item.name} en ${item.cityName}`}
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
                   className="object-cover transition duration-500 group-hover:scale-[1.05]"

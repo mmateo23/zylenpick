@@ -293,6 +293,7 @@ export function AdminVenueForm({
               name="address"
               defaultValue={values.address}
               className={fieldClassName()}
+              required
             />
           </label>
 

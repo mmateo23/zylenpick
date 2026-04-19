@@ -85,8 +85,10 @@ export type HomeShowcaseItem = {
   isHomeFeatured: boolean;
   isPickupMonthHighlight: boolean;
   venue: {
+    id: string;
     slug: string;
     name: string;
+    address: string | null;
     coverUrl: string | null;
     citySlug: string;
     cityName: string;

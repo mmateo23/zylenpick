@@ -131,6 +131,10 @@ function validateVenueFormValues(values: NormalizedVenueFormValues) {
     throw new Error("La ciudad del local es obligatoria.");
   }
 
+  if (!values.address) {
+    throw new Error("La dirección del local es obligatoria.");
+  }
+
   if (!values.phone) {
     throw new Error("El teléfono del local es obligatorio.");
   }
@@ -153,6 +157,10 @@ function validateVenuePanelFormValues(values: NormalizedVenueFormValues) {
 
   if (!values.cityId) {
     throw new Error("La ciudad del local es obligatoria.");
+  }
+
+  if (!values.address) {
+    throw new Error("La dirección del local es obligatoria.");
   }
 
   if (!values.phone) {
@@ -395,7 +403,7 @@ export async function createVenueAction(formData: FormData) {
       city_id: values.cityId || null,
       discovery_category: values.discoveryCategory || null,
       description: values.description || null,
-      address: values.address || null,
+      address: values.address,
       email: values.email || null,
       phone: values.phone || null,
       pickup_notes: values.pickupNotes || null,
@@ -460,7 +468,7 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
       city_id: values.cityId || null,
       discovery_category: values.discoveryCategory || null,
       description: values.description || null,
-      address: values.address || null,
+      address: values.address,
       email: values.email || null,
       phone: values.phone || null,
       pickup_notes: values.pickupNotes || null,

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { getActiveSiteChips } from "@/features/chips/services/site-chips-service";
+import { getSiteFunnelSettings } from "@/features/funnel/services/site-funnel-service";
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -29,9 +31,13 @@ function dedupeItems(items: HomeShowcaseItem[]) {
 }
 
 export default async function DishesPage() {
-  const showcase = isSupabaseConfigured()
-    ? await getHomeShowcase()
-    : { featuredItems: [], latestItems: [] };
+  const [showcase, funnelSettings, chips] = await Promise.all([
+    isSupabaseConfigured()
+      ? getHomeShowcase()
+      : Promise.resolve({ featuredItems: [], latestItems: [] }),
+    getSiteFunnelSettings(),
+    getActiveSiteChips(),
+  ]);
 
   const items = dedupeItems([
     ...showcase.featuredItems,
@@ -39,5 +45,11 @@ export default async function DishesPage() {
     ...showcase.featuredItems,
   ]);
 
-  return <ServiceShowcaseDishesTemplate items={items} />;
+  return (
+    <ServiceShowcaseDishesTemplate
+      items={items}
+      funnelSettings={funnelSettings}
+      chips={chips}
+    />
+  );
 }

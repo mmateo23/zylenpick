@@ -20,7 +20,7 @@ export function AdminTopbar({ email }: AdminTopbarProps) {
         <div className="rounded-full border border-white/10 bg-[color:var(--surface-strong)] px-4 py-2 text-sm text-[color:var(--muted-strong)]">
           {email ?? "Sesión activa"}
         </div>
-        <SignOutButton />
+        <SignOutButton variant="danger" />
       </div>
     </header>
   );

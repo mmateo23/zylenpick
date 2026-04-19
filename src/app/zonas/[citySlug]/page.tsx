@@ -50,8 +50,8 @@ export async function generateMetadata({
   }
 
   return getBaseMetadata({
-    title: `Comida local en ${city.name}`,
-    description: `Descubre locales activos, platos y opciones de recogida en ${city.name}. Explora restaurantes y pedidos locales en una sola vista.`,
+    title: `Qué comer en ${city.name} | ZylenPick`,
+    description: `Descubre platos y sitios donde comer en ${city.name}. Elige rápido qué pedir y recoger sin complicaciones.`,
     path: `/zonas/${city.slug}`,
     image: city.heroImageUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
   });

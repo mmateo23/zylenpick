@@ -417,6 +417,131 @@ export type Database = {
         };
         Relationships: [];
       };
+      site_chips: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          is_active: boolean;
+          sort_order: number;
+          type: "editorial" | "promocional" | "temporal";
+          item_ids: string[];
+          starts_at: string | null;
+          ends_at: string | null;
+          weekdays: number[];
+          start_time: string | null;
+          end_time: string | null;
+          is_paid: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          is_active?: boolean;
+          sort_order?: number;
+          type?: "editorial" | "promocional" | "temporal";
+          item_ids?: string[];
+          starts_at?: string | null;
+          ends_at?: string | null;
+          weekdays?: number[];
+          start_time?: string | null;
+          end_time?: string | null;
+          is_paid?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          is_active?: boolean;
+          sort_order?: number;
+          type?: "editorial" | "promocional" | "temporal";
+          item_ids?: string[];
+          starts_at?: string | null;
+          ends_at?: string | null;
+          weekdays?: number[];
+          start_time?: string | null;
+          end_time?: string | null;
+          is_paid?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      site_funnel_settings: {
+        Row: {
+          key: "platos";
+          value: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          key: "platos";
+          value?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: "platos";
+          value?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      venue_monetization_settings: {
+        Row: {
+          id: string;
+          venue_id: string;
+          is_paying: boolean;
+          plan: "free" | "basic" | "oro" | "titanio";
+          billing_cycle: "monthly" | "annual" | null;
+          privileges: Json;
+          starts_at: string | null;
+          ends_at: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          venue_id: string;
+          is_paying?: boolean;
+          plan?: "free" | "basic" | "oro" | "titanio";
+          billing_cycle?: "monthly" | "annual" | null;
+          privileges?: Json;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          venue_id?: string;
+          is_paying?: boolean;
+          plan?: "free" | "basic" | "oro" | "titanio";
+          billing_cycle?: "monthly" | "annual" | null;
+          privileges?: Json;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "venue_monetization_settings_venue_id_fkey";
+            columns: ["venue_id"];
+            isOneToOne: true;
+            referencedRelation: "venues";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       posts: {
         Row: {
           id: string;

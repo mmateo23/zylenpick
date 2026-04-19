@@ -27,6 +27,10 @@ function sectionTitleClassName() {
   return "text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]";
 }
 
+function keepOnlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 export function JoinForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -183,12 +187,12 @@ export function JoinForm() {
         </div>
 
         <h2 className="mt-5 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.55rem]">
-          Cuéntanos quién eres y cómo quieres mover tu local.
+          Déjanos tus datos y vemos cómo ayudarte.
         </h2>
 
         <p className="mt-4 max-w-[52ch] text-sm leading-7 text-[color:var(--muted)] sm:text-[0.96rem]">
-          Mantén el formulario simple: datos del local, persona de contacto y
-          formato de servicio. Con eso ya podemos revisar encaje y siguiente paso.
+          Solo necesitamos lo básico para revisar tu local y explicarte el
+          siguiente paso con calma.
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2.5">
@@ -196,10 +200,10 @@ export function JoinForm() {
             Recogida
           </span>
           <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Alta manual
+            Te guiamos
           </span>
           <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Presencia visual cuidada
+            Sin líos técnicos
           </span>
         </div>
       </div>
@@ -259,8 +263,16 @@ export function JoinForm() {
               </span>
               <input
                 name="venuePhone"
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="tel"
                 className={fieldClassName()}
+                onInput={(event) => {
+                  event.currentTarget.value = keepOnlyDigits(
+                    event.currentTarget.value,
+                  );
+                }}
               />
             </label>
 
@@ -307,8 +319,16 @@ export function JoinForm() {
               </span>
               <input
                 name="contactPhone"
-                type="tel"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="tel"
                 className={fieldClassName()}
+                onInput={(event) => {
+                  event.currentTarget.value = keepOnlyDigits(
+                    event.currentTarget.value,
+                  );
+                }}
                 required
               />
             </label>
@@ -364,7 +384,7 @@ export function JoinForm() {
                 name="message"
                 rows={5}
                 className={fieldClassName()}
-                placeholder="Cuéntanos qué hace especial a tu local y cómo encaja ZylenPick."
+                placeholder="Cuéntanos qué vendes mejor, qué zona cubres o qué quieres mejorar."
               />
             </label>
 
@@ -389,8 +409,8 @@ export function JoinForm() {
         className="relative z-[1] mt-6 flex flex-col gap-4 border-t border-white/8 pt-6 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="max-w-[40ch] text-sm leading-6 text-[color:var(--muted)]">
-          Revisamos cada solicitud manualmente. Si encaja, damos de alta el local
-          desde nuestro panel interno y te guiamos en el siguiente paso.
+          Revisamos cada solicitud personalmente. Si encaja, te ayudamos a dejar
+          la ficha lista para empezar a recibir pedidos.
         </p>
 
         <button
@@ -398,7 +418,7 @@ export function JoinForm() {
           disabled={isSubmitting}
           className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(124,255,184,0.1),rgba(0,223,129,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(0,223,129,0.16)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
         >
-          {isSubmitting ? "Enviando solicitud..." : "Enviar solicitud"}
+          {isSubmitting ? "Enviando solicitud..." : "Quiero que me contactéis"}
         </button>
       </div>
 

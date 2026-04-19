@@ -22,7 +22,7 @@ export default async function AdminVenuesPage() {
             Locales
           </h1>
           <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-            Gestión centralizada de los locales visibles en ZylenPick.
+            Gestion centralizada de los locales visibles en ZylenPick.
           </p>
         </div>
 
@@ -35,78 +35,68 @@ export default async function AdminVenuesPage() {
       </div>
 
       <section className="glass-panel overflow-hidden rounded-[1.8rem] border border-[color:var(--border)] shadow-[var(--soft-shadow)]">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-white/10">
-            <thead className="bg-white/5">
-              <tr className="text-left text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
-                <th className="px-5 py-4 font-medium">Nombre</th>
-                <th className="px-5 py-4 font-medium">Ciudad</th>
-                <th className="px-5 py-4 font-medium">Slug</th>
-                <th className="px-5 py-4 font-medium">Teléfono</th>
-                <th className="px-5 py-4 font-medium">Email</th>
-                <th className="px-5 py-4 font-medium">Publicado</th>
-                <th className="px-5 py-4 font-medium">Verificación</th>
-                <th className="px-5 py-4 font-medium">Estado</th>
-                <th className="px-5 py-4 font-medium">Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/8">
-              {venues.map((venue) => (
-                <tr key={venue.id} className="text-sm text-[color:var(--foreground)]">
-                  <td className="px-5 py-4 font-semibold">{venue.name}</td>
-                  <td className="px-5 py-4 text-[color:var(--muted-strong)]">
-                    {venue.cityName ?? "Sin ciudad"}
-                  </td>
-                  <td className="px-5 py-4 text-[color:var(--muted-strong)]">
-                    {venue.slug}
-                  </td>
-                  <td className="px-5 py-4 text-[color:var(--muted-strong)]">
-                    {venue.phone ?? "Sin teléfono"}
-                  </td>
-                  <td className="px-5 py-4 text-[color:var(--muted-strong)]">
-                    {venue.email ?? "Sin email"}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                        venue.isPublished,
-                      )}`}
-                    >
-                      {venue.isPublished ? "Publicado" : "Oculto"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                        venue.isVerified && venue.subscriptionActive,
-                      )}`}
-                    >
-                      {venue.isVerified && venue.subscriptionActive
-                        ? "Distintivo activo"
-                        : "Sin distintivo"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                        venue.isActive,
-                      )}`}
-                    >
-                      {venue.isActive ? "Activo" : "Inactivo"}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <Link
-                      href={`/panel/locales/${venue.id}`}
-                      className="text-sm font-semibold text-[color:var(--brand)]"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="divide-y divide-white/8">
+          {venues.map((venue) => (
+            <article
+              key={venue.id}
+              className="grid gap-4 px-5 py-5 text-sm text-[color:var(--foreground)] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] md:items-center"
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="truncate text-base font-semibold">{venue.name}</h2>
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                      venue.isPublished,
+                    )}`}
+                  >
+                    {venue.isPublished ? "Publicado" : "Oculto"}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-[color:var(--muted-strong)]">
+                  {venue.cityName ?? "Sin ciudad"}
+                </p>
+                <p className="mt-1 break-all text-xs text-[color:var(--muted)]">
+                  /{venue.slug}
+                </p>
+              </div>
+
+              <div className="grid gap-2 text-[color:var(--muted-strong)] sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+                <p className="min-w-0 truncate">
+                  <span className="text-[color:var(--muted)]">Tel.</span>{" "}
+                  {venue.phone ?? "Sin telefono"}
+                </p>
+                <p className="min-w-0 truncate">
+                  <span className="text-[color:var(--muted)]">Email</span>{" "}
+                  {venue.email ?? "Sin email"}
+                </p>
+                <div className="flex flex-wrap gap-2 sm:col-span-2 md:col-span-1 lg:col-span-2">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                      venue.isActive,
+                    )}`}
+                  >
+                    {venue.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
+                      venue.isVerified && venue.subscriptionActive,
+                    )}`}
+                  >
+                    {venue.isVerified && venue.subscriptionActive
+                      ? "Verificado"
+                      : "Sin verificar"}
+                  </span>
+                </div>
+              </div>
+
+              <Link
+                href={`/panel/locales/${venue.id}`}
+                className="inline-flex justify-center rounded-full border border-[color:var(--brand)] px-5 py-2.5 text-sm font-semibold text-[color:var(--brand)] transition hover:bg-[color:var(--brand-soft)] md:justify-self-end"
+              >
+                Editar
+              </Link>
+            </article>
+          ))}
         </div>
       </section>
     </section>

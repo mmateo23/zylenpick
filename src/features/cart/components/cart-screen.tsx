@@ -37,6 +37,10 @@ function buildPickupOptions(pickupEtaMin: number | null) {
 const inputClassName =
   "mt-3 w-full rounded-[0.9rem] border border-border-subtle bg-surface px-4 py-3 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:bg-surface-strong focus:outline-none focus:ring-0";
 
+function keepOnlyDigits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
 type CartScreenProps = {
   design?: SiteDesignConfig;
 };
@@ -168,12 +172,12 @@ export function CartScreen({ design }: CartScreenProps) {
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
           style={{
-            backgroundImage: cart.items[0]?.imageUrl
-              ? `url(${cart.items[0].imageUrl})`
+            backgroundImage: cart.venue.coverUrl ?? cart.items[0]?.imageUrl
+              ? `url(${cart.venue.coverUrl ?? cart.items[0]?.imageUrl})`
               : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_20%),linear-gradient(90deg,rgba(5,8,22,0.92)_0%,rgba(5,8,22,0.78)_42%,rgba(5,8,22,0.48)_70%,rgba(5,8,22,0.24)_100%),linear-gradient(180deg,rgba(5,8,22,0.2)_0%,rgba(5,8,22,0.52)_48%,rgba(5,8,22,0.96)_100%)]" />
 
         <div className="relative z-10 mx-auto flex min-h-[calc(68svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
           <div className="max-w-4xl">
@@ -361,7 +365,12 @@ export function CartScreen({ design }: CartScreenProps) {
               <input
                 id="customer-phone"
                 value={customerPhone}
-                onChange={(event) => setCustomerPhone(event.target.value)}
+                onChange={(event) =>
+                  setCustomerPhone(keepOnlyDigits(event.target.value))
+                }
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className={inputClassName}
                 placeholder="Tu teléfono"
                 autoComplete="tel"

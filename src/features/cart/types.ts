@@ -5,6 +5,7 @@ export type CartVenue = {
   citySlug: string;
   cityName: string;
   address: string | null;
+  coverUrl?: string | null;
   email?: string | null;
   phone?: string | null;
   pickupEtaMin: number | null;

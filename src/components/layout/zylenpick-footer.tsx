@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, MapPinned, Sparkles, Store } from "lucide-react";
+import { ArrowUpRight, MapPinned, Sparkles, Store, Utensils } from "lucide-react";
 
 type ZylenPickFooterProps = {
   theme?: "dark" | "light";
@@ -10,17 +10,22 @@ type ZylenPickFooterProps = {
 
 const footerLinks = [
   {
-    label: "Ciudades",
+    label: "Platos",
+    href: "/platos",
+    icon: Utensils,
+  },
+  {
+    label: "Zonas",
     href: "/zonas",
     icon: MapPinned,
   },
   {
-    label: "Locales",
-    href: "/zonas",
+    label: "Únete",
+    href: "/unete",
     icon: Store,
   },
   {
-    label: "Proyecto",
+    label: "El proyecto",
     href: "/el-proyecto",
     icon: Sparkles,
   },
@@ -67,7 +72,7 @@ export function ZylenPickFooter({
                   : "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white"
               }
             >
-              La nueva forma de descubrir qué pedir.
+              Decide qué comer y apoya locales cerca de ti.
             </h2>
 
             <p
@@ -77,9 +82,8 @@ export function ZylenPickFooter({
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >
-              Una experiencia visual para ciudades, locales y platos pensada
-              para encontrar mejor, decidir más rápido y hacer que cada pedido
-              entre por los ojos.
+              ZylenPick te ayuda a elegir platos reales en segundos y da más
+              visibilidad a locales de tu zona, sin complicaciones.
             </p>
           </div>
 
@@ -107,7 +111,7 @@ export function ZylenPickFooter({
             })}
 
             <Link
-              href="https://www.instagram.com/"
+              href="/zonas"
               className={
                 isLightTheme
                   ? "group flex items-center justify-between rounded-[1.15rem] border border-black/8 bg-[#111111] px-4 py-4 text-sm text-white transition hover:bg-black"
@@ -115,10 +119,8 @@ export function ZylenPickFooter({
               }
             >
               <span className="flex items-center gap-3">
-                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-white/30 text-[9px] font-semibold uppercase leading-none">
-                  IG
-                </span>
-                <span className="font-medium">Instagram</span>
+                <MapPinned className="h-4 w-4" />
+                <span className="font-medium">Buscar cerca de mí</span>
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>

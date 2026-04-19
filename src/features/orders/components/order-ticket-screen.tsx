@@ -121,8 +121,27 @@ function isAppleDevice() {
   );
 }
 
-function getDirectionsUrl(venueSlug: string) {
-  const coordinates = getVenueCoordinates(venueSlug);
+function getDirectionsUrl(venue: {
+  slug: string;
+  name: string;
+  cityName: string;
+  address?: string | null;
+}) {
+  const addressQuery = venue.address?.trim()
+    ? `${venue.name}, ${venue.address}, ${venue.cityName}`
+    : null;
+
+  if (addressQuery) {
+    const encodedAddress = encodeURIComponent(addressQuery);
+
+    if (isAppleDevice()) {
+      return `https://maps.apple.com/?daddr=${encodedAddress}`;
+    }
+
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+  }
+
+  const coordinates = getVenueCoordinates(venue.slug);
 
   if (!coordinates) {
     return null;
@@ -139,6 +158,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
   const [order, setOrder] = useState(() => getOrderById(orderId));
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const [hasCopiedOrderCode, setHasCopiedOrderCode] = useState(false);
   const [countdownLabel, setCountdownLabel] = useState(() =>
     order ? getCountdownParts(order.pickupAt).label : "0 min",
   );
@@ -238,10 +258,10 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
     );
   }
 
+  const orderStatus = getOrderStatus(order.createdAt, order.pickupAt);
   const statusCopy = getStatusCopy(order.createdAt, order.pickupAt);
-  const directionsUrl = getDirectionsUrl(order.venue.slug);
-  const isReadyToPickup = statusCopy.title === "Listo para recoger";
-  const canCancel = order.resolutionStatus === "active" && !isReadyToPickup;
+  const directionsUrl = getDirectionsUrl(order.venue);
+  const canCancel = order.resolutionStatus === "active" && orderStatus === "received";
   const canComplete = order.resolutionStatus === "active";
 
   const resolutionMessage =
@@ -275,6 +295,19 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
           }
         : currentOrder,
     );
+  };
+
+  const handleCopyOrderCode = async () => {
+    if (!navigator.clipboard) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(order.id);
+    setHasCopiedOrderCode(true);
+
+    window.setTimeout(() => {
+      setHasCopiedOrderCode(false);
+    }, 1800);
   };
 
   return (
@@ -349,9 +382,27 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
               <h2 className="mt-3 text-3xl font-semibold leading-[0.98] text-text-primary sm:text-4xl">
                 {order.venue.name}
               </h2>
-              <p className="mt-3 text-sm leading-7 text-text-secondary">
-                Pedido {order.id}
-              </p>
+              <div className="mt-4 rounded-[1.15rem] border border-accent/45 bg-accent-soft px-4 py-3.5 ring-1 ring-accent/15">
+                <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-accent-strong">
+                  C&oacute;digo de recogida
+                </span>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <span className="text-2xl font-semibold tracking-[0.08em] text-text-primary sm:text-3xl">
+                    {order.id}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyOrderCode}
+                    className="inline-flex rounded-full border border-accent/35 bg-surface px-3 py-1.5 text-xs font-semibold text-accent-strong transition hover:border-accent-strong"
+                  >
+                    {hasCopiedOrderCode ? "Copiado" : <>Copiar c&oacute;digo</>}
+                  </button>
+                </div>
+                <p className="mt-2 text-xs leading-5 text-text-secondary">
+                  Mu&eacute;stralo al llegar al local para localizar tu pedido
+                  r&aacute;pido.
+                </p>
+              </div>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-strong px-4 py-2 text-sm font-semibold text-text-primary shadow-[var(--card-shadow)]">
               {formatPrice(order.totalAmount, order.currency)}

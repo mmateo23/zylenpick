@@ -7,20 +7,20 @@ import type { SiteMediaAssetMap } from "@/features/site-media/site-media";
 
 const valuePoints = [
   {
-    positive: "Mas comida local",
-    negative: "Menos delivery innecesario",
+    positive: "Más locales visibles",
+    negative: "Menos perderse entre apps iguales",
   },
   {
-    positive: "Mas cerca",
-    negative: "Menos espera",
+    positive: "Más fácil decidir",
+    negative: "Menos mirar pantallas sin elegir",
   },
   {
-    positive: "Mas ciudad",
-    negative: "Menos algoritmo",
+    positive: "Más recogida cercana",
+    negative: "Menos esperas innecesarias",
   },
   {
-    positive: "Mas recogida real",
-    negative: "Menos friccion",
+    positive: "Más apoyo al barrio",
+    negative: "Menos depender solo del delivery",
   },
 ];
 
@@ -33,19 +33,19 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
     {
       title: "Descubre",
       description:
-        "Explora restaurantes cerca de ti y encuentra opciones reales de tu zona.",
+        "Mira locales reales cerca de ti y entiende rápido qué puedes recoger.",
       imageUrl: siteMedia.project_step_discover.imageUrl,
     },
     {
-      title: "Pide",
+      title: "Elige",
       description:
-        "Haz tu pedido en segundos con una experiencia clara y bien resuelta.",
+        "Decide el plato sin leer reseñas eternas ni dar vueltas.",
       imageUrl: siteMedia.project_step_order.imageUrl,
     },
     {
       title: "Recoge",
       description:
-        "Pasa a por tu comida cuando este lista y vuelve a caminar por tu ciudad.",
+        "El local lo prepara y tú pasas a recogerlo cuando esté listo.",
       imageUrl: siteMedia.project_step_pickup.imageUrl,
     },
   ];
@@ -72,13 +72,12 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             El proyecto
           </p>
           <h1 className="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.9] text-white sm:text-6xl lg:text-7xl">
-            <span className="block">Podrias pedir delivery.</span>
-            <span className="mt-5 block">Pero a veces</span>
-            <span className="block text-[color:var(--brand)]">APETECE</span>
-            <span className="block">algo mejor.</span>
+            <span className="block">ZylenPick nace para elegir mejor.</span>
+            <span className="mt-5 block text-[color:var(--brand)]">Comida local.</span>
+            <span className="block">Sin tanto lío.</span>
           </h1>
           <p className="mt-6 max-w-[28rem] text-lg font-medium tracking-[0.01em] text-white/76 sm:text-xl">
-            Comida local. Cerca. Lista para recoger.
+            Platos reales, locales cercanos y pedidos para recoger sin complicaciones.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -103,7 +102,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             Por que ZylenPick
           </p>
           <h2 className="mt-4 text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
-            Una forma mas clara de elegir lo que realmente te apetece.
+            Una forma más humana de decidir qué comer y apoyar a locales reales.
           </h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
@@ -129,17 +128,18 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             El problema
           </p>
           <h2 className="max-w-[11ch] text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
-            Pedir para recoger deberia sentirse tan natural como caminar por tu barrio.
+            Hoy cuesta demasiado elegir algo sencillo cerca de ti.
           </h2>
           <div className="max-w-xl space-y-4 text-base leading-7 text-white/72 text-justify sm:text-left">
             <p>
-              Muchas plataformas estan disenadas alrededor del delivery. La
-              recogida queda como una opcion secundaria, confusa y poco cuidada.
+              Muchas apps están pensadas para comparar, leer y esperar. Pero a
+              veces solo quieres ver platos claros, elegir rápido y pasar a
+              recoger.
             </p>
             <p>
-              Y sin embargo, cuando un restaurante esta cerca y de verdad te
-              apetece, salir a por ello puede ser parte de una experiencia mas
-              real, mas directa y mejor resuelta.
+              A la vez, muchos locales buenos no tienen una forma simple y
+              cuidada de aparecer ante la gente de su zona sin meterse en más
+              tecnología de la necesaria.
             </p>
           </div>
         </div>
@@ -167,18 +167,16 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             La idea
           </p>
           <h2 className="max-w-[12ch] text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
-            Una forma mas simple de descubrir comida local y recogerla bien.
+            Una herramienta simple para personas y locales.
           </h2>
           <div className="max-w-xl space-y-4 text-base leading-7 text-white/72 text-justify sm:text-left">
             <p>
-              ZylenPick quiere ayudarte a encontrar restaurantes cercanos,
-              elegir algo que realmente quieres y resolver la recogida con una
-              experiencia clara, ligera y bien disenada.
+              Para quien tiene hambre, ZylenPick reduce la decisión a lo
+              importante: foto, plato, local, precio y recogida.
             </p>
             <p>
-              Esta pensada para gente activa, para ciudad real, para decisiones
-              conscientes y para esa mezcla de cercania, movimiento y hosteleria
-              local que muchas veces se pierde en las apps tradicionales.
+              Para el local, abre una puerta más visible y más sencilla para
+              recibir pedidos sin depender de una experiencia fría o complicada.
             </p>
           </div>
         </div>
@@ -190,7 +188,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             Como funciona
           </p>
           <h2 className="mt-4 text-balance text-4xl font-semibold leading-[0.96] text-white sm:text-5xl">
-            Tres pasos claros para convertir una decision cotidiana en una experiencia mejor.
+            Tres pasos claros para decidir rápido y recoger sin vueltas.
           </h2>
         </div>
         <StoryCardSwap steps={journeySteps} />

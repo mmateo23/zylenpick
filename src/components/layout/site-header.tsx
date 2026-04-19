@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
+import { ClockIcon } from "@/components/icons/clock-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MenuIcon } from "@/components/icons/menu-icon";
@@ -15,6 +16,7 @@ import {
   SELECTED_CITY_UPDATED_EVENT,
   type StoredCity,
 } from "@/features/location/city-preference";
+import { useActiveOrder } from "@/features/orders/hooks/use-active-order";
 
 type SiteHeaderProps = {
   showNavigation?: boolean;
@@ -49,11 +51,28 @@ function CartBadge({ totalItems }: CartBadgeProps) {
   );
 }
 
+function ActiveOrderBadge() {
+  return (
+    <span className="absolute -right-1.5 -top-1.5 inline-flex h-3.5 w-3.5 rounded-full border border-white/45 bg-accent shadow-[0_6px_16px_rgba(0,0,0,0.18)]" />
+  );
+}
+
 export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const pathname = usePathname();
   const { totals } = useCart();
+  const { activeOrder } = useActiveOrder();
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const hasCartItems = totals.totalItems > 0;
+  const activeOrderHref = activeOrder ? `/checkout/success/${activeOrder.id}` : null;
+  const orderAccessHref = hasCartItems || !activeOrderHref ? "/cart" : activeOrderHref;
+  const orderAccessLabel = hasCartItems
+    ? "Carrito"
+    : activeOrderHref
+      ? "Pedido activo"
+      : "Carrito";
+  const showActiveOrderAccess = !hasCartItems && Boolean(activeOrderHref);
 
   useEffect(() => {
     setSelectedCity(readSelectedCity());
@@ -133,12 +152,21 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             </div>
 
             <Link
-              href="/cart"
-              aria-label="Carrito"
+              href={orderAccessHref}
+              aria-label={orderAccessLabel}
               className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${dockButtonClassName}`}
             >
-              <CartIcon size={16} />
-              <CartBadge totalItems={totals.totalItems} />
+              {showActiveOrderAccess ? (
+                <>
+                  <ClockIcon size={16} />
+                  <ActiveOrderBadge />
+                </>
+              ) : (
+                <>
+                  <CartIcon size={16} />
+                  <CartBadge totalItems={totals.totalItems} />
+                </>
+              )}
             </Link>
           </div>
 
@@ -186,12 +214,21 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               className={`inline-flex items-center justify-self-end gap-1 rounded-[999px] border px-1.5 py-1.5 ${dockRailClassName}`}
             >
               <Link
-                href="/cart"
-                aria-label="Carrito"
+                href={orderAccessHref}
+                aria-label={orderAccessLabel}
                 className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
               >
-                <CartIcon size={16} />
-                <CartBadge totalItems={totals.totalItems} />
+                {showActiveOrderAccess ? (
+                  <>
+                    <ClockIcon size={16} />
+                    <ActiveOrderBadge />
+                  </>
+                ) : (
+                  <>
+                    <CartIcon size={16} />
+                    <CartBadge totalItems={totals.totalItems} />
+                  </>
+                )}
               </Link>
 
               <Link
@@ -228,14 +265,23 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 </li>
                 <li>
                   <Link
-                    href="/cart"
+                    href={orderAccessHref}
                     className="flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium text-white/76 transition hover:bg-white/[0.05]"
                   >
                     <span className="relative inline-flex h-5 w-5 items-center justify-center">
-                      <CartIcon size={18} />
-                      <CartBadge totalItems={totals.totalItems} />
+                      {showActiveOrderAccess ? (
+                        <>
+                          <ClockIcon size={18} />
+                          <ActiveOrderBadge />
+                        </>
+                      ) : (
+                        <>
+                          <CartIcon size={18} />
+                          <CartBadge totalItems={totals.totalItems} />
+                        </>
+                      )}
                     </span>
-                    <span>Carrito</span>
+                    <span>{orderAccessLabel}</span>
                   </Link>
                 </li>
                 {navigationItems.map((item) => (

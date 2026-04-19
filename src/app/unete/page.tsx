@@ -6,15 +6,15 @@ import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 const quickStats = [
-  { label: "Alta", value: "Guiada" },
-  { label: "Arranque", value: "Simple" },
-  { label: "Enfoque", value: "Local" },
+  { label: "Alta", value: "Sin líos" },
+  { label: "Objetivo", value: "Más pedidos" },
+  { label: "Enfoque", value: "Tu zona" },
 ];
 
 const profileTags = [
   "Restaurantes de barrio",
   "Cocinas con recogida",
-  "Locales que quieren una presencia más cuidada",
+  "Locales que quieren vender más fácil",
 ];
 
 export default async function JoinPage() {
@@ -58,12 +58,12 @@ export default async function JoinPage() {
                 </div>
 
                 <h1 className="max-w-[10ch] text-balance text-5xl font-semibold leading-[0.9] sm:text-6xl lg:text-[4.8rem]">
-                  Lleva tu local a una presencia más clara y visual.
+                  Más visibilidad para tu local, sin complicarte.
                 </h1>
 
                 <p className="mt-5 max-w-[42ch] text-base leading-8 text-white/78 sm:text-lg">
-                  Una propuesta pensada para negocios que quieren recibir pedidos
-                  con una presencia moderna, cuidada y más alineada con su marca.
+                  Enseña tus platos de forma clara, recibe pedidos para recoger
+                  y deja que la gente de tu zona te encuentre más fácil.
                 </p>
 
                 <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -95,23 +95,23 @@ export default async function JoinPage() {
                 Solicitud de alta
               </p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--muted)]">
-                Cuéntanos lo esencial del local y del contacto para valorar el encaje.
+                Cuéntanos lo básico del local. No necesitas preparar nada raro.
               </p>
             </div>
             <div className="rounded-[1.9rem] border border-[color:var(--border)] bg-[color:var(--surface)]/76 px-5 py-4 shadow-[var(--soft-shadow)] backdrop-blur-xl sm:px-6 xl:px-5">
               <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
-                Revisión manual
+                Lo revisamos contigo
               </p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--muted)]">
-                Preferimos una selección cuidada frente a un alta automática.
+                Miramos si encaja y te explicamos el siguiente paso sin tecnicismos.
               </p>
             </div>
             <div className="rounded-[1.9rem] border border-[color:var(--border)] bg-[color:var(--surface)]/76 px-5 py-4 shadow-[var(--soft-shadow)] backdrop-blur-xl sm:px-6 xl:px-5">
               <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
-                Activación
+                Activación guiada
               </p>
               <p className="mt-2 text-sm leading-7 text-[color:var(--muted)]">
-                Si encaja, montamos la ficha visual y activamos el local contigo.
+                Si seguimos adelante, montamos tu ficha visual y la dejamos lista.
               </p>
             </div>
           </div>

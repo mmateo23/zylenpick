@@ -136,8 +136,10 @@ function mapHomeShowcaseItem(row: {
   is_home_featured: boolean;
   is_pickup_month_highlight: boolean;
   venues: {
+    id: string;
     slug: string;
     name: string;
+    address: string | null;
     cover_url: string | null;
     pickup_eta_min: number | null;
     subscription_active: boolean;
@@ -162,8 +164,10 @@ function mapHomeShowcaseItem(row: {
     isHomeFeatured: row.is_home_featured,
     isPickupMonthHighlight: row.is_pickup_month_highlight,
     venue: {
+      id: row.venues.id,
       slug: row.venues.slug,
       name: row.venues.name,
+      address: row.venues.address,
       coverUrl: row.venues.cover_url,
       citySlug: row.venues.cities.slug,
       cityName: row.venues.cities.name,
@@ -544,7 +548,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(slug, name, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -565,7 +569,7 @@ export async function getHomeShowcase(): Promise<{
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(slug, name, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
+        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
       )
       .eq("is_available", true)
       .eq("venues.is_active", true)
