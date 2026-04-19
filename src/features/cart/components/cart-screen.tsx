@@ -177,11 +177,11 @@ export function CartScreen({ design }: CartScreenProps) {
               : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_20%),linear-gradient(90deg,rgba(5,8,22,0.92)_0%,rgba(5,8,22,0.78)_42%,rgba(5,8,22,0.48)_70%,rgba(5,8,22,0.24)_100%),linear-gradient(180deg,rgba(5,8,22,0.2)_0%,rgba(5,8,22,0.52)_48%,rgba(5,8,22,0.96)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_18%),linear-gradient(90deg,rgba(5,8,22,0.97)_0%,rgba(5,8,22,0.9)_42%,rgba(5,8,22,0.68)_72%,rgba(5,8,22,0.44)_100%),linear-gradient(180deg,rgba(5,8,22,0.34)_0%,rgba(5,8,22,0.68)_48%,rgba(5,8,22,0.98)_100%)]" />
 
         <div className="relative z-10 mx-auto flex min-h-[calc(68svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
           <div className="max-w-4xl">
-            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
               Carrito
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -192,10 +192,10 @@ export function CartScreen({ design }: CartScreenProps) {
                 {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               </span>
             </div>
-            <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
+            <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em] [text-shadow:0_6px_28px_rgba(0,0,0,0.72)]">
               {design?.texts.cart.filledTitle ?? "Revisa tu recogida."}
             </h1>
-            <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
+            <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.68)] sm:text-lg sm:leading-8">
               {design?.texts.cart.filledSubtitle ??
                 "Tu pedido se prepara en el local para que solo tengas que llegar y recoger."}
             </p>

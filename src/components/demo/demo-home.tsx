@@ -142,20 +142,6 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
     };
   }, [isPageReady, isVisualReady]);
 
-  useEffect(() => {
-    if (showLoader) {
-      return undefined;
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShowLocationPrompt(true);
-    }, 2000);
-
-    return () => {
-      window.clearTimeout(timeoutId);
-    };
-  }, [showLoader]);
-
   const zoneLabel = selectedCity?.name ?? "Tu zona";
   const heroMediaUrl = design?.media.homeHeroMediaUrl || heroImageUrl;
   const heroMediaType = design?.media.homeHeroMediaType ?? "video";
@@ -240,33 +226,6 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_24%),radial-gradient(circle_at_82%_16%,_rgba(191,219,254,0.05),_transparent_20%),linear-gradient(180deg,_rgba(255,255,255,0.005)_0%,_rgba(255,255,255,0.0)_28%,_rgba(15,23,42,0.1)_62%,_rgba(2,6,23,0.28)_100%)] backdrop-blur-[3px]" />
         <div className="absolute -left-[18vw] bottom-[-8vh] h-[24vh] w-[52vw] rounded-full bg-emerald-400/12 blur-3xl" />
       </div>
-
-      <style jsx>{`
-        @keyframes bellRing {
-          0%,
-          100% {
-            transform: rotate(0deg);
-          }
-          10% {
-            transform: rotate(12deg);
-          }
-          20% {
-            transform: rotate(-10deg);
-          }
-          30% {
-            transform: rotate(8deg);
-          }
-          40% {
-            transform: rotate(-6deg);
-          }
-          50% {
-            transform: rotate(4deg);
-          }
-          60% {
-            transform: rotate(-2deg);
-          }
-        }
-      `}</style>
 
       <div
         className={`relative z-10 flex h-full items-center justify-center px-4 py-4 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 ${
@@ -461,7 +420,7 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
             {design?.texts.home.heroTitle ?? "Decide qué comer en segundos"}
           </h1>
 
-          <p className="mt-3 max-w-xl text-balance text-[13px] leading-5 text-white/68 sm:mt-4 sm:max-w-2xl sm:text-base sm:leading-7 md:text-lg">
+          <p className="mt-3 max-w-xl text-balance text-[16px] leading-6 text-white/68 sm:mt-4 sm:max-w-2xl sm:text-base sm:leading-7 md:text-lg">
             {design?.texts.home.heroSubtitle ??
               "Mira platos reales de locales cercanos y elige qué recoger sin reseñas eternas, llamadas ni complicaciones."}
           </p>
