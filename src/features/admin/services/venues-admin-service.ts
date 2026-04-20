@@ -34,6 +34,8 @@ export type AdminVenueFormValues = {
   discoveryCategory: string;
   description: string;
   address: string;
+  latitude: string;
+  longitude: string;
   email: string;
   phone: string;
   pickupNotes: string;
@@ -99,6 +101,8 @@ function normalizeVenueFormValues(
     discoveryCategory: String(formData.get("discoveryCategory") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     address: String(formData.get("address") ?? "").trim(),
+    latitude: String(formData.get("latitude") ?? "").trim(),
+    longitude: String(formData.get("longitude") ?? "").trim(),
     email: String(formData.get("email") ?? "").trim(),
     phone: String(formData.get("phone") ?? "").trim(),
     pickupNotes: String(formData.get("pickupNotes") ?? "").trim(),
@@ -118,6 +122,35 @@ function normalizeVenueFormValues(
   };
 }
 
+function parseOptionalCoordinate(value: string) {
+  if (!value) {
+    return null;
+  }
+
+  return Number(value.replace(",", "."));
+}
+
+function validateOptionalCoordinate(
+  value: string,
+  min: number,
+  max: number,
+  fieldLabel: string,
+) {
+  if (!value) {
+    return;
+  }
+
+  const parsedValue = parseOptionalCoordinate(value);
+  if (
+    parsedValue === null ||
+    Number.isNaN(parsedValue) ||
+    parsedValue < min ||
+    parsedValue > max
+  ) {
+    throw new Error(`${fieldLabel} debe estar entre ${min} y ${max}.`);
+  }
+}
+
 function validateVenueFormValues(values: NormalizedVenueFormValues) {
   if (!values.name) {
     throw new Error("El nombre del local es obligatorio.");
@@ -130,6 +163,9 @@ function validateVenueFormValues(values: NormalizedVenueFormValues) {
   if (!values.cityId) {
     throw new Error("La ciudad del local es obligatoria.");
   }
+
+  validateOptionalCoordinate(values.latitude, -90, 90, "La latitud");
+  validateOptionalCoordinate(values.longitude, -180, 180, "La longitud");
 
   if (!values.address) {
     throw new Error("La dirección del local es obligatoria.");
@@ -158,6 +194,9 @@ function validateVenuePanelFormValues(values: NormalizedVenueFormValues) {
   if (!values.cityId) {
     throw new Error("La ciudad del local es obligatoria.");
   }
+
+  validateOptionalCoordinate(values.latitude, -90, 90, "La latitud");
+  validateOptionalCoordinate(values.longitude, -180, 180, "La longitud");
 
   if (!values.address) {
     throw new Error("La dirección del local es obligatoria.");
@@ -300,6 +339,8 @@ export function buildVenueInitialValuesFromJoinRequest(
     discoveryCategory: "",
     description: "",
     address: joinRequest.address ?? "",
+    latitude: "",
+    longitude: "",
     email: joinRequest.venueEmail ?? "",
     phone: joinRequest.venuePhone ?? "",
     pickupNotes: "",
@@ -351,7 +392,7 @@ export async function getAdminVenueById(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, city_id, discovery_category, description, address, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
+      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
     )
     .eq("id", venueId)
     .maybeSingle();
@@ -372,6 +413,8 @@ export async function getAdminVenueById(
     discoveryCategory: data.discovery_category ?? "",
     description: data.description ?? "",
     address: data.address ?? "",
+    latitude: data.latitude?.toString() ?? "",
+    longitude: data.longitude?.toString() ?? "",
     email: data.email ?? "",
     phone: data.phone ?? "",
     pickupNotes: data.pickup_notes ?? "",
@@ -404,6 +447,8 @@ export async function createVenueAction(formData: FormData) {
       discovery_category: values.discoveryCategory || null,
       description: values.description || null,
       address: values.address,
+      latitude: parseOptionalCoordinate(values.latitude),
+      longitude: parseOptionalCoordinate(values.longitude),
       email: values.email || null,
       phone: values.phone || null,
       pickup_notes: values.pickupNotes || null,
@@ -469,6 +514,8 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
       discovery_category: values.discoveryCategory || null,
       description: values.description || null,
       address: values.address,
+      latitude: parseOptionalCoordinate(values.latitude),
+      longitude: parseOptionalCoordinate(values.longitude),
       email: values.email || null,
       phone: values.phone || null,
       pickup_notes: values.pickupNotes || null,

@@ -73,6 +73,8 @@ function mapVenueListItem(row: {
   description: string | null;
   cover_url: string | null;
   address: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   pickup_eta_min: number | null;
   is_featured: boolean;
   is_verified: boolean;
@@ -87,6 +89,8 @@ function mapVenueListItem(row: {
     description: row.description,
     coverUrl: row.cover_url,
     address: row.address,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     pickupEtaMin: row.pickup_eta_min,
     isFeatured: row.is_featured,
     isVerified: row.is_verified,
@@ -140,6 +144,8 @@ function mapHomeShowcaseItem(row: {
     slug: string;
     name: string;
     address: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
     cover_url: string | null;
     pickup_eta_min: number | null;
     subscription_active: boolean;
@@ -168,6 +174,8 @@ function mapHomeShowcaseItem(row: {
       slug: row.venues.slug,
       name: row.venues.name,
       address: row.venues.address,
+      latitude: row.venues.latitude ?? null,
+      longitude: row.venues.longitude ?? null,
       coverUrl: row.venues.cover_url,
       citySlug: row.venues.cities.slug,
       cityName: row.venues.cities.name,
@@ -247,7 +255,7 @@ export async function getVenuesByCitySlug(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, discovery_category, description, cover_url, address, pickup_eta_min, is_featured, is_verified, subscription_active, subscription_tier, cities!inner(slug)",
+      "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_featured, is_verified, subscription_active, subscription_tier, cities!inner(slug)",
     )
     .eq("is_active", true)
     .eq("is_published", true)
@@ -263,7 +271,7 @@ export async function getVenuesByCitySlug(
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("venues")
       .select(
-        "id, slug, name, discovery_category, description, cover_url, address, pickup_eta_min, is_verified, subscription_active, cities!inner(slug)",
+        "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_verified, subscription_active, cities!inner(slug)",
       )
       .eq("is_active", true)
       .eq("is_published", true)
@@ -303,7 +311,7 @@ export async function getVenueDetails(
   const { data: venue, error: venueError } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, logo_url, address, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, subscription_tier, cities!inner(slug, name)",
+      "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, subscription_tier, cities!inner(slug, name)",
     )
     .eq("slug", venueSlug)
     .eq("is_active", true)
@@ -315,7 +323,7 @@ export async function getVenueDetails(
     const { data: fallbackVenue, error: fallbackVenueError } = await supabase
       .from("venues")
       .select(
-        "id, slug, name, description, cover_url, logo_url, address, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
+        "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
       )
       .eq("slug", venueSlug)
       .eq("is_active", true)
@@ -371,6 +379,8 @@ export async function getVenueDetails(
         coverUrl: fallbackVenue.cover_url,
         logoUrl: fallbackVenue.logo_url,
         address: fallbackVenue.address,
+        latitude: fallbackVenue.latitude ?? null,
+        longitude: fallbackVenue.longitude ?? null,
         email: fallbackVenue.email,
         phone: fallbackVenue.phone,
         website: fallbackVenue.website,
@@ -410,6 +420,8 @@ export async function getVenueDetails(
       coverUrl: fallbackVenue.cover_url,
       logoUrl: fallbackVenue.logo_url,
       address: fallbackVenue.address,
+      latitude: fallbackVenue.latitude ?? null,
+      longitude: fallbackVenue.longitude ?? null,
       email: fallbackVenue.email,
       phone: fallbackVenue.phone,
       website: fallbackVenue.website,
@@ -476,6 +488,8 @@ export async function getVenueDetails(
       coverUrl: venue.cover_url,
       logoUrl: venue.logo_url,
       address: venue.address,
+      latitude: venue.latitude ?? null,
+      longitude: venue.longitude ?? null,
       email: venue.email,
       phone: venue.phone,
       website: venue.website,
@@ -515,6 +529,8 @@ export async function getVenueDetails(
     coverUrl: venue.cover_url,
     logoUrl: venue.logo_url,
     address: venue.address,
+    latitude: venue.latitude ?? null,
+    longitude: venue.longitude ?? null,
     email: venue.email,
     phone: venue.phone,
     website: venue.website,
@@ -548,7 +564,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -569,7 +585,7 @@ export async function getHomeShowcase(): Promise<{
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
+        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
       )
       .eq("is_available", true)
       .eq("venues.is_active", true)

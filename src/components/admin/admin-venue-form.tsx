@@ -32,6 +32,8 @@ function buildInitialValues(
       discoveryCategory: "",
       description: "",
       address: "",
+      latitude: "",
+      longitude: "",
       email: "",
       phone: "",
       pickupNotes: "",
@@ -294,6 +296,40 @@ export function AdminVenueForm({
               defaultValue={values.address}
               className={fieldClassName()}
               required
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Latitud
+            </span>
+            <input
+              name="latitude"
+              type="number"
+              step="any"
+              min="-90"
+              max="90"
+              inputMode="decimal"
+              defaultValue={values.latitude}
+              className={fieldClassName()}
+              placeholder="Opcional"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              Longitud
+            </span>
+            <input
+              name="longitude"
+              type="number"
+              step="any"
+              min="-180"
+              max="180"
+              inputMode="decimal"
+              defaultValue={values.longitude}
+              className={fieldClassName()}
+              placeholder="Opcional"
             />
           </label>
 

@@ -24,6 +24,8 @@ export type VenueListItem = {
   description: string | null;
   coverUrl: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   pickupEtaMin: number | null;
   isFeatured: boolean;
   isVerified: boolean;
@@ -54,6 +56,8 @@ export type VenueDetails = {
   coverUrl: string | null;
   logoUrl: string | null;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   email: string | null;
   phone: string | null;
   website: string | null;
@@ -89,6 +93,8 @@ export type HomeShowcaseItem = {
     slug: string;
     name: string;
     address: string | null;
+    latitude: number | null;
+    longitude: number | null;
     coverUrl: string | null;
     citySlug: string;
     cityName: string;

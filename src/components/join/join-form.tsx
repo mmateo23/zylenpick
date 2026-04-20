@@ -183,16 +183,16 @@ export function JoinForm() {
       <div data-join-head className="relative z-[1]">
         <div className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--muted-strong)]">
           <span className="inline-block h-2 w-2 rounded-full bg-[color:var(--brand)]" />
-          Solicitud para nuevos locales
+          Primer contacto
         </div>
 
         <h2 className="mt-5 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.55rem]">
-          Déjanos tus datos y vemos cómo ayudarte.
+          Cuéntanos lo básico y hablamos contigo.
         </h2>
 
         <p className="mt-4 max-w-[52ch] text-sm leading-7 text-[color:var(--muted)] sm:text-[0.96rem]">
-          Solo necesitamos lo básico para revisar tu local y explicarte el
-          siguiente paso con calma.
+          No tienes que tenerlo todo preparado. Con estos datos podemos revisar
+          tu local y explicarte el siguiente paso con calma.
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2.5">
@@ -410,7 +410,7 @@ export function JoinForm() {
       >
         <p className="max-w-[40ch] text-sm leading-6 text-[color:var(--muted)]">
           Revisamos cada solicitud personalmente. Si encaja, te ayudamos a dejar
-          la ficha lista para empezar a recibir pedidos.
+          tu ficha lista para que la gente pueda elegir y recoger.
         </p>
 
         <button
@@ -418,7 +418,7 @@ export function JoinForm() {
           disabled={isSubmitting}
           className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(124,255,184,0.1),rgba(0,223,129,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(0,223,129,0.16)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
         >
-          {isSubmitting ? "Enviando solicitud..." : "Quiero que me contactéis"}
+          {isSubmitting ? "Enviando solicitud..." : "Quiero aparecer en ZylenPick"}
         </button>
       </div>
 

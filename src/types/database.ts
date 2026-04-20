@@ -57,6 +57,8 @@ export type Database = {
           logo_url: string | null;
           website: string | null;
           address: string | null;
+          latitude: number | null;
+          longitude: number | null;
           email: string | null;
           phone: string | null;
           opening_hours: Json | null;
@@ -85,6 +87,8 @@ export type Database = {
           logo_url?: string | null;
           website?: string | null;
           address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           email?: string | null;
           phone?: string | null;
           opening_hours?: Json | null;
@@ -113,6 +117,8 @@ export type Database = {
           logo_url?: string | null;
           website?: string | null;
           address?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           email?: string | null;
           phone?: string | null;
           opening_hours?: Json | null;

@@ -230,6 +230,8 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 venueSlug={venue.slug}
                 venueName={venue.name}
                 address={venue.address}
+                latitude={venue.latitude}
+                longitude={venue.longitude}
               />
               <VenueOpeningHours
                 openingHours={venue.openingHours}
