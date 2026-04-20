@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 import {
   getAdminMenuItemsByVenueId,
@@ -145,7 +145,7 @@ export default async function AdminVenueMenuItemsPage({
                               : "bg-white/8 text-white/58"
                           }`}
                         >
-                          {item.isPickupMonthHighlight ? "SÃ­" : "No"}
+                          {item.isPickupMonthHighlight ? "Sí" : "No"}
                         </span>
                       </td>
                       <td className="px-5 py-4">
@@ -177,3 +177,4 @@ export default async function AdminVenueMenuItemsPage({
     </section>
   );
 }
+
