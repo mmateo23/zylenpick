@@ -12,10 +12,13 @@ import {
   ChevronDown,
   ChevronUp,
   Clock3,
+  Info,
   MapPin,
+  MoreHorizontal,
   MoveLeft,
   MoveRight,
   Search,
+  Send,
   X,
 } from "lucide-react";
 
@@ -23,17 +26,24 @@ import { CartIcon } from "@/components/icons/cart-icon";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { useCart } from "@/features/cart/hooks/use-cart";
+import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { SiteChip } from "@/features/chips/types";
 import {
   defaultSiteFunnelSettings,
   type SiteFunnelSettings,
 } from "@/features/funnel/site-funnel-settings";
 import {
+  getDistanceInKm,
+  readUserLocation,
+  type UserLocation,
+} from "@/features/location/browser-location";
+import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
 } from "@/features/location/city-preference";
 import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import { trackEvent } from "@/lib/analytics/track-event";
 
 gsap.registerPlugin(useGSAP);
 
@@ -253,6 +263,113 @@ function getCartItemFromShowcaseItem(item: HomeShowcaseItem) {
   };
 }
 
+function getVenueDistanceLabel(
+  item: HomeShowcaseItem,
+  userLocation: UserLocation | null,
+) {
+  if (
+    !userLocation ||
+    typeof item.venue.latitude !== "number" ||
+    typeof item.venue.longitude !== "number"
+  ) {
+    return item.venue.cityName;
+  }
+
+  const distanceKm = getDistanceInKm(
+    userLocation.latitude,
+    userLocation.longitude,
+    item.venue.latitude,
+    item.venue.longitude,
+  );
+
+  if (distanceKm < 1) {
+    return `${Math.max(Math.round(distanceKm * 1000), 1)} m`;
+  }
+
+  return `${distanceKm.toLocaleString("es-ES", {
+    maximumFractionDigits: 1,
+  })} km`;
+}
+
+function getShortDescription(item: HomeShowcaseItem) {
+  return item.description?.trim() || "Plato real de un local cercano.";
+}
+
+function getVenueAvatarLabel(item: HomeShowcaseItem) {
+  return item.venue.name.trim().slice(0, 1).toLocaleUpperCase("es");
+}
+
+const demoDishVideoUrls = [
+  "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4",
+  "https://cdn.pixabay.com/video/2022/10/16/135080-761273537_large.mp4",
+  "https://cdn.pixabay.com/video/2020/04/19/36186-411138891_large.mp4",
+];
+
+function getDishDemoVideoUrl(item: HomeShowcaseItem) {
+  const imageUrl = item.imageUrl?.toLowerCase() ?? "";
+
+  if (!imageUrl.includes("images.unsplash.com")) {
+    return null;
+  }
+
+  const shouldUseVideo =
+    imageUrl.includes("photo-1568901346375") ||
+    imageUrl.includes("photo-1518013431117") ||
+    imageUrl.includes("photo-1519864600265") ||
+    imageUrl.includes("photo-1550547660") ||
+    getStableHash(`${item.id}:${imageUrl}`) % 4 === 0;
+
+  if (!shouldUseVideo) {
+    return null;
+  }
+
+  return demoDishVideoUrls[getStableHash(item.id) % demoDishVideoUrls.length];
+}
+
+function DishVisualMedia({
+  item,
+  className,
+  sizes,
+  priority = false,
+  fit = "cover",
+}: {
+  item: HomeShowcaseItem;
+  className: string;
+  sizes: string;
+  priority?: boolean;
+  fit?: "cover" | "contain";
+}) {
+  const videoUrl = getDishDemoVideoUrl(item);
+  const mediaClassName = `absolute inset-0 h-full w-full object-${fit} ${className}`;
+
+  if (videoUrl) {
+    return (
+      <video
+        src={videoUrl}
+        poster={item.imageUrl ?? undefined}
+        aria-label={item.name}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className={mediaClassName}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={item.imageUrl ?? ""}
+      alt={item.name}
+      fill
+      sizes={sizes}
+      className={mediaClassName}
+      priority={priority}
+    />
+  );
+}
+
 function getWrappedIndex(itemsLength: number, index: number) {
   if (itemsLength === 0) {
     return 0;
@@ -272,37 +389,26 @@ function getContextualNavigationIndex(
     return currentIndex;
   }
 
-  if (currentItem.venue.subscriptionActive) {
-    const sameVenueIndexes = items.reduce<number[]>((indexes, item, index) => {
-      if (item.venue.slug === currentItem.venue.slug) {
-        indexes.push(index);
-      }
-
-      return indexes;
-    }, []);
-
-    const currentVenuePosition = sameVenueIndexes.indexOf(currentIndex);
-
-    if (currentVenuePosition >= 0 && sameVenueIndexes.length > 1) {
-      const nextVenuePosition = getWrappedIndex(
-        sameVenueIndexes.length,
-        currentVenuePosition + direction,
-      );
-
-      return sameVenueIndexes[nextVenuePosition] ?? currentIndex;
+  const sameVenueIndexes = items.reduce<number[]>((indexes, item, index) => {
+    if (item.venue.slug === currentItem.venue.slug) {
+      indexes.push(index);
     }
-  }
 
-  const candidateIndexes = items
-    .map((_, index) => index)
-    .filter((index) => index !== currentIndex);
+    return indexes;
+  }, []);
 
-  if (candidateIndexes.length === 0) {
+  const currentVenuePosition = sameVenueIndexes.indexOf(currentIndex);
+
+  if (currentVenuePosition < 0 || sameVenueIndexes.length <= 1) {
     return currentIndex;
   }
 
-  const randomOffset = Math.floor(Math.random() * candidateIndexes.length);
-  return candidateIndexes[randomOffset] ?? currentIndex;
+  const nextVenuePosition = getWrappedIndex(
+    sameVenueIndexes.length,
+    currentVenuePosition + direction,
+  );
+
+  return sameVenueIndexes[nextVenuePosition] ?? currentIndex;
 }
 
 function shuffleItems(items: HomeShowcaseItem[]) {
@@ -402,39 +508,6 @@ function distributeShowcaseItems(items: HomeShowcaseItem[]) {
   return arranged;
 }
 
-function getExploreCardClassName(
-  item: HomeShowcaseItem,
-  index: number,
-  isLightTheme: boolean,
-  isPromoted = false,
-) {
-  const surfaceClassName = isLightTheme
-    ? "bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)]"
-    : "bg-black/10";
-  const contentScore =
-    item.name.length +
-    Math.min(item.description?.length ?? 0, 120) +
-    (item.categoryName?.length ?? 0);
-  const shouldUseTallCard =
-    contentScore >= 76 && getStableHash(`${item.id}:${index}:feed`) % 4 === 0;
-
-  if (isPromoted) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName} ring-1 ring-white/14`;
-  }
-
-  if (item.isFeatured || item.isHomeFeatured) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
-  }
-
-  if (item.isPickupMonthHighlight) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
-  }
-
-  return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] ${
-    shouldUseTallCard ? "lg:row-span-2" : "lg:row-span-1"
-  } lg:h-full ${surfaceClassName}`;
-}
-
 function getPromoCardClassName(
   variant: "wide" | "tall" | "standard",
   isLightTheme: boolean,
@@ -516,6 +589,39 @@ function getPromoTileConfig(
         variant: "wide" as const,
       };
   }
+}
+
+function getExploreCardClassName(
+  item: HomeShowcaseItem,
+  index: number,
+  isLightTheme: boolean,
+  isPromoted = false,
+) {
+  const surfaceClassName = isLightTheme
+    ? "bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)]"
+    : "bg-black/10";
+  const contentScore =
+    item.name.length +
+    Math.min(item.description?.length ?? 0, 120) +
+    (item.categoryName?.length ?? 0);
+  const shouldUseTallCard =
+    contentScore >= 76 && getStableHash(`${item.id}:${index}:feed`) % 4 === 0;
+
+  if (isPromoted) {
+    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName} ring-1 ring-white/14`;
+  }
+
+  if (item.isFeatured || item.isHomeFeatured) {
+    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
+  }
+
+  if (item.isPickupMonthHighlight) {
+    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
+  }
+
+  return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] ${
+    shouldUseTallCard ? "lg:row-span-2" : "lg:row-span-1"
+  } lg:h-full ${surfaceClassName}`;
 }
 
 function getHoverTitleClassName(item: HomeShowcaseItem) {
@@ -957,6 +1063,7 @@ export function DemoDishesCarousel({
   const searchShellRef = useRef<HTMLDivElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const heroVisualRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
   const mobileOverlayTouchStartRef = useRef<{ x: number; y: number } | null>(
     null,
@@ -971,7 +1078,10 @@ export function DemoDishesCarousel({
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
+  const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
+  const [postFeedback, setPostFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
   const cityScopedItems = useMemo(() => {
     if (!selectedCitySlug) {
@@ -987,6 +1097,10 @@ export function DemoDishesCarousel({
   const displayItems = useMemo(
     () => distributeShowcaseItems(cityScopedItems),
     [cityScopedItems],
+  );
+  const heroPreviewItems = useMemo(
+    () => displayItems.filter((item) => Boolean(item.imageUrl)).slice(0, 3),
+    [displayItems],
   );
   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
   const categoryOptions = useMemo(
@@ -1095,6 +1209,21 @@ export function DemoDishesCarousel({
     () => (activeIndex === null ? null : filteredItems[activeIndex] ?? null),
     [activeIndex, filteredItems],
   );
+  const activeVenueItems = useMemo(
+    () =>
+      activeItem
+        ? filteredItems.filter((item) => item.venue.slug === activeItem.venue.slug)
+        : [],
+    [activeItem, filteredItems],
+  );
+  const activeVenuePosition = useMemo(
+    () =>
+      activeItem
+        ? activeVenueItems.findIndex((item) => item.id === activeItem.id)
+        : -1,
+    [activeItem, activeVenueItems],
+  );
+  const hasActiveVenueNavigation = activeVenueItems.length > 1;
   const isLightTheme = false;
   const activeLogoSrc = isLightTheme
     ? content.logoLightSrc ?? content.logoSrc
@@ -1117,6 +1246,22 @@ export function DemoDishesCarousel({
       setActiveChipSlug(null);
     }
   }, [activeChip, activeChipSlug]);
+
+  useEffect(() => {
+    setUserLocation(readUserLocation());
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === "zylenpick.user-location") {
+        setUserLocation(readUserLocation());
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, []);
 
   useEffect(() => {
     const syncSelectedCity = () => {
@@ -1173,6 +1318,56 @@ export function DemoDishesCarousel({
         setIsSearchExpanded(false);
       }
     }, 120);
+  };
+
+  const handleShareDish = async (item: HomeShowcaseItem) => {
+    const href = `${window.location.origin}${getVenueHref(item)}#plato-${item.id}`;
+    const shareText = `Mira esto \uD83D\uDC40 ${getDishDisplayName(item)} en ${item.venue.name} — ZylenPick`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "ZylenPick",
+          text: shareText,
+          url: href,
+        });
+        setPostFeedback("Compartido");
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    await navigator.clipboard?.writeText(`${shareText}\n${href}`);
+    setPostFeedback("Enlace copiado");
+  };
+
+  const handleAddPostToCart = (item: HomeShowcaseItem) => {
+    const venue = getCartVenueFromShowcaseItem(item);
+    const cartItem = getCartItemFromShowcaseItem(item);
+    const result = addItemToCart({
+      venue,
+      item: cartItem,
+    });
+
+    if (result.status === "conflict") {
+      setPostFeedback(`Tu carrito pertenece a ${result.conflictingVenueName}.`);
+      return;
+    }
+
+    trackEvent("add_to_cart", {
+      city_slug: venue.citySlug,
+      city_name: venue.cityName,
+      venue_slug: venue.slug,
+      venue_name: venue.name,
+      item_id: cartItem.id,
+      item_name: cartItem.name,
+      source: "platos_post_modal",
+      price: cartItem.priceAmount / 100,
+      currency: cartItem.currency,
+    });
+
+    setPostFeedback("A\u00f1adido para recoger.");
   };
 
   const handleMobileSheetTouchStart = (
@@ -1236,6 +1431,16 @@ export function DemoDishesCarousel({
 
     const horizontalThreshold = 72;
     const horizontalDominanceRatio = 1.25;
+    const verticalCloseThreshold = 92;
+    const verticalDominanceRatio = 1.35;
+
+    if (
+      Math.abs(deltaY) > verticalCloseThreshold &&
+      Math.abs(deltaY) > Math.abs(deltaX) * verticalDominanceRatio
+    ) {
+      setActiveIndex(null);
+      return;
+    }
 
     if (
       Math.abs(deltaX) < horizontalThreshold ||
@@ -1277,7 +1482,10 @@ export function DemoDishesCarousel({
   useEffect(() => {
     if (activeIndex === null) {
       setIsMobileSheetExpanded(false);
+      setIsPostImageFullscreen(false);
     }
+
+    setPostFeedback(null);
   }, [activeIndex]);
 
   useEffect(() => {
@@ -1287,6 +1495,11 @@ export function DemoDishesCarousel({
       }
 
       if (event.key === "Escape") {
+        if (isPostImageFullscreen) {
+          setIsPostImageFullscreen(false);
+          return;
+        }
+
         setActiveIndex(null);
         return;
       }
@@ -1319,7 +1532,7 @@ export function DemoDishesCarousel({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeIndex, filteredItems]);
+  }, [activeIndex, filteredItems, isPostImageFullscreen]);
 
   useGSAP(
     () => {
@@ -1332,29 +1545,16 @@ export function DemoDishesCarousel({
       ).matches;
       const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
 
-      const panelEnterDuration = isMobileViewport ? 0.75 : 0.42;
-      const imageEnterDuration = isMobileViewport ? 1.17 : 0.52;
-      const focusImageEnterDuration = isMobileViewport ? 1.29 : 0.56;
-      const backdropImageEnterDuration = isMobileViewport ? 1.23 : 0.58;
-      const imageShift = isMobileViewport ? 11 : 4;
-      const focusImageShift = isMobileViewport ? 18 : 11;
-      const backdropImageShift = isMobileViewport ? 6 : 3;
+      const panelEnterDuration = isMobileViewport ? 0.46 : 0.38;
+      const panelShift = isMobileViewport ? 30 : 24;
 
       if (reduceMotion) {
         return;
       }
 
-      gsap.set(
-        [
-          ".dish-overlay-backdrop",
-          ".dish-overlay-panel",
-          ".dish-overlay-image",
-          ".dish-overlay-copy-desktop",
-        ],
-        {
-          willChange: "transform, opacity",
-        },
-      );
+      gsap.set([".dish-overlay-backdrop", ".dish-overlay-panel"], {
+        willChange: "transform, opacity",
+      });
 
       const timeline = gsap.timeline({
         defaults: {
@@ -1370,71 +1570,20 @@ export function DemoDishesCarousel({
         )
         .fromTo(
           ".dish-overlay-panel",
-          { y: 26, scale: 0.985, autoAlpha: 0 },
-          { y: 0, scale: 1, autoAlpha: 1, duration: panelEnterDuration },
-          "-=0.08",
-        )
-        .fromTo(
-          ".dish-overlay-image",
           {
-            xPercent: overlayDirection === 1 ? imageShift : -imageShift,
-            scale: 1.04,
-            autoAlpha: 0.86,
-          },
-          {
-            xPercent: 0,
-            scale: 1,
-            autoAlpha: 1,
-            duration: imageEnterDuration,
-            ease: isMobileViewport ? "power2.out" : "power3.out",
-          },
-          0,
-        )
-        .fromTo(
-          ".dish-overlay-copy-desktop",
-          {
-            x: 18,
+            x: overlayDirection === 1 ? panelShift : -panelShift,
+            y: 10,
+            scale: 0.992,
             autoAlpha: 0,
           },
           {
             x: 0,
-            autoAlpha: 1,
-            duration: isMobileViewport ? 0 : 0.32,
-            ease: "power2.out",
-          },
-          isMobileViewport ? 0 : 0.08,
-        )
-        .fromTo(
-          ".dish-overlay-image-focus",
-          {
-            xPercent: overlayDirection === 1 ? focusImageShift : -focusImageShift,
-            scale: 1.08,
-            autoAlpha: 0.92,
-          },
-          {
-            xPercent: 0,
-            scale: 1.04,
-            autoAlpha: 1,
-            duration: focusImageEnterDuration,
-            ease: isMobileViewport ? "power2.out" : "power3.out",
-          },
-          0,
-        )
-        .fromTo(
-          ".dish-overlay-image-backdrop",
-          {
-            xPercent: overlayDirection === 1 ? -backdropImageShift : backdropImageShift,
-            scale: 1.02,
-            autoAlpha: 0.24,
-          },
-          {
-            xPercent: 0,
+            y: 0,
             scale: 1,
-            autoAlpha: 0.34,
-            duration: backdropImageEnterDuration,
-            ease: isMobileViewport ? "power2.out" : "power3.out",
+            autoAlpha: 1,
+            duration: panelEnterDuration,
           },
-          0,
+          "-=0.08",
         )
         ;
     },
@@ -1549,6 +1698,44 @@ export function DemoDishesCarousel({
     },
   );
 
+  useGSAP(
+    () => {
+      if (!heroVisualRef.current || heroPreviewItems.length === 0) {
+        return;
+      }
+
+      const cards = heroVisualRef.current.querySelectorAll(
+        "[data-hero-preview-card]",
+      );
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (reduceMotion) {
+        gsap.set(cards, { autoAlpha: 1, y: 0 });
+        return;
+      }
+
+      gsap.fromTo(
+        cards,
+        { autoAlpha: 0, y: 18 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.54,
+          ease: "power3.out",
+          stagger: 0.09,
+          delay: 0.08,
+        },
+      );
+    },
+    {
+      scope: heroVisualRef,
+      dependencies: [heroPreviewItems.length],
+      revertOnUpdate: true,
+    },
+  );
+
   useEffect(() => {
     if (!shouldKeepSearchOpen) {
       return;
@@ -1594,20 +1781,47 @@ export function DemoDishesCarousel({
       className={
         isLightTheme
           ? "min-h-screen bg-[#f6f2ea] text-[#141414]"
-          : "min-h-screen bg-[#06080d] text-white"
+          : "zylen-visual-skin min-h-screen text-white"
       }
     >
-      <section className="relative overflow-hidden px-1.5 pb-8 pt-[max(0.85rem,env(safe-area-inset-top))] sm:px-6 sm:pb-10 lg:px-8">
+      <style jsx global>{`
+        @keyframes heroDishBreath {
+          0%,
+          100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+        }
+
+        @keyframes heroPlateFloat {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) rotate(-2deg) scale(1);
+          }
+          50% {
+            transform: translate3d(0, -12px, 0) rotate(1deg) scale(1.025);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hero-plate-float {
+            animation: none !important;
+          }
+        }
+      `}</style>
+      <section className="relative overflow-hidden px-1.5 pb-6 pt-[max(0.85rem,env(safe-area-inset-top))] sm:px-6 sm:pb-8 lg:px-8">
         <div
           className={
             isLightTheme
               ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,223,129,0.12),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(18,52,33,0.24),transparent_26%),linear-gradient(180deg,#07100d_0%,#05070c_100%)]"
+              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(124,255,184,0.10),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(255,180,93,0.10),transparent_22%),linear-gradient(180deg,rgba(7,16,13,0.68)_0%,rgba(5,7,12,0.76)_100%)]"
           }
         />
 
         <div className="relative z-10 mx-auto max-w-[1600px]">
-          <div className="flex min-h-[calc(100svh-max(0.85rem,env(safe-area-inset-top)))] flex-col">
+          <div className="flex min-h-[min(52svh,31rem)] flex-col">
             <div
               className={
                 isLightTheme
@@ -1679,13 +1893,75 @@ export function DemoDishesCarousel({
               </div>
             </div>
 
-            <div className="mt-6 flex flex-1 flex-col justify-center sm:mt-10">
-              <div className="max-w-[38rem]">
-                <p className={isLightTheme ? "text-[11px] font-medium uppercase tracking-[0.28em] text-black/42" : "text-[11px] font-medium uppercase tracking-[0.28em] text-white/42"}>{content.heroEyebrow}</p>
-                <h1 className="mt-2.5 max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] sm:mt-3 sm:max-w-none">{content.heroTitle}</h1>
-                <p className={isLightTheme ? "mt-3 max-w-[32rem] text-[0.95rem] leading-6 text-black/56 sm:mt-4 sm:max-w-[34rem] sm:text-base sm:leading-7" : "mt-3 max-w-[32rem] text-[0.95rem] leading-6 text-white/56 sm:mt-4 sm:max-w-[34rem] sm:text-base sm:leading-7"}>
-                  {content.heroDescription}
-                </p>
+            <div className="mt-4 flex flex-1 flex-col justify-center sm:mt-5">
+              <div className="relative -mx-3 overflow-hidden rounded-[1.5rem] px-3 py-4 sm:-mx-5 sm:px-5 sm:py-4 lg:px-7">
+                {heroPreviewItems[0]?.imageUrl ? (
+                  <Image
+                    src={heroPreviewItems[0].imageUrl}
+                    alt=""
+                    fill
+                    sizes="100vw"
+                    className="scale-100 object-cover opacity-64 motion-safe:animate-[heroDishBreath_16s_ease-in-out_infinite]"
+                    priority
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(5,8,22,0.86)_0%,rgba(5,8,22,0.70)_46%,rgba(5,8,22,0.48)_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_28%,rgba(255,146,64,0.20),transparent_30%),radial-gradient(circle_at_78%_22%,rgba(124,255,184,0.10),transparent_28%)]" />
+                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(0deg,rgba(5,8,22,0.62),transparent)]" />
+
+                <div className="relative z-10 grid items-center gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(14rem,20rem)] lg:grid-cols-[minmax(0,0.95fr)_minmax(18rem,24rem)] lg:gap-8">
+                <div className="max-w-[42rem]">
+                  <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.24em] text-black/44" : "text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ffc36a]/90"}>
+                    {"Cerca de ti"}
+                  </p>
+                  <h1 className="mt-2 max-w-[11ch] text-[clamp(2.35rem,8vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.07em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.42)] sm:max-w-[10ch]">
+                    {"Elige qu\u00e9 te apetece"}
+                  </h1>
+                  <p className={isLightTheme ? "mt-3 max-w-[28rem] text-[1rem] leading-7 text-black/62 sm:text-base sm:leading-7" : "mt-3 max-w-[28rem] text-[1rem] leading-7 text-white/82 drop-shadow-[0_8px_24px_rgba(0,0,0,0.38)] sm:text-base sm:leading-7"}>
+                    {"Mira platos reales y decide r\u00e1pido."}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
+                    {["R\u00e1pido", "Muy elegido", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
+                      <span
+                        key={label}
+                        className={isLightTheme ? "rounded-full border border-black/8 bg-white/62 px-3.5 py-1.5 text-[11px] font-semibold text-black/58 shadow-[0_10px_28px_rgba(0,0,0,0.05)]" : "rounded-full border border-white/14 bg-black/18 px-3.5 py-1.5 text-[11px] font-semibold text-white/82 shadow-[0_10px_28px_rgba(0,0,0,0.18)]"}
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <Link
+                      href="#platos-feed"
+                      className="inline-flex items-center justify-center rounded-full bg-[#ffb45d] px-5 py-3 text-sm font-semibold text-[#1b0d04] shadow-[0_18px_46px_rgba(255,159,72,0.32)] transition hover:-translate-y-[1px] hover:bg-[#ffc87d]"
+                    >
+                      Explorar platos
+                    </Link>
+                    <Link
+                      href="/zonas"
+                      className={isLightTheme ? "inline-flex items-center justify-center rounded-full border border-black/10 bg-white/58 px-5 py-3 text-sm font-semibold text-black/72 transition hover:bg-white" : "inline-flex items-center justify-center rounded-full border border-white/16 bg-black/20 px-5 py-3 text-sm font-semibold text-white/86 transition hover:-translate-y-[1px] hover:bg-black/28"}
+                    >
+                      Ver zonas
+                    </Link>
+                  </div>
+                </div>
+
+                <div ref={heroVisualRef} className="relative hidden min-h-[13rem] md:block lg:min-h-[16rem]">
+                  <div className="absolute left-[58%] top-1/2 h-[12rem] w-[12rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,169,78,0.34),rgba(255,169,78,0.12)_42%,transparent_72%)] blur-2xl sm:h-[16rem] sm:w-[16rem] lg:h-[19rem] lg:w-[19rem]" />
+                  <div data-hero-preview-card className="hero-plate-float absolute -right-8 top-1/2 z-20 h-[13rem] w-[17rem] -translate-y-1/2 opacity-95 motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite] motion-safe:will-change-transform lg:-right-12 lg:h-[17rem] lg:w-[23rem]">
+                    <Image
+                      src="/hero/platos/hero_chopitos.png"
+                      alt="Chopitos crujientes para recoger"
+                      fill
+                      sizes="(max-width: 640px) 18rem, (max-width: 1024px) 24rem, 30rem"
+                      className="object-contain drop-shadow-[0_34px_60px_rgba(0,0,0,0.42)]"
+                      priority
+                    />
+                  </div>
+                </div>
+                </div>
               </div>
 
               <div className="mt-5 sm:mt-7">
@@ -1890,45 +2166,52 @@ export function DemoDishesCarousel({
                   </div>
 
                   <div className="grid grid-cols-2 gap-1 sm:gap-3 md:grid-cols-4">
-                    {quickDecisionItems.map((item) => (
-                      <article
-                        key={`quick-${item.id}`}
-                        className={isLightTheme ? "group relative min-h-[12rem] overflow-hidden rounded-none bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)] sm:rounded-[1rem] md:min-h-[14rem]" : "group relative min-h-[12rem] overflow-hidden rounded-none bg-black/10 sm:rounded-[1rem] md:min-h-[14rem]"}
-                      >
-                        <Image
-                          src={item.imageUrl ?? ""}
-                          alt={item.name}
-                          fill
-                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw"
-                          className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
-                        />
-                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.1)_30%,rgba(4,7,11,0.64))]" />
-                        <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-10 sm:px-4 sm:pb-4">
-                          <div className="space-y-2">
-                            <p className="line-clamp-2 text-[0.98rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.08rem]">
-                              {getDishDisplayName(item)}
-                            </p>
-                            <p className="font-serif text-[0.95rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">
-                              {formatPrice(item)}
-                            </p>
-                            <AddToCartButton
-                              venue={getCartVenueFromShowcaseItem(item)}
-                              item={getCartItemFromShowcaseItem(item)}
-                              label={funnelSettings.platos.featuredFeed.ctaLabel}
-                              source="platos_quick_decision"
-                              className="pt-1"
-                              buttonClassName="inline-flex w-full items-center justify-center rounded-full border border-white/85 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#07100d] shadow-[0_10px_24px_rgba(0,0,0,0.34)] transition hover:bg-white/94"
-                              feedbackClassName="mt-2 inline-flex rounded-full bg-black/48 px-2.5 py-1 text-xs font-semibold leading-5 text-white shadow-[0_8px_18px_rgba(0,0,0,0.28)] backdrop-blur-md"
+                    {quickDecisionItems.map((item) => {
+                      const itemIndex = itemIndexById.get(item.id);
+
+                      return (
+                        <article
+                          key={`quick-${item.id}`}
+                          className={isLightTheme ? "group relative min-h-[9.5rem] overflow-hidden rounded-none bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)] sm:rounded-[1rem] md:min-h-[11rem]" : "group relative min-h-[9.5rem] overflow-hidden rounded-none bg-black/10 sm:rounded-[1rem] md:min-h-[11rem]"}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (itemIndex !== undefined) {
+                                setOverlayDirection(1);
+                                setActiveIndex(itemIndex);
+                              }
+                            }}
+                            className="absolute inset-0"
+                            aria-label={`Abrir ${item.name}`}
+                          >
+                            <Image
+                              src={item.imageUrl ?? ""}
+                              alt={item.name}
+                              fill
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw"
+                              className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
                             />
+                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.1)_30%,rgba(4,7,11,0.64))]" />
+                          </button>
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-3.5">
+                            <div className="pointer-events-auto space-y-1.5">
+                              <p className="line-clamp-2 text-[0.9rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1rem]">
+                                {getDishDisplayName(item)}
+                              </p>
+                              <p className="font-serif text-[0.88rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">
+                                {getDecisionSignal(item)}
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      </article>
-                    ))}
+                        </article>
+                      );
+                    })}
                   </div>
                 </section>
               ) : null}
 
-              <div className="mt-6 grid grid-cols-2 auto-rows-[6.4rem] gap-1 sm:mt-10 sm:gap-3 md:grid-cols-3 md:auto-rows-[8.4rem] lg:auto-rows-[13rem] lg:grid-flow-dense lg:gap-4 xl:auto-rows-[14rem]">
+              <div id="platos-feed" className="mt-5 grid grid-cols-2 auto-rows-[5.7rem] gap-1 sm:mt-8 sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
                 {feedEntries.map((entry, index) => {
                 if (entry.type === "promo") {
                   const promo = getPromoTileConfig(entry.id, content.promoHrefs);
@@ -2015,25 +2298,25 @@ export function DemoDishesCarousel({
                       className={getExploreCardClassName(item, index, isLightTheme, true)}
                     >
                       <div className="relative h-full overflow-hidden rounded-[inherit]">
-                        <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
-                        <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
-                        <div className="absolute left-3 top-3 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/82 backdrop-blur-xl">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setOverlayDirection(1);
+                            setActiveIndex(itemIndex);
+                          }}
+                          className="absolute inset-0"
+                          aria-label={`Abrir ${item.name}`}
+                        >
+                          <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
+                          <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
+                        </button>
+                        <div className="pointer-events-none absolute left-2.5 top-2.5 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/82 backdrop-blur-xl">
                           Destacado
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-10 sm:px-5 sm:pb-5">
-                          <div className="space-y-2">
-                            <p className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.22rem]">{getDishDisplayName(item)}</p>
-                            <p className="font-serif text-[1rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{formatPrice(item)}</p>
-                            <p className="text-[0.62rem] font-medium uppercase tracking-[0.2em] text-white/72 drop-shadow-[0_3px_10px_rgba(0,0,0,0.34)]">{getCardMicroContext(item)}</p>
-                            <AddToCartButton
-                              venue={getCartVenueFromShowcaseItem(item)}
-                              item={getCartItemFromShowcaseItem(item)}
-                              label={funnelSettings.platos.featuredFeed.ctaLabel}
-                              source="platos_featured_card"
-                              className="pt-1"
-                              buttonClassName="inline-flex w-full items-center justify-center rounded-full border border-white/85 bg-white px-3 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#07100d] shadow-[0_10px_24px_rgba(0,0,0,0.34)] transition hover:bg-white/94 sm:px-4 sm:py-2.5 sm:text-xs"
-                              feedbackClassName="mt-2 inline-flex rounded-full bg-black/48 px-2.5 py-1 text-xs font-semibold leading-5 text-white shadow-[0_8px_18px_rgba(0,0,0,0.28)] backdrop-blur-md"
-                            />
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-4">
+                          <div className="space-y-1.5">
+                            <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
+                            <p className="font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
                           </div>
                         </div>
                       </div>
@@ -2042,7 +2325,10 @@ export function DemoDishesCarousel({
                 }
 
                 return (
-                  <button key={item.id} type="button" onClick={() => setActiveIndex(itemIndex)} className={getExploreCardClassName(item, index, isLightTheme)} aria-label={`Abrir ${item.name}`}>
+                  <button key={item.id} type="button" onClick={() => {
+                    setOverlayDirection(1);
+                    setActiveIndex(itemIndex);
+                  }} className={getExploreCardClassName(item, index, isLightTheme)} aria-label={`Abrir ${item.name}`}>
                     <div className="relative h-full overflow-hidden rounded-[inherit]">
                       <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
                       <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.34))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.28))]"} />
@@ -2054,11 +2340,10 @@ export function DemoDishesCarousel({
                           <p className="mt-2 translate-y-2 text-[0.68rem] font-medium uppercase tracking-[0.22em] text-white/72 opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{getCardMicroContext(item)}</p>
                         </div>
                       </div>
-                      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 pt-10 sm:px-5 sm:pb-5">
+                      <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-4">
                         <div className="translate-y-0 transition-[transform,opacity] duration-500 ease-out will-change-transform group-hover:sm:-translate-y-2 group-focus-visible:sm:-translate-y-2 group-hover:lg:opacity-0 group-focus-visible:lg:opacity-0">
-                          <p className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.22rem]">{getDishDisplayName(item)}</p>
-                          <p className="mt-2 font-serif text-[1rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{formatPrice(item)} · {getDecisionSignal(item)}</p>
-                          <p className="mt-1 text-[0.62rem] font-medium uppercase tracking-[0.2em] text-white/72 drop-shadow-[0_3px_10px_rgba(0,0,0,0.34)]">{getCardMicroContext(item)}</p>
+                          <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
+                          <p className="mt-1.5 font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
                         </div>
                       </div>
                     </div>
@@ -2086,7 +2371,172 @@ export function DemoDishesCarousel({
         <ZylenPickFooter theme={isLightTheme ? "light" : "dark"} />
       ) : null}
       {activeItem ? (
-        <div className="dish-overlay fixed inset-0 z-50 flex items-center justify-center px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-6">
+        <div
+          className="dish-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"
+          onTouchStart={handleMobileOverlayTouchStart}
+          onTouchEnd={handleMobileOverlayTouchEnd}
+        >
+          <button
+            type="button"
+            className="dish-overlay-backdrop absolute inset-0"
+            aria-label="Cerrar plato"
+            onClick={() => setActiveIndex(null)}
+          />
+
+          <article className="dish-overlay-panel relative z-10 flex max-h-[94svh] w-full max-w-[29rem] flex-col overflow-hidden rounded-[1.65rem] bg-white text-[#111111] shadow-[0_28px_90px_rgba(0,0,0,0.34)] md:max-w-[31rem]">
+            <header className="flex items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3">
+              <Link
+                href={getVenueHref(activeItem)}
+                className="flex min-w-0 items-center gap-3"
+              >
+                <span className="relative inline-flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
+                  {activeItem.venue.logoUrl ?? activeItem.venue.coverUrl ? (
+                    <Image
+                      src={activeItem.venue.logoUrl ?? activeItem.venue.coverUrl ?? ""}
+                      alt={activeItem.venue.name}
+                      fill
+                      sizes="40px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center">
+                      {getVenueAvatarLabel(activeItem)}
+                    </span>
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold leading-5 text-[#111111]">
+                    {activeItem.venue.name}
+                  </span>
+                  <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                    {getVenueDistanceLabel(activeItem, userLocation)}
+                  </span>
+                </span>
+              </Link>
+
+              <div className="flex items-center gap-1.5">
+                <Link
+                  href={getVenueHref(activeItem)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                  aria-label="Ver local"
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setActiveIndex(null)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                  aria-label="Cerrar"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </header>
+
+            <button
+              type="button"
+              onClick={() => setIsPostImageFullscreen(true)}
+              className="dish-overlay-image relative aspect-[4/5] w-full overflow-hidden bg-[#101010]"
+              aria-label="Ver imagen del plato en grande"
+            >
+              {activeItem.imageUrl ? (
+                <DishVisualMedia
+                  item={activeItem}
+                  sizes="(max-width: 640px) 100vw, 31rem"
+                  className=""
+                  priority
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center px-6 text-sm text-white/70">
+                  Imagen no disponible
+                </span>
+              )}
+            </button>
+
+            <section className="dish-overlay-copy-desktop bg-white px-4 pb-4 pt-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  <Link
+                    href={getVenueHref(activeItem)}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                    aria-label="Ver informacion del plato"
+                  >
+                    <Info className="h-5 w-5" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => void handleShareDish(activeItem)}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                    aria-label="Compartir plato"
+                  >
+                    <Send className="h-5 w-5" />
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleAddPostToCart(activeItem)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white shadow-[0_12px_28px_rgba(0,0,0,0.2)] transition hover:bg-black"
+                  aria-label="A\u00f1adir para recoger"
+                >
+                  <CartIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              {postFeedback ? (
+                <p className="mt-2 rounded-full bg-black/[0.05] px-3 py-2 text-xs font-medium leading-4 text-[#303030]">
+                  {postFeedback}
+                </p>
+              ) : null}
+
+              <div className="mt-3 space-y-2">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="text-xl font-semibold leading-6 text-[#111111]">
+                    {getDishDisplayName(activeItem)}
+                  </h2>
+                  <span className="shrink-0 text-base font-semibold leading-6 text-[#111111]">
+                    {formatPrice(activeItem)}
+                  </span>
+                </div>
+                {activeItem.description ? (
+                  <p className="text-sm leading-5 text-[#5f5f5f]">
+                    {getShortDescription(activeItem)}
+                  </p>
+                ) : null}
+                {activeItem.pickupEtaMin ? (
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-[#f1f1f1] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
+                    <Clock3 className="h-3.5 w-3.5" />
+                    Listo en {activeItem.pickupEtaMin} min
+                  </p>
+                ) : null}
+              </div>
+            </section>
+          </article>
+
+          {isPostImageFullscreen ? (
+            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black p-4">
+              <button
+                type="button"
+                onClick={() => setIsPostImageFullscreen(false)}
+                className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
+                aria-label="Cerrar imagen"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              {activeItem.imageUrl ? (
+                <DishVisualMedia
+                  item={activeItem}
+                  sizes="100vw"
+                  className=""
+                  fit="contain"
+                  priority
+                />
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+      {activeItem ? (
+        <div className="hidden">
           <button
             type="button"
             className={
@@ -2210,9 +2660,27 @@ export function DemoDishesCarousel({
                     </div>
                     <div className={isLightTheme ? "mt-4 flex items-center gap-2 text-sm text-black/62" : "mt-4 flex items-center gap-2 text-sm text-white/62"}>
                       <MapPin className="h-4 w-4" />
-                      <span>{activeItem.venue.name}</span>
+                      <span>{activeItem.venue.name} · {getVenueDistanceLabel(activeItem, userLocation)}</span>
                     </div>
                     <div className="mt-4 flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setIsMobileSheetExpanded(true)}
+                          className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
+                          aria-label="Ver informacion del plato"
+                        >
+                          <Info className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleShareDish(activeItem)}
+                          className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
+                          aria-label="Compartir plato"
+                        >
+                          <Send className="h-4 w-4" />
+                        </button>
+                      </div>
                       <AddToCartButton
                         venue={getCartVenueFromShowcaseItem(activeItem)}
                         item={getCartItemFromShowcaseItem(activeItem)}
@@ -2246,34 +2714,36 @@ export function DemoDishesCarousel({
                       }`}
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOverlayDirection(-1);
-                              setActiveIndex((current) =>
-                                current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
-                              );
-                            }}
-                            className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
-                            aria-label="Plato anterior"
-                          >
-                            <MoveLeft className="h-4 w-4" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOverlayDirection(1);
-                              setActiveIndex((current) =>
-                                current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
-                              );
-                            }}
-                            className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
-                            aria-label="Plato siguiente"
-                          >
-                            <MoveRight className="h-4 w-4" />
-                          </button>
-                        </div>
+                        {hasActiveVenueNavigation ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOverlayDirection(-1);
+                                setActiveIndex((current) =>
+                                  current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
+                                );
+                              }}
+                              className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
+                              aria-label="Plato anterior"
+                            >
+                              <MoveLeft className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOverlayDirection(1);
+                                setActiveIndex((current) =>
+                                  current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
+                                );
+                              }}
+                              className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
+                              aria-label="Plato siguiente"
+                            >
+                              <MoveRight className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ) : null}
                     </div>
                   </div>
                 </div>
@@ -2302,34 +2772,36 @@ export function DemoDishesCarousel({
                   </Link>
                 </div>
 
-                <div className="absolute bottom-6 left-6 flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOverlayDirection(-1);
-                      setActiveIndex((current) =>
-                        current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
-                      );
-                    }}
-                    className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
-                    aria-label="Plato anterior"
-                  >
-                    <MoveLeft className="h-5 w-5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOverlayDirection(1);
-                      setActiveIndex((current) =>
-                        current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
-                      );
-                    }}
-                    className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
-                    aria-label="Plato siguiente"
-                  >
-                    <MoveRight className="h-5 w-5" />
-                  </button>
-                </div>
+                {hasActiveVenueNavigation ? (
+                  <div className="absolute bottom-6 left-6 flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOverlayDirection(-1);
+                        setActiveIndex((current) =>
+                          current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
+                        );
+                      }}
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
+                      aria-label="Plato anterior"
+                    >
+                      <MoveLeft className="h-5 w-5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOverlayDirection(1);
+                        setActiveIndex((current) =>
+                          current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
+                        );
+                      }}
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
+                      aria-label="Plato siguiente"
+                    >
+                      <MoveRight className="h-5 w-5" />
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
               <div className="dish-overlay-copy-desktop flex h-full min-h-0 flex-col overflow-y-auto p-7">
@@ -2353,6 +2825,21 @@ export function DemoDishesCarousel({
                   </h2>
 
                   <div className="mt-4 flex flex-wrap items-start gap-3">
+                    <button
+                      type="button"
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
+                      aria-label="Informacion del plato"
+                    >
+                      <Info className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handleShareDish(activeItem)}
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
+                      aria-label="Compartir plato"
+                    >
+                      <Send className="h-4 w-4" />
+                    </button>
                     <AddToCartButton
                       venue={getCartVenueFromShowcaseItem(activeItem)}
                       item={getCartItemFromShowcaseItem(activeItem)}
@@ -2382,7 +2869,7 @@ export function DemoDishesCarousel({
                     ) : null}
                     <span className={isLightTheme ? "inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-2" : "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2"}>
                       <MapPin className="h-4 w-4" />
-                      {activeItem.venue.name}
+                      {activeItem.venue.name} · {getVenueDistanceLabel(activeItem, userLocation)}
                     </span>
                   </div>
 
@@ -2395,9 +2882,11 @@ export function DemoDishesCarousel({
 
                 <div className="mt-6 border-t border-black/8 pt-5 md:mt-auto md:pt-6">
                   <div className="flex items-center justify-end gap-4">
-                    <p className={isLightTheme ? "text-[11px] uppercase tracking-[0.24em] text-black/34" : "text-[11px] uppercase tracking-[0.24em] text-white/34"}>
-                      {activeIndex === null ? 0 : activeIndex + 1} / {filteredItems.length}
-                    </p>
+                    {hasActiveVenueNavigation ? (
+                      <p className={isLightTheme ? "text-[11px] uppercase tracking-[0.24em] text-black/34" : "text-[11px] uppercase tracking-[0.24em] text-white/34"}>
+                        {activeVenuePosition + 1} / {activeVenueItems.length}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
               </div>

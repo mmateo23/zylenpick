@@ -31,6 +31,23 @@ const navigationItems = [
 
 const logoSrc = "/logo/ZyelnpickLOGO_green.png";
 
+function formatActiveOrderTime(pickupAt: string | null | undefined) {
+  if (!pickupAt) {
+    return null;
+  }
+
+  const date = new Date(pickupAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function getBadgeLabel(totalItems: number) {
   return totalItems > 9 ? "9+" : String(totalItems);
 }
@@ -57,6 +74,24 @@ function ActiveOrderBadge() {
   );
 }
 
+function ActiveOrderIndicator({
+  timeLabel,
+  iconSize,
+}: {
+  timeLabel: string | null;
+  iconSize: number;
+}) {
+  return (
+    <>
+      <span className="inline-flex items-center gap-1.5">
+        <ClockIcon size={iconSize} />
+        {timeLabel ? <span>{timeLabel}</span> : null}
+      </span>
+      <ActiveOrderBadge />
+    </>
+  );
+}
+
 export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const pathname = usePathname();
   const { totals } = useCart();
@@ -73,6 +108,9 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
       ? "Pedido activo"
       : "Carrito";
   const showActiveOrderAccess = !hasCartItems && Boolean(activeOrderHref);
+  const activeOrderTimeLabel = showActiveOrderAccess
+    ? formatActiveOrderTime(activeOrder?.pickupAt)
+    : null;
 
   useEffect(() => {
     setSelectedCity(readSelectedCity());
@@ -154,13 +192,13 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             <Link
               href={orderAccessHref}
               aria-label={orderAccessLabel}
-              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${dockButtonClassName}`}
+              className={`relative inline-flex items-center justify-center justify-self-end rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[3rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${dockButtonClassName}`}
             >
               {showActiveOrderAccess ? (
-                <>
-                  <ClockIcon size={16} />
-                  <ActiveOrderBadge />
-                </>
+                <ActiveOrderIndicator
+                  timeLabel={activeOrderTimeLabel}
+                  iconSize={16}
+                />
               ) : (
                 <>
                   <CartIcon size={16} />
@@ -216,13 +254,13 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <Link
                 href={orderAccessHref}
                 aria-label={orderAccessLabel}
-                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
+                className={`relative inline-flex items-center justify-center rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[3.1rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${dockButtonClassName}`}
               >
                 {showActiveOrderAccess ? (
-                  <>
-                    <ClockIcon size={16} />
-                    <ActiveOrderBadge />
-                  </>
+                  <ActiveOrderIndicator
+                    timeLabel={activeOrderTimeLabel}
+                    iconSize={16}
+                  />
                 ) : (
                   <>
                     <CartIcon size={16} />
@@ -268,12 +306,12 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                     href={orderAccessHref}
                     className="flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium text-white/76 transition hover:bg-white/[0.05]"
                   >
-                    <span className="relative inline-flex h-5 w-5 items-center justify-center">
+                    <span className={`relative inline-flex items-center justify-center ${showActiveOrderAccess && activeOrderTimeLabel ? "min-w-[2.7rem] text-[11px] font-semibold tracking-[0.04em]" : "h-5 w-5"}`}>
                       {showActiveOrderAccess ? (
-                        <>
-                          <ClockIcon size={18} />
-                          <ActiveOrderBadge />
-                        </>
+                        <ActiveOrderIndicator
+                          timeLabel={activeOrderTimeLabel}
+                          iconSize={18}
+                        />
                       ) : (
                         <>
                           <CartIcon size={18} />

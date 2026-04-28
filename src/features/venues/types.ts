@@ -95,6 +95,7 @@ export type HomeShowcaseItem = {
     address: string | null;
     latitude: number | null;
     longitude: number | null;
+    logoUrl?: string | null;
     coverUrl: string | null;
     citySlug: string;
     cityName: string;

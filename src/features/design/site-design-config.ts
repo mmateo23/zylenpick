@@ -61,9 +61,9 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
       directions: "Cómo llegar",
     },
     home: {
-      heroTitle: "Decide qué comer en segundos",
+      heroTitle: "Descubre qué comer en segundos",
       heroSubtitle:
-        "Mira platos reales de locales cercanos y elige qué recoger sin reseñas eternas, llamadas ni complicaciones.",
+        "Platos reales cerca de ti. Elige, pide y recógelo sin complicaciones.",
     },
     cart: {
       emptyTitle: "Elige platos para recoger.",

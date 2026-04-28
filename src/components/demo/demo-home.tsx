@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, Info, MoreHorizontal, Send, ShoppingBag } from "lucide-react";
 
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import type { City } from "@/features/cities/types";
@@ -49,35 +49,30 @@ type DemoHomeProps = {
   template?: DemoHomeTemplate;
 };
 
-const FALLBACK_BACKGROUND =
-  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1800&q=80";
-const DEMO_BACKGROUND_VIDEO =
-  "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4";
-const FEATURED_LINKS = [
-  { label: "Para personas", href: "/platos" },
-  { label: "Para locales", href: "/unete" },
-  { label: "El proyecto", href: "/el-proyecto" },
-];
-const QUICK_LINKS = [
-  { label: "🍔 #DobleCheese", href: "/platos?focus=doble-cheese" },
-  { label: "🌮 #TacoLento", href: "/platos?focus=taco-lento" },
-  { label: "🍕 #HornoDeDani", href: "/zonas?focus=horno-de-dani" },
-  { label: "🍜 #RamenPM", href: "/platos?focus=ramen-pm" },
-  { label: "🥟 #LaEsquina", href: "/zonas?focus=la-esquina" },
-  { label: "🌯 #LoPillo", href: "/platos?focus=lo-pillo" },
-  { label: "🍗 #BarrioFrito", href: "/zonas?focus=barrio-frito" },
-];
-
 function getZonesHref(selectedCity: StoredCity | null) {
   return selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
 }
 
-export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
+function formatHomePrice(item: HomeShowcaseItem) {
+  return new Intl.NumberFormat("es-ES", {
+    style: "currency",
+    currency: item.currency,
+  }).format(item.priceAmount / 100);
+}
+
+function getPreviewItemHref(item: HomeShowcaseItem) {
+  return `/zonas/${item.venue.citySlug}/venues/${item.venue.slug}#plato-${item.id}`;
+}
+
+export function DemoHome({
+  featuredItems,
+  latestItems,
+  template,
+}: DemoHomeProps) {
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [showLoader, setShowLoader] = useState(true);
   const [isLoaderVisible, setIsLoaderVisible] = useState(true);
   const [isPageReady, setIsPageReady] = useState(false);
-  const [isVisualReady, setIsVisualReady] = useState(false);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [locationPromptExpanded, setLocationPromptExpanded] = useState(false);
   const [locationAccepted, setLocationAccepted] = useState(false);
@@ -128,7 +123,7 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
   }, []);
 
   useEffect(() => {
-    if (!isPageReady && !isVisualReady) {
+    if (!isPageReady) {
       return undefined;
     }
 
@@ -140,17 +135,40 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [isPageReady, isVisualReady]);
+  }, [isPageReady]);
 
   const zoneLabel = selectedCity?.name ?? "Tu zona";
-  const heroMediaUrl = design?.media.homeHeroMediaUrl || heroImageUrl;
-  const heroMediaType = design?.media.homeHeroMediaType ?? "video";
+  const previewItems = [...featuredItems, ...latestItems]
+    .filter((item, index, items) => {
+      return (
+        Boolean(item.imageUrl) &&
+        items.findIndex((candidate) => candidate.id === item.id) === index
+      );
+    })
+    .slice(0, 8);
 
   return (
     <main
       data-demo-home-root
-      className="relative h-[100svh] overflow-hidden bg-[#070707] text-white md:cursor-none"
+      className="zylen-visual-skin relative h-[100svh] overflow-hidden text-white md:cursor-none"
     >
+      <style jsx global>{`
+        @keyframes homeHeroCardFloat {
+          0%,
+          100% {
+            transform: perspective(900px) translate3d(0, -12px, 0) rotateX(6deg) rotateY(-6deg) rotateZ(-1deg) scale(1.05);
+          }
+          50% {
+            transform: perspective(900px) translate3d(0, 0, 0) rotateX(5deg) rotateY(-4deg) rotateZ(1deg) scale(1.06);
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .home-hero-card-float {
+            animation: none !important;
+          }
+        }
+      `}</style>
       {isLoaderVisible ? (
         <div
           className={`absolute inset-0 z-[90] flex items-center justify-center bg-[#168453] transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
@@ -195,36 +213,10 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
           showLoader ? "scale-[1.025] opacity-0" : "scale-100 opacity-100"
         } motion-reduce:transition-none`}
       >
-        {heroMediaType === "image" ? (
-          <Image
-            src={heroMediaUrl || FALLBACK_BACKGROUND}
-            alt=""
-            aria-hidden="true"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-38"
-            onLoad={() => setIsVisualReady(true)}
-          />
-        ) : (
-          <video
-            className="absolute inset-0 h-full w-full object-cover opacity-38"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={heroImageUrl || FALLBACK_BACKGROUND}
-            onLoadedData={() => setIsVisualReady(true)}
-            onCanPlay={() => setIsVisualReady(true)}
-          >
-            <source
-              src={heroMediaUrl || DEMO_BACKGROUND_VIDEO}
-              type="video/mp4"
-            />
-          </video>
-        )}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.08),_transparent_24%),radial-gradient(circle_at_82%_16%,_rgba(191,219,254,0.05),_transparent_20%),linear-gradient(180deg,_rgba(255,255,255,0.005)_0%,_rgba(255,255,255,0.0)_28%,_rgba(15,23,42,0.1)_62%,_rgba(2,6,23,0.28)_100%)] backdrop-blur-[3px]" />
-        <div className="absolute -left-[18vw] bottom-[-8vh] h-[24vh] w-[52vw] rounded-full bg-emerald-400/12 blur-3xl" />
+        <div className="brand-particle-field" />
+        <div className="brand-ambient-orb brand-ambient-orb--green left-[-12vw] top-[12vh] h-[36vh] w-[42vw]" />
+        <div className="brand-ambient-orb brand-ambient-orb--amber right-[-14vw] top-[10vh] h-[38vh] w-[44vw]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(3,4,4,0.16)_46%,rgba(3,4,4,0.72)_100%)]" />
       </div>
 
       <div
@@ -232,7 +224,8 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
           showLoader ? "translate-y-3 opacity-0" : "translate-y-0 opacity-100"
         } motion-reduce:transition-none`}
       >
-        <div className="flex w-full max-w-6xl flex-col items-center text-center">
+        <div className="grid w-full max-w-6xl items-center gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(19rem,0.9fr)] lg:gap-10">
+          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           <div className="relative w-24 sm:w-32 md:w-36">
             <Image
               src="/logo/ZyelnpickLOGO_green.png"
@@ -416,77 +409,137 @@ export function DemoHome({ heroImageUrl, design, template }: DemoHomeProps) {
             ) : null}
           </div>
 
-          <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.5rem,7.2vw,7rem)] font-semibold leading-[0.88] tracking-[-0.08em] text-white sm:mt-6 sm:max-w-5xl">
-            {design?.texts.home.heroTitle ?? "Decide qué comer en segundos"}
+          <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_22px_56px_rgba(0,0,0,0.5)] sm:mt-6 lg:max-w-[9ch]">
+            {"Elige qu\u00e9 comer en segundos"}
           </h1>
 
-          <p className="mt-3 max-w-xl text-balance text-[16px] leading-6 text-white/68 sm:mt-4 sm:max-w-2xl sm:text-base sm:leading-7 md:text-lg">
-            {design?.texts.home.heroSubtitle ??
-              "Mira platos reales de locales cercanos y elige qué recoger sin reseñas eternas, llamadas ni complicaciones."}
+          <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-white/84 drop-shadow-[0_10px_28px_rgba(0,0,0,0.42)] sm:mt-4 sm:text-xl sm:leading-8">
+            {"Mira platos. Decide. Rec\u00f3gelo."}
           </p>
 
-          <div className="mt-6 flex w-full max-w-3xl flex-row gap-2 sm:mt-10 sm:gap-4">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             <Link
               href={template?.primaryHref ?? "/platos"}
-              className="group relative flex aspect-[10/11] basis-1/2 flex-col items-center justify-center gap-2 overflow-hidden px-3 py-3 text-center transition duration-300 hover:-translate-y-0.5 sm:min-h-[92px] sm:basis-1/2 sm:flex-1 sm:aspect-auto sm:flex-row sm:items-center sm:justify-end sm:gap-0 sm:px-5 sm:py-4 sm:text-right md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full bg-[#ffb45d] px-6 py-3.5 text-sm font-semibold text-[#1b0d04] shadow-[0_20px_54px_rgba(255,159,72,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffc87d] md:cursor-none"
             >
-              <div className="relative z-10 inline-flex flex-col items-center gap-2 rounded-[1.5rem] border border-white/16 bg-white/[0.08] px-4 py-3 shadow-[0_6px_16px_rgba(0,0,0,0.12)] backdrop-blur-[18px] sm:ml-auto sm:flex-row sm:items-center sm:gap-4 sm:rounded-[1.4rem] sm:px-4 sm:py-3">
-                <div className="flex items-center justify-center text-[1.9rem] sm:text-[2rem]">
-                  🍽️
-                </div>
-                <div className="mt-0">
-                  <p className="text-[0.96rem] font-semibold tracking-[-0.05em] text-white sm:text-[1.6rem]">
-                    {"Platos"}
-                  </p>
-                  <p className="mt-1.5 text-[8px] uppercase tracking-[0.24em] text-white/42 sm:text-[10px] sm:tracking-[0.28em]">
-                    Decidir ahora
-                  </p>
-                </div>
-              </div>
+              Ver platos
             </Link>
-
             <Link
               href={getZonesHref(selectedCity)}
-              className="group relative flex aspect-[10/11] basis-1/2 flex-col items-center justify-center gap-2 overflow-hidden px-3 py-3 text-center transition duration-300 hover:-translate-y-0.5 sm:min-h-[92px] sm:basis-1/2 sm:flex-1 sm:aspect-auto sm:flex-row sm:items-center sm:justify-start sm:gap-0 sm:px-5 sm:py-4 sm:text-left md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full border border-white/16 bg-black/20 px-5 py-3.5 text-sm font-semibold text-white/82 transition hover:-translate-y-0.5 hover:bg-black/28 md:cursor-none"
             >
-              <div className="relative z-10 inline-flex flex-col items-center gap-2 rounded-[1.5rem] border border-white/14 bg-white/[0.07] px-4 py-3 shadow-[0_6px_16px_rgba(0,0,0,0.12)] backdrop-blur-[18px] sm:flex-row sm:items-center sm:gap-4 sm:rounded-[1.4rem] sm:px-4 sm:py-3">
-                <div className="flex items-center justify-center text-[2rem]">
-                  📍
-                </div>
-                <div className="mt-0">
-                  <p className="text-[0.96rem] font-semibold tracking-[-0.05em] text-white sm:text-[1.6rem]">
-                    {"Zonas"}
-                  </p>
-                  <p className="mt-1.5 text-[8px] uppercase tracking-[0.24em] text-white/40 sm:text-[10px] sm:tracking-[0.28em]">
-                    Ver cerca
-                  </p>
-                </div>
-              </div>
+              Explorar zonas
             </Link>
           </div>
-
-          <div className="mt-3 flex w-full max-w-3xl flex-wrap items-center justify-center gap-2 sm:mt-5 sm:gap-2.5">
-            {FEATURED_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="rounded-full border border-white/18 bg-white/[0.1] px-4 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/88 shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-white/28 hover:bg-white/[0.14] hover:text-white md:cursor-none sm:px-4.5 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-              >
-                {item.label}
-              </Link>
-            ))}
           </div>
 
-          <div className="mt-2.5 flex w-full max-w-3xl flex-wrap items-center justify-center gap-1.5 sm:mt-4 sm:gap-2">
-            {QUICK_LINKS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-medium tracking-[0.07em] text-white/54 transition hover:bg-white/[0.07] hover:text-white md:cursor-none sm:px-3.5 sm:py-1.5 sm:text-[11px] sm:tracking-[0.12em]"
-              >
-                {item.label}
-              </Link>
-            ))}
+          <div className="relative mx-auto flex w-full max-w-[21.75rem] items-center justify-center self-center lg:mx-auto lg:max-w-[24rem] lg:-translate-x-4">
+            <div className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,180,93,0.28),rgba(124,255,184,0.08)_42%,transparent_70%)] blur-3xl" />
+            {previewItems[0] ? (
+              <article className="home-hero-card-float relative flex w-full max-h-[min(82svh,40rem)] flex-col overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] text-[#111111] shadow-[0_36px_86px_rgba(0,0,0,0.52),0_0_70px_rgba(255,180,93,0.14)] transition duration-500 hover:scale-[1.04] md:cursor-none motion-safe:animate-[homeHeroCardFloat_8s_ease-in-out_infinite]">
+                <header className="flex items-center justify-between gap-3 px-3.5 py-3">
+                  <Link
+                    href={getPreviewItemHref(previewItems[0])}
+                    className="flex min-w-0 items-center gap-3"
+                  >
+                    <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
+                      {previewItems[0].venue.logoUrl ? (
+                        <Image
+                          src={previewItems[0].venue.logoUrl}
+                          alt={previewItems[0].venue.name}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        previewItems[0].venue.name.trim().slice(0, 1).toUpperCase()
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-semibold leading-4">
+                        {previewItems[0].venue.name}
+                      </span>
+                      <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                        {previewItems[0].venue.cityName}
+                      </span>
+                    </span>
+                  </Link>
+                  <Link
+                    href={getPreviewItemHref(previewItems[0])}
+                    aria-label="Ver local"
+                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                  >
+                    <MoreHorizontal className="h-5 w-5" />
+                  </Link>
+                </header>
+
+                <Link href={getPreviewItemHref(previewItems[0])} className="block shrink-0">
+                  <div className="relative h-[34svh] min-h-[13.5rem] max-h-[20rem] overflow-hidden bg-[#141414] sm:h-[40svh] sm:max-h-[23rem]">
+                  <Image
+                    src={previewItems[0].imageUrl ?? ""}
+                    alt={previewItems[0].name}
+                    fill
+                    sizes="(max-width: 640px) 22rem, 25rem"
+                    className="object-cover object-center transition duration-700 hover:scale-[1.025]"
+                    priority
+                  />
+                  </div>
+                </Link>
+
+                <section className="shrink-0 bg-[#f8f7f3] px-3.5 pb-3.5 pt-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-1.5">
+                      <Link
+                        href={getPreviewItemHref(previewItems[0])}
+                        aria-label="Ver detalle del plato"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                      >
+                        <Info className="h-5 w-5" />
+                      </Link>
+                      <Link
+                        href={getPreviewItemHref(previewItems[0])}
+                        aria-label="Compartir plato"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                      >
+                        <Send className="h-5 w-5" />
+                      </Link>
+                    </div>
+                    <Link
+                      href={getPreviewItemHref(previewItems[0])}
+                      aria-label="Añadir para recoger"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white shadow-[0_12px_28px_rgba(0,0,0,0.2)] transition hover:bg-black"
+                    >
+                      <ShoppingBag className="h-5 w-5" />
+                    </Link>
+                  </div>
+
+                  <div className="mt-2.5 space-y-1.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111] sm:text-xl sm:leading-6">
+                        {previewItems[0].name}
+                      </h2>
+                      <span className="shrink-0 rounded-full bg-[#ffb45d] px-3 py-1.5 text-sm font-bold text-[#1b0d04]">
+                        {formatHomePrice(previewItems[0])}
+                      </span>
+                    </div>
+                    {previewItems[0].description ? (
+                      <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
+                        {previewItems[0].description}
+                      </p>
+                    ) : null}
+                    <span className="inline-flex rounded-full bg-[#111111]/[0.06] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
+                      {previewItems[0].pickupEtaMin
+                        ? `Listo en ${previewItems[0].pickupEtaMin} min`
+                        : "Listo para recoger"}
+                    </span>
+                  </div>
+                </section>
+              </article>
+            ) : (
+              <div className="relative flex aspect-[4/5] items-center justify-center rounded-[2.15rem] border border-white/14 bg-white/[0.075] px-8 text-center text-sm text-white/62 shadow-[0_46px_120px_rgba(0,0,0,0.58)] backdrop-blur-xl">
+                Los platos aparecerán aquí cuando haya contenido visual.
+              </div>
+            )}
           </div>
         </div>
       </div>
