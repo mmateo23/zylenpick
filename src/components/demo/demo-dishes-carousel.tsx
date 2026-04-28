@@ -1935,13 +1935,13 @@ export function DemoDishesCarousel({
                   <div className="mt-5 flex flex-wrap items-center gap-3">
                     <Link
                       href="#platos-feed"
-                      className="inline-flex items-center justify-center rounded-full bg-[#ffb45d] px-5 py-3 text-sm font-semibold text-[#1b0d04] shadow-[0_18px_46px_rgba(255,159,72,0.32)] transition hover:-translate-y-[1px] hover:bg-[#ffc87d]"
+                      className="inline-flex items-center justify-center rounded-full bg-[#168453] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_46px_rgba(22,132,83,0.30)] transition hover:-translate-y-[1px] hover:bg-[#147549]"
                     >
                       Explorar platos
                     </Link>
                     <Link
                       href="/zonas"
-                      className={isLightTheme ? "inline-flex items-center justify-center rounded-full border border-black/10 bg-white/58 px-5 py-3 text-sm font-semibold text-black/72 transition hover:bg-white" : "inline-flex items-center justify-center rounded-full border border-white/16 bg-black/20 px-5 py-3 text-sm font-semibold text-white/86 transition hover:-translate-y-[1px] hover:bg-black/28"}
+                      className={isLightTheme ? "inline-flex items-center justify-center rounded-full border border-[#168453]/24 bg-white/58 px-5 py-3 text-sm font-semibold text-[#126a42] transition hover:bg-[#168453]/10" : "inline-flex items-center justify-center rounded-full border border-[#7cffb8]/24 bg-black/20 px-5 py-3 text-sm font-semibold text-[#dfffee] transition hover:-translate-y-[1px] hover:bg-[#168453]/18"}
                     >
                       Ver zonas
                     </Link>

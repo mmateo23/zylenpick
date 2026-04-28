@@ -1,0 +1,1 @@
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, stat 'C:\Users\Manu\Documents\FknFood\.next\cache\webpack\client-development\6.pack.gz'

@@ -420,13 +420,13 @@ export function DemoHome({
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             <Link
               href={template?.primaryHref ?? "/platos"}
-              className="inline-flex items-center justify-center rounded-full bg-[#ffb45d] px-6 py-3.5 text-sm font-semibold text-[#1b0d04] shadow-[0_20px_54px_rgba(255,159,72,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffc87d] md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full bg-[#168453] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_20px_54px_rgba(22,132,83,0.28)] transition hover:-translate-y-0.5 hover:bg-[#147549] md:cursor-none"
             >
               Ver platos
             </Link>
             <Link
               href={getZonesHref(selectedCity)}
-              className="inline-flex items-center justify-center rounded-full border border-white/16 bg-black/20 px-5 py-3.5 text-sm font-semibold text-white/82 transition hover:-translate-y-0.5 hover:bg-black/28 md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full border border-[#7cffb8]/24 bg-black/20 px-5 py-3.5 text-sm font-semibold text-[#dfffee] transition hover:-translate-y-0.5 hover:bg-[#168453]/18 md:cursor-none"
             >
               Explorar zonas
             </Link>
@@ -518,7 +518,7 @@ export function DemoHome({
                       <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111] sm:text-xl sm:leading-6">
                         {previewItems[0].name}
                       </h2>
-                      <span className="shrink-0 rounded-full bg-[#ffb45d] px-3 py-1.5 text-sm font-bold text-[#1b0d04]">
+                      <span className="shrink-0 rounded-full bg-[#168453] px-3 py-1.5 text-sm font-bold text-white">
                         {formatHomePrice(previewItems[0])}
                       </span>
                     </div>
