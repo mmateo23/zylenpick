@@ -150,7 +150,7 @@ export function DemoHome({
   return (
     <main
       data-demo-home-root
-      className="zylen-visual-skin relative h-[100svh] overflow-hidden text-white md:cursor-none"
+      className="zylen-visual-skin relative min-h-[100svh] overflow-x-hidden overflow-y-visible text-white md:cursor-none lg:h-[100svh] lg:overflow-hidden"
     >
       <style jsx global>{`
         @keyframes homeHeroCardFloat {
@@ -220,7 +220,7 @@ export function DemoHome({
       </div>
 
       <div
-        className={`relative z-10 flex h-full items-center justify-center px-4 py-4 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 ${
+        className={`relative z-10 flex min-h-[100svh] items-start justify-center overflow-visible px-4 pb-10 pt-5 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 lg:h-full lg:min-h-0 lg:items-center lg:overflow-hidden ${
           showLoader ? "translate-y-3 opacity-0" : "translate-y-0 opacity-100"
         } motion-reduce:transition-none`}
       >
@@ -436,7 +436,7 @@ export function DemoHome({
           <div className="relative mx-auto flex w-full max-w-[21.75rem] items-center justify-center self-center lg:mx-auto lg:max-w-[24rem] lg:-translate-x-4">
             <div className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,180,93,0.28),rgba(124,255,184,0.08)_42%,transparent_70%)] blur-3xl" />
             {previewItems[0] ? (
-              <article className="home-hero-card-float relative flex w-full max-h-[min(82svh,40rem)] flex-col overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] text-[#111111] shadow-[0_36px_86px_rgba(0,0,0,0.52),0_0_70px_rgba(255,180,93,0.14)] transition duration-500 hover:scale-[1.04] md:cursor-none motion-safe:animate-[homeHeroCardFloat_8s_ease-in-out_infinite]">
+              <article className="home-hero-card-float relative flex w-full flex-col overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] text-[#111111] shadow-[0_36px_86px_rgba(0,0,0,0.52),0_0_70px_rgba(255,180,93,0.14)] transition duration-500 hover:scale-[1.04] md:cursor-none lg:max-h-[min(82svh,40rem)] motion-safe:animate-[homeHeroCardFloat_8s_ease-in-out_infinite]">
                 <header className="flex items-center justify-between gap-3 px-3.5 py-3">
                   <Link
                     href={getPreviewItemHref(previewItems[0])}
@@ -474,7 +474,7 @@ export function DemoHome({
                 </header>
 
                 <Link href={getPreviewItemHref(previewItems[0])} className="block shrink-0">
-                  <div className="relative h-[34svh] min-h-[13.5rem] max-h-[20rem] overflow-hidden bg-[#141414] sm:h-[40svh] sm:max-h-[23rem]">
+                  <div className="relative h-[28svh] min-h-[11.5rem] max-h-[16.5rem] overflow-hidden bg-[#141414] sm:h-[40svh] sm:min-h-[13.5rem] sm:max-h-[23rem]">
                   <Image
                     src={previewItems[0].imageUrl ?? ""}
                     alt={previewItems[0].name}
