@@ -76,6 +76,8 @@ export function DemoHome({
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [locationPromptExpanded, setLocationPromptExpanded] = useState(false);
   const [locationAccepted, setLocationAccepted] = useState(false);
+  const [activeDeckIndex, setActiveDeckIndex] = useState(0);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -146,6 +148,48 @@ export function DemoHome({
       );
     })
     .slice(0, 8);
+  const deckItems = previewItems.slice(0, 3);
+  const hasDeck = deckItems.length > 1;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  useEffect(() => {
+    if (activeDeckIndex >= deckItems.length) {
+      setActiveDeckIndex(0);
+    }
+  }, [activeDeckIndex, deckItems.length]);
+
+  useEffect(() => {
+    if (deckItems.length <= 1 || prefersReducedMotion) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveDeckIndex((currentIndex) => (currentIndex + 1) % deckItems.length);
+    }, 6200);
+
+    return () => window.clearInterval(intervalId);
+  }, [deckItems.length, prefersReducedMotion]);
+
+  function getDeckItemAtOffset(offset: number) {
+    if (deckItems.length === 0) {
+      return null;
+    }
+
+    return deckItems[(activeDeckIndex + offset) % deckItems.length];
+  }
+
+  const activeDeckItem = getDeckItemAtOffset(0);
+  const secondDeckItem = getDeckItemAtOffset(1);
+  const thirdDeckItem = getDeckItemAtOffset(2);
 
   return (
     <main
@@ -163,8 +207,32 @@ export function DemoHome({
           }
         }
 
+        @keyframes homeHeroDeckFront {
+          0% {
+            opacity: 0;
+            transform: translate3d(22px, -12px, 0) rotate(3deg) scale(0.965);
+          }
+          100% {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+          }
+        }
+
+        @keyframes homeHeroDeckScene {
+          0%,
+          100% {
+            transform: translate3d(0, -4px, 0) rotate(-0.35deg);
+          }
+          50% {
+            transform: translate3d(0, 6px, 0) rotate(0.35deg);
+          }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .home-hero-card-float {
+            animation: none !important;
+          }
+          .home-hero-deck-scene {
             animation: none !important;
           }
         }
@@ -433,54 +501,98 @@ export function DemoHome({
           </div>
           </div>
 
-          <div className="relative mx-auto flex w-full max-w-[21.75rem] items-center justify-center self-center lg:mx-auto lg:max-w-[24rem] lg:-translate-x-4">
-            <div className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,180,93,0.28),rgba(124,255,184,0.08)_42%,transparent_70%)] blur-3xl" />
-            {previewItems[0] ? (
-              <article className="home-hero-card-float relative flex w-full flex-col overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] text-[#111111] shadow-[0_36px_86px_rgba(0,0,0,0.52),0_0_70px_rgba(255,180,93,0.14)] transition duration-500 hover:scale-[1.04] md:cursor-none lg:max-h-[min(82svh,40rem)] motion-safe:animate-[homeHeroCardFloat_8s_ease-in-out_infinite]">
-                <header className="flex items-center justify-between gap-3 px-3.5 py-3">
-                  <Link
-                    href={getPreviewItemHref(previewItems[0])}
-                    className="flex min-w-0 items-center gap-3"
+          <div className="relative mx-auto mt-8 flex w-full max-w-[20.5rem] items-center justify-center self-center overflow-visible px-2 pb-8 pt-5 sm:max-w-[22rem] lg:mx-auto lg:mt-0 lg:max-w-[24rem] lg:-translate-x-4 lg:px-0 lg:pb-0 lg:pt-0">
+            <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(124,255,184,0.14),rgba(22,132,83,0.1)_38%,transparent_70%)] blur-3xl sm:h-[30rem] sm:w-[30rem]" />
+            {activeDeckItem ? (
+              <div className="home-hero-deck-scene relative isolate w-full transform-gpu overflow-visible motion-safe:animate-[homeHeroDeckScene_9s_ease-in-out_infinite]">
+                <div
+                  aria-hidden="true"
+                  className="absolute -inset-x-8 -inset-y-6 -z-20 rounded-[3rem] bg-[radial-gradient(circle_at_50%_42%,rgba(124,255,184,0.16),rgba(22,132,83,0.08)_38%,transparent_72%)] blur-2xl"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute -bottom-7 left-1/2 -z-10 h-10 w-[76%] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(0,0,0,0.42),rgba(0,0,0,0.18)_46%,transparent_72%)] blur-xl"
+                />
+                {hasDeck && secondDeckItem ? (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-2 inset-y-0 z-0 translate-x-3 translate-y-3 rotate-[5deg] scale-[0.94] overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] opacity-36 shadow-[0_28px_76px_rgba(0,0,0,0.34)] sm:inset-x-0 sm:translate-x-4 sm:opacity-40"
                   >
-                    <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
-                      {previewItems[0].venue.logoUrl ? (
-                        <Image
-                          src={previewItems[0].venue.logoUrl}
-                          alt={previewItems[0].venue.name}
-                          fill
-                          sizes="40px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        previewItems[0].venue.name.trim().slice(0, 1).toUpperCase()
-                      )}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-semibold leading-4">
-                        {previewItems[0].venue.name}
-                      </span>
-                      <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
-                        {previewItems[0].venue.cityName}
-                      </span>
-                    </span>
-                  </Link>
-                  <Link
-                    href={getPreviewItemHref(previewItems[0])}
-                    aria-label="Ver local"
-                    className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                    <div className="relative h-[28svh] min-h-[11.5rem] max-h-[16.5rem] bg-[#141414] sm:h-[40svh] sm:min-h-[13.5rem] sm:max-h-[23rem]">
+                      <Image
+                        src={secondDeckItem.imageUrl ?? ""}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 22rem, 25rem"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+                {hasDeck && thirdDeckItem && deckItems.length > 2 ? (
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-3 inset-y-0 z-0 -translate-x-3 translate-y-5 rotate-[-5deg] scale-[0.89] overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] opacity-22 shadow-[0_24px_68px_rgba(0,0,0,0.28)] sm:inset-x-0 sm:-translate-x-4 sm:opacity-26"
                   >
-                    <MoreHorizontal className="h-5 w-5" />
-                  </Link>
-                </header>
+                    <div className="relative h-[28svh] min-h-[11.5rem] max-h-[16.5rem] bg-[#141414] sm:h-[40svh] sm:min-h-[13.5rem] sm:max-h-[23rem]">
+                      <Image
+                        src={thirdDeckItem.imageUrl ?? ""}
+                        alt=""
+                        fill
+                        sizes="(max-width: 640px) 22rem, 25rem"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                  </div>
+                ) : null}
+                <article
+                  key={activeDeckItem.id}
+                  className="home-hero-card-float relative z-10 flex w-full flex-col overflow-hidden rounded-[1.85rem] bg-[#f8f7f3] text-[#111111] shadow-[0_36px_86px_rgba(0,0,0,0.52),0_0_70px_rgba(22,132,83,0.16)] transition duration-500 hover:scale-[1.04] md:cursor-none lg:max-h-[min(82svh,40rem)] motion-safe:animate-[homeHeroCardFloat_8s_ease-in-out_infinite]"
+                >
+                  <header className="flex items-center justify-between gap-3 px-3.5 py-3">
+                    <Link
+                      href={getPreviewItemHref(activeDeckItem)}
+                      className="flex min-w-0 items-center gap-3"
+                    >
+                      <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
+                        {activeDeckItem.venue.logoUrl ? (
+                          <Image
+                            src={activeDeckItem.venue.logoUrl}
+                            alt={activeDeckItem.venue.name}
+                            fill
+                            sizes="40px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          activeDeckItem.venue.name.trim().slice(0, 1).toUpperCase()
+                        )}
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold leading-4">
+                          {activeDeckItem.venue.name}
+                        </span>
+                        <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                          {activeDeckItem.venue.cityName}
+                        </span>
+                      </span>
+                    </Link>
+                    <Link
+                      href={getPreviewItemHref(activeDeckItem)}
+                      aria-label="Ver local"
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                    >
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Link>
+                  </header>
 
-                <Link href={getPreviewItemHref(previewItems[0])} className="block shrink-0">
+                <Link href={getPreviewItemHref(activeDeckItem)} className="block shrink-0">
                   <div className="relative h-[28svh] min-h-[11.5rem] max-h-[16.5rem] overflow-hidden bg-[#141414] sm:h-[40svh] sm:min-h-[13.5rem] sm:max-h-[23rem]">
                   <Image
-                    src={previewItems[0].imageUrl ?? ""}
-                    alt={previewItems[0].name}
+                    src={activeDeckItem.imageUrl ?? ""}
+                    alt={activeDeckItem.name}
                     fill
                     sizes="(max-width: 640px) 22rem, 25rem"
-                    className="object-cover object-center transition duration-700 hover:scale-[1.025]"
+                    className="object-cover object-center transition duration-700 hover:scale-[1.025] motion-safe:animate-[homeHeroDeckFront_520ms_ease-out]"
                     priority
                   />
                   </div>
@@ -490,14 +602,14 @@ export function DemoHome({
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-1.5">
                       <Link
-                        href={getPreviewItemHref(previewItems[0])}
+                        href={getPreviewItemHref(activeDeckItem)}
                         aria-label="Ver detalle del plato"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
                         <Info className="h-5 w-5" />
                       </Link>
                       <Link
-                        href={getPreviewItemHref(previewItems[0])}
+                        href={getPreviewItemHref(activeDeckItem)}
                         aria-label="Compartir plato"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
@@ -505,7 +617,7 @@ export function DemoHome({
                       </Link>
                     </div>
                     <Link
-                      href={getPreviewItemHref(previewItems[0])}
+                      href={getPreviewItemHref(activeDeckItem)}
                       aria-label="Añadir para recoger"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white shadow-[0_12px_28px_rgba(0,0,0,0.2)] transition hover:bg-black"
                     >
@@ -516,25 +628,26 @@ export function DemoHome({
                   <div className="mt-2.5 space-y-1.5">
                     <div className="flex items-start justify-between gap-3">
                       <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111] sm:text-xl sm:leading-6">
-                        {previewItems[0].name}
+                        {activeDeckItem.name}
                       </h2>
                       <span className="shrink-0 rounded-full bg-[#168453] px-3 py-1.5 text-sm font-bold text-white">
-                        {formatHomePrice(previewItems[0])}
+                        {formatHomePrice(activeDeckItem)}
                       </span>
                     </div>
-                    {previewItems[0].description ? (
+                    {activeDeckItem.description ? (
                       <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
-                        {previewItems[0].description}
+                        {activeDeckItem.description}
                       </p>
                     ) : null}
                     <span className="inline-flex rounded-full bg-[#111111]/[0.06] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
-                      {previewItems[0].pickupEtaMin
-                        ? `Listo en ${previewItems[0].pickupEtaMin} min`
+                      {activeDeckItem.pickupEtaMin
+                        ? `Listo en ${activeDeckItem.pickupEtaMin} min`
                         : "Listo para recoger"}
                     </span>
                   </div>
                 </section>
               </article>
+              </div>
             ) : (
               <div className="relative flex aspect-[4/5] items-center justify-center rounded-[2.15rem] border border-white/14 bg-white/[0.075] px-8 text-center text-sm text-white/62 shadow-[0_46px_120px_rgba(0,0,0,0.58)] backdrop-blur-xl">
                 Los platos aparecerán aquí cuando haya contenido visual.
