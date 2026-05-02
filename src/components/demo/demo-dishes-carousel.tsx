@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowUp,
@@ -239,6 +240,17 @@ function getVenueHref(item: HomeShowcaseItem) {
   return `/zonas/${item.venue.citySlug}/venues/${item.venue.slug}`;
 }
 
+function getDishHref(item: HomeShowcaseItem) {
+  return `${getVenueHref(item)}#plato-${item.id}`;
+}
+
+function shouldIgnorePostNavigation(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    Boolean(target.closest("a, button, input, textarea, select, [role='button']"))
+  );
+}
+
 function getCartVenueFromShowcaseItem(item: HomeShowcaseItem): CartVenue {
   return {
     id: item.venue.id,
@@ -295,6 +307,20 @@ function getShortDescription(item: HomeShowcaseItem) {
   return item.description?.trim() || "Plato real de un local cercano.";
 }
 
+function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+  const searchableText = [
+    item.name,
+    item.description ?? "",
+    item.categoryName ?? "",
+  ]
+    .join(" ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("es");
+
+  return searchableText.includes("pollo katsu") || searchableText.includes("katsu");
+}
+
 function getVenueAvatarLabel(item: HomeShowcaseItem) {
   return item.venue.name.trim().slice(0, 1).toLocaleUpperCase("es");
 }
@@ -303,6 +329,51 @@ const demoDishVideoUrls = [
   "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4",
   "https://cdn.pixabay.com/video/2022/10/16/135080-761273537_large.mp4",
   "https://cdn.pixabay.com/video/2020/04/19/36186-411138891_large.mp4",
+];
+
+const PLATOS_HERO_BURST_LAYERS = [
+  {
+    src: "/home/assets/asset_pollo_katsu_explosion_transparent.png",
+    className: "absolute hidden sm:block",
+    height: 460,
+    style: {
+      right: -116,
+      top: -118,
+    },
+    width: 460,
+    initialTransform: "translate3d(-52px, 82px, 0) scale(0.5) rotate(-10deg)",
+    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(10deg)",
+    hoverOpacity: 1,
+    delay: 0,
+  },
+  {
+    src: "/home/assets/asset_arroz_katsu_explosion_transparent.png",
+    className: "absolute hidden sm:block",
+    height: 300,
+    style: {
+      left: -92,
+      top: 26,
+    },
+    width: 300,
+    initialTransform: "translate3d(70px, 38px, 0) scale(0.52) rotate(-8deg)",
+    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(-13deg)",
+    hoverOpacity: 0.96,
+    delay: 90,
+  },
+  {
+    src: "/home/assets/asset_salsa_katsu_explosion_transparent.png",
+    className: "absolute hidden sm:block",
+    height: 260,
+    style: {
+      bottom: -58,
+      right: -82,
+    },
+    width: 260,
+    initialTransform: "translate3d(-56px, -60px, 0) scale(0.52) rotate(8deg)",
+    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(14deg)",
+    hoverOpacity: 0.94,
+    delay: 160,
+  },
 ];
 
 function getDishDemoVideoUrl(item: HomeShowcaseItem) {
@@ -1049,6 +1120,7 @@ export function DemoDishesCarousel({
   funnelSettings = defaultSiteFunnelSettings,
   chips = [],
 }: DemoDishesCarouselProps) {
+  const searchParams = useSearchParams();
   const { totals } = useCart();
   const content = {
     ...defaultTemplate,
@@ -1059,6 +1131,7 @@ export function DemoDishesCarousel({
     },
   };
   const rootRef = useRef<HTMLElement>(null);
+  const openedPostParamRef = useRef<string | null>(null);
   const curationInfoRef = useRef<HTMLDivElement>(null);
   const searchShellRef = useRef<HTMLDivElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
@@ -1082,6 +1155,7 @@ export function DemoDishesCarousel({
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
 
   const cityScopedItems = useMemo(() => {
     if (!selectedCitySlug) {
@@ -1101,6 +1175,15 @@ export function DemoDishesCarousel({
   const heroPreviewItems = useMemo(
     () => displayItems.filter((item) => Boolean(item.imageUrl)).slice(0, 3),
     [displayItems],
+  );
+  const heroDishPostItem = useMemo(
+    () =>
+      displayItems.find(
+        (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
+      ) ??
+      heroPreviewItems[0] ??
+      null,
+    [displayItems, heroPreviewItems],
   );
   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
   const categoryOptions = useMemo(
@@ -1147,29 +1230,14 @@ export function DemoDishesCarousel({
     const chipItemIds = new Set(activeChip.itemIds);
     return baseFilteredItems.filter((item) => chipItemIds.has(item.id));
   }, [activeChip, baseFilteredItems]);
-  const quickDecisionItems = useMemo(() => {
-    const config = funnelSettings.platos.quickDecision;
-
-    if (!config.enabled || config.itemIds.length === 0) {
-      return [];
-    }
-
-    const itemById = new Map(filteredItems.map((item) => [item.id, item]));
-
-    return config.itemIds
-      .map((itemId) => itemById.get(itemId))
-      .filter((item): item is HomeShowcaseItem => Boolean(item));
-  }, [filteredItems, funnelSettings]);
   const feedEntries = useMemo<FeedEntry[]>(() => {
-    const quickDecisionItemIds = new Set(quickDecisionItems.map((item) => item.id));
     const featuredConfig = funnelSettings.platos.featuredFeed;
     const featuredItem =
       featuredConfig.enabled && featuredConfig.itemId
         ? filteredItems.find((item) => item.id === featuredConfig.itemId) ?? null
         : null;
     const feedItems = filteredItems.filter(
-      (item) =>
-        !quickDecisionItemIds.has(item.id) && item.id !== featuredItem?.id,
+      (item) => item.id !== featuredItem?.id,
     );
     const entries = feedItems.map<FeedEntry>((item) => ({ type: "dish", item }));
 
@@ -1185,7 +1253,7 @@ export function DemoDishesCarousel({
     entries.splice(insertIndex, 0, { type: "featured", item: featuredItem });
 
     return entries;
-  }, [filteredItems, funnelSettings, quickDecisionItems]);
+  }, [filteredItems, funnelSettings]);
   const itemIndexById = useMemo(
     () =>
       new Map(filteredItems.map((item, index) => [item.id, index] as const)),
@@ -1240,6 +1308,45 @@ export function DemoDishesCarousel({
     () => getCurationInfoSurface(activeCurationInfo ?? "all", isLightTheme),
     [activeCurationInfo, isLightTheme],
   );
+
+  const openDishPost = (item: HomeShowcaseItem) => {
+    const targetIndex = filteredItems.findIndex(
+      (candidate) => candidate.id === item.id,
+    );
+
+    if (targetIndex >= 0) {
+      setOverlayDirection(1);
+      setActiveIndex(targetIndex);
+      setPostFeedback(null);
+    }
+  };
+
+  useEffect(() => {
+    const requestedPostId =
+      searchParams.get("post") ?? searchParams.get("plato");
+
+    if (!requestedPostId) {
+      openedPostParamRef.current = null;
+      return;
+    }
+
+    if (openedPostParamRef.current === requestedPostId) {
+      return;
+    }
+
+    const targetIndex = filteredItems.findIndex(
+      (item) => item.id === requestedPostId,
+    );
+
+    if (targetIndex < 0) {
+      return;
+    }
+
+    openedPostParamRef.current = requestedPostId;
+    setOverlayDirection(1);
+    setActiveIndex(targetIndex);
+    setPostFeedback(null);
+  }, [filteredItems, searchParams]);
 
   useEffect(() => {
     if (activeChipSlug && !activeChip) {
@@ -1822,17 +1929,15 @@ export function DemoDishesCarousel({
 
         <div className="relative z-10 mx-auto max-w-[1600px]">
           <div className="flex min-h-[min(52svh,31rem)] flex-col">
-            <div
-              className={
-                isLightTheme
-                  ? "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-white/60 bg-white/58 px-3.5 py-2 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)] backdrop-blur-2xl backdrop-saturate-150 sm:px-4"
-                  : "grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[1.55rem] border border-white/16 bg-white/[0.10] px-3.5 py-2 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 sm:px-4"
-              }
-            >
+            <div className="sticky top-[max(0.85rem,env(safe-area-inset-top))] z-50 flex items-center justify-between gap-3 py-1.5">
               <Link
                 href={content.homeHref}
                 aria-label={content.logoAlt}
-                className="inline-flex min-h-[22px] items-center justify-center"
+                className={
+                  isLightTheme
+                    ? "inline-flex min-h-[24px] items-center justify-center px-1 text-[#181816] transition hover:-translate-y-[1px] hover:opacity-80"
+                    : "inline-flex min-h-[24px] items-center justify-center px-1 text-white drop-shadow-[0_14px_32px_rgba(0,0,0,0.35)] transition hover:-translate-y-[1px] hover:opacity-85"
+                }
               >
                 <Image
                   src={activeLogoSrc}
@@ -1844,12 +1949,12 @@ export function DemoDishesCarousel({
                 />
               </Link>
 
-              <nav aria-label="Navegacion principal" className="hidden justify-center md:flex">
+              <nav aria-label="Navegacion principal" className="absolute left-1/2 hidden -translate-x-1/2 justify-center md:flex">
                 <div
                   className={
                     isLightTheme
-                      ? "inline-flex items-center gap-1 rounded-[999px] border border-white/55 bg-white/42 px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
-                      : "inline-flex items-center gap-1 rounded-[999px] border border-white/16 bg-white/[0.10] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
+                      ? "inline-flex items-center gap-1 rounded-full border border-black/8 bg-white/70 p-1.5 shadow-[0_18px_42px_rgba(20,20,20,0.10)] backdrop-blur-2xl"
+                      : "inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/28 p-1.5 shadow-[0_18px_48px_rgba(0,0,0,0.34)] backdrop-blur-2xl"
                   }
                 >
                   {[
@@ -1864,11 +1969,11 @@ export function DemoDishesCarousel({
                       className={
                         item.href === "/platos"
                           ? isLightTheme
-                            ? "rounded-full bg-white/78 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#181816] shadow-[0_10px_24px_rgba(20,20,20,0.1)] transition"
-                            : "rounded-full bg-white/[0.16] px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)] transition"
+                            ? "rounded-full bg-[#11D470] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#062113] shadow-[0_10px_28px_rgba(17,212,112,0.24)] transition"
+                            : "rounded-full bg-[#11D470] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)] transition"
                           : isLightTheme
-                            ? "rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-[#181816]/62 transition hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
-                            : "rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] text-white/60 transition hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
+                            ? "rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#181816]/54 transition hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
+                            : "rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/54 transition hover:-translate-y-[1px] hover:bg-white/[0.075] hover:text-white"
                       }
                     >
                       {item.label}
@@ -1877,14 +1982,14 @@ export function DemoDishesCarousel({
                 </div>
               </nav>
 
-              <div className={isLightTheme ? "inline-flex items-center justify-self-end gap-1 rounded-[999px] border border-white/55 bg-white/42 px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]" : "inline-flex items-center justify-self-end gap-1 rounded-[999px] border border-white/16 bg-white/[0.10] px-1.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"}>
+              <div className="inline-flex items-center justify-end">
                 <Link
                   href="/cart"
                   aria-label="Carrito"
                   className={
                     isLightTheme
-                      ? "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/8 bg-white/42 text-[#181816] transition hover:-translate-y-[1px] hover:bg-white/62"
-                      : "relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/16 bg-white/[0.09] text-white transition hover:-translate-y-[1px] hover:bg-white/[0.15]"
+                      ? "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white/72 text-[#181816] shadow-[0_16px_34px_rgba(20,20,20,0.10)] backdrop-blur-xl transition hover:-translate-y-[1px] hover:bg-white"
+                      : "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/24 text-white shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition hover:-translate-y-[1px] hover:border-[#11D470]/32 hover:bg-white/[0.09]"
                   }
                 >
                   <CartIcon size={16} />
@@ -1893,78 +1998,211 @@ export function DemoDishesCarousel({
               </div>
             </div>
 
-            <div className="mt-4 flex flex-1 flex-col justify-center sm:mt-5">
-              <div className="relative -mx-3 overflow-hidden rounded-[1.5rem] px-3 py-4 sm:-mx-5 sm:px-5 sm:py-4 lg:px-7">
-                {heroPreviewItems[0]?.imageUrl ? (
+            <div className="mt-5 flex flex-1 flex-col justify-center sm:mt-6">
+              <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
+                <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
                   <Image
-                    src={heroPreviewItems[0].imageUrl}
+                    src="https://images.unsplash.com/photo-1602097193786-f7a04b4f5bab?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt=""
+                    aria-hidden="true"
                     fill
                     sizes="100vw"
-                    className="scale-100 object-cover opacity-64 motion-safe:animate-[heroDishBreath_16s_ease-in-out_infinite]"
+                    className="object-cover opacity-56 saturate-[1.06]"
                     priority
                   />
-                ) : null}
-                <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(5,8,22,0.86)_0%,rgba(5,8,22,0.70)_46%,rgba(5,8,22,0.48)_100%)]" />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_28%,rgba(255,146,64,0.20),transparent_30%),radial-gradient(circle_at_78%_22%,rgba(124,255,184,0.10),transparent_28%)]" />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(0deg,rgba(5,8,22,0.62),transparent)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(4,11,8,0.92)_0%,rgba(5,14,10,0.80)_46%,rgba(4,8,7,0.64)_100%)]" />
+                </div>
+                <div className="absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(17,212,112,0.20),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(124,255,184,0.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_42%)]" />
+                <div className="absolute inset-0 -z-10 rounded-[inherit] opacity-[0.18] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.28)_1px,transparent_0)] [background-size:22px_22px]" />
+                <div className="absolute inset-x-6 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#11D470]/35 to-transparent" />
 
-                <div className="relative z-10 grid items-center gap-4 md:grid-cols-[minmax(0,0.95fr)_minmax(14rem,20rem)] lg:grid-cols-[minmax(0,0.95fr)_minmax(18rem,24rem)] lg:gap-8">
+                <div className="relative z-10 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:grid-cols-[minmax(0,1fr)_minmax(21rem,27rem)] lg:gap-12">
                 <div className="max-w-[42rem]">
-                  <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.24em] text-black/44" : "text-[11px] font-semibold uppercase tracking-[0.24em] text-[#ffc36a]/90"}>
-                    {"Cerca de ti"}
+                  <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.28em] text-black/44" : "text-[11px] font-semibold uppercase tracking-[0.28em] text-[#7cffb8]/90"}>
+                    {"CERCA DE TI"}
                   </p>
-                  <h1 className="mt-2 max-w-[11ch] text-[clamp(2.35rem,8vw,4.7rem)] font-semibold leading-[0.9] tracking-[-0.07em] text-white drop-shadow-[0_14px_42px_rgba(0,0,0,0.42)] sm:max-w-[10ch]">
+                  <h1 className="mt-3 max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)] sm:max-w-[10ch]">
                     {"Elige qu\u00e9 te apetece"}
                   </h1>
-                  <p className={isLightTheme ? "mt-3 max-w-[28rem] text-[1rem] leading-7 text-black/62 sm:text-base sm:leading-7" : "mt-3 max-w-[28rem] text-[1rem] leading-7 text-white/82 drop-shadow-[0_8px_24px_rgba(0,0,0,0.38)] sm:text-base sm:leading-7"}>
-                    {"Mira platos reales y decide r\u00e1pido."}
+                  <p className={isLightTheme ? "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-black/62 sm:text-lg sm:leading-8" : "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-white/78 drop-shadow-[0_8px_24px_rgba(0,0,0,0.34)] sm:text-lg sm:leading-8"}>
+                    {"Mira platos reales y decide r\u00e1pido, sin perderte en cartas infinitas."}
                   </p>
+                </div>
 
-                  <div className="mt-4 flex flex-wrap gap-2 sm:mt-5">
-                    {["R\u00e1pido", "Muy elegido", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
-                      <span
-                        key={label}
-                        className={isLightTheme ? "rounded-full border border-black/8 bg-white/62 px-3.5 py-1.5 text-[11px] font-semibold text-black/58 shadow-[0_10px_28px_rgba(0,0,0,0.05)]" : "rounded-full border border-white/14 bg-black/18 px-3.5 py-1.5 text-[11px] font-semibold text-white/82 shadow-[0_10px_28px_rgba(0,0,0,0.18)]"}
+                <div
+                  ref={heroVisualRef}
+                  className="relative mx-auto min-h-[30rem] w-full max-w-[21rem] overflow-visible md:min-h-[24rem] md:max-w-none lg:min-h-[27rem]"
+                >
+                  {heroDishPostItem ? (
+                    <div
+                      className="group absolute right-5 top-1/2 isolate w-full max-w-[19rem] -translate-y-1/2 overflow-visible md:right-8 lg:right-10 lg:max-w-[21rem]"
+                      onMouseEnter={() => setIsHeroDishBurstActive(true)}
+                      onMouseLeave={() => setIsHeroDishBurstActive(false)}
+                      onPointerEnter={() => setIsHeroDishBurstActive(true)}
+                      onPointerLeave={() => setIsHeroDishBurstActive(false)}
+                    >
+                      <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(17,212,112,0.18),rgba(22,132,83,0.10)_38%,transparent_72%)] blur-3xl" />
+                      {PLATOS_HERO_BURST_LAYERS.map((layer) => (
+                        <Image
+                          key={layer.src}
+                          src={layer.src}
+                          alt=""
+                          aria-hidden="true"
+                          width={layer.width}
+                          height={layer.height}
+                          className={`pointer-events-none z-0 origin-center object-contain blur-[0.1px] drop-shadow-[0_28px_62px_rgba(0,0,0,0.36)] transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:hidden motion-reduce:transition-none ${layer.className}`}
+                          style={{
+                            opacity: isHeroDishBurstActive ? layer.hoverOpacity : 0,
+                            transitionDelay: `${layer.delay}ms`,
+                            transform: isHeroDishBurstActive
+                              ? layer.hoverTransform
+                              : layer.initialTransform,
+                            ...layer.style,
+                          }}
+                        />
+                      ))}
+
+                      <article
+                        role="link"
+                        tabIndex={0}
+                        aria-label={`Ver ficha de ${getDishDisplayName(heroDishPostItem)}`}
+                        onClick={(event) => {
+                          if (shouldIgnorePostNavigation(event.target)) {
+                            return;
+                          }
+
+                          openDishPost(heroDishPostItem);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key !== "Enter" && event.key !== " ") {
+                            return;
+                          }
+
+                          if (shouldIgnorePostNavigation(event.target)) {
+                            return;
+                          }
+
+                          event.preventDefault();
+                          openDishPost(heroDishPostItem);
+                        }}
+                        className="relative z-10 flex w-full cursor-pointer flex-col overflow-hidden rounded-[1.8rem] bg-[#f8f7f3] text-[#111111] shadow-[0_34px_84px_rgba(0,0,0,0.52),0_0_70px_rgba(17,212,112,0.14)] transition duration-500 hover:scale-[1.035] motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite]"
                       >
-                        {label}
-                      </span>
-                    ))}
-                  </div>
+                        <header className="flex items-center justify-between gap-3 px-3.5 py-3">
+                          <Link
+                            href={getVenueHref(heroDishPostItem)}
+                            className="flex min-w-0 items-center gap-3"
+                          >
+                            <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
+                              {heroDishPostItem.venue.logoUrl ? (
+                                <Image
+                                  src={heroDishPostItem.venue.logoUrl}
+                                  alt={heroDishPostItem.venue.name}
+                                  fill
+                                  sizes="40px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                getVenueAvatarLabel(heroDishPostItem)
+                              )}
+                            </span>
+                            <span className="min-w-0">
+                              <span className="block truncate text-sm font-semibold leading-4">
+                                {heroDishPostItem.venue.name}
+                              </span>
+                              <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                                {getVenueDistanceLabel(heroDishPostItem, userLocation)}
+                              </span>
+                            </span>
+                          </Link>
+                          <Link
+                            href={getVenueHref(heroDishPostItem)}
+                            aria-label="Ver local"
+                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                          >
+                            <MoreHorizontal className="h-5 w-5" />
+                          </Link>
+                        </header>
 
-                  <div className="mt-5 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="#platos-feed"
-                      className="inline-flex items-center justify-center rounded-full bg-[#168453] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_46px_rgba(22,132,83,0.30)] transition hover:-translate-y-[1px] hover:bg-[#147549]"
-                    >
-                      Explorar platos
-                    </Link>
-                    <Link
-                      href="/zonas"
-                      className={isLightTheme ? "inline-flex items-center justify-center rounded-full border border-[#168453]/24 bg-white/58 px-5 py-3 text-sm font-semibold text-[#126a42] transition hover:bg-[#168453]/10" : "inline-flex items-center justify-center rounded-full border border-[#7cffb8]/24 bg-black/20 px-5 py-3 text-sm font-semibold text-[#dfffee] transition hover:-translate-y-[1px] hover:bg-[#168453]/18"}
-                    >
-                      Ver zonas
-                    </Link>
-                  </div>
-                </div>
+                        <Link
+                          href={getDishHref(heroDishPostItem)}
+                          className="block shrink-0"
+                        >
+                          <div className="relative h-[12rem] overflow-hidden bg-[#141414] lg:h-[13.5rem]">
+                            <Image
+                              src={heroDishPostItem.imageUrl ?? ""}
+                              alt={heroDishPostItem.name}
+                              fill
+                              sizes="(max-width: 1024px) 19rem, 21rem"
+                              className="object-cover object-center transition duration-700 hover:scale-[1.025]"
+                              priority
+                            />
+                          </div>
+                        </Link>
 
-                <div ref={heroVisualRef} className="relative hidden min-h-[13rem] md:block lg:min-h-[16rem]">
-                  <div className="absolute left-[58%] top-1/2 h-[12rem] w-[12rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,169,78,0.34),rgba(255,169,78,0.12)_42%,transparent_72%)] blur-2xl sm:h-[16rem] sm:w-[16rem] lg:h-[19rem] lg:w-[19rem]" />
-                  <div data-hero-preview-card className="hero-plate-float absolute -right-8 top-1/2 z-20 h-[13rem] w-[17rem] -translate-y-1/2 opacity-95 motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite] motion-safe:will-change-transform lg:-right-12 lg:h-[17rem] lg:w-[23rem]">
-                    <Image
-                      src="/hero/platos/hero_chopitos.png"
-                      alt="Chopitos crujientes para recoger"
-                      fill
-                      sizes="(max-width: 640px) 18rem, (max-width: 1024px) 24rem, 30rem"
-                      className="object-contain drop-shadow-[0_34px_60px_rgba(0,0,0,0.42)]"
-                      priority
-                    />
-                  </div>
+                        <section className="space-y-2.5 px-3.5 pb-4 pt-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-1.5">
+                              <Link
+                                href={getDishHref(heroDishPostItem)}
+                                aria-label="Ver detalle del plato"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                              >
+                                <Info className="h-5 w-5" />
+                              </Link>
+                              <Link
+                                href={getDishHref(heroDishPostItem)}
+                                aria-label="Compartir plato"
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
+                              >
+                                <Send className="h-5 w-5" />
+                              </Link>
+                            </div>
+                            <Link
+                              href={getDishHref(heroDishPostItem)}
+                              aria-label="Añadir para recoger"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#11D470] text-[#062113] shadow-[0_14px_30px_rgba(17,212,112,0.34)] transition hover:bg-[#0fc567]"
+                            >
+                              <CartIcon size={18} />
+                            </Link>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <div className="flex items-start justify-between gap-3">
+                              <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111]">
+                                {getDishDisplayName(heroDishPostItem)}
+                              </h2>
+                              <span className="shrink-0 rounded-full bg-[#11D470] px-3 py-1.5 text-sm font-bold text-[#062113]">
+                                {formatPrice(heroDishPostItem)}
+                              </span>
+                            </div>
+                            <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
+                              {getShortDescription(heroDishPostItem)}
+                            </p>
+                            <span className="inline-flex rounded-full bg-[#111111]/[0.06] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
+                              {heroDishPostItem.pickupEtaMin
+                                ? `Listo en ${heroDishPostItem.pickupEtaMin} min`
+                                : "Listo para recoger"}
+                            </span>
+                          </div>
+                        </section>
+                      </article>
+                    </div>
+                  ) : null}
                 </div>
+                </div>
+                <div className="relative z-10 mt-8 flex flex-wrap gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6">
+                  {["R\u00e1pido", "Muy elegido", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
+                    <span
+                      key={label}
+                      className={isLightTheme ? "rounded-full border border-black/8 bg-white/62 px-3.5 py-2 text-[11px] font-semibold text-black/58 shadow-[0_10px_28px_rgba(0,0,0,0.05)]" : "rounded-full border border-white/12 bg-white/[0.055] px-3.5 py-2 text-[11px] font-semibold text-white/78 shadow-[0_10px_28px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:border-[#7cffb8]/30 hover:bg-[#11D470]/10 hover:text-white"}
+                    >
+                      {label}
+                    </span>
+                  ))}
                 </div>
               </div>
 
-              <div className="mt-5 sm:mt-7">
+              <div className="mt-8 sm:mt-10 lg:mt-12">
                 <label className="sr-only" htmlFor={content.searchInputId}>{content.searchLabel}</label>
                 <div
                   ref={searchShellRef}
@@ -1985,7 +2223,7 @@ export function DemoDishesCarousel({
                 </div>
               </div>
 
-              <div className="mt-5 space-y-4 pb-3 sm:mt-7 sm:space-y-5 sm:pb-4">
+              <div className="mt-7 space-y-5 pb-4 sm:mt-9 sm:space-y-6 sm:pb-5">
                 <div className="space-y-2">
                   <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
                     Qué plan llevas hoy
@@ -2154,63 +2392,6 @@ export function DemoDishesCarousel({
 
           {filteredItems.length > 0 ? (
             <>
-              {quickDecisionItems.length > 0 ? (
-                <section className="mt-6 sm:mt-10" aria-labelledby="quick-decision-title">
-                  <div className="mb-3 flex items-end justify-between gap-4 px-1 sm:mb-4">
-                    <h2
-                      id="quick-decision-title"
-                      className={isLightTheme ? "text-lg font-semibold tracking-[-0.03em] text-black sm:text-xl" : "text-lg font-semibold tracking-[-0.03em] text-white sm:text-xl"}
-                    >
-                      {funnelSettings.platos.quickDecision.title}
-                    </h2>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1 sm:gap-3 md:grid-cols-4">
-                    {quickDecisionItems.map((item) => {
-                      const itemIndex = itemIndexById.get(item.id);
-
-                      return (
-                        <article
-                          key={`quick-${item.id}`}
-                          className={isLightTheme ? "group relative min-h-[9.5rem] overflow-hidden rounded-none bg-white/64 shadow-[0_16px_36px_rgba(0,0,0,0.08)] sm:rounded-[1rem] md:min-h-[11rem]" : "group relative min-h-[9.5rem] overflow-hidden rounded-none bg-black/10 sm:rounded-[1rem] md:min-h-[11rem]"}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (itemIndex !== undefined) {
-                                setOverlayDirection(1);
-                                setActiveIndex(itemIndex);
-                              }
-                            }}
-                            className="absolute inset-0"
-                            aria-label={`Abrir ${item.name}`}
-                          >
-                            <Image
-                              src={item.imageUrl ?? ""}
-                              alt={item.name}
-                              fill
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 18vw"
-                              className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]"
-                            />
-                            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.1)_30%,rgba(4,7,11,0.64))]" />
-                          </button>
-                          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-3.5">
-                            <div className="pointer-events-auto space-y-1.5">
-                              <p className="line-clamp-2 text-[0.9rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1rem]">
-                                {getDishDisplayName(item)}
-                              </p>
-                              <p className="font-serif text-[0.88rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">
-                                {getDecisionSignal(item)}
-                              </p>
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
-                  </div>
-                </section>
-              ) : null}
-
               <div id="platos-feed" className="mt-5 grid grid-cols-2 auto-rows-[5.7rem] gap-1 sm:mt-8 sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
                 {feedEntries.map((entry, index) => {
                 if (entry.type === "promo") {
@@ -2475,7 +2656,7 @@ export function DemoDishesCarousel({
                 <button
                   type="button"
                   onClick={() => handleAddPostToCart(activeItem)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#111111] text-white shadow-[0_12px_28px_rgba(0,0,0,0.2)] transition hover:bg-black"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#11D470] text-[#062113] shadow-[0_14px_30px_rgba(17,212,112,0.34)] transition hover:bg-[#0fc567]"
                   aria-label="A\u00f1adir para recoger"
                 >
                   <CartIcon className="h-5 w-5" />

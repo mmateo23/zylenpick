@@ -13,8 +13,8 @@ import { getBaseMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-const talaveraDemoVideoSrc =
-  "https://cdn.pixabay.com/video/2026/04/02/344075.mp4";
+const talaveraHeroImageSrc =
+  "/zones/talavera/talavera_de_la_reina_emerald.svg";
 
 type CityVenuesPageProps = {
   params: {
@@ -84,10 +84,13 @@ export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
         mode="zonas"
         variant="public"
         zoneName={city.name}
-        zoneHeroImageUrl={city.heroImageUrl}
+        zoneHeroImageUrl={
+          city.slug === "talavera-de-la-reina"
+            ? talaveraHeroImageSrc
+            : city.heroImageUrl
+        }
         zoneHeroVideoUrl={
-          city.heroVideoUrl ??
-          (city.slug === "talavera-de-la-reina" ? talaveraDemoVideoSrc : null)
+          city.slug === "talavera-de-la-reina" ? null : city.heroVideoUrl
         }
       />
     </>

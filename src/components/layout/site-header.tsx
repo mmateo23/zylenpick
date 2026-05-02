@@ -153,9 +153,9 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
     : dockButtonClassName;
 
   return (
-    <header className="sticky top-0 z-40 px-4 pt-4 sm:px-6 lg:px-8">
+    <header className="sticky top-[max(0.85rem,env(safe-area-inset-top))] z-40 px-4 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-[1.55rem] border border-white/16 bg-white/[0.10] px-3.5 py-2 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 transition-colors sm:px-4">
+        <div className="text-white">
           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
             {showNavigation ? (
               <button
@@ -208,11 +208,11 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             </Link>
           </div>
 
-          <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
+          <div className="relative hidden items-center md:flex md:justify-between md:gap-4">
             <div className="flex items-center justify-start">
               <Link
                 href="/"
-                className="inline-flex min-h-[22px] items-center justify-center"
+                className="inline-flex min-h-[24px] items-center justify-center px-1 drop-shadow-[0_14px_32px_rgba(0,0,0,0.35)] transition hover:-translate-y-[1px] hover:opacity-85"
                 aria-label="Ir al inicio"
               >
                 <Image
@@ -227,9 +227,9 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             </div>
 
             {showNavigation ? (
-              <nav aria-label="Navegacion principal" className="flex justify-center">
+              <nav aria-label="Navegacion principal" className="absolute left-1/2 -translate-x-1/2 justify-center">
                 <div
-                  className={`inline-flex items-center gap-1 rounded-[999px] border px-1.5 py-1.5 ${dockRailClassName}`}
+                  className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-1.5 backdrop-blur-2xl ${dockRailClassName}`}
                 >
                   {navigationItems.map((item) => (
                     <Link
@@ -237,7 +237,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition ${
                         isItemActive(item.href)
-                          ? "bg-white/[0.16] text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)]"
+                          ? "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)]"
                           : "text-white/60 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
                       }`}
                     >
@@ -248,13 +248,11 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               </nav>
             ) : null}
 
-            <div
-              className={`inline-flex items-center justify-self-end gap-1 rounded-[999px] border px-1.5 py-1.5 ${dockRailClassName}`}
-            >
+            <div className="inline-flex items-center justify-self-end gap-2">
               <Link
                 href={orderAccessHref}
                 aria-label={orderAccessLabel}
-                className={`relative inline-flex items-center justify-center rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[3.1rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${dockButtonClassName}`}
+                className={`relative inline-flex items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-11 min-w-[3.35rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-11 w-11"} ${dockButtonClassName}`}
               >
                 {showActiveOrderAccess ? (
                   <ActiveOrderIndicator
@@ -272,7 +270,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <Link
                 href={zoneHref}
                 aria-label={selectedCity?.name ?? "Elegir zona"}
-                className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
+                className={`group/location relative inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${cityButtonClassName}`}
               >
                 <LocationPinIcon size={14} className="shrink-0" />
                 <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/82 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">

@@ -249,6 +249,7 @@ export function DemoBentoGallery({
               src={zoneHeroImageUrl}
               alt={`Locales donde comer en ${zoneName ?? "tu zona"}`}
               fill
+              unoptimized={zoneHeroImageUrl.endsWith(".svg")}
               priority
               sizes="100vw"
               className="scale-[1.04] object-cover"
