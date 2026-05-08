@@ -14,6 +14,7 @@ import {
   ChevronUp,
   Clock3,
   Info,
+  Maximize2,
   MapPin,
   MoreHorizontal,
   MoveLeft,
@@ -285,6 +286,21 @@ function getVenueDistanceLabel(
   return `${distanceKm.toLocaleString("es-ES", {
     maximumFractionDigits: 1,
   })} km`;
+}
+
+function getPickupDistanceBadgeLabel(
+  item: HomeShowcaseItem,
+  userLocation: UserLocation | null,
+) {
+  if (
+    !userLocation ||
+    typeof item.venue.latitude !== "number" ||
+    typeof item.venue.longitude !== "number"
+  ) {
+    return "Activa ubicaci\u00f3n";
+  }
+
+  return `A ${getVenueDistanceLabel(item, userLocation)}`;
 }
 
 function getShortDescription(item: HomeShowcaseItem) {
@@ -585,6 +601,48 @@ function getPromoTileConfig(
           "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=1600&q=80",
         videoUrl: null,
         variant: "wide" as const,
+      };
+  }
+}
+
+function getPromoShotMetadata(id: PromoTileId) {
+  switch (id) {
+    case "sabor-en-video":
+      return {
+        title: "Selección en movimiento",
+        venueName: "ZylenPick Shots",
+        locationLabel: "Formato vídeo",
+        description:
+          "Un producto destacado en movimiento para decidir rápido y recoger en local.",
+        priceLabel: "Demo",
+      };
+    case "simpre-fit":
+      return {
+        title: "Cocina real",
+        venueName: "Local destacado",
+        locationLabel: "Recogida local",
+        description:
+          "Una escena breve para ver mejor el producto antes de abrir el detalle real.",
+        priceLabel: "Shot",
+      };
+    case "huelaa-bbq":
+      return {
+        title: "Local en movimiento",
+        venueName: "Escaparate visual",
+        locationLabel: "Cerca de ti",
+        description:
+          "Vídeo corto pensado para productos y platos que necesitan verse en acción.",
+        priceLabel: "Nuevo",
+      };
+    case "mira-que-pollo":
+    default:
+      return {
+        title: "Pollo Asado Entero",
+        venueName: "ZylenPick",
+        locationLabel: "Para recoger",
+        description:
+          "Post visual de producto destacado para abrir después como detalle.",
+        priceLabel: "Ver",
       };
   }
 }
@@ -1079,6 +1137,9 @@ export function DemoDishesCarousel({
   const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
   const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
+  const [activeShotId, setActiveShotId] = useState<PromoTileId | null>(null);
+  const [isShotFullscreen, setIsShotFullscreen] = useState(false);
+  const [shotFeedback, setShotFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
@@ -1199,20 +1260,19 @@ export function DemoDishesCarousel({
       new Map(filteredItems.map((item, index) => [item.id, index] as const)),
     [filteredItems],
   );
-  const promoFallbackIndex = useMemo(() => {
-    const croquetasMatch = filteredItems.findIndex((item) => {
-      const name = item.name.toLocaleLowerCase("es");
-      const description = (item.description ?? "").toLocaleLowerCase("es");
-
-      return name.includes("croqueta") || description.includes("croqueta");
-    });
-
-    if (croquetasMatch >= 0) {
-      return croquetasMatch;
+  const activeShot = useMemo(() => {
+    if (!activeShotId) {
+      return null;
     }
 
-    return filteredItems.length > 0 ? 0 : null;
-  }, [filteredItems]);
+    const promo = getPromoTileConfig(activeShotId, content.promoHrefs);
+    const metadata = getPromoShotMetadata(activeShotId);
+
+    return {
+      ...promo,
+      ...metadata,
+    };
+  }, [activeShotId, content.promoHrefs]);
   const activeItem = useMemo(
     () => (activeIndex === null ? null : filteredItems[activeIndex] ?? null),
     [activeIndex, filteredItems],
@@ -1387,6 +1447,32 @@ export function DemoDishesCarousel({
 
     await navigator.clipboard?.writeText(`${shareText}\n${href}`);
     setPostFeedback("Enlace copiado");
+  };
+
+  const handleShareShot = async () => {
+    if (!activeShot) {
+      return;
+    }
+
+    const href = `${window.location.origin}/platos`;
+    const shareText = `Mira este Shot: ${activeShot.title} — ZylenPick`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "ZylenPick Shot",
+          text: shareText,
+          url: href,
+        });
+        setShotFeedback("Compartido");
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    await navigator.clipboard?.writeText(`${shareText}\n${href}`);
+    setShotFeedback("Enlace copiado");
   };
 
   const handleAddPostToCart = (item: HomeShowcaseItem) => {
@@ -2274,10 +2360,8 @@ export function DemoDishesCarousel({
                       type="button"
                       key={entry.id}
                       onClick={() => {
-                        if (promoFallbackIndex !== null) {
-                          setOverlayDirection(1);
-                          setActiveIndex(promoFallbackIndex);
-                        }
+                        setShotFeedback(null);
+                        setActiveShotId(entry.id);
                       }}
                       className={getPromoCardClassName(promo.variant, isLightTheme)}
                       aria-label={`Abrir promoción ${promo.label}`}
@@ -2412,7 +2496,7 @@ export function DemoDishesCarousel({
                       <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.34))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.28))]"} />
                       <div className={getHoverGlassClassName(item)} />
                       <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full bg-black/32 px-2 py-1 text-[0.6rem] font-bold leading-none text-white/82 shadow-[0_8px_20px_rgba(0,0,0,0.28)] backdrop-blur-md sm:hidden">
-                        {getVenueDistanceLabel(item, userLocation)}
+                        {getPickupDistanceBadgeLabel(item, userLocation)}
                       </div>
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
                         <div className="flex max-w-[88%] flex-col items-center">
@@ -2463,6 +2547,169 @@ export function DemoDishesCarousel({
       {content.footerVariant === "zylenpick" ? (
         <ZylenPickFooter theme={isLightTheme ? "light" : "dark"} />
       ) : null}
+      {activeShot ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/78 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Cerrar Shot"
+            onClick={() => {
+              setActiveShotId(null);
+              setIsShotFullscreen(false);
+            }}
+          />
+
+          <article className="relative z-10 h-[min(88svh,46rem)] w-full max-w-[26rem] overflow-hidden rounded-[1.65rem] bg-black shadow-[0_28px_90px_rgba(0,0,0,0.44)]">
+            {activeShot.videoUrl ? (
+              <video
+                src={activeShot.videoUrl}
+                className="absolute inset-0 h-full w-full object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+                preload="metadata"
+              />
+            ) : activeShot.imageUrl ? (
+              <Image
+                src={activeShot.imageUrl}
+                alt=""
+                fill
+                sizes="26rem"
+                className="object-cover"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.12)_38%,rgba(0,0,0,0.9))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_48%,rgba(17,212,112,0.18),transparent_34%)]" />
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveShotId(null);
+                setIsShotFullscreen(false);
+              }}
+              className="absolute right-4 top-4 z-[3] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-black/32 text-white backdrop-blur-md transition hover:bg-white/[0.12]"
+              aria-label="Cerrar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="absolute bottom-0 left-0 right-[4.8rem] z-[2] p-4 pb-5 sm:right-24 sm:p-6">
+              <div className="max-w-[23rem] rounded-[1.15rem] border border-white/10 bg-black/24 p-3.5 shadow-[0_18px_48px_rgba(0,0,0,0.3)] backdrop-blur-md sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0">
+                <p className="text-[0.82rem] font-bold text-white">
+                  {activeShot.venueName}
+                </p>
+                <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-white/62">
+                  {activeShot.locationLabel}
+                </p>
+                <h2 className="mt-3 text-[1.75rem] font-black leading-[0.94] tracking-[-0.06em] text-white drop-shadow-[0_8px_26px_rgba(0,0,0,0.45)] sm:text-4xl">
+                  {activeShot.title}
+                </h2>
+                <p className="mt-2 line-clamp-2 text-[0.82rem] leading-5 text-white/76">
+                  {activeShot.description}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#11D470] px-3 py-1.5 text-xs font-black text-[#062113]">
+                    {activeShot.priceLabel}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShotFeedback(
+                        "Este Shot se conectará al producto real desde panel.",
+                      )
+                    }
+                    className="rounded-full border border-white/14 bg-white/[0.1] px-3 py-1.5 text-xs font-bold text-white/90 backdrop-blur-md transition hover:bg-white/[0.15]"
+                  >
+                    Ver detalle
+                  </button>
+                </div>
+                {shotFeedback ? (
+                  <p className="mt-3 inline-flex rounded-full border border-[#11D470]/20 bg-[#11D470]/12 px-3 py-1.5 text-[0.72rem] font-bold text-[#9cffc8]">
+                    {shotFeedback}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="absolute bottom-6 right-3 z-[3] flex flex-col items-center gap-2.5 sm:right-5 sm:gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setShotFeedback(
+                    "Este Shot se añadirá cuando esté conectado al panel.",
+                  )
+                }
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#11D470] text-[#062113] shadow-[0_14px_34px_rgba(17,212,112,0.28)] transition hover:scale-105 sm:h-12 sm:w-12"
+                aria-label="Añadir a cesta"
+              >
+                <CartIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleShareShot()}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Compartir Shot"
+              >
+                <Send className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setShotFeedback(
+                    "Abrirá la ficha real cuando el Shot esté conectado al panel.",
+                  )
+                }
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Ver información"
+              >
+                <Info className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShotFullscreen(true)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Expandir Shot"
+              >
+                <Maximize2 className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+            </div>
+          </article>
+
+          {isShotFullscreen ? (
+            <div className="fixed inset-0 z-[60] bg-black">
+              {activeShot.videoUrl ? (
+                <video
+                  src={activeShot.videoUrl}
+                  className="h-full w-full object-contain"
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  controls
+                />
+              ) : activeShot.imageUrl ? (
+                <Image
+                  src={activeShot.imageUrl}
+                  alt={activeShot.title}
+                  fill
+                  sizes="100vw"
+                  className="object-contain p-4"
+                />
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setIsShotFullscreen(false)}
+                className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
+                aria-label="Cerrar vídeo"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {activeItem ? (
         <div
           className="dish-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"
