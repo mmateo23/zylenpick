@@ -14,6 +14,7 @@ import {
   ChevronUp,
   Clock3,
   Info,
+  Maximize2,
   MapPin,
   MoreHorizontal,
   MoveLeft,
@@ -24,9 +25,9 @@ import {
 } from "lucide-react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
+import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
-import { useCart } from "@/features/cart/hooks/use-cart";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { SiteChip } from "@/features/chips/types";
 import {
@@ -47,22 +48,6 @@ import type { HomeShowcaseItem } from "@/features/venues/types";
 import { trackEvent } from "@/lib/analytics/track-event";
 
 gsap.registerPlugin(useGSAP);
-
-function getBadgeLabel(totalItems: number) {
-  return totalItems > 9 ? "9+" : String(totalItems);
-}
-
-function CartBadge({ totalItems }: { totalItems: number }) {
-  if (totalItems <= 0) {
-    return null;
-  }
-
-  return (
-    <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[9px] font-semibold leading-none text-white shadow-[0_6px_16px_rgba(0,0,0,0.18)]">
-      {getBadgeLabel(totalItems)}
-    </span>
-  );
-}
 
 type DemoDishesCarouselProps = {
   items: HomeShowcaseItem[];
@@ -303,6 +288,21 @@ function getVenueDistanceLabel(
   })} km`;
 }
 
+function getPickupDistanceBadgeLabel(
+  item: HomeShowcaseItem,
+  userLocation: UserLocation | null,
+) {
+  if (
+    !userLocation ||
+    typeof item.venue.latitude !== "number" ||
+    typeof item.venue.longitude !== "number"
+  ) {
+    return "Activa ubicaci\u00f3n";
+  }
+
+  return `A ${getVenueDistanceLabel(item, userLocation)}`;
+}
+
 function getShortDescription(item: HomeShowcaseItem) {
   return item.description?.trim() || "Plato real de un local cercano.";
 }
@@ -326,9 +326,9 @@ function getVenueAvatarLabel(item: HomeShowcaseItem) {
 }
 
 const demoDishVideoUrls = [
-  "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4",
-  "https://cdn.pixabay.com/video/2022/10/16/135080-761273537_large.mp4",
-  "https://cdn.pixabay.com/video/2020/04/19/36186-411138891_large.mp4",
+  "https://cdn.pixabay.com/video/2024/08/18/227128_large.mp4",
+  "https://cdn.pixabay.com/video/2024/08/18/227137_large.mp4",
+  "https://cdn.pixabay.com/video/2023/03/08/153818-806178220_large.mp4",
 ];
 
 const PLATOS_HERO_BURST_LAYERS = [
@@ -376,27 +376,6 @@ const PLATOS_HERO_BURST_LAYERS = [
   },
 ];
 
-function getDishDemoVideoUrl(item: HomeShowcaseItem) {
-  const imageUrl = item.imageUrl?.toLowerCase() ?? "";
-
-  if (!imageUrl.includes("images.unsplash.com")) {
-    return null;
-  }
-
-  const shouldUseVideo =
-    imageUrl.includes("photo-1568901346375") ||
-    imageUrl.includes("photo-1518013431117") ||
-    imageUrl.includes("photo-1519864600265") ||
-    imageUrl.includes("photo-1550547660") ||
-    getStableHash(`${item.id}:${imageUrl}`) % 4 === 0;
-
-  if (!shouldUseVideo) {
-    return null;
-  }
-
-  return demoDishVideoUrls[getStableHash(item.id) % demoDishVideoUrls.length];
-}
-
 function DishVisualMedia({
   item,
   className,
@@ -410,24 +389,7 @@ function DishVisualMedia({
   priority?: boolean;
   fit?: "cover" | "contain";
 }) {
-  const videoUrl = getDishDemoVideoUrl(item);
   const mediaClassName = `absolute inset-0 h-full w-full object-${fit} ${className}`;
-
-  if (videoUrl) {
-    return (
-      <video
-        src={videoUrl}
-        poster={item.imageUrl ?? undefined}
-        aria-label={item.name}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        className={mediaClassName}
-      />
-    );
-  }
 
   return (
     <Image
@@ -597,22 +559,6 @@ function getPromoCardClassName(
   }`;
 }
 
-function getPromoLabelClassName(
-  variant: "wide" | "tall" | "standard",
-  isLightTheme: boolean,
-) {
-  const sizeClassName =
-    variant === "wide"
-      ? "text-[clamp(1.55rem,5vw,5.6rem)]"
-      : variant === "tall"
-        ? "text-[clamp(1.35rem,4vw,4.1rem)]"
-        : "text-[clamp(1.05rem,2.7vw,2.2rem)]";
-
-  return `${sizeClassName} text-balance font-semibold leading-[0.9] tracking-[-0.06em] ${
-    isLightTheme ? "text-[#111111]" : "text-white"
-  }`;
-}
-
 function getPromoTileConfig(
   id: PromoTileId,
   promoHrefs: Record<PromoTileId, string>,
@@ -621,31 +567,28 @@ function getPromoTileConfig(
     case "sabor-en-video":
       return {
         href: promoHrefs["sabor-en-video"],
-        label: "\ud83c\udfac #SaborEnVideo",
+        label: "#VideoPick",
         dish: "Selección en movimiento",
         imageUrl: null,
-        videoUrl:
-          "https://cdn.pixabay.com/video/2024/01/18/197190-904257543_large.mp4",
-        variant: "wide" as const,
+        videoUrl: demoDishVideoUrls[0],
+        variant: "standard" as const,
       };
     case "simpre-fit":
       return {
         href: promoHrefs["simpre-fit"],
-        label: "\uD83E\uDD57 #SimpreFIT",
-        dish: "Ensalada C\u00e9sar Fit",
-        imageUrl:
-          "https://images.unsplash.com/photo-1546793665-c74683f339c1?auto=format&fit=crop&w=1400&q=80",
-        videoUrl: null,
-        variant: "tall" as const,
+        label: "#ChefLive",
+        dish: "Cocina real",
+        imageUrl: null,
+        videoUrl: demoDishVideoUrls[1],
+        variant: "standard" as const,
       };
     case "huelaa-bbq":
       return {
         href: promoHrefs["huelaa-bbq"],
-        label: "\uD83D\uDD25 #HuelaaBBQ",
-        dish: "Costillas BBQ Ahumadas",
-        imageUrl:
-          "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?auto=format&fit=crop&w=1400&q=80",
-        videoUrl: null,
+        label: "#AhoraSeVe",
+        dish: "Local en movimiento",
+        imageUrl: null,
+        videoUrl: demoDishVideoUrls[2],
         variant: "standard" as const,
       };
     case "mira-que-pollo":
@@ -658,6 +601,48 @@ function getPromoTileConfig(
           "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=1600&q=80",
         videoUrl: null,
         variant: "wide" as const,
+      };
+  }
+}
+
+function getPromoShotMetadata(id: PromoTileId) {
+  switch (id) {
+    case "sabor-en-video":
+      return {
+        title: "Selección en movimiento",
+        venueName: "ZylenPick Shots",
+        locationLabel: "Formato vídeo",
+        description:
+          "Un producto destacado en movimiento para decidir rápido y recoger en local.",
+        priceLabel: "Demo",
+      };
+    case "simpre-fit":
+      return {
+        title: "Cocina real",
+        venueName: "Local destacado",
+        locationLabel: "Recogida local",
+        description:
+          "Una escena breve para ver mejor el producto antes de abrir el detalle real.",
+        priceLabel: "Shot",
+      };
+    case "huelaa-bbq":
+      return {
+        title: "Local en movimiento",
+        venueName: "Escaparate visual",
+        locationLabel: "Cerca de ti",
+        description:
+          "Vídeo corto pensado para productos y platos que necesitan verse en acción.",
+        priceLabel: "Nuevo",
+      };
+    case "mira-que-pollo":
+    default:
+      return {
+        title: "Pollo Asado Entero",
+        venueName: "ZylenPick",
+        locationLabel: "Para recoger",
+        description:
+          "Post visual de producto destacado para abrir después como detalle.",
+        priceLabel: "Ver",
       };
   }
 }
@@ -1121,7 +1106,6 @@ export function DemoDishesCarousel({
   chips = [],
 }: DemoDishesCarouselProps) {
   const searchParams = useSearchParams();
-  const { totals } = useCart();
   const content = {
     ...defaultTemplate,
     ...template,
@@ -1153,6 +1137,9 @@ export function DemoDishesCarousel({
   const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
   const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
+  const [activeShotId, setActiveShotId] = useState<PromoTileId | null>(null);
+  const [isShotFullscreen, setIsShotFullscreen] = useState(false);
+  const [shotFeedback, setShotFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
@@ -1240,8 +1227,18 @@ export function DemoDishesCarousel({
       (item) => item.id !== featuredItem?.id,
     );
     const entries = feedItems.map<FeedEntry>((item) => ({ type: "dish", item }));
+    const promoEntries: FeedEntry[] = [
+      { type: "promo", id: "sabor-en-video" },
+      { type: "promo", id: "simpre-fit" },
+      { type: "promo", id: "huelaa-bbq" },
+    ];
 
     if (!featuredItem) {
+      promoEntries.forEach((promoEntry, promoIndex) => {
+        const insertIndex = Math.min(2 + promoIndex * 5, entries.length);
+        entries.splice(insertIndex, 0, promoEntry);
+      });
+
       return entries;
     }
 
@@ -1251,6 +1248,10 @@ export function DemoDishesCarousel({
     );
 
     entries.splice(insertIndex, 0, { type: "featured", item: featuredItem });
+    promoEntries.forEach((promoEntry, promoIndex) => {
+      const safeInsertIndex = Math.min(3 + promoIndex * 5, entries.length);
+      entries.splice(safeInsertIndex, 0, promoEntry);
+    });
 
     return entries;
   }, [filteredItems, funnelSettings]);
@@ -1259,20 +1260,19 @@ export function DemoDishesCarousel({
       new Map(filteredItems.map((item, index) => [item.id, index] as const)),
     [filteredItems],
   );
-  const promoFallbackIndex = useMemo(() => {
-    const croquetasMatch = filteredItems.findIndex((item) => {
-      const name = item.name.toLocaleLowerCase("es");
-      const description = (item.description ?? "").toLocaleLowerCase("es");
-
-      return name.includes("croqueta") || description.includes("croqueta");
-    });
-
-    if (croquetasMatch >= 0) {
-      return croquetasMatch;
+  const activeShot = useMemo(() => {
+    if (!activeShotId) {
+      return null;
     }
 
-    return filteredItems.length > 0 ? 0 : null;
-  }, [filteredItems]);
+    const promo = getPromoTileConfig(activeShotId, content.promoHrefs);
+    const metadata = getPromoShotMetadata(activeShotId);
+
+    return {
+      ...promo,
+      ...metadata,
+    };
+  }, [activeShotId, content.promoHrefs]);
   const activeItem = useMemo(
     () => (activeIndex === null ? null : filteredItems[activeIndex] ?? null),
     [activeIndex, filteredItems],
@@ -1449,6 +1449,32 @@ export function DemoDishesCarousel({
     setPostFeedback("Enlace copiado");
   };
 
+  const handleShareShot = async () => {
+    if (!activeShot) {
+      return;
+    }
+
+    const href = `${window.location.origin}/platos`;
+    const shareText = `Mira este Shot: ${activeShot.title} — ZylenPick`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "ZylenPick Shot",
+          text: shareText,
+          url: href,
+        });
+        setShotFeedback("Compartido");
+        return;
+      } catch {
+        return;
+      }
+    }
+
+    await navigator.clipboard?.writeText(`${shareText}\n${href}`);
+    setShotFeedback("Enlace copiado");
+  };
+
   const handleAddPostToCart = (item: HomeShowcaseItem) => {
     const venue = getCartVenueFromShowcaseItem(item);
     const cartItem = getCartItemFromShowcaseItem(item);
@@ -1458,7 +1484,7 @@ export function DemoDishesCarousel({
     });
 
     if (result.status === "conflict") {
-      setPostFeedback(`Tu carrito pertenece a ${result.conflictingVenueName}.`);
+      setPostFeedback(`Tu cesta pertenece a ${result.conflictingVenueName}.`);
       return;
     }
 
@@ -1918,7 +1944,8 @@ export function DemoDishesCarousel({
           }
         }
       `}</style>
-      <section className="relative overflow-hidden px-1.5 pb-6 pt-[max(0.85rem,env(safe-area-inset-top))] sm:px-6 sm:pb-8 lg:px-8">
+      <SiteHeader />
+      <section className="relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9">
         <div
           className={
             isLightTheme
@@ -1929,76 +1956,7 @@ export function DemoDishesCarousel({
 
         <div className="relative z-10 mx-auto max-w-[1600px]">
           <div className="flex min-h-[min(52svh,31rem)] flex-col">
-            <div className="sticky top-[max(0.85rem,env(safe-area-inset-top))] z-50 flex items-center justify-between gap-3 py-1.5">
-              <Link
-                href={content.homeHref}
-                aria-label={content.logoAlt}
-                className={
-                  isLightTheme
-                    ? "inline-flex min-h-[24px] items-center justify-center px-1 text-[#181816] transition hover:-translate-y-[1px] hover:opacity-80"
-                    : "inline-flex min-h-[24px] items-center justify-center px-1 text-white drop-shadow-[0_14px_32px_rgba(0,0,0,0.35)] transition hover:-translate-y-[1px] hover:opacity-85"
-                }
-              >
-                <Image
-                  src={activeLogoSrc}
-                  alt={content.logoAlt}
-                  width={content.logoWidth}
-                  height={content.logoHeight}
-                  priority
-                  className={content.logoClassName}
-                />
-              </Link>
-
-              <nav aria-label="Navegacion principal" className="absolute left-1/2 hidden -translate-x-1/2 justify-center md:flex">
-                <div
-                  className={
-                    isLightTheme
-                      ? "inline-flex items-center gap-1 rounded-full border border-black/8 bg-white/70 p-1.5 shadow-[0_18px_42px_rgba(20,20,20,0.10)] backdrop-blur-2xl"
-                      : "inline-flex items-center gap-1 rounded-full border border-white/10 bg-black/28 p-1.5 shadow-[0_18px_48px_rgba(0,0,0,0.34)] backdrop-blur-2xl"
-                  }
-                >
-                  {[
-                    { label: "Platos", href: "/platos" },
-                    { label: "Zonas", href: "/zonas" },
-                    { label: "Proyecto", href: "/el-proyecto" },
-                    { label: "Unete", href: "/unete" },
-                  ].map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={
-                        item.href === "/platos"
-                          ? isLightTheme
-                            ? "rounded-full bg-[#11D470] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#062113] shadow-[0_10px_28px_rgba(17,212,112,0.24)] transition"
-                            : "rounded-full bg-[#11D470] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)] transition"
-                          : isLightTheme
-                            ? "rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#181816]/54 transition hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
-                            : "rounded-full px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/54 transition hover:-translate-y-[1px] hover:bg-white/[0.075] hover:text-white"
-                      }
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              </nav>
-
-              <div className="inline-flex items-center justify-end">
-                <Link
-                  href="/cart"
-                  aria-label="Carrito"
-                  className={
-                    isLightTheme
-                      ? "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white/72 text-[#181816] shadow-[0_16px_34px_rgba(20,20,20,0.10)] backdrop-blur-xl transition hover:-translate-y-[1px] hover:bg-white"
-                      : "relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/24 text-white shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition hover:-translate-y-[1px] hover:border-[#11D470]/32 hover:bg-white/[0.09]"
-                  }
-                >
-                  <CartIcon size={16} />
-                  <CartBadge totalItems={totals.totalItems} />
-                </Link>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-1 flex-col justify-center sm:mt-6">
+            <div className="mt-4 flex flex-1 flex-col justify-center sm:mt-6">
               <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
                 <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
                   <Image
@@ -2025,7 +1983,7 @@ export function DemoDishesCarousel({
                     {"Elige qu\u00e9 te apetece"}
                   </h1>
                   <p className={isLightTheme ? "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-black/62 sm:text-lg sm:leading-8" : "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-white/78 drop-shadow-[0_8px_24px_rgba(0,0,0,0.34)] sm:text-lg sm:leading-8"}>
-                    {"Mira platos reales y decide r\u00e1pido, sin perderte en cartas infinitas."}
+                    {"Mira una selección visual de productos y platos destacados para recoger."}
                   </p>
                 </div>
 
@@ -2191,7 +2149,7 @@ export function DemoDishesCarousel({
                 </div>
                 </div>
                 <div className="relative z-10 mt-8 flex flex-wrap gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6">
-                  {["R\u00e1pido", "Muy elegido", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
+                  {["R\u00e1pido", "Selección visual", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
                     <span
                       key={label}
                       className={isLightTheme ? "rounded-full border border-black/8 bg-white/62 px-3.5 py-2 text-[11px] font-semibold text-black/58 shadow-[0_10px_28px_rgba(0,0,0,0.05)]" : "rounded-full border border-white/12 bg-white/[0.055] px-3.5 py-2 text-[11px] font-semibold text-white/78 shadow-[0_10px_28px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:border-[#7cffb8]/30 hover:bg-[#11D470]/10 hover:text-white"}
@@ -2392,7 +2350,7 @@ export function DemoDishesCarousel({
 
           {filteredItems.length > 0 ? (
             <>
-              <div id="platos-feed" className="mt-5 grid grid-cols-2 auto-rows-[5.7rem] gap-1 sm:mt-8 sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
+              <div id="platos-feed" className="-mx-1.5 mt-5 grid grid-cols-2 auto-rows-[8.8rem] gap-1.5 sm:mx-0 sm:mt-8 sm:auto-rows-[9.6rem] sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
                 {feedEntries.map((entry, index) => {
                 if (entry.type === "promo") {
                   const promo = getPromoTileConfig(entry.id, content.promoHrefs);
@@ -2402,10 +2360,8 @@ export function DemoDishesCarousel({
                       type="button"
                       key={entry.id}
                       onClick={() => {
-                        if (promoFallbackIndex !== null) {
-                          setOverlayDirection(1);
-                          setActiveIndex(promoFallbackIndex);
-                        }
+                        setShotFeedback(null);
+                        setActiveShotId(entry.id);
                       }}
                       className={getPromoCardClassName(promo.variant, isLightTheme)}
                       aria-label={`Abrir promoción ${promo.label}`}
@@ -2454,10 +2410,15 @@ export function DemoDishesCarousel({
                         {promo.videoUrl ? (
                           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.04),rgba(4,7,11,0.1)_42%,rgba(4,7,11,0.48))]" />
                         ) : null}
-                        <div className="relative z-[1] flex items-center justify-center px-4 text-center transition-opacity duration-400 ease-out group-hover:lg:opacity-0">
-                          <span className={getPromoLabelClassName(promo.variant, isLightTheme)}>
-                            {promo.label}
-                          </span>
+                        <div className="relative z-[1] flex h-full w-full flex-col justify-end px-1 py-1 text-left transition-opacity duration-400 ease-out">
+                          <div>
+                            <p className="line-clamp-2 text-[0.82rem] font-bold leading-[1.04] tracking-[-0.035em] text-white sm:text-[1rem]">
+                              {promo.dish}
+                            </p>
+                            <p className="mt-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#11D470]">
+                              {promo.label}
+                            </p>
+                          </div>
                         </div>
                         <div className="pointer-events-none absolute inset-0 z-[1] hidden opacity-0 transition-opacity duration-500 ease-out group-hover:lg:block group-hover:lg:opacity-100 lg:block" />
                       </div>
@@ -2488,13 +2449,29 @@ export function DemoDishesCarousel({
                           className="absolute inset-0"
                           aria-label={`Abrir ${item.name}`}
                         >
-                          <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
+                          <DishVisualMedia
+                            item={item}
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                            className="transition duration-500 group-hover:scale-[1.035]"
+                          />
                           <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
                         </button>
-                        <div className="pointer-events-none absolute left-2.5 top-2.5 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/82 backdrop-blur-xl">
+                        <div className="pointer-events-none absolute left-2 top-2 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/82 backdrop-blur-xl sm:left-2.5 sm:top-2.5 sm:px-2.5">
                           Destacado
                         </div>
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-4">
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
+                          <div className="ml-auto max-w-[84%]">
+                            <p className="line-clamp-2 text-[0.82rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
+                              {getDishDisplayName(item)}
+                            </p>
+                            <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
+                              <span className="shrink-0 rounded-[0.45rem] bg-[#11D470] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#062113] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
+                                {formatPrice(item)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden px-3 pb-3 pt-8 sm:block sm:px-4">
                           <div className="space-y-1.5">
                             <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
                             <p className="font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
@@ -2511,9 +2488,16 @@ export function DemoDishesCarousel({
                     setActiveIndex(itemIndex);
                   }} className={getExploreCardClassName(item, index, isLightTheme)} aria-label={`Abrir ${item.name}`}>
                     <div className="relative h-full overflow-hidden rounded-[inherit]">
-                      <Image src={item.imageUrl ?? ""} alt={item.name} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-[1.035]" />
+                      <DishVisualMedia
+                        item={item}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                        className="transition duration-500 group-hover:scale-[1.035]"
+                      />
                       <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.34))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.28))]"} />
                       <div className={getHoverGlassClassName(item)} />
+                      <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full bg-black/32 px-2 py-1 text-[0.6rem] font-bold leading-none text-white/82 shadow-[0_8px_20px_rgba(0,0,0,0.28)] backdrop-blur-md sm:hidden">
+                        {getPickupDistanceBadgeLabel(item, userLocation)}
+                      </div>
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
                         <div className="flex max-w-[88%] flex-col items-center">
                           {renderHoverTitle(item)}
@@ -2521,7 +2505,19 @@ export function DemoDishesCarousel({
                           <p className="mt-2 translate-y-2 text-[0.68rem] font-medium uppercase tracking-[0.22em] text-white/72 opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{getCardMicroContext(item)}</p>
                         </div>
                       </div>
-                      <div className="absolute inset-x-0 bottom-0 px-3 pb-3 pt-8 sm:px-4">
+                      <div className="absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
+                        <div className="ml-auto max-w-[84%]">
+                          <p className="line-clamp-2 text-[0.82rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
+                            {getDishDisplayName(item)}
+                          </p>
+                          <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
+                            <span className="shrink-0 rounded-[0.45rem] bg-[#11D470] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#062113] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
+                              {formatPrice(item)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 hidden px-3 pb-3 pt-8 sm:block sm:px-4">
                         <div className="translate-y-0 transition-[transform,opacity] duration-500 ease-out will-change-transform group-hover:sm:-translate-y-2 group-focus-visible:sm:-translate-y-2 group-hover:lg:opacity-0 group-focus-visible:lg:opacity-0">
                           <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
                           <p className="mt-1.5 font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#7cffb8] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
@@ -2551,6 +2547,169 @@ export function DemoDishesCarousel({
       {content.footerVariant === "zylenpick" ? (
         <ZylenPickFooter theme={isLightTheme ? "light" : "dark"} />
       ) : null}
+      {activeShot ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/78 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6">
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label="Cerrar Shot"
+            onClick={() => {
+              setActiveShotId(null);
+              setIsShotFullscreen(false);
+            }}
+          />
+
+          <article className="relative z-10 h-[min(88svh,46rem)] w-full max-w-[26rem] overflow-hidden rounded-[1.65rem] bg-black shadow-[0_28px_90px_rgba(0,0,0,0.44)]">
+            {activeShot.videoUrl ? (
+              <video
+                src={activeShot.videoUrl}
+                className="absolute inset-0 h-full w-full object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+                preload="metadata"
+              />
+            ) : activeShot.imageUrl ? (
+              <Image
+                src={activeShot.imageUrl}
+                alt=""
+                fill
+                sizes="26rem"
+                className="object-cover"
+              />
+            ) : null}
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.12)_38%,rgba(0,0,0,0.9))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_48%,rgba(17,212,112,0.18),transparent_34%)]" />
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveShotId(null);
+                setIsShotFullscreen(false);
+              }}
+              className="absolute right-4 top-4 z-[3] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-black/32 text-white backdrop-blur-md transition hover:bg-white/[0.12]"
+              aria-label="Cerrar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="absolute bottom-0 left-0 right-[4.8rem] z-[2] p-4 pb-5 sm:right-24 sm:p-6">
+              <div className="max-w-[23rem] rounded-[1.15rem] border border-white/10 bg-black/24 p-3.5 shadow-[0_18px_48px_rgba(0,0,0,0.3)] backdrop-blur-md sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0">
+                <p className="text-[0.82rem] font-bold text-white">
+                  {activeShot.venueName}
+                </p>
+                <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-white/62">
+                  {activeShot.locationLabel}
+                </p>
+                <h2 className="mt-3 text-[1.75rem] font-black leading-[0.94] tracking-[-0.06em] text-white drop-shadow-[0_8px_26px_rgba(0,0,0,0.45)] sm:text-4xl">
+                  {activeShot.title}
+                </h2>
+                <p className="mt-2 line-clamp-2 text-[0.82rem] leading-5 text-white/76">
+                  {activeShot.description}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#11D470] px-3 py-1.5 text-xs font-black text-[#062113]">
+                    {activeShot.priceLabel}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShotFeedback(
+                        "Este Shot se conectará al producto real desde panel.",
+                      )
+                    }
+                    className="rounded-full border border-white/14 bg-white/[0.1] px-3 py-1.5 text-xs font-bold text-white/90 backdrop-blur-md transition hover:bg-white/[0.15]"
+                  >
+                    Ver detalle
+                  </button>
+                </div>
+                {shotFeedback ? (
+                  <p className="mt-3 inline-flex rounded-full border border-[#11D470]/20 bg-[#11D470]/12 px-3 py-1.5 text-[0.72rem] font-bold text-[#9cffc8]">
+                    {shotFeedback}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="absolute bottom-6 right-3 z-[3] flex flex-col items-center gap-2.5 sm:right-5 sm:gap-3">
+              <button
+                type="button"
+                onClick={() =>
+                  setShotFeedback(
+                    "Este Shot se añadirá cuando esté conectado al panel.",
+                  )
+                }
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#11D470] text-[#062113] shadow-[0_14px_34px_rgba(17,212,112,0.28)] transition hover:scale-105 sm:h-12 sm:w-12"
+                aria-label="Añadir a cesta"
+              >
+                <CartIcon className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleShareShot()}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Compartir Shot"
+              >
+                <Send className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setShotFeedback(
+                    "Abrirá la ficha real cuando el Shot esté conectado al panel.",
+                  )
+                }
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Ver información"
+              >
+                <Info className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShotFullscreen(true)}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                aria-label="Expandir Shot"
+              >
+                <Maximize2 className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+              </button>
+            </div>
+          </article>
+
+          {isShotFullscreen ? (
+            <div className="fixed inset-0 z-[60] bg-black">
+              {activeShot.videoUrl ? (
+                <video
+                  src={activeShot.videoUrl}
+                  className="h-full w-full object-contain"
+                  muted
+                  loop
+                  playsInline
+                  autoPlay
+                  controls
+                />
+              ) : activeShot.imageUrl ? (
+                <Image
+                  src={activeShot.imageUrl}
+                  alt={activeShot.title}
+                  fill
+                  sizes="100vw"
+                  className="object-contain p-4"
+                />
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setIsShotFullscreen(false)}
+                className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
+                aria-label="Cerrar vídeo"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {activeItem ? (
         <div
           className="dish-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"

@@ -25,20 +25,20 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "ZylenPick | Comida local para recoger",
+    default: "ZylenPick | Productos y platos para recoger",
     template: "%s | ZylenPick",
   },
   description:
-    "Descubre comida local, explora locales cercanos y pide para recoger de forma simple, visual y rápida.",
+    "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
   icons: {
     icon: "/logo/ZyelnpickLOGO_green.png",
     shortcut: "/logo/ZyelnpickLOGO_green.png",
     apple: "/logo/ZyelnpickLOGO_green.png",
   },
   openGraph: {
-    title: "ZylenPick | Comida local para recoger",
+    title: "ZylenPick | Productos y platos para recoger",
     description:
-      "Descubre comida local, explora locales cercanos y pide para recoger de forma simple, visual y rápida.",
+      "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
     url: "/",
     siteName: "ZylenPick",
     locale: "es_ES",
@@ -54,9 +54,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZylenPick | Comida local para recoger",
+    title: "ZylenPick | Productos y platos para recoger",
     description:
-      "Descubre comida local, explora locales cercanos y pide para recoger de forma simple, visual y rápida.",
+      "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
     images: ["/logo/ZyelnpickLOGO_green.png"],
   },
 };

@@ -16,14 +16,14 @@ const personProblems = [
 ];
 
 const venueProblems = [
-  "Tu comida no se ve como realmente es",
+  "Tu selección no se ve como realmente es",
   "Dependes de plataformas complicadas",
   "Cuesta que la gente te descubra",
   "Pierdes pedidos aunque tengas buen producto",
 ];
 
 const ideaPoints = [
-  "Ves platos reales de locales cercanos",
+  "Ves productos y platos destacados de locales cercanos",
   "Decides rápido con lo que te entra por los ojos",
   "Haces el pedido y lo recoges en el local",
 ];
@@ -31,7 +31,7 @@ const ideaPoints = [
 const localBenefits = [
   "Más gente te descubre cerca de ti",
   "Recibes pedidos para recoger",
-  "Tu carta se ve clara y apetece",
+  "Tu selección se ve clara y apetece",
   "Te ayudamos a dejarlo todo listo",
 ];
 
@@ -59,8 +59,8 @@ function PointList({ points }: { points: string[] }) {
 export function ProjectPage({ siteMedia }: ProjectPageProps) {
   const journeySteps = [
     {
-      title: "Mira platos cerca de ti",
-      description: "Platos reales, de locales de tu zona.",
+      title: "Mira selecciones cerca de ti",
+      description: "Productos y platos reales, de locales de tu zona.",
       imageUrl: siteMedia.project_step_discover.imageUrl,
     },
     {
@@ -94,10 +94,10 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
 
           <div className="max-w-5xl">
             <h1 className="max-w-[12ch] text-balance text-5xl font-semibold leading-[0.9] tracking-[-0.055em] sm:text-6xl lg:text-[5.9rem]">
-              Elegir qué comer no debería ser complicado
+              Elegir algo bueno cerca no debería ser complicado
             </h1>
             <p className="mt-6 max-w-[47rem] text-base leading-8 text-white/80 sm:text-xl sm:leading-9">
-              ZylenPick hace que veas platos reales, decidas rápido y vayas
+              ZylenPick hace que veas productos y platos destacados, decidas rápido y vayas
               directamente al local a recoger. Sin apps complicadas. Sin perder
               tiempo.
             </p>
@@ -125,7 +125,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             Personas
           </p>
           <h2 className="mt-4 max-w-[12ch] text-balance text-4xl font-semibold leading-[0.95] tracking-[-0.055em] text-[color:var(--foreground)] sm:text-5xl">
-            Elegir qué comer se ha vuelto un lío
+            Elegir algo bueno se ha vuelto un lío
           </h2>
           <PointList points={personProblems} />
         </article>
@@ -186,7 +186,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             Si tienes un local, esto es para ti
           </h2>
           <p className="mt-4 text-sm leading-7 text-[color:var(--muted)]">
-            Tu comida se ve mejor, la gente decide antes y vienen a recoger
+            Tu selección se ve mejor, la gente decide antes y vienen a recoger
             directamente a tu local.
           </p>
           <p className="mt-5 text-lg font-semibold leading-7 text-[color:var(--foreground)]">

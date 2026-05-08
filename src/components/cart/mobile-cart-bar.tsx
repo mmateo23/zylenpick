@@ -29,7 +29,7 @@ export function MobileCartBar() {
           </span>
           <div>
             <p className="text-sm font-semibold">
-              Ver carrito · {totals.totalItems} artículo
+              Ver cesta · {totals.totalItems} artículo
               {totals.totalItems === 1 ? "" : "s"}
             </p>
             <p className="text-sm text-white/70">

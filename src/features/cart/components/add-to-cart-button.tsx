@@ -30,7 +30,7 @@ export function AddToCartButton({
   buttonClassName,
   feedbackClassName,
   source = "add_to_cart_button",
-  label = "Añadir al carrito",
+  label = "Añadir para recoger",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
@@ -41,7 +41,7 @@ export function AddToCartButton({
     });
 
     if (result.status === "conflict") {
-      setFeedback(`Tu carrito pertenece a ${result.conflictingVenueName}.`);
+      setFeedback(`Tu cesta pertenece a ${result.conflictingVenueName}.`);
       return;
     }
 
@@ -57,7 +57,7 @@ export function AddToCartButton({
       currency: item.currency,
     });
 
-    setFeedback("Añadido al carrito.");
+    setFeedback("Añadido para recoger.");
   };
 
   return (

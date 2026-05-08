@@ -10,21 +10,22 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 const heroTags = [
   "Locales reales",
   "Pedidos para recoger",
+  "Selección visual",
   "Sin líos técnicos",
 ];
 
 const benefits = [
   {
     title: "Más gente te descubre en tu zona",
-    text: "Tus platos aparecen donde la gente ya está decidiendo qué comer cerca.",
+    text: "Tus productos y platos aparecen donde la gente ya está decidiendo qué recoger cerca.",
   },
   {
     title: "Recibes pedidos para recoger",
     text: "El cliente elige, confirma y pasa por tu local cuando el pedido esté listo.",
   },
   {
-    title: "Tu carta se ve clara y apetece",
-    text: "Platos con foto, precio y nombre del local para decidir sin vueltas.",
+    title: "Tu selección se ve clara y apetece",
+    text: "Productos o platos con foto, precio y nombre del local para decidir sin vueltas.",
   },
   {
     title: "Te ayudamos a montarlo",
@@ -39,11 +40,11 @@ const steps = [
   },
   {
     title: "Preparamos tu ficha",
-    text: "Revisamos contigo la carta, las fotos y la forma de recogida.",
+    text: "Revisamos contigo la selección, las fotos y la forma de recogida.",
   },
   {
     title: "Empiezas a recibir pedidos",
-    text: "Tu local queda listo para que la gente descubra tus platos y recoja.",
+    text: "Tu local queda listo para que la gente descubra tu selección y recoja.",
   },
 ];
 
@@ -93,7 +94,7 @@ export default async function JoinPage() {
               </div>
 
               <h1 className="max-w-[13ch] text-balance text-5xl font-semibold leading-[0.9] tracking-[-0.055em] sm:text-6xl lg:text-[5.8rem]">
-                Haz que más gente de tu zona vea tus platos y recoja en tu local
+                Haz que más gente de tu zona vea tus productos y platos destacados
               </h1>
 
               <p className="mt-6 max-w-[43rem] text-base leading-8 text-white/80 sm:text-xl sm:leading-9">

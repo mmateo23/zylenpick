@@ -72,7 +72,7 @@ export function ZylenPickFooter({
                   : "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white"
               }
             >
-              Decide qué comer y apoya locales cerca de ti.
+              Descubre productos y platos destacados cerca de ti.
             </h2>
 
             <p
@@ -82,8 +82,8 @@ export function ZylenPickFooter({
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >
-              ZylenPick te ayuda a elegir platos reales en segundos y da más
-              visibilidad a locales de tu zona, sin complicaciones.
+              ZylenPick te ayuda a elegir una selección visual en segundos y da más
+              visibilidad a locales cercanos, sin complicaciones.
             </p>
           </div>
 

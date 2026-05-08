@@ -20,7 +20,7 @@ const secondaryImageByItemName: Record<string, string> = {
   "Pizza Pepperoni":
     "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=1200&q=80",
   "Pan de ajo":
-    "https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=1200&q=80",
+    "https://images.pexels.com/photos/13698106/pexels-photo-13698106.jpeg?auto=compress&cs=tinysrgb&w=1200",
   "California Roll":
     "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=1200&q=80",
   "Sushi variado":

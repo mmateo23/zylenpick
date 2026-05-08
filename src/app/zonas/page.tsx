@@ -9,9 +9,9 @@ import { getBaseMetadata } from "@/lib/seo";
 export const revalidate = 3600;
 
 export const metadata: Metadata = getBaseMetadata({
-  title: "Ciudades y zonas con comida local",
+  title: "Zonas con locales cercanos",
   description:
-    "Explora ciudades activas, entra en cada zona y descubre locales preparados para pedidos de comida local y recogida.",
+    "Explora zonas activas, entra en cada una y descubre productos y platos destacados de locales cercanos para recoger.",
   path: "/zonas",
 });
 

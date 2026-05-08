@@ -54,22 +54,22 @@ export type SiteDesignConfig = {
 export const defaultSiteDesignConfig: SiteDesignConfig = {
   texts: {
     globalLabels: {
-      viewMenu: "Ver carta",
+      viewMenu: "Ver selección",
       viewDetail: "Ver detalle",
       addForPickup: "Añadir para recoger",
       prepareForPickup: "Preparar para recoger",
       directions: "Cómo llegar",
     },
     home: {
-      heroTitle: "Descubre qué comer en segundos",
+      heroTitle: "Descubre productos y platos en segundos",
       heroSubtitle:
-        "Platos reales cerca de ti. Elige, pide y recógelo sin complicaciones.",
+        "Productos y platos destacados cerca de ti. Elige y recógelo sin complicaciones.",
     },
     cart: {
-      emptyTitle: "Elige platos para recoger.",
+      emptyTitle: "Elige productos o platos para recoger.",
       emptySubtitle:
-        "Tu pedido aparecerá aquí cuando guardes platos desde un local. Después solo tendrás que confirmar la hora de recogida.",
-      emptyCta: "Ver zonas",
+        "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida.",
+      emptyCta: "Ver platos",
       filledTitle: "Revisa tu recogida.",
       filledSubtitle:
         "Tu pedido se prepara en el local para que solo tengas que llegar y recoger.",

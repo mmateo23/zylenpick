@@ -114,14 +114,11 @@ export function DemoBentoGallery({
   const featuredVenueCount = selectedItems.filter(
     (item) => item.subscriptionActive,
   ).length;
-  const premiumVenueCount = selectedItems.filter(
-    (item) => item.subscriptionTier !== "basic",
-  ).length;
   const isZoneMode = mode === "zonas";
   const primaryCitySlug = items[0]?.venue.citySlug ?? null;
   const heroEyebrow = isZoneMode ? "Locales para recoger" : "Demo de locales";
   const heroTitle = isZoneMode
-    ? `Qué comer en ${zoneName ?? "tu zona"}`
+    ? `Productos y platos en ${zoneName ?? "tu zona"}`
     : "\u00bfQu\u00e9 local nos apetece hoy?";
   const zoneDisplayName = zoneName ?? "tu zona";
   const heroDescription =
@@ -247,7 +244,7 @@ export function DemoBentoGallery({
           ) : isZoneMode && zoneHeroImageUrl ? (
             <Image
               src={zoneHeroImageUrl}
-              alt={`Locales donde comer en ${zoneName ?? "tu zona"}`}
+              alt={`Locales para recoger en ${zoneName ?? "tu zona"}`}
               fill
               unoptimized={zoneHeroImageUrl.endsWith(".svg")}
               priority
@@ -290,7 +287,7 @@ export function DemoBentoGallery({
                       <strong className="font-semibold text-white">
                         {zoneDisplayName}
                       </strong>
-                      , abre su carta y elige qu\u00e9 recoger sin complicarte.
+                      , abre su selección visual y elige qu\u00e9 recoger sin complicarte.
                     </>
                   ) : (
                     heroDescription
@@ -305,15 +302,15 @@ export function DemoBentoGallery({
                   {featuredVenueCount} verificados
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
-                  {premiumVenueCount} carta clara
+                  Selección visual
                 </span>
               </div>
             </div>
 
             {isZoneMode ? (
               <div className="mt-6 max-w-[42rem] rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm leading-6 text-white/62 backdrop-blur-xl">
-                Descubre qué comer en {zoneDisplayName}. Explora locales,
-                platos y opciones de recogida rápida para elegir sin
+                Descubre productos y platos destacados en {zoneDisplayName}. Explora locales,
+                selecciones visuales y opciones de recogida rápida para elegir sin
                 complicarte.
               </div>
             ) : null}
@@ -325,7 +322,7 @@ export function DemoBentoGallery({
                     {labelsTitle}
                   </p>
                   <p className="mt-2 text-sm text-white/58">
-                    Toca un local para ver su carta y elegir qué recoger.
+                    Toca un local para ver su selección y elegir qué recoger.
                   </p>
                 </div>
                 <span className="rounded-full border border-white/10 bg-black/14 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-white/54 backdrop-blur-xl">
@@ -374,7 +371,7 @@ export function DemoBentoGallery({
                   isLightTheme ? "text-[#181816]" : "text-white"
                 }`}
               >
-                Elige un local y entra en su carta.
+                Elige un local y entra en su selección.
               </h2>
             </div>
             <Link
@@ -425,7 +422,7 @@ export function DemoBentoGallery({
                   </p>
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <span className="text-[0.9rem] font-bold italic text-[#7cffb8] sm:text-[0.96rem]">
-                      Ver carta
+                      Ver selección
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/58 backdrop-blur-xl">
                       {item.categoryName ?? "Local"}

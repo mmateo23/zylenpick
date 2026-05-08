@@ -16,13 +16,13 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
     return (
       <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-          Carrito
+          Tu cesta
         </p>
         <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
-          Guarda platos y sigue explorando.
+          Guarda tu selección y sigue explorando.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          El resumen aparecerá cuando añadas platos para recoger.
+          El resumen aparecerá cuando añadas productos o platos para recoger.
         </p>
       </div>
     );
@@ -32,13 +32,13 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
     return (
       <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-          Carrito
+          Tu cesta
         </p>
         <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
           Pedido en otro local.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          Tienes platos para recoger en {cart.venue.name}.
+          Tienes productos o platos para recoger en {cart.venue.name}.
         </p>
         <Link
           href="/cart"
@@ -55,7 +55,7 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
   return (
     <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
       <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-        Carrito
+        Tu cesta
       </p>
       <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
         {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}

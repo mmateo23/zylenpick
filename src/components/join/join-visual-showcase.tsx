@@ -56,7 +56,7 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
             Así se verá
           </p>
           <h2 className="mt-3 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.45rem]">
-            Tus platos claros, bonitos y listos para elegir.
+            Tu selección clara, bonita y lista para elegir.
           </h2>
         </div>
         <span className="hidden rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)]/76 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[color:var(--muted)] sm:inline-flex">

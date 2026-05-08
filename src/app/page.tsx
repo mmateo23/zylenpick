@@ -11,9 +11,9 @@ import { ServiceShowcaseHomeTemplate } from "@/templates/service-showcase/servic
 export const revalidate = 900;
 
 export const metadata: Metadata = getBaseMetadata({
-  title: "Comida local para recoger cerca de ti",
+  title: "Productos y platos destacados para recoger cerca de ti",
   description:
-    "Descubre platos, locales y propuestas visuales para pedir comida local y recogerla sin esperas innecesarias.",
+    "Descubre productos y platos destacados de locales cercanos, elige rápido y recoge en local sin complicaciones.",
   path: "/",
 });
 
