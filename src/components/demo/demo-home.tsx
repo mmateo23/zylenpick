@@ -26,6 +26,7 @@ import {
   type StoredCity,
 } from "@/features/location/city-preference";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 
 export type DemoHomeTemplate = {
   logoSrc: string;
@@ -287,70 +288,7 @@ export function DemoHome({
       }) ?? previewItems[0] ?? null,
     [previewItems],
   );
-  const dishMarqueeItems = useMemo(() => previewItems.slice(0, 6), [previewItems]);
-  const venueMarqueeItems = useMemo(
-    () =>
-      previewItems
-        .filter((item, index, items) => {
-          return (
-            Boolean(item.venue.coverUrl) &&
-            items.findIndex((candidate) => candidate.venue.id === item.venue.id) ===
-              index
-          );
-        })
-        .slice(0, 6),
-    [previewItems],
-  );
-  const dishWallColumns = useMemo(() => {
-    const getShiftedDishItems = (offset: number) => {
-      if (!dishMarqueeItems.length) {
-        return [];
-      }
-
-      const normalizedOffset = offset % dishMarqueeItems.length;
-      return [
-        ...dishMarqueeItems.slice(normalizedOffset),
-        ...dishMarqueeItems.slice(0, normalizedOffset),
-      ];
-    };
-
-    const getShiftedVenueItems = (offset: number) => {
-      if (!venueMarqueeItems.length) {
-        return [];
-      }
-
-      const normalizedOffset = offset % venueMarqueeItems.length;
-      return [
-        ...venueMarqueeItems.slice(normalizedOffset),
-        ...venueMarqueeItems.slice(0, normalizedOffset),
-      ];
-    };
-
-    return [
-      {
-        id: "dishes",
-        type: "dish",
-        label: "Platos",
-        items: [...getShiftedDishItems(0), ...getShiftedDishItems(0)],
-        marqueeClass: "home-dish-marquee-up",
-        duration: "38s",
-        shellClass: "translate-y-8 scale-[0.94] opacity-[0.78]",
-        itemClass: "h-44 w-full sm:h-56 lg:h-64",
-        offsetClass: "translate-x-2",
-      },
-      {
-        id: "venues",
-        type: "venue",
-        label: "Locales",
-        items: [...getShiftedVenueItems(0), ...getShiftedVenueItems(0)],
-        marqueeClass: "home-dish-marquee-down",
-        duration: "34s",
-        shellClass: "-translate-y-4 scale-100 opacity-100",
-        itemClass: "h-48 w-full sm:h-64 lg:h-72",
-        offsetClass: "-translate-x-1",
-      },
-    ];
-  }, [dishMarqueeItems, venueMarqueeItems]);
+  const dishExplorerPreviewItems = useMemo(() => previewItems.slice(0, 8), [previewItems]);
   return (
     <main
       data-demo-home-root
@@ -988,14 +926,14 @@ export function DemoHome({
               </span>
             </div>
 
-            <div className="relative z-10 mt-10 min-h-[20rem] overflow-visible sm:min-h-[27rem] lg:min-h-[31rem]">
+            <div className="relative z-10 mt-10 min-h-[25rem] overflow-visible sm:min-h-[35rem] lg:min-h-[42rem]">
               <Image
                 src="/home/assets/asset_tacos_transparent.png"
                 alt="Tacos reales de locales cercanos"
                 width={360}
                 height={360}
                 loading="lazy"
-                className="absolute left-[-1%] top-[8%] h-36 w-36 object-contain drop-shadow-[0_28px_54px_rgba(0,0,0,0.32)] transition duration-700 group-hover/preview:-translate-y-2 group-hover/preview:rotate-[-3deg] sm:left-[5%] sm:h-56 sm:w-56 lg:h-72 lg:w-72"
+                className="absolute left-[2%] top-[1%] hidden h-64 w-64 object-contain drop-shadow-[0_28px_54px_rgba(0,0,0,0.32)] transition duration-700 group-hover/preview:-translate-y-3 group-hover/preview:rotate-[-4deg] sm:block lg:left-[3%] lg:h-[21rem] lg:w-[21rem]"
               />
               <Image
                 src="/home/assets/asset_jamon_iberico_transparent.png"
@@ -1003,7 +941,7 @@ export function DemoHome({
                 width={520}
                 height={520}
                 loading="lazy"
-                className="absolute left-1/2 top-[8%] h-60 w-60 -translate-x-1/2 object-contain drop-shadow-[0_34px_64px_rgba(0,0,0,0.36)] transition duration-700 group-hover/preview:-translate-y-3 group-hover/preview:scale-[1.03] sm:top-[5%] sm:h-[24rem] sm:w-[24rem] lg:h-[32rem] lg:w-[32rem]"
+                className="absolute left-1/2 top-[2%] z-20 h-[19rem] w-[19rem] -translate-x-1/2 object-contain drop-shadow-[0_34px_64px_rgba(0,0,0,0.36)] transition duration-700 group-hover/preview:-translate-y-4 group-hover/preview:scale-[1.03] sm:left-[48%] sm:top-[0%] sm:h-[29rem] sm:w-[29rem] lg:h-[39rem] lg:w-[39rem]"
               />
               <Image
                 src="/home/assets/asset_burger_transparent.png"
@@ -1011,7 +949,7 @@ export function DemoHome({
                 width={390}
                 height={390}
                 loading="lazy"
-                className="absolute right-[-2%] top-[8%] h-40 w-40 object-contain drop-shadow-[0_28px_58px_rgba(0,0,0,0.34)] transition duration-700 group-hover/preview:-translate-y-2 group-hover/preview:rotate-[3deg] sm:right-[4%] sm:h-60 sm:w-60 lg:h-80 lg:w-80"
+                className="absolute right-[-6%] top-[20%] z-10 h-[13.5rem] w-[13.5rem] object-contain drop-shadow-[0_28px_58px_rgba(0,0,0,0.34)] transition duration-700 group-hover/preview:-translate-y-3 group-hover/preview:translate-x-2 group-hover/preview:rotate-[3deg] sm:right-[1%] sm:top-[16%] sm:h-[21rem] sm:w-[21rem] lg:right-[3%] lg:h-[28rem] lg:w-[28rem]"
               />
               <Image
                 src="/home/assets/asset_albondigas_transparent.png"
@@ -1019,7 +957,7 @@ export function DemoHome({
                 width={360}
                 height={360}
                 loading="lazy"
-                className="absolute bottom-[0%] right-[2%] h-36 w-36 object-contain drop-shadow-[0_26px_54px_rgba(0,0,0,0.36)] transition duration-700 group-hover/preview:translate-y-[-0.35rem] group-hover/preview:rotate-[-4deg] sm:right-[13%] sm:h-56 sm:w-56 lg:h-72 lg:w-72"
+                className="absolute bottom-[17%] right-[27%] hidden h-[17rem] w-[17rem] object-contain drop-shadow-[0_26px_54px_rgba(0,0,0,0.36)] transition duration-700 group-hover/preview:translate-y-[-0.35rem] group-hover/preview:rotate-[-4deg] lg:block"
               />
               <Image
                 src="/home/assets/asset_bocadillo_calamares_transparent.png"
@@ -1027,7 +965,7 @@ export function DemoHome({
                 width={360}
                 height={360}
                 loading="lazy"
-                className="absolute bottom-[10%] left-[-1%] h-36 w-36 object-contain drop-shadow-[0_26px_54px_rgba(0,0,0,0.34)] transition duration-700 group-hover/preview:-translate-y-2 group-hover/preview:rotate-[3deg] sm:bottom-[14%] sm:left-[2%] sm:h-60 sm:w-60 lg:h-80 lg:w-80"
+                className="absolute bottom-[3%] left-[-8%] z-10 h-[15.5rem] w-[15.5rem] object-contain drop-shadow-[0_26px_54px_rgba(0,0,0,0.34)] transition duration-700 group-hover/preview:-translate-y-3 group-hover/preview:-translate-x-2 group-hover/preview:rotate-[3deg] sm:bottom-[1%] sm:left-[0%] sm:h-[24rem] sm:w-[24rem] lg:left-[2%] lg:h-[31rem] lg:w-[31rem]"
               />
               <Image
                 src="/home/assets/asset_sushi_transparent.png"
@@ -1035,119 +973,56 @@ export function DemoHome({
                 width={320}
                 height={320}
                 loading="lazy"
-                className="absolute bottom-[30%] right-[2%] hidden h-28 w-28 object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.32)] transition duration-700 group-hover/preview:-translate-y-1.5 group-hover/preview:rotate-[-3deg] sm:block sm:h-48 sm:w-48 lg:h-64 lg:w-64"
+                className="absolute bottom-[2%] right-[5%] hidden h-[15rem] w-[15rem] object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.32)] transition duration-700 group-hover/preview:-translate-y-2 group-hover/preview:rotate-[-3deg] sm:block lg:right-[7%] lg:h-[21rem] lg:w-[21rem]"
               />
             </div>
           </div>
 
-          <div className="home-dish-marquee-stage relative mt-10 overflow-hidden py-8 sm:py-10">
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[34rem] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(124,255,184,0.12),rgba(22,132,83,0.06)_42%,transparent_72%)] blur-2xl" />
+          <div className="relative mt-10 overflow-visible py-4 sm:py-6">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[30rem] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(124,255,184,0.12),rgba(22,132,83,0.055)_42%,transparent_72%)] blur-2xl" />
 
-            {dishMarqueeItems.length ? (
-              <div
-                className="relative z-10 mx-auto h-[30rem] max-w-5xl overflow-hidden sm:h-[36rem] lg:h-[42rem]"
-                style={{
-                  perspective: "1500px",
-                  WebkitMaskImage:
-                    "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
-                  maskImage:
-                    "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 12%, black 88%, transparent 100%)",
-                  WebkitMaskComposite: "source-in",
-                  maskComposite: "intersect",
-                }}
-              >
-                <div
-                  className="grid h-full origin-center transform-gpu grid-cols-2 gap-3 px-2 sm:gap-4 lg:gap-5"
-                  style={{
-                    transform:
-                      "translate3d(0, 0, 0)",
-                    transformStyle: "preserve-3d",
-                  }}
-                >
-                  {dishWallColumns.slice(0, 2).map((column) => (
-                    <div
-                      key={column.id}
-                      className={`min-h-0 transform-gpu ${column.shellClass}`}
-                      style={{ transformStyle: "preserve-3d" }}
-                    >
-                      <div className="mb-3 px-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#7cffb8]/80">
-                        {column.label}
-                      </div>
-                      <div
-                        className={`${column.marqueeClass} flex flex-col gap-3 will-change-transform sm:gap-4`}
-                        style={{ animationDuration: column.duration }}
-                      >
-                        {column.items.map((item, index) => (
-                          <Link
-                            key={`dish-wall-${column.id}-${item.id}-${index}`}
-                            href={
-                              column.type === "venue"
-                                ? `/zonas/${item.venue.citySlug}/venues/${item.venue.slug}`
-                                : getPreviewItemHref(item)
-                            }
-                            className={`group relative block shrink-0 overflow-hidden rounded-[1.15rem] border border-white/12 bg-white/[0.08] shadow-[0_18px_54px_rgba(0,0,0,0.32)] transition duration-500 hover:-translate-y-1 hover:scale-[1.025] hover:border-[#7cffb8]/26 hover:shadow-[0_26px_78px_rgba(22,132,83,0.22)] motion-reduce:transition-none ${
-                              column.itemClass
-                            } ${index % 3 === 1 ? column.offsetClass : ""}`}
-                          >
-                            {(column.type === "venue"
-                              ? item.venue.coverUrl
-                              : item.imageUrl) ? (
-                              <Image
-                                src={
-                                  column.type === "venue"
-                                    ? item.venue.coverUrl!
-                                    : item.imageUrl ?? ""
-                                }
-                                alt={
-                                  column.type === "venue"
-                                    ? item.venue.name
-                                    : item.name
-                                }
-                                fill
-                                loading="lazy"
-                                quality={55}
-                                sizes="(max-width: 640px) 9rem, 11rem"
-                                className={`transition duration-700 group-hover:scale-105 motion-reduce:transition-none ${
-                                  column.type === "venue"
-                                    ? "object-cover"
-                                    : "object-cover"
-                                }`}
-                              />
-                            ) : null}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/24 to-transparent" />
-                            {column.type === "venue" ? (
-                              <div className="absolute inset-x-0 bottom-0 p-3">
-                                <span className="mb-2 inline-flex rounded-full bg-[#11D470] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#062113]">
-                                  Local
-                                </span>
-                                <p className="line-clamp-1 text-xs font-semibold text-white sm:text-sm">
-                                  {item.venue.name}
-                                </p>
-                                <p className="mt-1 line-clamp-1 text-[10px] text-white/64 sm:text-xs">
-                                  {item.venue.cityName}
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="absolute inset-x-0 bottom-0 p-3">
-                                <p className="line-clamp-1 text-xs font-semibold text-white sm:text-sm">
-                                  {item.name}
-                                </p>
-                                <div className="mt-1 flex items-center justify-between gap-2 text-[10px] sm:text-xs">
-                                  <span className="line-clamp-1 min-w-0 text-white/64">
-                                    {item.venue.name}
-                                  </span>
-                                  <span className="shrink-0 font-semibold text-[#7cffb8]">
-                                    {formatHomePrice(item)}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </Link>
-                        ))}
-                      </div>
+            {dishExplorerPreviewItems.length ? (
+              <div className="relative z-10 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+                {dishExplorerPreviewItems.map((item, index) => (
+                  <Link
+                    key={`home-explorer-preview-${item.id}`}
+                    href={getPreviewItemHref(item)}
+                    className={`group relative block min-h-[15.5rem] overflow-hidden rounded-[1.35rem] bg-black/22 text-left shadow-[0_20px_70px_rgba(0,0,0,0.26)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(17,212,112,0.16)] motion-reduce:transition-none sm:min-h-[19rem] lg:min-h-[22rem] ${
+                      index === 0 ? "lg:col-span-2 lg:min-h-[28rem]" : ""
+                    }`}
+                  >
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        loading="lazy"
+                        quality={68}
+                        sizes={
+                          index === 0
+                            ? "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 36rem"
+                            : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 18rem"
+                        }
+                        className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.04] motion-reduce:transition-none"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.04)_36%,rgba(0,0,0,0.82)_100%)]" />
+                    <div className="absolute left-3 top-3 rounded-full bg-black/46 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/84 backdrop-blur-md sm:left-4 sm:top-4">
+                      {item.venue.cityName}
                     </div>
-                  ))}
-                </div>
+                    <div className="absolute right-3 top-3 rounded-full bg-[#11D470] px-2.5 py-1 text-[11px] font-bold text-[#062113] shadow-[0_12px_30px_rgba(17,212,112,0.22)] sm:right-4 sm:top-4">
+                      {formatHomePrice(item)}
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                      <p className="line-clamp-2 text-base font-semibold leading-[1.03] tracking-[-0.04em] text-white sm:text-lg">
+                        {item.name}
+                      </p>
+                      <p className="mt-1.5 line-clamp-1 text-xs font-medium text-white/68">
+                        {item.venue.name}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
               </div>
             ) : (
               <div className="relative z-10 mx-auto flex min-h-72 max-w-lg items-center justify-center px-8 text-center text-sm text-white/62">
@@ -1596,9 +1471,9 @@ export function DemoHome({
         </div>
       </section>
 
-      <section className="relative z-10 px-4 py-16 [contain-intrinsic-size:520px] [content-visibility:auto] sm:px-8 lg:py-24">
+      <section className="relative z-10 px-4 py-16 [contain-intrinsic-size:560px] [content-visibility:auto] sm:px-8 lg:py-24">
         <div
-          className="relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-cover bg-center px-6 py-12 shadow-[0_34px_100px_rgba(0,0,0,0.28)] sm:px-10 sm:py-16"
+          className="relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] border border-white/10 bg-cover bg-center px-6 py-10 shadow-[0_34px_100px_rgba(0,0,0,0.28)] sm:px-10 sm:py-14 lg:px-12 lg:py-16"
           style={{
             backgroundImage:
               "linear-gradient(135deg, rgba(5,8,6,0.86), rgba(5,8,6,0.48) 42%, rgba(5,8,6,0.88) 100%), url('https://images.unsplash.com/photo-1561632669-7f55f7975606?q=80&w=2340&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
@@ -1606,45 +1481,55 @@ export function DemoHome({
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(22,132,83,0.24),rgba(255,255,255,0.03)_36%,rgba(0,0,0,0.18)_100%)]" />
           <div className="absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(124,255,184,0.13),transparent_70%)] blur-3xl" />
-          <p className="relative text-xs font-semibold uppercase tracking-[0.28em] text-[#7cffb8]">
-            El proyecto
-          </p>
-          <div className="relative mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <h2 className="max-w-4xl text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white sm:text-6xl">
-              Menos vueltas. Más producto local. Más barrio.
-            </h2>
-            <Link
-              href="/el-proyecto"
-              className="inline-flex w-fit rounded-full border border-white/14 px-5 py-3 text-sm font-semibold text-white/84 transition hover:-translate-y-0.5 hover:bg-white/[0.06]"
-            >
-              Conocer el proyecto
-            </Link>
+          <div className="relative grid gap-9 lg:grid-cols-[1fr_0.72fr] lg:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#7cffb8]">
+                El proyecto
+              </p>
+              <h2 className="mt-5 max-w-4xl text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white sm:text-6xl">
+                Menos vueltas. Más producto local. Más barrio.
+              </h2>
+              <p className="mt-6 max-w-2xl text-base leading-7 text-white/72">
+                ZylenPick nace para que descubrir productos y platos destacados sea más visual,
+                más rápido y más justo para los locales que tienes cerca.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                {["Selección visual", "Locales cercanos", "Recogida local"].map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full border border-white/14 bg-black/28 px-4 py-2 text-xs font-semibold text-white/82 backdrop-blur-md"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[1.8rem] border border-white/10 bg-black/34 p-5 shadow-[0_24px_80px_rgba(0,0,0,0.26)] backdrop-blur-md">
+              <p className="text-sm font-medium leading-6 text-white/74">
+                Una forma más directa de enseñar lo que merece verse: productos reales,
+                decisión rápida y recogida sin complicaciones.
+              </p>
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row lg:flex-col">
+                <Link
+                  href="/el-proyecto"
+                  className="inline-flex justify-center rounded-full bg-[#11D470] px-5 py-3 text-sm font-semibold text-[#062113] shadow-[0_18px_46px_rgba(17,212,112,0.22)] transition hover:-translate-y-0.5 hover:bg-[#0fc567]"
+                >
+                  Conocer el proyecto
+                </Link>
+                <Link
+                  href="/platos"
+                  className="inline-flex justify-center rounded-full border border-white/14 px-5 py-3 text-sm font-semibold text-white/84 transition hover:-translate-y-0.5 hover:bg-white/[0.06]"
+                >
+                  Ver selección
+                </Link>
+              </div>
+            </div>
           </div>
-          <p className="relative mt-6 max-w-2xl text-base leading-7 text-white/70">
-            ZylenPick nace para que descubrir productos y platos destacados sea más visual, más rápido y más justo para los locales que tienes cerca.
-          </p>
         </div>
       </section>
 
-      <footer className="relative z-10 px-4 py-8 sm:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-5 text-sm text-white/62 sm:flex-row sm:items-center sm:justify-between">
-          <p>ZylenPick: productos y platos destacados, decisión rápida y recogida en local.</p>
-          <nav className="flex flex-wrap gap-4">
-            <Link href="/platos" className="transition hover:text-white">
-              Platos
-            </Link>
-            <Link href="/zonas" className="transition hover:text-white">
-              Zonas
-            </Link>
-            <Link href="/unete" className="transition hover:text-white">
-              Únete
-            </Link>
-            <Link href="/el-proyecto" className="transition hover:text-white">
-              El proyecto
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      <ZylenPickFooter />
     </main>
   );
 }
