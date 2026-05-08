@@ -252,7 +252,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
           href="/cart"
           className="magnetic-button mt-6 inline-flex rounded-full bg-[color:var(--brand)] px-5 py-3 text-sm font-semibold text-white"
         >
-          Volver al carrito
+          Volver a la cesta
         </Link>
       </section>
     );

@@ -23,13 +23,21 @@ type SiteHeaderProps = {
 };
 
 const navigationItems = [
-  { label: "Platos", href: "/platos" },
+  { label: "Selección", href: "/platos" },
   { label: "Zonas", href: "/zonas" },
-  { label: "Proyecto", href: "/el-proyecto" },
-  { label: "Unete", href: "/unete" },
+  { label: "Únete", href: "/unete" },
+];
+
+const mobileNavigationItems = [
+  { label: "Explorar selección", href: "/platos" },
+  { label: "Zonas", href: "/zonas" },
+  { label: "Tu cesta", href: "/cart" },
+  { label: "Únete", href: "/unete" },
+  { label: "El proyecto", href: "/el-proyecto" },
 ];
 
 const logoSrc = "/logo/ZyelnpickLOGO_green.png";
+const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 function formatActiveOrderTime(pickupAt: string | null | undefined) {
   if (!pickupAt) {
@@ -98,19 +106,21 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const { activeOrder } = useActiveOrder();
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
 
   const hasCartItems = totals.totalItems > 0;
   const activeOrderHref = activeOrder ? `/checkout/success/${activeOrder.id}` : null;
   const orderAccessHref = hasCartItems || !activeOrderHref ? "/cart" : activeOrderHref;
   const orderAccessLabel = hasCartItems
-    ? "Carrito"
+    ? "Tu cesta"
     : activeOrderHref
       ? "Pedido activo"
-      : "Carrito";
+      : "Tu cesta";
   const showActiveOrderAccess = !hasCartItems && Boolean(activeOrderHref);
   const activeOrderTimeLabel = showActiveOrderAccess
     ? formatActiveOrderTime(activeOrder?.pickupAt)
     : null;
+  const hasOrderSignal = hasCartItems || showActiveOrderAccess;
 
   useEffect(() => {
     setSelectedCity(readSelectedCity());
@@ -140,30 +150,44 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveCategoryIndex(
+        (currentIndex) => (currentIndex + 1) % rotatingCategoryLabels.length,
+      );
+    }, 2200);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
   const isItemActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
   const zoneHref = selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
+  const activeCategoryLabel = rotatingCategoryLabels[activeCategoryIndex];
 
   const dockRailClassName =
-    "border-white/16 bg-white/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]";
+    "bg-transparent";
   const dockButtonClassName =
-    "border-white/16 bg-white/[0.09] text-white hover:-translate-y-[1px] hover:bg-white/[0.15]";
+    "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+  const orderButtonClassName = hasOrderSignal
+    ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+    : dockButtonClassName;
   const cityButtonClassName = selectedCity?.slug
-    ? "border-white/18 bg-white/[0.11] text-white hover:bg-white/[0.16]"
+    ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
     : dockButtonClassName;
 
   return (
-    <header className="sticky top-[max(0.85rem,env(safe-area-inset-top))] z-40 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="text-white">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
+        <div className="rounded-full border border-white/10 bg-[#07100d]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
+          <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             {showNavigation ? (
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((value) => !value)}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-navigation"
-                aria-label={isMobileMenuOpen ? "Cerrar menu" : "Abrir menu"}
+                aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
               >
                 {isMobileMenuOpen ? <CloseIcon size={16} /> : <MenuIcon size={16} />}
@@ -172,7 +196,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <span className="h-9 w-9" aria-hidden="true" />
             )}
 
-            <div className="flex justify-center">
+            <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
               <Link
                 href="/"
                 className="inline-flex min-h-[22px] items-center justify-center"
@@ -184,15 +208,21 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[50px]"
+                  className="h-auto w-[48px]"
                 />
               </Link>
+              <span
+                key={activeCategoryLabel}
+                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#11D470]"
+              >
+                {activeCategoryLabel}
+              </span>
             </div>
 
             <Link
               href={orderAccessHref}
               aria-label={orderAccessLabel}
-              className={`relative inline-flex items-center justify-center justify-self-end rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[3rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${dockButtonClassName}`}
+              className={`relative inline-flex items-center justify-center justify-self-end rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[2.5rem] px-1.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${orderButtonClassName}`}
             >
               {showActiveOrderAccess ? (
                 <ActiveOrderIndicator
@@ -201,18 +231,18 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 />
               ) : (
                 <>
-                  <CartIcon size={16} />
+                  <CartIcon size={18} />
                   <CartBadge totalItems={totals.totalItems} />
                 </>
               )}
             </Link>
           </div>
 
-          <div className="relative hidden items-center md:flex md:justify-between md:gap-4">
-            <div className="flex items-center justify-start">
+          <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
+            <div className="flex items-center justify-start gap-2.5">
               <Link
                 href="/"
-                className="inline-flex min-h-[24px] items-center justify-center px-1 drop-shadow-[0_14px_32px_rgba(0,0,0,0.35)] transition hover:-translate-y-[1px] hover:opacity-85"
+                className="inline-flex min-h-[22px] items-center justify-center px-1.5 transition hover:opacity-85"
                 aria-label="Ir al inicio"
               >
                 <Image
@@ -224,21 +254,27 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   className="h-auto w-[54px]"
                 />
               </Link>
+              <span
+                key={activeCategoryLabel}
+                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#11D470]/22 bg-[#11D470]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#11D470]"
+              >
+                {activeCategoryLabel}
+              </span>
             </div>
 
             {showNavigation ? (
-              <nav aria-label="Navegacion principal" className="absolute left-1/2 -translate-x-1/2 justify-center">
+              <nav aria-label="Navegación principal" className="flex justify-center">
                 <div
-                  className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-1.5 backdrop-blur-2xl ${dockRailClassName}`}
+                  className={`inline-flex items-center gap-0.5 rounded-full ${dockRailClassName}`}
                 >
                   {navigationItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition ${
+                      className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
                         isItemActive(item.href)
                           ? "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)]"
-                          : "text-white/60 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
+                          : "text-white/68 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
                       }`}
                     >
                       {item.label}
@@ -252,16 +288,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <Link
                 href={orderAccessHref}
                 aria-label={orderAccessLabel}
-                className={`relative inline-flex items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-11 min-w-[3.35rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-11 w-11"} ${dockButtonClassName}`}
+                className={`relative inline-flex items-center justify-center rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[3.15rem] px-2.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${orderButtonClassName}`}
               >
                 {showActiveOrderAccess ? (
                   <ActiveOrderIndicator
                     timeLabel={activeOrderTimeLabel}
-                    iconSize={16}
+                    iconSize={17}
                   />
                 ) : (
                   <>
-                    <CartIcon size={16} />
+                    <CartIcon size={18} />
                     <CartBadge totalItems={totals.totalItems} />
                   </>
                 )}
@@ -270,10 +306,10 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <Link
                 href={zoneHref}
                 aria-label={selectedCity?.name ?? "Elegir zona"}
-                className={`group/location relative inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${cityButtonClassName}`}
+                className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
-                <LocationPinIcon size={14} className="shrink-0" />
-                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/82 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                <LocationPinIcon size={18} className="shrink-0" />
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[11px] font-semibold text-white/84 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>
               </Link>
@@ -286,51 +322,30 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             id="mobile-navigation"
             className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-white/16 bg-white/[0.10] p-3 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
-            <nav aria-label="Navegacion movil">
+            <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
-                <li>
-                  <Link
-                    href={zoneHref}
-                    className={`flex items-center gap-3 rounded-[1rem] border px-4 py-3 text-sm font-medium transition ${cityButtonClassName}`}
-                  >
-                    <LocationPinIcon size={16} className="shrink-0" />
-                    <span className="truncate">
-                      {selectedCity?.name ?? "Elegir zona"}
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={orderAccessHref}
-                    className="flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium text-white/76 transition hover:bg-white/[0.05]"
-                  >
-                    <span className={`relative inline-flex items-center justify-center ${showActiveOrderAccess && activeOrderTimeLabel ? "min-w-[2.7rem] text-[11px] font-semibold tracking-[0.04em]" : "h-5 w-5"}`}>
-                      {showActiveOrderAccess ? (
-                        <ActiveOrderIndicator
-                          timeLabel={activeOrderTimeLabel}
-                          iconSize={18}
-                        />
-                      ) : (
-                        <>
-                          <CartIcon size={18} />
-                          <CartBadge totalItems={totals.totalItems} />
-                        </>
-                      )}
-                    </span>
-                    <span>{orderAccessLabel}</span>
-                  </Link>
-                </li>
-                {navigationItems.map((item) => (
+                {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
+                      className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
                           ? "bg-white/[0.08] text-white"
                           : "text-white/76 hover:bg-white/[0.05]"
                       }`}
                     >
-                      {item.label}
+                      {item.href === "/cart" ? (
+                        <span className="relative inline-flex h-5 w-5 items-center justify-center">
+                          <CartIcon size={21} />
+                          <CartBadge totalItems={totals.totalItems} />
+                        </span>
+                      ) : item.href === "/zonas" ? (
+                        <LocationPinIcon
+                          size={21}
+                          className={selectedCity?.slug ? "shrink-0 text-[#11D470]" : "shrink-0"}
+                        />
+                      ) : null}
+                      <span>{item.label}</span>
                     </Link>
                   </li>
                 ))}

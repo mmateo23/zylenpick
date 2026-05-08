@@ -35,16 +35,16 @@ export async function generateMetadata({
   const venue = await getVenueDetails(params.citySlug, params.venueSlug);
   if (!venue) {
     return getBaseMetadata({
-      title: "Local de comida local",
+      title: "Local cercano",
       description:
-        "Consulta información del local, tiempos de recogida y platos disponibles.",
+        "Consulta información del local, su selección visual, tiempos de recogida y productos disponibles.",
       path: `/zonas/${params.citySlug}/venues/${params.venueSlug}`,
     });
   }
 
   return getBaseMetadata({
-    title: `Qué pedir en ${venue.name} | ZylenPick`,
-    description: `Descubre qué pedir en ${venue.name}, ${venue.city.name}. Consulta platos, precios y opciones de recogida rápida.`,
+    title: `Selección de ${venue.name}`,
+    description: `Descubre la selección visual de ${venue.name}, ${venue.city.name}. Consulta productos, platos, precios y opciones de recogida rápida.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
     image: venue.coverUrl ?? venue.logoUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
   });
@@ -166,7 +166,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
               <div className="mt-6 flex flex-wrap items-end gap-4">
                 <h1 className="max-w-[13ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                  Qué pedir en {venue.name}
+                  Selección de {venue.name}
                 </h1>
                 <VerifiedVenueBadge
                   isVerified={venue.isVerified}
@@ -181,11 +181,11 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
               <p className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-text-inverse/60">
                 <WalkIcon size={18} className="text-accent-bright" />
-                Carta visual con {totalMenuItems} platos seleccionados.
+                Selección visual con {totalMenuItems} productos y platos destacados.
               </p>
               <p className="mt-4 max-w-[46rem] text-sm leading-6 text-text-inverse/62">
-                Descubre qué pedir en {venue.name}. Explora platos, precios y
-                opciones de recogida rápida en {venue.city.name} sin dar vueltas.
+                Descubre la selección de {venue.name}. Explora productos,
+                platos, precios y opciones de recogida rápida en {venue.city.name} sin dar vueltas.
               </p>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
                   <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                     <div>
                       <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
-                        Carta
+                        Selección
                       </p>
                       <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
                         {categoryName}

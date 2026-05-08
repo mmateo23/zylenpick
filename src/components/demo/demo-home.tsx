@@ -153,7 +153,7 @@ const FEATURED_HOME_ZONE = {
   videoSrc: "https://cdn.pixabay.com/video/2026/05/01/349917.mov",
   cta: "Ver zona",
   href: "/zonas/talavera-de-la-reina",
-  stats: ["+12 locales", "Platos reales", "Recogida local"],
+  stats: ["Locales cercanos", "Selección visual", "Recogida local"],
 };
 
 export function DemoHome({
@@ -506,32 +506,33 @@ export function DemoHome({
       `}</style>
       {isLoaderVisible ? (
         <div
-          className={`absolute inset-0 z-[90] flex items-center justify-center bg-[#168453] transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#11D470] px-6 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             showLoader
               ? "opacity-100"
               : "pointer-events-none scale-[1.015] opacity-0 blur-[1px]"
           } motion-reduce:transition-none`}
         >
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_32%,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(6,33,19,0.16),transparent_44%)]" />
           <div
-            className={`flex flex-col items-center gap-4 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            className={`relative flex w-full max-w-xs flex-col items-center justify-center gap-4 text-center transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               showLoader
                 ? "translate-y-0 opacity-100"
                 : "-translate-y-2 opacity-0"
             } motion-reduce:transition-none`}
           >
-            <div className="w-28 sm:w-32">
+            <div className="w-32 sm:w-36">
               <Image
                 src="/logo/ZyelnpickLOGO_282828.svg"
                 alt="ZylenPick"
-                width={128}
-                height={44}
+                width={144}
+                height={48}
                 priority
                 className="h-auto w-full"
               />
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.32em] text-[#282828]">
+            <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#282828]">
               <span className="animate-pulse [animation-delay:0ms]">
-                Loading
+                Cargando
               </span>
               <span className="animate-pulse [animation-delay:120ms]">.</span>
               <span className="animate-pulse [animation-delay:240ms]">.</span>
@@ -745,11 +746,11 @@ export function DemoHome({
           </div>
 
           <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_22px_56px_rgba(0,0,0,0.5)] sm:mt-6 lg:max-w-[9ch]">
-            {"Elige qu\u00e9 comer en segundos"}
+            {"Elige productos y platos destacados en segundos"}
           </h1>
 
           <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-white/84 drop-shadow-[0_10px_28px_rgba(0,0,0,0.42)] sm:mt-4 sm:text-xl sm:leading-8">
-            {"Mira platos. Decide. Rec\u00f3gelo."}
+            {"Mira, elige y recoge en local."}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
@@ -955,13 +956,13 @@ export function DemoHome({
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#7cffb8]">
-                Platos reales
+                Selección visual
               </p>
               <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-[0.9] tracking-[-0.07em] text-white sm:text-6xl">
-                Platos grandes, reales y listos para decidir.
+                Productos y platos destacados listos para decidir.
               </h2>
               <p className="mt-5 max-w-xl text-base leading-7 text-white/66">
-                Ves la comida antes de perderte en una carta. Si entra por los ojos, entras al plato.
+                Ves una selección visual antes de perderte en opciones infinitas. Si entra por los ojos, decides antes.
               </p>
             </div>
             <Link
@@ -983,7 +984,7 @@ export function DemoHome({
                 Una galería que abre el apetito antes de elegir.
               </h3>
               <span className="mt-6 inline-flex rounded-full border border-white/72 bg-black/34 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_18px_46px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:px-5 sm:text-base">
-                Platos reales de locales cercanos
+                Productos y platos reales de locales cercanos
               </span>
             </div>
 
@@ -1150,7 +1151,7 @@ export function DemoHome({
               </div>
             ) : (
               <div className="relative z-10 mx-auto flex min-h-72 max-w-lg items-center justify-center px-8 text-center text-sm text-white/62">
-                Los platos aparecerán aquí cuando haya contenido visual.
+                La selección aparecerá aquí cuando haya contenido visual.
               </div>
             )}
           </div>
@@ -1302,7 +1303,7 @@ export function DemoHome({
                       </span>
                     </div>
                     <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
-                      Locales cercanos, platos claros y recogida local sin dar vueltas.
+                      Locales cercanos, selección clara y recogida local sin dar vueltas.
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {FEATURED_HOME_ZONE.stats.map((stat) => (
@@ -1329,7 +1330,7 @@ export function DemoHome({
               El mapa empieza por lo que te apetece.
             </h2>
             <p className="mt-5 max-w-lg text-base leading-7 text-white/68">
-              Descubre locales por zona, compara platos de un vistazo y entra donde tenga sentido recoger.
+              Descubre locales por zona, compara su selección visual de un vistazo y entra donde tenga sentido recoger.
             </p>
             <Link
               href={getZonesHref(selectedCity)}
@@ -1397,7 +1398,7 @@ export function DemoHome({
                 {
                   label: "Primer vistazo",
                   title: "Mira",
-                  text: "Descubre platos reales de un vistazo.",
+                  text: "Descubre productos y platos reales de un vistazo.",
                   Icon: Eye,
                   lift: "lg:mt-10",
                   backgroundImage:
@@ -1480,7 +1481,7 @@ export function DemoHome({
                     Que tu local entre por los ojos.
                   </h2>
                   <p className="mt-5 max-w-lg text-base leading-7 text-white/66">
-                    Convierte tus platos en una carta visual fácil de elegir, pensada para que la gente descubra y recoja sin complicaciones.
+                    Convierte tus productos y platos en una selección visual fácil de elegir, pensada para que la gente descubra y recoja sin complicaciones.
                   </p>
                   <Link
                     href="/unete"
@@ -1527,10 +1528,10 @@ export function DemoHome({
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="min-w-0">
                           <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#7cffb8]">
-                            Carta visual
+                            Selección visual
                           </span>
                           <span className="mt-1 block max-w-[15rem] text-sm font-semibold leading-5 text-white/86">
-                            Mejor escaparate para tus platos
+                            Mejor escaparate para tu selección
                           </span>
                         </div>
                         <div className="flex min-w-0 flex-wrap gap-2 sm:max-w-[17rem] sm:justify-end">
@@ -1557,7 +1558,7 @@ export function DemoHome({
               {
                 Icon: TrendingUp,
                 title: "Más visibilidad en tu zona",
-                text: "Aparece donde la gente ya está decidiendo qué comer.",
+                text: "Aparece donde la gente ya está decidiendo qué recoger.",
               },
               {
                 Icon: CartIcon,
@@ -1610,7 +1611,7 @@ export function DemoHome({
           </p>
           <div className="relative mt-5 grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <h2 className="max-w-4xl text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white sm:text-6xl">
-              Menos vueltas. Más comida real. Más barrio.
+              Menos vueltas. Más producto local. Más barrio.
             </h2>
             <Link
               href="/el-proyecto"
@@ -1620,14 +1621,14 @@ export function DemoHome({
             </Link>
           </div>
           <p className="relative mt-6 max-w-2xl text-base leading-7 text-white/70">
-            ZylenPick nace para que elegir qué comer sea más visual, más rápido y más justo para los locales que tienes cerca.
+            ZylenPick nace para que descubrir productos y platos destacados sea más visual, más rápido y más justo para los locales que tienes cerca.
           </p>
         </div>
       </section>
 
       <footer className="relative z-10 px-4 py-8 sm:px-8">
         <div className="mx-auto flex max-w-6xl flex-col gap-5 text-sm text-white/62 sm:flex-row sm:items-center sm:justify-between">
-          <p>ZylenPick: platos reales, decisión rápida y recogida en local.</p>
+          <p>ZylenPick: productos y platos destacados, decisión rápida y recogida en local.</p>
           <nav className="flex flex-wrap gap-4">
             <Link href="/platos" className="transition hover:text-white">
               Platos

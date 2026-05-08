@@ -84,20 +84,20 @@ export function CartScreen({ design }: CartScreenProps) {
           <div className="relative z-10 mx-auto flex min-h-[calc(76svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
-                Carrito
+                Tu cesta
               </p>
               <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                {design?.texts.cart.emptyTitle ?? "Elige platos para recoger."}
+                {design?.texts.cart.emptyTitle ?? "Elige productos o platos para recoger."}
               </h1>
               <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
                 {design?.texts.cart.emptySubtitle ??
-                  "Tu pedido aparecerá aquí cuando guardes platos desde un local. Después solo tendrás que confirmar la hora de recogida."}
+                  "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida."}
               </p>
               <Link
-                href="/zonas"
+                href="/platos"
                 className="magnetic-button mt-8 inline-flex w-fit rounded-full border border-accent-border bg-cta px-6 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
               >
-                {design?.texts.cart.emptyCta ?? "Ver zonas"}
+                {design?.texts.cart.emptyCta ?? "Ver platos"}
               </Link>
             </div>
           </div>
@@ -126,7 +126,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 3
               </p>
               <p className="mt-3 text-2xl font-semibold leading-tight">
-                Guarda platos.
+                Guarda tu selección.
               </p>
             </div>
           </div>
@@ -182,7 +182,7 @@ export function CartScreen({ design }: CartScreenProps) {
         <div className="relative z-10 mx-auto flex min-h-[calc(68svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
           <div className="max-w-4xl">
             <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
-              Carrito
+              Tu cesta
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-text-inverse/75 backdrop-blur-xl">
@@ -211,7 +211,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 Selección
               </p>
               <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
-                Platos guardados.
+                Selección guardada.
               </h2>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
@@ -438,7 +438,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 onClick={() => clearCart()}
                 className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
               >
-                Vaciar carrito
+                Vaciar cesta
               </button>
 
               <Link

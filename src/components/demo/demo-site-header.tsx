@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { MapPinned, Menu, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
@@ -19,6 +19,14 @@ type NavItem = {
   label: string;
   href: string;
 };
+
+const mobileNavigationItems: NavItem[] = [
+  { label: "Explorar selección", href: "/platos" },
+  { label: "Zonas", href: "/zonas" },
+  { label: "Tu cesta", href: "/cart" },
+  { label: "Únete", href: "/unete" },
+  { label: "El proyecto", href: "/el-proyecto" },
+];
 
 function getBadgeLabel(totalItems: number) {
   return totalItems > 9 ? "9+" : String(totalItems);
@@ -37,6 +45,7 @@ function CartBadge({ totalItems }: { totalItems: number }) {
 }
 
 const logoSrc = "/logo/ZyelnpickLOGO_green.png";
+const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 export function DemoSiteHeader({
   currentCityName = null,
@@ -46,21 +55,15 @@ export function DemoSiteHeader({
   const pathname = usePathname();
   const { totals } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const navigationItems = useMemo<NavItem[]>(() => {
-    const items: NavItem[] = [
+  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
+  const navigationItems = useMemo<NavItem[]>(
+    () => [
+      { label: "Selección", href: "/platos" },
       { label: "Zonas", href: "/zonas" },
-      { label: "Platos", href: "/platos" },
-    ];
-
-    if (currentCitySlug) {
-      items.push({
-        label: "Ciudad",
-        href: `/zonas/${currentCitySlug}`,
-      });
-    }
-
-    return items;
-  }, [currentCitySlug]);
+      { label: "Únete", href: "/unete" },
+    ],
+    [],
+  );
 
   const isItemActive = (href: string) => {
     if (href === "/demo") {
@@ -69,6 +72,17 @@ export function DemoSiteHeader({
 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
+  const activeCategoryLabel = rotatingCategoryLabels[activeCategoryIndex];
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveCategoryIndex(
+        (currentIndex) => (currentIndex + 1) % rotatingCategoryLabels.length,
+      );
+    }, 2200);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   const shellClassName = isLightTheme
     ? "border-white/60 bg-white/58 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)]"
@@ -76,41 +90,55 @@ export function DemoSiteHeader({
 
   const cityPillClassName = isLightTheme
     ? currentCitySlug
-      ? "border-black/10 bg-white/45 text-[#181816] hover:bg-white/62"
+      ? "border-[#11D470]/45 bg-[#11D470]/18 text-[#11D470] shadow-[0_18px_42px_rgba(17,212,112,0.18)] hover:bg-[#11D470]/24"
       : "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.045]"
     : currentCitySlug
-      ? "border-white/18 bg-white/[0.11] text-white hover:bg-white/[0.16]"
+      ? "border-[#11D470]/45 bg-[#11D470]/18 text-[#11D470] shadow-[0_18px_42px_rgba(17,212,112,0.18)] hover:bg-[#11D470]/24"
       : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
 
   const iconButtonClassName = isLightTheme
-    ? "border-black/8 bg-white/42 text-[#181816] hover:bg-white/62"
-    : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
+    ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
+    : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+  const cartButtonClassName =
+    totals.totalItems > 0
+      ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+      : iconButtonClassName;
 
   const desktopNavRailClassName = isLightTheme
-    ? "border-white/55 bg-white/42 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]"
-    : "border-white/16 bg-white/[0.10] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]";
+    ? "bg-transparent"
+    : "bg-transparent";
 
   const desktopNavItemClassName = isLightTheme
-    ? "text-[#181816]/62 hover:text-[#181816] hover:bg-black/[0.045] hover:-translate-y-[1px]"
-    : "text-white/60 hover:text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
+    ? "text-[#181816]/66 hover:text-[#181816] hover:bg-black/[0.045] hover:-translate-y-[1px]"
+    : "text-white/68 hover:text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
 
   const desktopNavItemActiveClassName = isLightTheme
     ? "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_28px_rgba(17,212,112,0.24)]"
     : "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)]";
 
   const desktopDockIconClassName = isLightTheme
-    ? "border-black/8 bg-white/42 text-[#181816] hover:bg-white/62 hover:-translate-y-[1px]"
-    : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15] hover:-translate-y-[1px]";
+    ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
+    : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+  const desktopCartButtonClassName =
+    totals.totalItems > 0
+      ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+      : desktopDockIconClassName;
 
   const mobileNavItemClassName = isLightTheme
     ? "text-[#181816]/68 hover:bg-black/[0.04]"
     : "text-white/76 hover:bg-white/[0.05]";
 
   return (
-    <header className="sticky top-[max(0.85rem,env(safe-area-inset-top))] z-40 px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="transition-colors">
-          <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 md:hidden">
+        <div
+          className={
+            isLightTheme
+              ? "rounded-full border border-black/8 bg-white/50 px-2 py-1.5 text-[#181816] shadow-[0_10px_30px_rgba(20,20,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
+              : "rounded-full border border-white/10 bg-[#07100d]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
+          }
+        >
+          <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((value) => !value)}
@@ -122,7 +150,7 @@ export function DemoSiteHeader({
               {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
             </button>
 
-            <div className="flex justify-center">
+            <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
               <Link
                 href="/"
                 className="inline-flex min-h-[20px] items-center justify-center"
@@ -133,26 +161,32 @@ export function DemoSiteHeader({
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[44px] sm:w-[50px]"
+                  className="h-auto w-[48px] sm:w-[52px]"
                 />
               </Link>
+              <span
+                key={activeCategoryLabel}
+                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#11D470]"
+              >
+                {activeCategoryLabel}
+              </span>
             </div>
 
             <Link
               href="/cart"
-              aria-label="Carrito"
-              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${iconButtonClassName}`}
+              aria-label="Tu cesta"
+              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${cartButtonClassName}`}
             >
-              <CartIcon size={16} />
+              <CartIcon size={18} />
               <CartBadge totalItems={totals.totalItems} />
             </Link>
           </div>
 
-          <div className="relative hidden items-center md:flex md:justify-between md:gap-4">
-            <div className="flex items-center justify-start">
+          <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
+            <div className="flex items-center justify-start gap-2.5">
               <Link
                 href="/"
-                className="inline-flex min-h-[24px] items-center justify-center px-1 drop-shadow-[0_14px_32px_rgba(0,0,0,0.35)] transition hover:-translate-y-[1px] hover:opacity-85"
+                className="inline-flex min-h-[22px] items-center justify-center px-1.5 transition hover:opacity-85"
               >
                 <Image
                   src={logoSrc}
@@ -160,20 +194,26 @@ export function DemoSiteHeader({
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[44px] sm:w-[50px]"
+                  className="h-auto w-[54px]"
                 />
               </Link>
+              <span
+                key={activeCategoryLabel}
+                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#11D470]/22 bg-[#11D470]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#11D470]"
+              >
+                {activeCategoryLabel}
+              </span>
             </div>
 
-            <nav aria-label="Navegación principal" className="absolute left-1/2 -translate-x-1/2 justify-center">
+            <nav aria-label="Navegación principal" className="flex justify-center">
               <div
-                className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-1.5 backdrop-blur-2xl ${desktopNavRailClassName}`}
+                className={`inline-flex items-center gap-0.5 rounded-full ${desktopNavRailClassName}`}
               >
                 {navigationItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`rounded-full px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.18em] transition ${
+                    className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
                       isItemActive(item.href)
                         ? desktopNavItemActiveClassName
                         : desktopNavItemClassName
@@ -188,19 +228,19 @@ export function DemoSiteHeader({
             <div className="inline-flex items-center justify-self-end gap-2">
               <Link
                 href="/cart"
-                aria-label="Carrito"
-                className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${desktopDockIconClassName}`}
+                aria-label="Tu cesta"
+                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${desktopCartButtonClassName}`}
               >
-                <CartIcon size={16} />
+                <CartIcon size={18} />
                 <CartBadge totalItems={totals.totalItems} />
               </Link>
 
               <Link
                 href={currentCitySlug ? `/zonas/${currentCitySlug}` : "/zonas"}
                 aria-label={currentCityName ?? "Zona"}
-                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border shadow-[0_18px_42px_rgba(0,0,0,0.30)] backdrop-blur-xl transition ${cityPillClassName}`}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityPillClassName}`}
               >
-                <MapPinned size={13} className="shrink-0" />
+                <MapPinned size={18} className="shrink-0" />
               </Link>
             </div>
           </div>
@@ -213,36 +253,11 @@ export function DemoSiteHeader({
           >
             <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
-                <li>
-                  <Link
-                    href="/cart"
-                    className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
-                      isLightTheme
-                        ? "text-[#181816]/68 hover:bg-black/[0.04]"
-                        : "text-white/76 hover:bg-white/[0.05]"
-                    }`}
-                  >
-                    <span className="relative inline-flex h-5 w-5 items-center justify-center">
-                      <CartIcon size={18} />
-                      <CartBadge totalItems={totals.totalItems} />
-                    </span>
-                    <span>Carrito</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href={currentCitySlug ? `/zonas/${currentCitySlug}` : "/zonas"}
-                    className={`flex items-center gap-2 rounded-[1rem] border px-4 py-3 text-sm font-medium transition ${cityPillClassName}`}
-                  >
-                    <MapPinned size={16} className="text-[color:var(--accent)]" />
-                    <span className="truncate">{currentCityName ?? "Zona"}</span>
-                  </Link>
-                </li>
-                {navigationItems.map((item) => (
+                {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
                     <Link
                       href={item.href}
-                      className={`flex items-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
+                      className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
                           ? isLightTheme
                             ? "bg-white text-[#181816]"
@@ -250,7 +265,18 @@ export function DemoSiteHeader({
                           : mobileNavItemClassName
                       }`}
                     >
-                      {item.label}
+                      {item.href === "/cart" ? (
+                        <span className="relative inline-flex h-5 w-5 items-center justify-center">
+                          <CartIcon size={21} />
+                          <CartBadge totalItems={totals.totalItems} />
+                        </span>
+                      ) : item.href === "/zonas" ? (
+                        <MapPinned
+                          size={21}
+                          className={currentCitySlug ? "shrink-0 text-[#11D470]" : "shrink-0"}
+                        />
+                      ) : null}
+                      <span className="truncate">{item.label}</span>
                     </Link>
                   </li>
                 ))}

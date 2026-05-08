@@ -27,13 +27,72 @@ const fallbackVideoSrc =
 const talaveraDemoVideoSrc =
   "https://cdn.pixabay.com/video/2026/04/02/344075.mp4";
 
+const comingSoonZones = [
+  {
+    id: "soon-toledo",
+    slug: "toledo",
+    name: "Toledo",
+    region: "Castilla-La Mancha",
+    imageUrl:
+      "https://images.unsplash.com/photo-1569230516306-5a8cb5586399?q=80&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "soon-soria",
+    slug: "soria",
+    name: "Soria",
+    region: "Castilla y León",
+    imageUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "soon-avila",
+    slug: "avila",
+    name: "Ávila",
+    region: "Castilla y León",
+    imageUrl:
+      "https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "soon-segovia",
+    slug: "segovia",
+    name: "Segovia",
+    region: "Castilla y León",
+    imageUrl:
+      "https://images.pexels.com/photos/19788095/pexels-photo-19788095.jpeg?auto=compress&cs=tinysrgb&w=1400",
+  },
+  {
+    id: "soon-guadalajara",
+    slug: "guadalajara",
+    name: "Guadalajara",
+    region: "Castilla-La Mancha",
+    imageUrl:
+      "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "soon-cuenca",
+    slug: "cuenca",
+    name: "Cuenca",
+    region: "Castilla-La Mancha",
+    imageUrl:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop",
+  },
+  {
+    id: "soon-ciudad-real",
+    slug: "ciudad-real",
+    name: "Ciudad Real",
+    region: "Castilla-La Mancha",
+    imageUrl:
+      "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=1400&auto=format&fit=crop",
+  },
+];
+
 function buildHeroCities(cities: City[]) {
   return cities.slice(0, 6);
 }
 
 function getCityDecisionContext(city: City, index: number) {
   if (city.heroVideoUrl || city.heroImageUrl) {
-    return "platos y locales";
+    return "productos, platos y locales";
   }
 
   if (index < 3) {
@@ -187,7 +246,7 @@ export function DemoZonesOverview({
 
             <div className="space-y-4">
               <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.34em] text-white/44">
-                Demo de ciudades
+                Zonas disponibles
               </p>
               <h1 className="max-w-[12ch] text-[clamp(2.35rem,8.6vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
                 {design?.zones.title ??
@@ -201,7 +260,7 @@ export function DemoZonesOverview({
 
             <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-7">
               <span className="zones-chip rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
-                {cities.length} ciudades activas
+                {cities.length === 1 ? "Zona activa" : `${cities.length} zonas activas`}
               </span>
               <span className="zones-chip rounded-full border border-[#7cffb8]/14 bg-[#7cffb8]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7cffb8] backdrop-blur-xl">
                 Entrada directa a la zona
@@ -322,6 +381,52 @@ export function DemoZonesOverview({
                   </div>
                 </div>
               </Link>
+            ))}
+            {comingSoonZones.map((zone) => (
+              <article
+                key={zone.id}
+                aria-label={`${zone.name}, próximamente`}
+                className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border opacity-0 shadow-[0_18px_50px_rgba(0,0,0,0.22)] sm:rounded-[1.8rem] ${
+                  isLightTheme
+                    ? "border-black/8 bg-[#e8e1d2]"
+                    : "border-white/10 bg-[#0b1211]"
+                }`}
+              >
+                <div className="relative min-h-[19rem] sm:min-h-[22rem]">
+                  <Image
+                    src={zone.imageUrl}
+                    alt={zone.name}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition duration-500 group-hover:scale-[1.05]"
+                  />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(17,212,112,0.22),transparent_34%),linear-gradient(180deg,rgba(6,10,11,0.06),rgba(6,10,11,0.24)_42%,rgba(6,10,11,0.9)_100%)]" />
+                  <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
+                    <span className="rounded-full border border-[#11D470]/25 bg-[#11D470]/12 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#b7ffd8] backdrop-blur-xl">
+                      Próximamente
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
+                      <Sparkles className="h-4 w-4" />
+                    </span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+                    <p className="text-[1.5rem] font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-[2rem]">
+                      {zone.name} · Próximamente
+                    </p>
+                    <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/58">
+                      Preparando una selección visual de locales en {zone.region}.
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/68">
+                        Zona futura
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/68">
+                        Locales cercanos
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </article>
             ))}
           </div>
         </div>

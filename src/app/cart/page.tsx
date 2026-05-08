@@ -7,8 +7,8 @@ import { CartScreen } from "@/features/cart/components/cart-screen";
 import { getNoIndexMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = getNoIndexMetadata({
-  title: "Carrito",
-  description: "Revisa tu pedido para recoger en el local.",
+  title: "Tu cesta",
+  description: "Revisa tu selección para recoger en el local.",
 });
 
 export default async function CartPage() {

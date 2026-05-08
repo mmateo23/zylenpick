@@ -7,7 +7,7 @@ import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-
 export const metadata: Metadata = {
   title: "El proyecto | ZylenPick",
   description:
-    "Por qué existe ZylenPick: una forma simple y visual de ver platos reales, decidir rápido y recoger en locales cercanos.",
+    "Por qué existe ZylenPick: una forma simple y visual de descubrir productos y platos destacados, decidir rápido y recoger en locales cercanos.",
 };
 
 export default async function ProjectRoutePage() {

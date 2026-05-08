@@ -42,16 +42,16 @@ export async function generateMetadata({
 
   if (!city) {
     return getBaseMetadata({
-      title: "Zonas de comida local",
+      title: "Zonas con locales cercanos",
       description:
-        "Explora ciudades y zonas activas para descubrir locales de comida local y pedir para recoger.",
+        "Explora ciudades y zonas activas para descubrir productos y platos destacados de locales cercanos para recoger.",
       path: `/zonas/${params.citySlug}`,
     });
   }
 
   return getBaseMetadata({
-    title: `Qué comer en ${city.name} | ZylenPick`,
-    description: `Descubre platos y sitios donde comer en ${city.name}. Elige rápido qué pedir y recoger sin complicaciones.`,
+    title: `Productos y platos en ${city.name}`,
+    description: `Descubre productos y platos destacados de locales cercanos en ${city.name}. Elige rápido y recoge sin complicaciones.`,
     path: `/zonas/${city.slug}`,
     image: city.heroImageUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
   });
