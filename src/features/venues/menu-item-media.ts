@@ -8,7 +8,7 @@ const secondaryImageByItemName: Record<string, string> = {
   "Burger de vaca madurada":
     "https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=1200&q=80",
   "Tarta de queso tostada":
-    "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1533134242443-d4fd215305adíauto=format&fit=crop&w=1200&q=80",
   "Classic Burger":
     "https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=1200&q=80",
   "Cheese Bacon Burger":
@@ -26,7 +26,7 @@ const secondaryImageByItemName: Record<string, string> = {
   "Sushi variado":
     "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=1200&q=80",
   Gyozas:
-    "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1563245372-f21724e3856díauto=format&fit=crop&w=1200&q=80",
 };
 
 export function getMenuItemSecondaryImage(itemName: string) {

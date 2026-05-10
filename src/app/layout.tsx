@@ -25,39 +25,39 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "ZylenPick | Productos y platos para recoger",
-    template: "%s | ZylenPick",
+    default: "Pickyalo | Productos y platos para recoger",
+    template: "%s | Pickyalo",
   },
   description:
     "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
   icons: {
-    icon: "/logo/ZyelnpickLOGO_green.png",
-    shortcut: "/logo/ZyelnpickLOGO_green.png",
-    apple: "/logo/ZyelnpickLOGO_green.png",
+    icon: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
+    shortcut: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
+    apple: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
   },
   openGraph: {
-    title: "ZylenPick | Productos y platos para recoger",
+    title: "Pickyalo | Productos y platos para recoger",
     description:
       "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
     url: "/",
-    siteName: "ZylenPick",
+    siteName: "Pickyalo",
     locale: "es_ES",
     type: "website",
     images: [
       {
-        url: "/logo/ZyelnpickLOGO_green.png",
+        url: "/logo/Pickyalo_Logo_Coral.svg",
         width: 1200,
         height: 630,
-        alt: "ZylenPick",
+        alt: "Pickyalo",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ZylenPick | Productos y platos para recoger",
+    title: "Pickyalo | Productos y platos para recoger",
     description:
       "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
-    images: ["/logo/ZyelnpickLOGO_green.png"],
+    images: ["/logo/Pickyalo_Logo_Coral.svg"],
   },
 };
 

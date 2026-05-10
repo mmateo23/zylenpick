@@ -167,7 +167,7 @@ export function ZoneVenueExplorer({
             style={{
               backgroundImage: featuredVenue.coverUrl
                 ? `linear-gradient(180deg, rgba(12, 14, 13, 0.28), rgba(12, 14, 13, 0.84)), url(${featuredVenue.coverUrl})`
-                : "linear-gradient(135deg, rgba(31, 138, 112, 0.5), rgba(11, 16, 15, 0.84))",
+                : "linear-gradient(135deg, rgba(254, 212, 125, 0.26), rgba(11, 16, 15, 0.84))",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
@@ -205,7 +205,7 @@ export function ZoneVenueExplorer({
                       size={18}
                       className="text-[color:var(--accent)]"
                     />
-                    A {featuredJourney.walkingMinutes} min andando ·{" "}
+                    A {featuredJourney.walkingMinutes} min andando ?{" "}
                     {featuredJourney.distanceLabel}
                   </p>
                   <p className="inline-flex items-center gap-2">
@@ -282,7 +282,7 @@ export function ZoneVenueExplorer({
                   style={{
                     backgroundImage: venue.coverUrl
                       ? `linear-gradient(180deg, rgba(23, 17, 14, 0.22), rgba(23, 17, 14, 0.58)), url(${venue.coverUrl})`
-                      : "linear-gradient(180deg, rgba(31, 138, 112, 0.32), rgba(15, 22, 20, 0.52))",
+                      : "linear-gradient(180deg, rgba(254, 212, 125, 0.18), rgba(15, 22, 20, 0.52))",
                   }}
                 />
                 <div className="gold-spotlight-content p-7">
@@ -321,7 +321,7 @@ export function ZoneVenueExplorer({
 
                       {journey ? (
                         <p className="text-sm text-[color:var(--muted-strong)]">
-                          A {journey.walkingMinutes} min andando ·{" "}
+                          A {journey.walkingMinutes} min andando ?{" "}
                           {journey.distanceLabel}
                         </p>
                       ) : null}
@@ -359,3 +359,5 @@ export function ZoneVenueExplorer({
     </>
   );
 }
+
+

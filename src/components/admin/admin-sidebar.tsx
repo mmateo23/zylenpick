@@ -19,7 +19,7 @@ export function AdminSidebar() {
       <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/58">
         Admin
       </p>
-      <h2 className="mt-4 text-2xl font-semibold">ZylenPick</h2>
+      <h2 className="mt-4 text-2xl font-semibold">Pickyalo</h2>
 
       <nav className="mt-7">
         <ul className="space-y-2">

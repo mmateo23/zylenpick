@@ -53,7 +53,7 @@ export async function generateMetadata({
     title: `Productos y platos en ${city.name}`,
     description: `Descubre productos y platos destacados de locales cercanos en ${city.name}. Elige rápido y recoge sin complicaciones.`,
     path: `/zonas/${city.slug}`,
-    image: city.heroImageUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
+    image: city.heroImageUrl ?? "/logo/Pickyalo_Logo_Coral.svg?v=1",
   });
 }
 

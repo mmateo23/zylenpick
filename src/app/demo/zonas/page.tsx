@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 export const revalidate = 900;
 
 export const metadata: Metadata = {
-  title: "Demo Zonas | ZylenPick",
+  title: "Demo Zonas | Pickyalo",
   description:
     "Ruta de demo para explorar ciudades activas con una composición visual editorial.",
   robots: { index: false, follow: false },

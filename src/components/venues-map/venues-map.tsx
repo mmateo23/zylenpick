@@ -44,7 +44,7 @@ function getStaticMapUrl(accessToken: string, venues: VenueMapItem[]) {
   const pins = venues
     .map(
       (venue) =>
-        `pin-l+00df81(${venue.longitude.toFixed(5)},${venue.latitude.toFixed(5)})`,
+        `pin-l+e35937(${venue.longitude.toFixed(5)},${venue.latitude.toFixed(5)})`,
     )
     .join(",");
   const viewport = pins ? `${pins}/auto` : "-3.70380,40.41680,11,0";
@@ -116,16 +116,16 @@ export function VenuesMap({ accessToken, venues }: VenuesMapProps) {
           markerElement.setAttribute("aria-label", `Ver ${venue.name}`);
           markerElement.style.width = "34px";
           markerElement.style.height = "34px";
-          markerElement.style.border = "2px solid #07100d";
+          markerElement.style.border = "2px solid #160f0c";
           markerElement.style.borderRadius = "999px";
-          markerElement.style.background = "#00df81";
+          markerElement.style.background = "#FED47D";
           markerElement.style.boxShadow = "0 12px 28px rgba(0, 0, 0, 0.32)";
           markerElement.style.cursor = "pointer";
           markerElement.style.display = "grid";
           markerElement.style.placeItems = "center";
           markerElement.style.transition = "transform 160ms ease";
           markerElement.innerHTML =
-            '<span style="width: 10px; height: 10px; border-radius: 999px; background: #07100d; display: block;"></span>';
+            '<span style="width: 10px; height: 10px; border-radius: 999px; background: #160f0c; display: block;"></span>';
           markerElement.addEventListener("mouseenter", () => {
             markerElement.style.transform = "scale(1.08)";
           });
@@ -188,7 +188,7 @@ export function VenuesMap({ accessToken, venues }: VenuesMapProps) {
       <section className="mx-auto flex w-full max-w-7xl flex-col gap-6">
         <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[var(--brand)]">
-            ZylenPick mapa
+            Pickyalo mapa
           </p>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -249,7 +249,7 @@ export function VenuesMap({ accessToken, venues }: VenuesMapProps) {
               ) : null}
 
               {status === "error" ? (
-                <div className="absolute inset-x-4 bottom-4 rounded-[8px] border border-white/10 bg-[#101816]/90 p-4 text-sm text-[var(--muted-strong)] shadow-[var(--card-shadow)] backdrop-blur">
+                <div className="absolute inset-x-4 bottom-4 rounded-[8px] border border-white/10 bg-[#18100d]/90 p-4 text-sm text-[var(--muted-strong)] shadow-[var(--card-shadow)] backdrop-blur">
                   {errorMessage ?? "No se ha podido cargar el mapa."}
                 </div>
               ) : null}
@@ -274,7 +274,7 @@ export function VenuesMap({ accessToken, venues }: VenuesMapProps) {
                   ) : null}
                   <Link
                     href={selectedHref}
-                    className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-[#07100d] transition hover:bg-[var(--accent)]"
+                    className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand)] px-5 py-3 text-sm font-semibold text-[#160f0c] transition hover:bg-[var(--accent)]"
                   >
                     Ver carta
                     <ExternalLink className="h-4 w-4" />
@@ -288,3 +288,5 @@ export function VenuesMap({ accessToken, venues }: VenuesMapProps) {
     </main>
   );
 }
+
+

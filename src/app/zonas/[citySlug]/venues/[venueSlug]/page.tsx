@@ -46,7 +46,7 @@ export async function generateMetadata({
     title: `Selección de ${venue.name}`,
     description: `Descubre la selección visual de ${venue.name}, ${venue.city.name}. Consulta productos, platos, precios y opciones de recogida rápida.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
-    image: venue.coverUrl ?? venue.logoUrl ?? "/logo/ZylenPick_LOGO.png?v=1",
+    image: venue.coverUrl ?? venue.logoUrl ?? "/logo/Pickyalo_Logo_Coral.svg?v=1",
   });
 }
 

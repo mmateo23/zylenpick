@@ -33,7 +33,7 @@ type Coordinates = {
 };
 
 const geocoderUserAgent =
-  "ZylenPick map prototype (contact: studio@zylenpick.com)";
+  "Pickyalo map prototype (contact: studio@zylenpick.com)";
 
 function normalizeAddressQuery(row: VenueMapRow) {
   const address = row.address

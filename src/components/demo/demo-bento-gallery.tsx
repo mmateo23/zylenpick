@@ -263,14 +263,14 @@ export function DemoBentoGallery({
               <source src={bentoVideoSrc} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,223,129,0.12),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
-          <div className="zone-hero-sheen absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(124,255,184,0.12),transparent_62%)] blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
+          <div className="zone-hero-sheen absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(254,212,125,0.12),transparent_62%)] blur-3xl" />
         </div>
         <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
           <div className="mt-6 flex flex-1 flex-col justify-center sm:mt-10">
             <div className="zone-hero-copy max-w-[40rem]">
               <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
-                <Sparkles className="h-3.5 w-3.5 text-[#7cffb8]" />
+                <Sparkles className="h-3.5 w-3.5 text-[#FED47D]" />
                 Explorador visual
               </div>
               <div className="space-y-4">
@@ -298,7 +298,7 @@ export function DemoBentoGallery({
                 <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
                   {activeVenueCount} locales activos
                 </span>
-                <span className="rounded-full border border-[#7cffb8]/14 bg-[#7cffb8]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7cffb8] backdrop-blur-xl">
+                <span className="rounded-full border border-[#FED47D]/14 bg-[#FED47D]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FED47D] backdrop-blur-xl">
                   {featuredVenueCount} verificados
                 </span>
                 <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
@@ -335,7 +335,7 @@ export function DemoBentoGallery({
                     key={item.id}
                     className={`zone-label-chip rounded-full border px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] backdrop-blur-xl ${
                       item.subscriptionActive
-                        ? "border-[#7cffb8]/18 bg-[#7cffb8]/10 text-[#d9ffe8]"
+                        ? "border-[#FED47D]/18 bg-[#FED47D]/10 text-[#d9ffe8]"
                         : "border-white/10 bg-white/[0.05] text-white/72"
                     }`}
                   >
@@ -395,7 +395,7 @@ export function DemoBentoGallery({
                   isLightTheme
                     ? "border-black/8 bg-[#e8e1d2]"
                     : "border-white/10 bg-[#0b1211]"
-                } focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7cffb8]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050816]`}
+                } focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#050816]`}
                 aria-label={`Ver local ${item.name}`}
               >
                 <Image
@@ -412,7 +412,7 @@ export function DemoBentoGallery({
                       className="rounded-full border border-white/10 bg-black/18 p-2 text-white/72 backdrop-blur-xl"
                       aria-label="Local verificado"
                     >
-                      <ShieldCheck className="h-4 w-4 text-[#7cffb8]" />
+                      <ShieldCheck className="h-4 w-4 text-[#FED47D]" />
                     </span>
                   ) : null}
                 </div>
@@ -421,7 +421,7 @@ export function DemoBentoGallery({
                     {item.name}
                   </p>
                   <div className="mt-3 flex items-center justify-between gap-3">
-                    <span className="text-[0.9rem] font-bold italic text-[#7cffb8] sm:text-[0.96rem]">
+                    <span className="text-[0.9rem] font-bold italic text-[#FED47D] sm:text-[0.96rem]">
                       Ver selección
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/58 backdrop-blur-xl">
@@ -439,3 +439,4 @@ export function DemoBentoGallery({
     </main>
   );
 }
+

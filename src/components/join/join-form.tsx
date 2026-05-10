@@ -20,7 +20,7 @@ const businessTypes = [
 ];
 
 function fieldClassName() {
-  return "w-full rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/78 px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] focus:bg-[color:var(--surface-strong)]/92 focus:shadow-[0_0_0_4px_rgba(0,223,129,0.06)]";
+  return "w-full rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/78 px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] focus:bg-[color:var(--surface-strong)]/92 focus:shadow-[0_0_0_4px_rgba(254,212,125,0.06)]";
 }
 
 function sectionTitleClassName() {
@@ -177,7 +177,7 @@ export function JoinForm() {
     >
       <div
         data-join-glow
-        className="pointer-events-none absolute right-[-10%] top-[-12%] h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(124,255,184,0.14),transparent_68%)] blur-3xl"
+        className="pointer-events-none absolute right-[-10%] top-[-12%] h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.14),transparent_68%)] blur-3xl"
       />
 
       <div data-join-head className="relative z-[1]">
@@ -396,7 +396,7 @@ export function JoinForm() {
                 required
               />
               <span className="text-sm leading-6 text-[color:var(--muted-strong)]">
-                Acepto la política de privacidad y autorizo a ZylenPick a
+                Acepto la política de privacidad y autorizo a Pickyalo a
                 ponerse en contacto conmigo sobre esta solicitud.
               </span>
             </label>
@@ -416,9 +416,9 @@ export function JoinForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(124,255,184,0.1),rgba(0,223,129,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(0,223,129,0.16)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
+          className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(254,212,125,0.1),rgba(227,89,55,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(254,212,125,0.14)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
         >
-          {isSubmitting ? "Enviando solicitud..." : "Quiero aparecer en ZylenPick"}
+          {isSubmitting ? "Enviando solicitud..." : "Quiero aparecer en Pickyalo"}
         </button>
       </div>
 
@@ -437,3 +437,4 @@ export function JoinForm() {
     </form>
   );
 }
+

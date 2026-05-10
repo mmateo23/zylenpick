@@ -175,7 +175,7 @@ export function FeedExperience({ items }: FeedExperienceProps) {
     uiSessionState.followedVenueIds.includes(venue.venueId),
   );
 
-  const cartVenueName = cartState.venueName ?? "Sin seleccion";
+  const cartVenueName = cartState.venueName ?? "Sin selección";
 
   function showToast(message: string) {
     setToast({

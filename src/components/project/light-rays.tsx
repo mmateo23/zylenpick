@@ -42,7 +42,7 @@ export function LightRays({ className }: LightRaysProps) {
         className,
       )}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(111,207,151,0.10),transparent_34%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_34%)]" />
       {rays.map((rayClassName, index) => (
         <span
           key={rayClassName}
@@ -60,3 +60,5 @@ export function LightRays({ className }: LightRaysProps) {
     </div>
   );
 }
+
+

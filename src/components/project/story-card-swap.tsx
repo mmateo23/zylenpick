@@ -72,7 +72,7 @@ export function StoryCardSwap({ steps }: StoryCardSwapProps) {
               className={joinClasses(
                 "w-full rounded-[1.6rem] border px-5 py-5 text-left transition duration-300",
                 isActive
-                  ? "border-[color:var(--brand)]/40 bg-[rgba(31,138,112,0.12)] shadow-[var(--card-shadow)]"
+                  ? "border-[color:var(--brand)]/40 bg-[rgba(254,212,125,0.10)] shadow-[var(--card-shadow)]"
                   : "border-white/10 bg-[rgba(255,255,255,0.02)] text-white/72",
               )}
             >
@@ -133,7 +133,7 @@ export function StoryCardSwap({ steps }: StoryCardSwapProps) {
                 </p>
                 {isActive ? (
                   <p className="mt-5 text-xs uppercase tracking-[0.24em] text-[color:var(--accent)]">
-                    ZylenPick
+                    Pickyalo
                   </p>
                 ) : null}
               </div>
@@ -144,3 +144,5 @@ export function StoryCardSwap({ steps }: StoryCardSwapProps) {
     </div>
   );
 }
+
+

@@ -21,7 +21,7 @@ const benefits = [
   },
   {
     title: "Recibes pedidos para recoger",
-    text: "El cliente elige, confirma y pasa por tu local cuando el pedido esté listo.",
+    text: "El cliente elige, confirma y pasa por tu local cuando el pedido está listo.",
   },
   {
     title: "Tu selección se ve clara y apetece",
@@ -50,7 +50,7 @@ const steps = [
 
 const confidenceNotes = [
   "No necesitas saber de tecnología",
-  "No tienes que subir todo tú",
+  "No tienes que subir todo t?",
   "Te ayudamos personalmente",
 ];
 
@@ -78,7 +78,7 @@ export default async function JoinPage() {
           <div className="flex min-h-[34rem] flex-col justify-between px-7 py-8 sm:min-h-[38rem] sm:px-9 sm:py-10 lg:px-12 lg:py-12">
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/18 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.24em] text-white/74 backdrop-blur-md">
               <span className="inline-block h-2 w-2 rounded-full bg-[color:var(--brand)]" />
-              Únete a ZylenPick
+              Únete a Pickyalo
             </div>
 
             <div className="max-w-5xl">
@@ -105,15 +105,15 @@ export default async function JoinPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="#solicitud"
-                  className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(124,255,184,0.1),rgba(0,223,129,0.92))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(0,223,129,0.18)]"
+                  className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(254,212,125,0.1),rgba(227,89,55,0.92))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(254,212,125,0.16)]"
                 >
-                  Quiero aparecer en ZylenPick
+                  Quiero aparecer en Pickyalo
                 </Link>
                 <Link
                   href="#como-se-vera"
                   className="magnetic-button inline-flex justify-center rounded-full border border-white/12 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white/82 backdrop-blur-md transition hover:bg-black/26"
                 >
-                  Ver cómo se verá
+                  Ver cómo se ver?
                 </Link>
               </div>
             </div>
@@ -152,7 +152,7 @@ export default async function JoinPage() {
               Tres pasos y listo.
             </h2>
             <p className="mt-4 max-w-[42ch] text-sm leading-7 text-[color:var(--muted)]">
-              La idea es que puedas aparecer en ZylenPick sin convertir esto en
+              La idea es que puedas aparecer en Pickyalo sin convertir esto en
               otro trabajo más.
             </p>
           </div>
@@ -212,3 +212,4 @@ export default async function JoinPage() {
     </SiteShell>
   );
 }
+

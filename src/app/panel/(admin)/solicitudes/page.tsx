@@ -46,7 +46,7 @@ export default async function AdminJoinRequestsPage() {
           Solicitudes
         </h1>
         <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-          Revisa las solicitudes enviadas desde “Únete a ZylenPick” y distingue
+          Revisa las solicitudes enviadas desde “Únete a Pickyalo” y distingue
           rápidamente las pendientes, revisadas y ya convertidas en local real.
         </p>
       </div>

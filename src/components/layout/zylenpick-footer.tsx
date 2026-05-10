@@ -48,8 +48,8 @@ export function ZylenPickFooter({
         <div
           className={
             isLightTheme
-              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,223,129,0.15),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,222,128,0.12),transparent_28%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,223,129,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,214,102,0.14),transparent_26%)]"
+              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,212,125,0.13),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,222,128,0.12),transparent_28%)]"
+              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,212,125,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,214,102,0.14),transparent_26%)]"
           }
         />
 
@@ -57,8 +57,8 @@ export function ZylenPickFooter({
           <div>
             <div className="inline-flex items-center">
               <Image
-                src="/logo/ZyelnpickLOGO_greeb.svg"
-                alt="ZylenPick"
+                src="/logo/Pickyalo_Logo_Coral.svg"
+                alt="Pickyalo"
                 width={136}
                 height={28}
                 className="h-auto w-[92px] sm:w-[112px]"
@@ -82,7 +82,7 @@ export function ZylenPickFooter({
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >
-              ZylenPick te ayuda a elegir una selección visual en segundos y da más
+              Pickyalo te ayuda a elegir una selección visual en segundos y da más
               visibilidad a locales cercanos, sin complicaciones.
             </p>
           </div>
@@ -115,12 +115,12 @@ export function ZylenPickFooter({
               className={
                 isLightTheme
                   ? "group flex items-center justify-between rounded-[1.15rem] border border-black/8 bg-[#111111] px-4 py-4 text-sm text-white transition hover:bg-black"
-                  : "group flex items-center justify-between rounded-[1.15rem] border border-[#7cffb8]/20 bg-[rgba(124,255,184,0.08)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(124,255,184,0.14)]"
+                  : "group flex items-center justify-between rounded-[1.15rem] border border-[#FED47D]/20 bg-[rgba(254,212,125,0.08)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(254,212,125,0.14)]"
               }
             >
               <span className="flex items-center gap-3">
                 <MapPinned className="h-4 w-4" />
-                <span className="font-medium">Buscar cerca de mí</span>
+                <span className="font-medium">Buscar cerca de m?</span>
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
@@ -130,3 +130,4 @@ export function ZylenPickFooter({
     </footer>
   );
 }
+

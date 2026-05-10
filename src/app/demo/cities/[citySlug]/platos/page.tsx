@@ -198,7 +198,7 @@ export default async function DemoCityDishesPage({
             {filteredDishes.map((dish, index) => (
               (() => {
                 const highlightClassName = dish.isPickupMonthHighlight
-                  ? "border-[rgba(31,138,112,0.5)] shadow-[0_0_0_1px_rgba(31,138,112,0.24),0_18px_44px_rgba(31,138,112,0.18)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(31,138,112,0.76)] group-hover:shadow-[0_0_0_1px_rgba(31,138,112,0.3),0_0_32px_rgba(31,138,112,0.24),0_22px_56px_rgba(31,138,112,0.26)]"
+                  ? "border-[rgba(227,89,55,0.42)] shadow-[0_0_0_1px_rgba(254,212,125,0.18),0_18px_44px_rgba(254,212,125,0.16)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(227,89,55,0.62)] group-hover:shadow-[0_0_0_1px_rgba(254,212,125,0.22),0_0_32px_rgba(254,212,125,0.18),0_22px_56px_rgba(254,212,125,0.20)]"
                   : dish.isFeatured
                     ? "border-[rgba(214,166,72,0.48)] shadow-[0_0_0_1px_rgba(214,166,72,0.22),0_18px_44px_rgba(214,166,72,0.16)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(214,166,72,0.74)] group-hover:shadow-[0_0_0_1px_rgba(214,166,72,0.3),0_0_28px_rgba(214,166,72,0.2),0_22px_56px_rgba(214,166,72,0.24)]"
                     : "border-[color:var(--border)] shadow-[var(--soft-shadow)] transition-[box-shadow,border-color,transform] duration-300";
@@ -244,14 +244,14 @@ export default async function DemoCityDishesPage({
                         <div className="pointer-events-none absolute -left-8 top-8 h-20 w-20 rounded-full bg-[rgba(214,166,72,0.18)] opacity-70 blur-2xl transition duration-300 group-hover:opacity-100 group-hover:blur-3xl" />
                       ) : null}
                       {dish.isPickupMonthHighlight ? (
-                        <div className="pointer-events-none absolute -right-10 top-8 h-24 w-24 rounded-full bg-[rgba(31,138,112,0.18)] blur-2xl transition duration-300 group-hover:bg-[rgba(31,138,112,0.28)] group-hover:blur-3xl" />
+                        <div className="pointer-events-none absolute -right-10 top-8 h-24 w-24 rounded-full bg-[rgba(254,212,125,0.16)] blur-2xl transition duration-300 group-hover:bg-[rgba(254,212,125,0.22)] group-hover:blur-3xl" />
                       ) : null}
                       <div className="absolute inset-x-0 bottom-0 h-20 bg-[linear-gradient(180deg,rgba(5,8,7,0),rgba(5,8,7,0.46))]" />
                       <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.08),transparent_26%,transparent_72%,rgba(255,255,255,0.04))] opacity-80 transition duration-500 group-hover:opacity-100" />
                       <div className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/18 bg-[rgba(12,16,15,0.52)] p-2 opacity-80 shadow-[0_10px_20px_rgba(4,8,7,0.22)] backdrop-blur-[6px] transition duration-500 group-hover:scale-110 group-hover:opacity-100">
                         <Image
-                          src="/logo/ZylenPick_LOGO.svg"
-                          alt="ZylenPick"
+                          src="/logo/Pickyalo_Logo_Coral.svg"
+                          alt="Pickyalo"
                           width={24}
                           height={24}
                           className="h-full w-full object-contain opacity-95"
@@ -264,7 +264,7 @@ export default async function DemoCityDishesPage({
                         <div className="pointer-events-none absolute -left-8 top-8 h-20 w-20 rounded-full bg-[rgba(214,166,72,0.18)] opacity-70 blur-2xl transition duration-300 group-hover:opacity-100 group-hover:blur-3xl" />
                       ) : null}
                       {dish.isPickupMonthHighlight ? (
-                        <div className="pointer-events-none absolute -right-10 top-8 h-24 w-24 rounded-full bg-[rgba(31,138,112,0.18)] blur-2xl transition duration-300 group-hover:bg-[rgba(31,138,112,0.28)] group-hover:blur-3xl" />
+                        <div className="pointer-events-none absolute -right-10 top-8 h-24 w-24 rounded-full bg-[rgba(254,212,125,0.16)] blur-2xl transition duration-300 group-hover:bg-[rgba(254,212,125,0.22)] group-hover:blur-3xl" />
                       ) : null}
                       <div className="absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,rgba(5,8,7,0),rgba(5,8,7,0.16)_38%,rgba(5,8,7,0.52))] transition duration-500 group-hover:h-36" />
                     </>
@@ -289,7 +289,7 @@ export default async function DemoCityDishesPage({
                     ) : null}
                     {dish.isPickupMonthHighlight ? (
                       <span
-                        className={`rounded-full border border-[rgba(31,138,112,0.34)] bg-[rgba(31,138,112,0.16)] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)] backdrop-blur ${
+                        className={`rounded-full border border-[rgba(227,89,55,0.30)] bg-[rgba(254,212,125,0.12)] font-semibold uppercase tracking-[0.16em] text-[color:var(--accent)] backdrop-blur ${
                           selectedView === "mosaic"
                             ? "px-2.5 py-1 text-[10px]"
                             : "px-3 py-1 text-[11px]"
@@ -387,10 +387,12 @@ export default async function DemoCityDishesPage({
           </p>
           <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
             Cuando los locales tengan imágenes activas en su carta, esta vista
-            visual se llenará automáticamente.
+            visual se llenar? automáticamente.
           </p>
         </section>
       )}
     </SiteShell>
   );
 }
+
+

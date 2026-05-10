@@ -80,7 +80,7 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
               />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,10,10,0.02),rgba(7,10,10,0.1)_56%,rgba(7,10,10,0.46)_100%)]" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-4">
-                <span className="rounded-full border border-white/10 bg-black/24 px-3 py-1.5 text-[0.9rem] font-bold italic text-[#7cffb8] backdrop-blur-md">
+                <span className="rounded-full border border-white/10 bg-black/24 px-3 py-1.5 text-[0.9rem] font-bold italic text-[#FED47D] backdrop-blur-md">
                   {formatPrice(item)}
                 </span>
                 <span className="max-w-[12rem] truncate rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/70 backdrop-blur-md">

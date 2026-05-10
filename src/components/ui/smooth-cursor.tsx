@@ -158,14 +158,17 @@ export function SmoothCursor({
     >
       <motion.div
         className="relative flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-white/8 backdrop-blur-md"
-        style={{ boxShadow: "0 0 40px rgba(16,185,129,0.2)" }}
+        style={{ boxShadow: "0 0 40px rgba(254,212,125,0.20)" }}
       >
         <motion.div
-          className="absolute inset-[-6px] rounded-full border border-emerald-300/25"
+          className="absolute inset-[-6px] rounded-full border border-[#FED47D]/30"
           style={{ opacity: glowOpacity }}
         />
-        <div className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
+        <div className="h-1.5 w-1.5 rounded-full bg-[#FED47D]" />
       </motion.div>
     </motion.div>
   );
 }
+
+
+

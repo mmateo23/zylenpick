@@ -44,7 +44,7 @@ function CartBadge({ totalItems }: { totalItems: number }) {
   );
 }
 
-const logoSrc = "/logo/ZyelnpickLOGO_green.png";
+const logoSrc = "/logo/Pickyalo_Logo_Vanilla.svg";
 const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 export function DemoSiteHeader({
@@ -73,6 +73,7 @@ export function DemoSiteHeader({
     return pathname === href || pathname.startsWith(`${href}/`);
   };
   const activeCategoryLabel = rotatingCategoryLabels[activeCategoryIndex];
+  const headerLogoSrc = isLightTheme ? "/logo/Pickyalo_Logo_Black.svg" : logoSrc;
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -90,10 +91,10 @@ export function DemoSiteHeader({
 
   const cityPillClassName = isLightTheme
     ? currentCitySlug
-      ? "border-[#11D470]/45 bg-[#11D470]/18 text-[#11D470] shadow-[0_18px_42px_rgba(17,212,112,0.18)] hover:bg-[#11D470]/24"
+      ? "border-[#FED47D]/45 bg-[#FED47D]/18 text-[#3A2119] shadow-[0_18px_42px_rgba(254,212,125,0.16)] hover:bg-[#FED47D]/24"
       : "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.045]"
     : currentCitySlug
-      ? "border-[#11D470]/45 bg-[#11D470]/18 text-[#11D470] shadow-[0_18px_42px_rgba(17,212,112,0.18)] hover:bg-[#11D470]/24"
+      ? "border-[#FED47D]/45 bg-[#FED47D]/18 text-[#3A2119] shadow-[0_18px_42px_rgba(254,212,125,0.16)] hover:bg-[#FED47D]/24"
       : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
 
   const iconButtonClassName = isLightTheme
@@ -101,7 +102,7 @@ export function DemoSiteHeader({
     : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
   const cartButtonClassName =
     totals.totalItems > 0
-      ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+      ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
       : iconButtonClassName;
 
   const desktopNavRailClassName = isLightTheme
@@ -113,15 +114,15 @@ export function DemoSiteHeader({
     : "text-white/68 hover:text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
 
   const desktopNavItemActiveClassName = isLightTheme
-    ? "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_28px_rgba(17,212,112,0.24)]"
-    : "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)]";
+    ? "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_28px_rgba(254,212,125,0.22)]"
+    : "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_30px_rgba(254,212,125,0.26)]";
 
   const desktopDockIconClassName = isLightTheme
     ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
     : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
   const desktopCartButtonClassName =
     totals.totalItems > 0
-      ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+      ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
       : desktopDockIconClassName;
 
   const mobileNavItemClassName = isLightTheme
@@ -135,7 +136,7 @@ export function DemoSiteHeader({
           className={
             isLightTheme
               ? "rounded-full border border-black/8 bg-white/50 px-2 py-1.5 text-[#181816] shadow-[0_10px_30px_rgba(20,20,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
-              : "rounded-full border border-white/10 bg-[#07100d]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
+              : "rounded-full border border-white/10 bg-[#160f0c]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
           }
         >
           <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
@@ -156,17 +157,17 @@ export function DemoSiteHeader({
                 className="inline-flex min-h-[20px] items-center justify-center"
               >
                 <Image
-                  src={logoSrc}
-                  alt="ZylenPick"
+                  src={headerLogoSrc}
+                  alt="Pickyalo"
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[48px] sm:w-[52px]"
+                  className="h-auto w-[78px] sm:w-[86px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#11D470]"
+                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#FED47D]"
               >
                 {activeCategoryLabel}
               </span>
@@ -189,17 +190,17 @@ export function DemoSiteHeader({
                 className="inline-flex min-h-[22px] items-center justify-center px-1.5 transition hover:opacity-85"
               >
                 <Image
-                  src={logoSrc}
-                  alt="ZylenPick"
+                  src={headerLogoSrc}
+                  alt="Pickyalo"
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[54px]"
+                  className="h-auto w-[106px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#11D470]/22 bg-[#11D470]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#11D470]"
+                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#FED47D]/22 bg-[#FED47D]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#FED47D]"
               >
                 {activeCategoryLabel}
               </span>
@@ -273,7 +274,7 @@ export function DemoSiteHeader({
                       ) : item.href === "/zonas" ? (
                         <MapPinned
                           size={21}
-                          className={currentCitySlug ? "shrink-0 text-[#11D470]" : "shrink-0"}
+                          className={currentCitySlug ? "shrink-0 text-[#FED47D]" : "shrink-0"}
                         />
                       ) : null}
                       <span className="truncate">{item.label}</span>
@@ -288,3 +289,8 @@ export function DemoSiteHeader({
     </header>
   );
 }
+
+
+
+
+

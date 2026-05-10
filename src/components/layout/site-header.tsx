@@ -36,7 +36,7 @@ const mobileNavigationItems = [
   { label: "El proyecto", href: "/el-proyecto" },
 ];
 
-const logoSrc = "/logo/ZyelnpickLOGO_green.png";
+const logoSrc = "/logo/Pickyalo_Logo_Vanilla.svg";
 const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 function formatActiveOrderTime(pickupAt: string | null | undefined) {
@@ -170,16 +170,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const dockButtonClassName =
     "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
   const orderButtonClassName = hasOrderSignal
-    ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+    ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
     : dockButtonClassName;
   const cityButtonClassName = selectedCity?.slug
-    ? "border-[#11D470]/28 bg-[#11D470]/10 text-[#11D470] hover:bg-[#11D470]/16"
+    ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
     : dockButtonClassName;
 
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-full border border-white/10 bg-[#07100d]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
+        <div className="rounded-full border border-white/10 bg-[#160f0c]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
           <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             {showNavigation ? (
               <button
@@ -204,16 +204,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               >
                 <Image
                   src={logoSrc}
-                  alt="ZylenPick"
+                  alt="Pickyalo"
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[48px]"
+                  className="h-auto w-[78px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#11D470]"
+                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#FED47D]"
               >
                 {activeCategoryLabel}
               </span>
@@ -247,16 +247,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               >
                 <Image
                   src={logoSrc}
-                  alt="ZylenPick"
+                  alt="Pickyalo"
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[54px]"
+                  className="h-auto w-[106px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#11D470]/22 bg-[#11D470]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#11D470]"
+                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#FED47D]/22 bg-[#FED47D]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#FED47D]"
               >
                 {activeCategoryLabel}
               </span>
@@ -273,7 +273,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
                         isItemActive(item.href)
-                          ? "bg-[#11D470] font-bold text-[#062113] shadow-[0_10px_30px_rgba(17,212,112,0.28)]"
+                          ? "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_30px_rgba(254,212,125,0.26)]"
                           : "text-white/68 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
                       }`}
                     >
@@ -342,7 +342,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       ) : item.href === "/zonas" ? (
                         <LocationPinIcon
                           size={21}
-                          className={selectedCity?.slug ? "shrink-0 text-[#11D470]" : "shrink-0"}
+                          className={selectedCity?.slug ? "shrink-0 text-[#FED47D]" : "shrink-0"}
                         />
                       ) : null}
                       <span>{item.label}</span>
@@ -357,3 +357,6 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
     </header>
   );
 }
+
+
+

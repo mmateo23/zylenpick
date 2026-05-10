@@ -101,7 +101,7 @@ function buildEmailHtml(payload: JoinRequestPayload) {
 
   return `
     <div style="font-family: Arial, Helvetica, sans-serif; color: #111827; line-height: 1.6;">
-      <h1 style="margin-bottom: 16px;">Nueva solicitud para unirse a ZylenPick</h1>
+      <h1 style="margin-bottom: 16px;">Nueva solicitud para unirse a Pickyalo</h1>
       <table style="width: 100%; border-collapse: collapse;">
         <tbody>
           ${rows
@@ -122,7 +122,7 @@ function buildEmailHtml(payload: JoinRequestPayload) {
 
 function buildEmailText(payload: JoinRequestPayload) {
   return [
-    "Nueva solicitud para unirse a ZylenPick",
+    "Nueva solicitud para unirse a Pickyalo",
     "",
     `Nombre del local: ${payload.venueName}`,
     `Tipo de negocio: ${payload.businessType}`,
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
   const resendApiKey = process.env.RESEND_API_KEY;
   const joinRequestToEmail = process.env.JOIN_REQUEST_TO_EMAIL;
   const joinRequestFromEmail =
-    process.env.JOIN_REQUEST_FROM_EMAIL ?? "ZylenPick <onboarding@resend.dev>";
+    process.env.JOIN_REQUEST_FROM_EMAIL ?? "Pickyalo <onboarding@resend.dev>";
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

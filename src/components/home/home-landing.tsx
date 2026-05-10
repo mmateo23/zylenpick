@@ -96,7 +96,7 @@ function FeaturedDishCard({
 }) {
   const journey = getItemJourney(item, userLocation);
   const highlightClassName = item.isPickupMonthHighlight
-    ? "border-[rgba(31,138,112,0.42)] shadow-[0_0_0_1px_rgba(31,138,112,0.22),0_20px_42px_rgba(31,138,112,0.18)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(31,138,112,0.72)] group-hover:shadow-[0_0_0_1px_rgba(31,138,112,0.28),0_0_32px_rgba(31,138,112,0.24),0_22px_52px_rgba(31,138,112,0.24)]"
+    ? "border-[rgba(227,89,55,0.36)] shadow-[0_0_0_1px_rgba(254,212,125,0.18),0_20px_42px_rgba(254,212,125,0.16)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(227,89,55,0.60)] group-hover:shadow-[0_0_0_1px_rgba(254,212,125,0.22),0_0_32px_rgba(254,212,125,0.18),0_22px_52px_rgba(254,212,125,0.18)]"
     : item.isFeatured
       ? "gold-spotlight-card border-[rgba(214,166,72,0.42)] shadow-[0_0_0_1px_rgba(214,166,72,0.22),0_20px_42px_rgba(214,166,72,0.16)] transition-[box-shadow,border-color,transform] duration-300 group-hover:border-[rgba(214,166,72,0.74)] group-hover:shadow-[0_0_0_1px_rgba(214,166,72,0.28),0_0_28px_rgba(214,166,72,0.2),0_22px_52px_rgba(214,166,72,0.22)]"
       : "border-white/10 shadow-[var(--soft-shadow)] transition-[box-shadow,border-color,transform] duration-300";
@@ -108,7 +108,7 @@ function FeaturedDishCard({
       style={{
         backgroundImage: item.imageUrl
           ? `linear-gradient(180deg, rgba(5, 8, 7, 0.08), rgba(5, 8, 7, 0.86)), url(${item.imageUrl})`
-          : "linear-gradient(135deg, rgba(31, 138, 112, 0.24), rgba(10, 12, 11, 0.92))",
+          : "linear-gradient(135deg, rgba(227, 89, 55, 0.20), rgba(10, 12, 11, 0.92))",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
@@ -135,7 +135,7 @@ function FeaturedDishCard({
               </span>
             ) : null}
             {item.isPickupMonthHighlight ? (
-              <span className="rounded-full border border-[rgba(31,138,112,0.34)] bg-[rgba(31,138,112,0.16)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8ae0c1]">
+              <span className="rounded-full border border-[rgba(227,89,55,0.30)] bg-[rgba(254,212,125,0.12)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#FED47D]">
                 Top del mes
               </span>
             ) : null}
@@ -147,7 +147,7 @@ function FeaturedDishCard({
           {journey ? (
             <p className="inline-flex items-center gap-2 text-sm text-white/82">
               <LocationPinIcon size={17} className="text-[color:var(--accent)]" />
-              A {journey.walkingMinutes} min andando · {journey.distanceLabel}
+              A {journey.walkingMinutes} min andando ? {journey.distanceLabel}
             </p>
           ) : null}
         </div>
@@ -336,7 +336,7 @@ export function HomeLanding({
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(31,138,112,0.16),transparent_22%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.12),transparent_22%)]" />
         <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(0,0,0,0.22),transparent)]" />
 
         <section className="relative z-10 w-full max-w-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-[color:var(--surface)]/86 p-4 shadow-[var(--shadow)] backdrop-blur-2xl sm:p-5">
@@ -402,7 +402,7 @@ export function HomeLanding({
                     onClick={() => setIsInfoOpen(true)}
                     className="magnetic-button inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3.5 text-sm font-semibold text-[color:var(--foreground)] shadow-[var(--card-shadow)] transition hover:bg-white/8"
                   >
-                    ¿Qué es ZylenPick?
+                    ¿Qué es Pickyalo?
                   </button>
 
                   <button
@@ -472,18 +472,18 @@ export function HomeLanding({
 
             <div className="mt-4">
               <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
-                ZylenPick
+                Pickyalo
               </p>
               <h2
                 id="zylenpick-info-title"
                 className="mt-4 text-balance text-3xl font-semibold leading-[0.98] text-[color:var(--foreground)] sm:text-4xl"
               >
-                ¿Qué es ZylenPick?
+                ¿Qué es Pickyalo?
               </h2>
 
               <div className="mt-6 space-y-4 text-sm leading-7 text-[color:var(--muted-strong)] sm:text-base">
                 <p>
-                  ZylenPick conecta a las personas con la comida local de su ciudad.
+                  Pickyalo conecta a las personas con la comida local de su ciudad.
                 </p>
                 <p>
                   Descubre platos cercanos, haz tu pedido y recógelo directamente
@@ -517,3 +517,5 @@ export function HomeLanding({
     </main>
   );
 }
+
+

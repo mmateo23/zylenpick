@@ -5,7 +5,7 @@ import { getNoIndexMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = getNoIndexMetadata({
   title: "Pedidos",
-  description: "Consulta el estado de tu pedido activo en ZylenPick.",
+  description: "Consulta el estado de tu pedido activo en Pickyalo.",
 });
 
 export default function OrdersPage() {

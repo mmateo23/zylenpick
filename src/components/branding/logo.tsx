@@ -28,10 +28,10 @@ export function Logo({
   return (
     <span className={joinClasses("inline-flex items-center gap-3", className)}>
       <Image
-        src="/logo/ZyelnpickLOGO_green.png"
-        alt="ZylenPick"
-        width={512}
-        height={512}
+        src="/logo/Pickyalo_isotipo_Coral.svg"
+        alt="Pickyalo"
+        width={128}
+        height={128}
         priority={priority}
         className={joinClasses("h-6 w-auto shrink-0", iconClassName)}
       />
@@ -44,7 +44,7 @@ export function Logo({
             textClassName,
           )}
         >
-          ZylenPick
+          Pickyalo
         </span>
       ) : null}
     </span>

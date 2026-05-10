@@ -37,7 +37,7 @@ export default async function AdminVenueEditPage({
               Menú del local
             </p>
             <h2 className="mt-3 text-2xl font-semibold text-[color:var(--foreground)]">
-              Gestionar platos
+              Gestiónar platos
             </h2>
             <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
               Accede al listado de platos de este local para crear, editar o destacar
@@ -49,7 +49,7 @@ export default async function AdminVenueEditPage({
             href={`/panel/locales/${params.venueId}/platos`}
             className="magnetic-button inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)]"
           >
-            Gestionar platos
+            Gestiónar platos
           </Link>
         </div>
       </section>

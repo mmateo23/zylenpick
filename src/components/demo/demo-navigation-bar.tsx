@@ -47,7 +47,7 @@ export function DemoNavigationBar({
                 href={item.href}
                 className={`inline-flex rounded-full border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] backdrop-blur-xl transition ${
                   isActive
-                    ? "border-[#7cffb8]/18 bg-[#7cffb8]/10 text-[#d9ffe8]"
+                    ? "border-[#FED47D]/18 bg-[#FED47D]/10 text-[#d9ffe8]"
                     : "border-white/10 bg-white/[0.04] text-white/64 hover:bg-white/[0.07] hover:text-white"
                 }`}
               >

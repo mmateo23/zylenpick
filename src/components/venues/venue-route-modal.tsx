@@ -75,7 +75,7 @@ export function VenueRouteModal({
 
           <p className="mt-5 text-sm leading-6 text-white/70">
             Abrimos Google Maps con la dirección del local para evitar rutas
-            imprecisas dentro de ZylenPick.
+            imprecisas dentro de Pickyalo.
           </p>
 
           <div className="mt-6 flex flex-col gap-3">

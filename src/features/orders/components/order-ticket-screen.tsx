@@ -245,7 +245,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
           No hemos encontrado este pedido.
         </p>
         <p className="mt-3 text-sm leading-6 text-[color:var(--muted)]">
-          Puede que ya no esté disponible en este navegador o que el enlace no
+          Puede que ya no está disponible en este navegador o que el enlace no
           sea correcto.
         </p>
         <Link
@@ -512,7 +512,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
               href={directionsUrl}
               target="_blank"
               rel="noreferrer"
-              className="magnetic-button mt-6 inline-flex w-full items-center justify-center rounded-full bg-cta px-5 py-4 text-base font-semibold text-cta-text shadow-[0_18px_40px_rgba(36,199,136,0.28)] transition hover:bg-cta-hover"
+              className="magnetic-button mt-6 inline-flex w-full items-center justify-center rounded-full bg-cta px-5 py-4 text-base font-semibold text-cta-text shadow-[0_18px_40px_rgba(254,212,125,0.26)] transition hover:bg-cta-hover"
             >
               {design?.texts.success.primaryCta ??
                 design?.texts.globalLabels.directions ??
@@ -523,7 +523,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
               type="button"
               onClick={handleUseLocation}
               disabled={isLocating}
-              className="magnetic-button mt-6 inline-flex w-full items-center justify-center rounded-full bg-cta px-5 py-4 text-base font-semibold text-cta-text shadow-[0_18px_40px_rgba(36,199,136,0.28)] transition hover:bg-cta-hover disabled:opacity-60"
+              className="magnetic-button mt-6 inline-flex w-full items-center justify-center rounded-full bg-cta px-5 py-4 text-base font-semibold text-cta-text shadow-[0_18px_40px_rgba(254,212,125,0.26)] transition hover:bg-cta-hover disabled:opacity-60"
             >
               {isLocating ? "Buscando ubicación..." : "Activar ubicación"}
             </button>
@@ -681,3 +681,5 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
     </div>
   );
 }
+
+

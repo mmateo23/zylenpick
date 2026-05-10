@@ -421,7 +421,7 @@ export function AdminVenueForm({
               Estado editorial
             </p>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
-              El distintivo de ZylenPick solo aparece cuando el local ha sido
+              El distintivo de Pickyalo solo aparece cuando el local ha sido
               revisado editorialmente y además mantiene una suscripción activa.
             </p>
           </div>
@@ -429,14 +429,14 @@ export function AdminVenueForm({
           <div className="grid gap-4 md:grid-cols-2">
             <ToggleField
               name="isVerified"
-              label="Local verificado por ZylenPick"
-              description="El local ha sido revisado por ZylenPick y cumple estándares mínimos de calidad para recogida."
+              label="Local verificado por Pickyalo"
+              description="El local ha sido revisado por Pickyalo y cumple estándares mínimos de calidad para recogida."
               defaultChecked={values.isVerified}
             />
             <ToggleField
               name="subscriptionActive"
               label="Suscripción activa"
-              description="El local forma parte de la red activa de ZylenPick y puede mostrar el distintivo si también está verificado."
+              description="El local forma parte de la red activa de Pickyalo y puede mostrar el distintivo si también está verificado."
               defaultChecked={values.subscriptionActive}
             />
             <ToggleField

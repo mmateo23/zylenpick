@@ -16,16 +16,16 @@ export function VerifiedVenueBadge({
   }
 
   const helpText =
-    "Local verificado por ZylenPick. Este local ha sido revisado por ZylenPick y cumple estándares de calidad para recogida.";
+    "Local verificado por Pickyalo. Este local ha sido revisado por Pickyalo y cumple estándares de calidad para recogida.";
 
   return (
     <span
       title={helpText}
-      aria-label="Local verificado por ZylenPick"
+      aria-label="Local verificado por Pickyalo"
       className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand)]/18 bg-[color:var(--brand)]/10 px-3 py-1.5 text-xs font-medium text-[color:var(--foreground)] shadow-[var(--card-shadow)]"
     >
       <Logo mode="icon" iconClassName="h-4 w-auto" />
-      {withLabel ? <span>Verificado por ZylenPick</span> : null}
+      {withLabel ? <span>Verificado por Pickyalo</span> : null}
     </span>
   );
 }

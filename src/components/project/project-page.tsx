@@ -97,14 +97,14 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
               Elegir algo bueno cerca no debería ser complicado
             </h1>
             <p className="mt-6 max-w-[47rem] text-base leading-8 text-white/80 sm:text-xl sm:leading-9">
-              ZylenPick hace que veas productos y platos destacados, decidas rápido y vayas
+              Pickyalo hace que veas productos y platos destacados, decidas rápido y vayas
               directamente al local a recoger. Sin apps complicadas. Sin perder
               tiempo.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/platos"
-                className="magnetic-button inline-flex justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(0,223,129,0.18)]"
+                className="magnetic-button inline-flex justify-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(254,212,125,0.16)]"
               >
                 Ver platos
               </Link>
@@ -112,7 +112,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
                 href="/unete"
                 className="magnetic-button inline-flex justify-center rounded-full border border-white/14 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white/86 backdrop-blur-md transition hover:bg-black/26"
               >
-                Quiero que mi local esté aquí
+                Quiero que mi local está aquí
               </Link>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
             La idea
           </p>
           <h2 className="mt-4 max-w-[12ch] text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.055em] text-[color:var(--foreground)] sm:text-5xl">
-            ZylenPick es otra forma de decidir
+            Pickyalo es otra forma de decidir
           </h2>
           <PointList points={ideaPoints} />
           <p className="mt-6 text-2xl font-semibold leading-tight text-[color:var(--foreground)]">
@@ -222,7 +222,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
               Filosofía
             </p>
             <h2 className="mt-4 max-w-[12ch] text-balance text-4xl font-semibold leading-[0.95] tracking-[-0.055em] sm:text-5xl">
-              ZylenPick nace para simplificar
+              Pickyalo nace para simplificar
             </h2>
           </div>
 
@@ -251,7 +251,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
               Siguiente paso
             </p>
             <h2 className="mt-4 max-w-[13ch] text-balance text-4xl font-semibold leading-[0.96] tracking-[-0.055em] text-[color:var(--foreground)] sm:text-5xl">
-              Empieza a usar ZylenPick hoy
+              Empieza a usar Pickyalo hoy
             </h2>
           </div>
 
@@ -266,7 +266,7 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
               href="/unete"
               className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)]/76 px-6 py-3.5 text-sm font-semibold text-[color:var(--foreground)] transition hover:border-[color:var(--brand)]/40"
             >
-              Quiero que mi local esté aquí
+              Quiero que mi local está aquí
             </Link>
           </div>
         </div>
@@ -274,3 +274,4 @@ export function ProjectPage({ siteMedia }: ProjectPageProps) {
     </div>
   );
 }
+

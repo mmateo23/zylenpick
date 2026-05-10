@@ -139,7 +139,7 @@ export default async function AdminHighlightsPage({
 
         <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
           {searchQuery
-            ? `Mostrando ${filteredVenues.length} locales y ${filteredMenuItems.length} platos para “${searchQuery}”.`
+            ? `Mostrando ${filteredVenues.length} locales y ${filteredMenuItems.length} platos para ?${searchQuery}?.`
             : "Busca por nombre de plato, local, slug o categoria para encontrar mas rapido lo que quieres destacar."}
         </p>
       </section>
@@ -176,7 +176,7 @@ export default async function AdminHighlightsPage({
             </p>
           </section>
 
-          <section className="glass-panel rounded-[1.8rem] border border-[rgba(31,138,112,0.28)] p-6 shadow-[var(--soft-shadow)]">
+          <section className="glass-panel rounded-[1.8rem] border border-[rgba(254,212,125,0.22)] p-6 shadow-[var(--soft-shadow)]">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--accent)]">
               Home
             </p>
@@ -386,7 +386,7 @@ export default async function AdminHighlightsPage({
                           <span
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               item.isPickupMonthHighlight
-                                ? "bg-[rgba(31,138,112,0.18)] text-[color:var(--accent)]"
+                                ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
                                 : "bg-white/8 text-white/58"
                             }`}
                           >
@@ -506,7 +506,7 @@ export default async function AdminHighlightsPage({
                           <span
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               item.isHomeFeatured
-                                ? "bg-[rgba(31,138,112,0.18)] text-[color:var(--accent)]"
+                                ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
                                 : "bg-white/8 text-white/58"
                             }`}
                           >
@@ -545,3 +545,5 @@ export default async function AdminHighlightsPage({
     </section>
   );
 }
+
+

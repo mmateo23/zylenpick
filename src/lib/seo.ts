@@ -10,7 +10,7 @@ export function getBaseMetadata({
   title,
   description,
   path = "/",
-  image = "/logo/ZylenPick_LOGO.png?v=1",
+  image = "/logo/Pickyalo_Logo_Coral.svg?v=1",
 }: {
   title: string;
   description: string;
@@ -31,7 +31,7 @@ export function getBaseMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "ZylenPick",
+      siteName: "Pickyalo",
       locale: "es_ES",
       type: "website",
       images: [

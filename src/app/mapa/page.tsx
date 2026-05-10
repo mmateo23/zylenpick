@@ -7,7 +7,7 @@ import { getNoIndexMetadata } from "@/lib/seo";
 export const revalidate = 900;
 
 export const metadata: Metadata = getNoIndexMetadata({
-  title: "Mapa de locales | ZylenPick",
+  title: "Mapa de locales | Pickyalo",
   description: "Ruta aislada para probar un mapa visual de locales.",
 });
 

@@ -53,7 +53,7 @@ export function ActiveOrderEntry() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/platos"
-          className="inline-flex items-center justify-center rounded-full bg-cta px-5 py-3 text-sm font-semibold text-cta-text shadow-[0_18px_40px_rgba(36,199,136,0.22)] transition hover:bg-cta-hover"
+          className="inline-flex items-center justify-center rounded-full bg-cta px-5 py-3 text-sm font-semibold text-cta-text shadow-[0_18px_40px_rgba(254,212,125,0.20)] transition hover:bg-cta-hover"
         >
           Ver platos
         </Link>
@@ -67,3 +67,5 @@ export function ActiveOrderEntry() {
     </section>
   );
 }
+
+

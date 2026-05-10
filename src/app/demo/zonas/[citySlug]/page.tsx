@@ -35,7 +35,7 @@ function dedupeItems(items: HomeShowcaseItem[]) {
 export async function generateMetadata({
   params,
 }: DemoZonePageProps): Promise<Metadata> {
-  const fallbackTitle = "Demo Zonas | ZylenPick";
+  const fallbackTitle = "Demo Zonas | Pickyalo";
 
   if (!isSupabaseConfigured()) {
     return {
@@ -49,7 +49,7 @@ export async function generateMetadata({
   const city = await getCityBySlug(params.citySlug);
 
   return {
-    title: city ? `${city.name} | Demo Zonas | ZylenPick` : fallbackTitle,
+    title: city ? `${city.name} | Demo Zonas | Pickyalo` : fallbackTitle,
     description: city
       ? `Ruta de demo para explorar ${city.name} con una composici\u00f3n visual editorial.`
       : "Ruta de demo para explorar una zona con una composici\u00f3n visual editorial.",

@@ -233,14 +233,14 @@ export function DemoZonesOverview({
               <source src={zonesHeroMediaUrl} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,223,129,0.12),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
-          <div className="zones-hero-glow absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(124,255,184,0.12),transparent_62%)] blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
+          <div className="zones-hero-glow absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(254,212,125,0.12),transparent_62%)] blur-3xl" />
         </div>
 
         <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
           <div className="zones-hero-copy max-w-[42rem]">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
-              <Sparkles className="h-3.5 w-3.5 text-[#7cffb8]" />
+              <Sparkles className="h-3.5 w-3.5 text-[#FED47D]" />
               Explorador visual
             </div>
 
@@ -262,7 +262,7 @@ export function DemoZonesOverview({
               <span className="zones-chip rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
                 {cities.length === 1 ? "Zona activa" : `${cities.length} zonas activas`}
               </span>
-              <span className="zones-chip rounded-full border border-[#7cffb8]/14 bg-[#7cffb8]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#7cffb8] backdrop-blur-xl">
+              <span className="zones-chip rounded-full border border-[#FED47D]/14 bg-[#FED47D]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FED47D] backdrop-blur-xl">
                 Entrada directa a la zona
               </span>
             </div>
@@ -289,7 +289,7 @@ export function DemoZonesOverview({
                   key={city.id}
                   className="zones-chip rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"
                 >
-                  <MapPinned className="mr-2 inline h-3.5 w-3.5 text-[#7cffb8]" />
+                  <MapPinned className="mr-2 inline h-3.5 w-3.5 text-[#FED47D]" />
                   {city.name}
                 </span>
               ))}
@@ -357,7 +357,7 @@ export function DemoZonesOverview({
                       className="object-cover transition duration-500 group-hover:scale-[1.05]"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(0,223,129,0.28),rgba(8,12,19,0.9))]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(254,212,125,0.26),rgba(8,12,19,0.9))]" />
                   )}
 
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.04),rgba(6,10,11,0.18)_42%,rgba(6,10,11,0.88)_100%)]" />
@@ -400,9 +400,9 @@ export function DemoZonesOverview({
                     sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover transition duration-500 group-hover:scale-[1.05]"
                   />
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(17,212,112,0.22),transparent_34%),linear-gradient(180deg,rgba(6,10,11,0.06),rgba(6,10,11,0.24)_42%,rgba(6,10,11,0.9)_100%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(254,212,125,0.20),transparent_34%),linear-gradient(180deg,rgba(6,10,11,0.06),rgba(6,10,11,0.24)_42%,rgba(6,10,11,0.9)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-                    <span className="rounded-full border border-[#11D470]/25 bg-[#11D470]/12 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#b7ffd8] backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FED47D]/25 bg-[#FED47D]/12 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#FFE7A8] backdrop-blur-xl">
                       Próximamente
                     </span>
                     <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
@@ -436,3 +436,4 @@ export function DemoZonesOverview({
     </main>
   );
 }
+

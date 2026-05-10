@@ -25,15 +25,15 @@
   --status-warning: #d6a648;
 
   /* Theme foundation: interchangeable accent tokens */
-  --brand-accent: #5ee6a3;
-  --brand-accent-strong: #00df81;
-  --brand-accent-bright: #7cffb8;
-  --brand-accent-soft: rgba(94, 230, 163, 0.12);
-  --brand-accent-border: rgba(94, 230, 163, 0.28);
-  --brand-accent-shadow: rgba(94, 230, 163, 0.18);
+  --brand-accent: #fed47d;
+  --brand-accent-strong: #FED47D;
+  --brand-accent-bright: #FFE7A8;
+  --brand-accent-soft: rgba(254, 212, 125, 0.14);
+  --brand-accent-border: rgba(254, 212, 125, 0.32);
+  --brand-accent-shadow: rgba(254, 212, 125, 0.22);
   --cta-primary-bg: var(--brand-accent);
   --cta-primary-hover: var(--brand-accent-bright);
-  --cta-primary-text: #07100d;
+  --cta-primary-text: #2a120d;
   --icon-highlight: var(--brand-accent-strong);
   --focus-ring: var(--brand-accent);
   --selection-bg: var(--brand-accent-soft);
@@ -47,10 +47,10 @@
   --surface-dark: #0b100f;
   --surface-dark-soft: #13201c;
   --border: rgba(255, 255, 255, 0.08);
-  --zylen: #00df81;
-  --zylen-strong: #00c873;
-  --zylen-soft: #0f3125;
-  --zylen-accent: #7cffb8;
+  --zylen: #FED47D;
+  --zylen-strong: #FED47D;
+  --zylen-soft: #3A2119;
+  --zylen-accent: #FED47D;
   --brand: var(--zylen);
   --brand-strong: var(--zylen-strong);
   --brand-soft: var(--zylen-soft);
@@ -64,7 +64,7 @@
 
 .dark {
   --bg-page: #050816;
-  --bg-page-alt: #07100d;
+  --bg-page-alt: #160f0c;
   --bg-surface: rgba(255, 255, 255, 0.06);
   --bg-surface-strong: #0b1211;
   --bg-surface-muted: rgba(255, 255, 255, 0.04);
@@ -83,12 +83,12 @@
   --status-danger: #ff6b70;
   --status-warning: #f3d58d;
 
-  --brand-accent: #7cffb8;
-  --brand-accent-strong: #5ee6a3;
-  --brand-accent-bright: #9dffca;
-  --brand-accent-soft: rgba(124, 255, 184, 0.12);
-  --brand-accent-border: rgba(124, 255, 184, 0.28);
-  --brand-accent-shadow: rgba(124, 255, 184, 0.18);
+  --brand-accent: #fed47d;
+  --brand-accent-strong: #fed47d;
+  --brand-accent-bright: #ffe7a8;
+  --brand-accent-soft: rgba(254, 212, 125, 0.14);
+  --brand-accent-border: rgba(254, 212, 125, 0.32);
+  --brand-accent-shadow: rgba(254, 212, 125, 0.22);
 }
 
 * {
@@ -110,9 +110,9 @@ body {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(circle at 18% 18%, rgba(0, 223, 129, 0.2), transparent 23%),
+    radial-gradient(circle at 18% 18%, rgba(254, 212, 125, 0.16), transparent 23%),
     radial-gradient(circle at 78% 20%, rgba(255, 172, 78, 0.18), transparent 25%),
-    radial-gradient(circle at 50% 116%, rgba(124, 255, 184, 0.1), transparent 30%),
+    radial-gradient(circle at 50% 116%, rgba(254, 212, 125, 0.10), transparent 30%),
     linear-gradient(180deg, #090b0a 0%, #050706 48%, #030404 100%);
 }
 
@@ -152,7 +152,7 @@ body {
 }
 
 .zylen-visual-skin .brand-ambient-orb--green {
-  background: rgba(0, 223, 129, 0.18);
+  background: rgba(254, 212, 125, 0.16);
 }
 
 .zylen-visual-skin .brand-ambient-orb--amber {
@@ -217,14 +217,14 @@ video {
 }
 
 ::selection {
-  background: rgba(0, 223, 129, 0.24);
+  background: rgba(254, 212, 125, 0.22);
 }
 
 @layer base {
   body {
     background-image:
-      radial-gradient(circle at top left, rgba(0, 223, 129, 0.18), transparent 20%),
-      radial-gradient(circle at 85% 0%, rgba(124, 255, 184, 0.12), transparent 24%),
+      radial-gradient(circle at top left, rgba(254, 212, 125, 0.16), transparent 20%),
+      radial-gradient(circle at 85% 0%, rgba(254, 212, 125, 0.12), transparent 24%),
       linear-gradient(180deg, rgba(8, 12, 11, 0.92), rgba(13, 19, 18, 1));
   }
 }
@@ -303,8 +303,8 @@ video {
     inset: -35%;
     z-index: -1;
     background:
-      radial-gradient(circle at 24% 24%, rgba(0, 223, 129, 0.18), transparent 22%),
-      radial-gradient(circle at 82% 18%, rgba(0, 200, 115, 0.24), transparent 28%),
+      radial-gradient(circle at 24% 24%, rgba(254, 212, 125, 0.16), transparent 22%),
+      radial-gradient(circle at 82% 18%, rgba(227, 89, 55, 0.16), transparent 28%),
       radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 26%);
     pointer-events: none;
   }
@@ -331,11 +331,11 @@ video {
   .project-light-ray {
     background: linear-gradient(
       180deg,
-      rgba(0, 223, 129, 0),
-      rgba(0, 223, 129, 0.18) 22%,
+      rgba(227, 89, 55, 0),
+      rgba(254, 212, 125, 0.16) 22%,
       rgba(255, 255, 255, 0.2) 48%,
-      rgba(0, 223, 129, 0.08) 72%,
-      rgba(0, 223, 129, 0)
+      rgba(227, 89, 55, 0.08) 72%,
+      rgba(227, 89, 55, 0)
     );
     transform-origin: top center;
     animation-name: project-light-ray-drift;
@@ -620,3 +620,7 @@ video {
     background-position: 0% 50%;
   }
 }
+
+
+
+

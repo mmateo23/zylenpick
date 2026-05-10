@@ -22,7 +22,7 @@ export default async function AdminVenuesPage() {
             Locales
           </h1>
           <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-            Gestion centralizada de los locales visibles en ZylenPick.
+            Gestión centralizada de los locales visibles en Pickyalo.
           </p>
         </div>
 

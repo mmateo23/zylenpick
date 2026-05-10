@@ -47,7 +47,7 @@ export default async function AdminImagesPage({
             Imagenes
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
-            Gestiona desde una sola pantalla las imagenes globales del sitio, el
+            Gestióna desde una sola pantalla las imagenes globales del sitio, el
             hero de cada ciudad y las portadas de los locales.
           </p>
         </div>

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 
 import {
   getAdminMenuItemsByVenueId,
@@ -32,7 +32,7 @@ export default async function AdminVenueMenuItemsPage({
             Platos de {venue.name}
           </h1>
           <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-            Gestiona el menú del local desde una única vista centralizada.
+            Gestióna el menú del local desde una única vista centralizada.
           </p>
         </div>
 
@@ -141,7 +141,7 @@ export default async function AdminVenueMenuItemsPage({
                         <span
                           className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                             item.isPickupMonthHighlight
-                              ? "bg-[rgba(31,138,112,0.18)] text-[color:var(--accent)]"
+                              ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
                               : "bg-white/8 text-white/58"
                           }`}
                         >
@@ -177,4 +177,6 @@ export default async function AdminVenueMenuItemsPage({
     </section>
   );
 }
+
+
 

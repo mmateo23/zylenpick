@@ -5,9 +5,9 @@ import { ProjectPage } from "@/components/project/project-page";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 
 export const metadata: Metadata = {
-  title: "El proyecto | ZylenPick",
+  title: "El proyecto | Pickyalo",
   description:
-    "Por qué existe ZylenPick: una forma simple y visual de descubrir productos y platos destacados, decidir rápido y recoger en locales cercanos.",
+    "Por qué existe Pickyalo: una forma simple y visual de descubrir productos y platos destacados, decidir rápido y recoger en locales cercanos.",
 };
 
 export default async function ProjectRoutePage() {

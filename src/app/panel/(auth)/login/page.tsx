@@ -47,7 +47,7 @@ export default async function AdminLoginPage() {
           Panel admin
         </p>
         <h1 className="mt-5 text-4xl font-semibold text-[color:var(--foreground)]">
-          Accede al control de ZylenPick
+          Accede al control de Pickyalo
         </h1>
         <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
           Acceso privado para gestionar locales, platos, pedidos y solicitudes

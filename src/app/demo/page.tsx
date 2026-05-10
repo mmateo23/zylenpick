@@ -9,7 +9,7 @@ import { ServiceShowcaseHomeTemplate } from "@/templates/service-showcase/servic
 export const revalidate = 900;
 
 export const metadata: Metadata = {
-  title: "Demo Home | ZylenPick",
+  title: "Demo Home | Pickyalo",
   description: "Ruta de demo para diseñar la home y explorar bloques visuales.",
   robots: {
     index: false,
