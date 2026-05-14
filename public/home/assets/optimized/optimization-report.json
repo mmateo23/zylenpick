@@ -1,0 +1,110 @@
+[
+  {
+    "file": "asset_pizza_transparent.png",
+    "output": "public/home/assets/optimized/asset_pizza_transparent.webp",
+    "originalKB": 2407,
+    "optimizedKB": 153,
+    "savings": 94,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_burger_transparent.png",
+    "output": "public/home/assets/optimized/asset_burger_transparent.webp",
+    "originalKB": 1961,
+    "optimizedKB": 116,
+    "savings": 94,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_sushi_transparent.png",
+    "output": "public/home/assets/optimized/asset_sushi_transparent.webp",
+    "originalKB": 1268,
+    "optimizedKB": 75,
+    "savings": 94,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_tacos_transparent.png",
+    "output": "public/home/assets/optimized/asset_tacos_transparent.webp",
+    "originalKB": 1539,
+    "optimizedKB": 101,
+    "savings": 93,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_croquetas_transparent.png",
+    "output": "public/home/assets/optimized/asset_croquetas_transparent.webp",
+    "originalKB": 1838,
+    "optimizedKB": 131,
+    "savings": 93,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_chopitos_transparent.png",
+    "output": "public/home/assets/optimized/asset_chopitos_transparent.webp",
+    "originalKB": 1580,
+    "optimizedKB": 113,
+    "savings": 93,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_albondigas_transparent.png",
+    "output": "public/home/assets/optimized/asset_albondigas_transparent.webp",
+    "originalKB": 1574,
+    "optimizedKB": 102,
+    "savings": 94,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_boletus_transparent.png",
+    "output": "public/home/assets/optimized/asset_boletus_transparent.webp",
+    "originalKB": 1667,
+    "optimizedKB": 112,
+    "savings": 93,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  },
+  {
+    "file": "asset_jamon_iberico_transparent.png",
+    "output": "public/home/assets/optimized/asset_jamon_iberico_transparent.webp",
+    "originalKB": 1709,
+    "optimizedKB": 104,
+    "savings": 94,
+    "originalSize": "1600x1600",
+    "optimizedSize": "1000x1000",
+    "hasAlpha": true,
+    "alphaMin": 0,
+    "alphaMax": 255
+  }
+]

@@ -1,0 +1,307 @@
+ ⚠ Blocked cross-origin request from 192.168.68.104 to /_next/* resource. To allow this, configure "allowedDevOrigins" in next.config
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ ⨯ upstream image response failed for https://images.unsplash.com/photo-1619531038896-2d4f5bde6ef6?auto=format&fit=crop&w=900&q=80 404
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:310:1]
+ [2m310[0m | function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+ [2m311[0m |   const searchableText = [
+ [2m312[0m |     item.name,
+ [2m313[0m |     item.description ? "",
+     : [31;1m                         ^[0m
+ [2m314[0m |     item.categoryName ? "",
+ [2m315[0m |   ]
+ [2m315[0m |     .join(" ")
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:310:1]
+ [2m310[0m | function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+ [2m311[0m |   const searchableText = [
+ [2m312[0m |     item.name,
+ [2m313[0m |     item.description ? "",
+     : [31;1m                         ^[0m
+ [2m314[0m |     item.categoryName ? "",
+ [2m315[0m |   ]
+ [2m315[0m |     .join(" ")
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:310:1]
+ [2m310[0m | function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+ [2m311[0m |   const searchableText = [
+ [2m312[0m |     item.name,
+ [2m313[0m |     item.description ? "",
+     : [31;1m                         ^[0m
+ [2m314[0m |     item.categoryName ? "",
+ [2m315[0m |   ]
+ [2m315[0m |     .join(" ")
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:310:1]
+ [2m310[0m | function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+ [2m311[0m |   const searchableText = [
+ [2m312[0m |     item.name,
+ [2m313[0m |     item.description ? "",
+     : [31;1m                         ^[0m
+ [2m314[0m |     item.categoryName ? "",
+ [2m315[0m |   ]
+ [2m315[0m |     .join(" ")
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:310:1]
+ [2m310[0m | function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
+ [2m311[0m |   const searchableText = [
+ [2m312[0m |     item.name,
+ [2m313[0m |     item.description ? "",
+     : [31;1m                         ^[0m
+ [2m314[0m |     item.categoryName ? "",
+ [2m315[0m |   ]
+ [2m315[0m |     .join(" ")
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expression expected
+     ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:807:1]
+ [2m807[0m |           body: "mt-3 text-sm leading-6 text-black/64",
+ [2m808[0m |           close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-white/72 text-[#153b8d]/44 transition hover:text-[#153b8d]/72",
+ [2m809[0m |         }
+ [2m810[0m |       : {
+     : [31;1m      ^[0m
+ [2m811[0m |           panel: "overflow-hidden rounded-[1.15rem] border border-[#4f86ff]/18 bg-[linear-gradient(160deg,rgba(18,28,58,0.84),rgba(10,26,44,0.9),rgba(65,52,18,0.72))] shadow-[0_18px_42px_rgba(0,0,0,0.24)] backdrop-blur-xl",
+ [2m812[0m |           line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(116,162,255,0.42),rgba(255,215,102,0.46),transparent)]",
+ [2m812[0m |           badge: "mt-2 inline-flex rounded-full border border-[#4f86ff]/16 bg-[linear-gradient(135deg,rgba(57,95,196,0.28),rgba(255,215,102,0.14))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#dfe7ff]",
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1169:1]
+ [2m1169[0m |         (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
+ [2m1170[0m |       ) ?
+ [2m1171[0m |       heroPreviewItems[0] ?
+ [2m1172[0m |       null,
+      : [31;1m          ^[0m
+ [2m1173[0m |     [displayItems, heroPreviewItems],
+ [2m1174[0m |   );
+ [2m1174[0m |   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1169:1]
+ [2m1169[0m |         (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
+ [2m1170[0m |       ) ?
+ [2m1171[0m |       heroPreviewItems[0] ?
+ [2m1172[0m |       null,
+      : [31;1m          ^[0m
+ [2m1173[0m |     [displayItems, heroPreviewItems],
+ [2m1174[0m |   );
+ [2m1174[0m |   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1169:1]
+ [2m1169[0m |         (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
+ [2m1170[0m |       ) ?
+ [2m1171[0m |       heroPreviewItems[0] ?
+ [2m1172[0m |       null,
+      : [31;1m          ^[0m
+ [2m1173[0m |     [displayItems, heroPreviewItems],
+ [2m1174[0m |   );
+ [2m1174[0m |   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ','
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1169:1]
+ [2m1169[0m |         (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
+ [2m1170[0m |       ) ?
+ [2m1171[0m |       heroPreviewItems[0] ?
+ [2m1172[0m |       null,
+      : [31;1m          ^[0m
+ [2m1173[0m |     [displayItems, heroPreviewItems],
+ [2m1174[0m |   );
+ [2m1174[0m |   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx
+ ⨯ ./src/components/demo/demo-dishes-carousel.tsx
+Error: 
+  [31mx[0m Expected ':', got ';'
+      ,-[[36;1;4mC:\Users\Manu\Documents\FknFood\src\components\demo\demo-dishes-carousel.tsx[0m:1295:1]
+ [2m1295[0m |   const isLightTheme = false;
+ [2m1296[0m |   const activeLogoSrc = isLightTheme
+ [2m1297[0m |     ? content.logoLightSrc ? content.logoSrc
+ [2m1298[0m |     : content.logoDarkSrc ?? content.logoSrc;
+      : [31;1m                                            ^[0m
+ [2m1299[0m |   const shouldKeepSearchOpen = isSearchExpanded || searchQuery.trim().length > 0;
+ [2m1300[0m |   const activeCurationInfoText = useMemo(
+ [2m1300[0m |     () =>
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/components/demo/demo-dishes-carousel.tsx

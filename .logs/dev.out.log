@@ -1,0 +1,38 @@
+
+> fknfood@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.32
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1685ms
+ ○ Compiling /zonas/[citySlug]/venues/[venueSlug] ...
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 3.1s (965 modules)
+ ✓ Compiled in 324ms (444 modules)
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 5046ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1391ms (1743 modules)
+ GET / 200 in 2701ms
+ ✓ Compiled /_not-found in 436ms (1732 modules)
+ GET /apple-touch-icon-precomposed.png 404 in 589ms
+ GET /apple-touch-icon.png 404 in 532ms
+ ○ Compiling /platos ...
+ ✓ Compiled /platos in 698ms (1801 modules)
+ ✓ Compiled /zonas/[citySlug]/venues/[venueSlug] in 118ms (554 modules)
+ GET /zonas/talavera-de-la-reina/venues/Casco-Viejo-Bar-Kitchen 200 in 630ms
+ ✓ Compiled / in 165ms (970 modules)
+ ○ Compiling /_error ...
+ GET / 500 in 30ms
+ GET / 500 in 17ms
+ GET /_next/static/chunks/fallback/webpack.js 500 in 401ms
+ GET /_next/static/chunks/fallback/main.js 500 in 399ms
+ GET /_next/static/chunks/fallback/react-refresh.js 500 in 399ms
+ GET /_next/static/chunks/fallback/pages/_app.js 500 in 12ms
+ GET /_next/static/chunks/fallback/pages/_error.js 500 in 10ms
+ ✓ Compiled /_not-found in 910ms (1050 modules)
+ ✓ Compiled in 356ms (1050 modules)
+ ✓ Compiled in 259ms (1050 modules)
+ ✓ Compiled in 560ms (1050 modules)
+[?25h
