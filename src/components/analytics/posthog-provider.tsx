@@ -9,10 +9,11 @@ type PostHogProviderProps = {
 };
 
 const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
+const DEFAULT_POSTHOG_KEY = "phc_sJAoJrwhF72JJ8sWufxLFG4vYQvvPYvwgkYiDKkFfdSj";
 
 let isPostHogInitialized = false;
 
-const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const posthogKey = getPostHogKey();
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
@@ -62,6 +63,16 @@ function isPostHogDebugEnabled() {
   }
 
   return new URLSearchParams(window.location.search).get("posthog_debug") === "1";
+}
+
+function getPostHogKey() {
+  const configuredKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+
+  if (configuredKey?.startsWith("phc_")) {
+    return configuredKey;
+  }
+
+  return DEFAULT_POSTHOG_KEY;
 }
 
 function logPostHogDebug(enabled: boolean, ...message: unknown[]) {
