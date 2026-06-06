@@ -7,6 +7,7 @@ import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { MapIcon } from "@/components/icons/map-icon";
 import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
+import { PlatoHashViewTracker } from "@/components/analytics/plato-hash-view-tracker";
 import { VenueViewTracker } from "@/components/analytics/venue-view-tracker";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
@@ -119,8 +120,21 @@ export default async function VenuePage({ params }: VenuePageProps) {
       <VenueViewTracker
         citySlug={venue.city.slug}
         cityName={venue.city.name}
+        venueId={venue.id}
         venueSlug={venue.slug}
         venueName={venue.name}
+      />
+      <PlatoHashViewTracker
+        citySlug={venue.city.slug}
+        venueId={venue.id}
+        venueSlug={venue.slug}
+        venueName={venue.name}
+        items={venue.menuItems.map((item) => ({
+          id: item.id,
+          name: item.name,
+          priceAmount: item.priceAmount,
+          currency: item.currency,
+        }))}
       />
 
       <main>

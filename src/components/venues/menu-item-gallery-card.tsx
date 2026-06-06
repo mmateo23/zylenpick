@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { CloseIcon } from "@/components/icons/close-icon";
 import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
@@ -9,6 +9,7 @@ import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { CartVenue } from "@/features/cart/types";
 import { getMenuItemSecondaryImage } from "@/features/venues/menu-item-media";
 import type { MenuItemAllergen, VenueMenuItem } from "@/features/venues/types";
+import { capturePlatoVisto } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
 import { formatPrice } from "@/lib/utils/currency";
 
@@ -47,6 +48,7 @@ export function MenuItemGalleryCard({
 }: MenuItemGalleryCardProps) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const hasCapturedViewRef = useRef(false);
 
   const images = useMemo(() => {
     const gallery = [
@@ -63,13 +65,32 @@ export function MenuItemGalleryCard({
   const handleOpenViewer = () => {
     setSelectedImageIndex(0);
     setIsViewerOpen(true);
+
+    if (!hasCapturedViewRef.current) {
+      capturePlatoVisto({
+        city_slug: venue.citySlug,
+        venue_id: venue.id,
+        venue_slug: venue.slug,
+        venue_name: venue.name,
+        item_id: item.id,
+        item_name: item.name,
+        item_price: item.priceAmount / 100,
+        currency: item.currency,
+        source: "venue_dish_viewer",
+      });
+      hasCapturedViewRef.current = true;
+    }
+
     trackEvent("view_dish", {
       city_slug: venue.citySlug,
       city_name: venue.cityName,
+      venue_id: venue.id,
       venue_slug: venue.slug,
       venue_name: venue.name,
       item_id: item.id,
       item_name: item.name,
+      item_price: item.priceAmount / 100,
+      currency: item.currency,
       source: "dish_card",
     });
   };

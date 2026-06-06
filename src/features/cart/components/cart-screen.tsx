@@ -14,6 +14,7 @@ import {
   updateCartItemQuantity,
 } from "@/features/cart/services/cart-storage";
 import { createOrderFromCart } from "@/features/orders/services/order-storage";
+import { capturePedidoConfirmado } from "@/lib/analytics/posthog-events";
 import { formatPrice } from "@/lib/utils/currency";
 
 function buildPickupOptions(pickupEtaMin: number | null) {
@@ -161,6 +162,21 @@ export function CartScreen({ design }: CartScreenProps) {
       setFeedback("No hemos podido crear el pedido.");
       return;
     }
+
+    capturePedidoConfirmado({
+      city_slug: order.venue.citySlug,
+      venue_id: order.venue.id,
+      venue_slug: order.venue.slug,
+      venue_name: order.venue.name,
+      order_id: order.id,
+      total_amount: order.totalAmount / 100,
+      currency: order.currency,
+      quantity: order.items.reduce(
+        (totalQuantity, item) => totalQuantity + item.quantity,
+        0,
+      ),
+      source: "cart_checkout",
+    });
 
     clearCart();
     router.push(`/checkout/success/${order.id}`);

@@ -18,11 +18,17 @@ export function capturePickyaloEvent(
     return;
   }
 
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
+  if (isInternalTrackingPath(window.location.pathname)) {
     return;
   }
 
-  posthog.capture(eventName, properties);
+  posthog.capture(
+    eventName,
+    cleanPostHogProperties({
+      pathname: window.location.pathname,
+      ...properties,
+    }),
+  );
 }
 
 export function capturePlatoVisto(
@@ -47,4 +53,19 @@ export function capturePedidoConfirmado(
   properties: PickyaloPostHogEventProperties = {},
 ) {
   capturePickyaloEvent("pedido_confirmado", properties);
+}
+
+function isInternalTrackingPath(pathname: string) {
+  return (
+    pathname.startsWith("/demo") ||
+    pathname.startsWith("/panel") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/_next")
+  );
+}
+
+function cleanPostHogProperties(properties: PickyaloPostHogEventProperties) {
+  return Object.fromEntries(
+    Object.entries(properties).filter(([, value]) => value !== undefined),
+  );
 }

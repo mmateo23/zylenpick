@@ -45,6 +45,10 @@ import {
 } from "@/features/location/city-preference";
 import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import {
+  captureAddToCart,
+  capturePlatoVisto,
+} from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
 
 gsap.registerPlugin(useGSAP);
@@ -1116,6 +1120,7 @@ export function DemoDishesCarousel({
   };
   const rootRef = useRef<HTMLElement>(null);
   const openedPostParamRef = useRef<string | null>(null);
+  const capturedPostViewsRef = useRef<Set<string>>(new Set());
   const curationInfoRef = useRef<HTMLDivElement>(null);
   const searchShellRef = useRef<HTMLDivElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
@@ -1349,6 +1354,25 @@ export function DemoDishesCarousel({
   }, [filteredItems, searchParams]);
 
   useEffect(() => {
+    if (!activeItem || capturedPostViewsRef.current.has(activeItem.id)) {
+      return;
+    }
+
+    capturedPostViewsRef.current.add(activeItem.id);
+    capturePlatoVisto({
+      city_slug: activeItem.venue.citySlug,
+      venue_id: activeItem.venue.id,
+      venue_slug: activeItem.venue.slug,
+      venue_name: activeItem.venue.name,
+      item_id: activeItem.id,
+      item_name: getDishDisplayName(activeItem),
+      item_price: activeItem.priceAmount / 100,
+      currency: activeItem.currency,
+      source: "platos_post_modal",
+    });
+  }, [activeItem]);
+
+  useEffect(() => {
     if (activeChipSlug && !activeChip) {
       setActiveChipSlug(null);
     }
@@ -1488,15 +1512,29 @@ export function DemoDishesCarousel({
       return;
     }
 
+    captureAddToCart({
+      city_slug: venue.citySlug,
+      venue_id: venue.id,
+      venue_slug: venue.slug,
+      venue_name: venue.name,
+      item_id: cartItem.id,
+      item_name: cartItem.name,
+      item_price: cartItem.priceAmount / 100,
+      currency: cartItem.currency,
+      quantity: 1,
+      source: "platos_post_modal",
+    });
+
     trackEvent("add_to_cart", {
       city_slug: venue.citySlug,
       city_name: venue.cityName,
+      venue_id: venue.id,
       venue_slug: venue.slug,
       venue_name: venue.name,
       item_id: cartItem.id,
       item_name: cartItem.name,
       source: "platos_post_modal",
-      price: cartItem.priceAmount / 100,
+      item_price: cartItem.priceAmount / 100,
       currency: cartItem.currency,
     });
 
