@@ -75,8 +75,9 @@ export function MenuItemGalleryCard({
         item_id: item.id,
         item_name: item.name,
         item_price: item.priceAmount / 100,
+        item_category: item.categoryName,
         currency: item.currency,
-        source: "venue_dish_viewer",
+        source: "venue",
       });
       hasCapturedViewRef.current = true;
     }

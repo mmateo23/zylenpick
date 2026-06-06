@@ -56,6 +56,10 @@ export function AddToCartButton({
       item_price: item.priceAmount / 100,
       currency: item.currency,
       quantity: 1,
+      cart_total_items: result.cart.items.reduce(
+        (totalItems, cartItem) => totalItems + cartItem.quantity,
+        0,
+      ),
       source,
     });
 

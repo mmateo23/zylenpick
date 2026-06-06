@@ -26,7 +26,7 @@ export function VenueViewTracker({
       venue_id: venueId,
       venue_slug: venueSlug,
       venue_name: venueName,
-      source: "venue_page",
+      source_page: "venue_page",
     });
 
     trackEvent("view_venue", {

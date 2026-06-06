@@ -134,6 +134,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
           name: item.name,
           priceAmount: item.priceAmount,
           currency: item.currency,
+          categoryName: item.categoryName,
         }))}
       />
 

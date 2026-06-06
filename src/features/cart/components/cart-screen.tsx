@@ -171,10 +171,11 @@ export function CartScreen({ design }: CartScreenProps) {
       order_id: order.id,
       total_amount: order.totalAmount / 100,
       currency: order.currency,
-      quantity: order.items.reduce(
+      total_items: order.items.reduce(
         (totalQuantity, item) => totalQuantity + item.quantity,
         0,
       ),
+      item_count: order.items.length,
       source: "cart_checkout",
     });
 

@@ -9,6 +9,7 @@ type PlatoHashViewItem = {
   name: string;
   priceAmount: number;
   currency: string;
+  categoryName?: string | null;
 };
 
 type PlatoHashViewTrackerProps = {
@@ -51,8 +52,9 @@ export function PlatoHashViewTracker({
         item_id: item.id,
         item_name: item.name,
         item_price: item.priceAmount / 100,
+        item_category: item.categoryName,
         currency: item.currency,
-        source: "venue_page_hash",
+        source: "hash",
       });
     };
 

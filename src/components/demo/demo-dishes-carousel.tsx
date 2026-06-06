@@ -1367,8 +1367,9 @@ export function DemoDishesCarousel({
       item_id: activeItem.id,
       item_name: getDishDisplayName(activeItem),
       item_price: activeItem.priceAmount / 100,
+      item_category: activeItem.categoryName,
       currency: activeItem.currency,
-      source: "platos_post_modal",
+      source: "feed",
     });
   }, [activeItem]);
 
@@ -1520,8 +1521,13 @@ export function DemoDishesCarousel({
       item_id: cartItem.id,
       item_name: cartItem.name,
       item_price: cartItem.priceAmount / 100,
+      item_category: item.categoryName,
       currency: cartItem.currency,
       quantity: 1,
+      cart_total_items: result.cart.items.reduce(
+        (totalItems, resultItem) => totalItems + resultItem.quantity,
+        0,
+      ),
       source: "platos_post_modal",
     });
 
