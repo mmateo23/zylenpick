@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 
 import { AnalyticsAttribution } from "@/components/analytics/analytics-attribution";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSiteUrl } from "@/lib/seo";
 import { cn } from "@/lib/utils";
@@ -90,8 +91,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <AnalyticsAttribution />
-          <TooltipProvider>{children}</TooltipProvider>
+          <PostHogProvider>
+            <AnalyticsAttribution />
+            <TooltipProvider>{children}</TooltipProvider>
+          </PostHogProvider>
         </ThemeProvider>
       </body>
     </html>
