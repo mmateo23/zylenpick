@@ -8,29 +8,38 @@ type PostHogProviderProps = {
   children: ReactNode;
 };
 
+const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
+
 let isPostHogInitialized = false;
 
 const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
   const [isReady, setIsReady] = useState(isPostHogInitialized);
 
   useEffect(() => {
+    const debugEnabled = isPostHogDebugEnabled();
+
+    logPostHogDebug(debugEnabled, "PostHog key exists:", Boolean(posthogKey));
+    logPostHogDebug(debugEnabled, "PostHog host:", posthogHost);
+
     if (!posthogKey) {
       return;
     }
 
     if (!isPostHogInitialized) {
       posthog.init(posthogKey, {
-        ...(posthogHost ? { api_host: posthogHost } : {}),
+        api_host: posthogHost,
         capture_pageview: true,
         capture_pageleave: true,
         persistence: "localStorage",
       });
       isPostHogInitialized = true;
+      logPostHogDebug(debugEnabled, "PostHog initialized");
     }
 
+    logPostHogDebug(debugEnabled, "PostHog distinct id:", posthog.get_distinct_id());
     setIsReady(true);
   }, []);
 
@@ -41,4 +50,24 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
   return (
     <PostHogReactProvider client={posthog}>{children}</PostHogReactProvider>
   );
+}
+
+function isPostHogDebugEnabled() {
+  if (process.env.NEXT_PUBLIC_POSTHOG_DEBUG === "true") {
+    return true;
+  }
+
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).get("posthog_debug") === "1";
+}
+
+function logPostHogDebug(enabled: boolean, ...message: unknown[]) {
+  if (!enabled) {
+    return;
+  }
+
+  console.info("[PostHog]", ...message);
 }
