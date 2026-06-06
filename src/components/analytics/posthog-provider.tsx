@@ -12,6 +12,7 @@ const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
 const DEFAULT_POSTHOG_KEY = "phc_sJAoJrwhF72JJ8sWufxLFG4vYQvvPYvwgkYiDKkFfdSj";
 
 let isPostHogInitialized = false;
+let hasCapturedDebugPing = false;
 
 const posthogKey = getPostHogKey();
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
@@ -41,6 +42,16 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
     }
 
     logPostHogDebug(debugEnabled, "PostHog distinct id:", posthog.get_distinct_id());
+
+    if (debugEnabled && !hasCapturedDebugPing) {
+      posthog.capture("posthog_debug_ping", {
+        source: "posthog_debug_query",
+        url: window.location.href,
+      });
+      hasCapturedDebugPing = true;
+      logPostHogDebug(debugEnabled, "PostHog debug ping captured");
+    }
+
     setIsReady(true);
   }, []);
 
