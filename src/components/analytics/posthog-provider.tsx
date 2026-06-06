@@ -12,33 +12,25 @@ const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
 
 let isPostHogInitialized = false;
 
-const rawPostHogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
-const rawPostHogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
   const [isReady, setIsReady] = useState(isPostHogInitialized);
 
   useEffect(() => {
     const debugEnabled = isPostHogDebugEnabled();
-    const posthogConfig = resolvePostHogConfig();
 
-    logPostHogDebug(debugEnabled, "PostHog key exists:", Boolean(posthogConfig.key));
-    logPostHogDebug(debugEnabled, "PostHog host:", posthogConfig.host);
+    logPostHogDebug(debugEnabled, "PostHog key exists:", Boolean(posthogKey));
+    logPostHogDebug(debugEnabled, "PostHog host:", posthogHost);
 
-    if (posthogConfig.wasSwapped) {
-      logPostHogDebug(
-        debugEnabled,
-        "PostHog env vars look swapped. Using corrected runtime config.",
-      );
-    }
-
-    if (!posthogConfig.key) {
+    if (!posthogKey) {
       return;
     }
 
     if (!isPostHogInitialized) {
-      posthog.init(posthogConfig.key, {
-        api_host: posthogConfig.host,
+      posthog.init(posthogKey, {
+        api_host: posthogHost,
         capture_pageview: true,
         capture_pageleave: true,
         persistence: "localStorage",
@@ -51,32 +43,13 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
     setIsReady(true);
   }, []);
 
-  if (!resolvePostHogConfig().key || !isReady) {
+  if (!posthogKey || !isReady) {
     return <>{children}</>;
   }
 
   return (
     <PostHogReactProvider client={posthog}>{children}</PostHogReactProvider>
   );
-}
-
-function resolvePostHogConfig() {
-  const keyLooksLikeHost = rawPostHogKey?.startsWith("http");
-  const hostLooksLikeKey = rawPostHogHost?.startsWith("phc_");
-
-  if (keyLooksLikeHost && hostLooksLikeKey) {
-    return {
-      key: rawPostHogHost,
-      host: rawPostHogKey,
-      wasSwapped: true,
-    };
-  }
-
-  return {
-    key: rawPostHogKey,
-    host: rawPostHogHost ?? DEFAULT_POSTHOG_HOST,
-    wasSwapped: false,
-  };
 }
 
 function isPostHogDebugEnabled() {
