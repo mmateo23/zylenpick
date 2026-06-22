@@ -190,7 +190,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
               >
-                {isMobileMenuOpen ? <CloseIcon size={16} /> : <MenuIcon size={16} />}
+                {isMobileMenuOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
               </button>
             ) : (
               <span className="h-9 w-9" aria-hidden="true" />
@@ -231,7 +231,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 />
               ) : (
                 <>
-                  <CartIcon size={18} />
+                  <CartIcon size={22} />
                   <CartBadge totalItems={totals.totalItems} />
                 </>
               )}
@@ -297,7 +297,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   />
                 ) : (
                   <>
-                    <CartIcon size={18} />
+                    <CartIcon size={22} />
                     <CartBadge totalItems={totals.totalItems} />
                   </>
                 )}
@@ -308,7 +308,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 aria-label={selectedCity?.name ?? "Elegir zona"}
                 className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
-                <LocationPinIcon size={18} className="shrink-0" />
+                <LocationPinIcon size={22} className="shrink-0" />
                 <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[11px] font-semibold text-white/84 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>

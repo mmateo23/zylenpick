@@ -25,7 +25,7 @@ export function MobileCartBar() {
       >
         <div className="flex items-center gap-3">
           <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[color:var(--brand)] text-white shadow-[var(--card-shadow)]">
-            <CartIcon size={20} />
+            <CartIcon size={26} />
           </span>
           <div>
             <p className="text-sm font-semibold">

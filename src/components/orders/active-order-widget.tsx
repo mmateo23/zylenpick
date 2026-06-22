@@ -77,7 +77,7 @@ export function ActiveOrderWidget() {
               : "bg-[color:var(--brand)] text-white"
           }`}
         >
-          {isReady ? <LocationPinIcon size={20} /> : <ClockIcon size={20} />}
+          {isReady ? <LocationPinIcon size={26} /> : <ClockIcon size={26} />}
         </span>
 
         <div className="min-w-0">

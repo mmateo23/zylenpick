@@ -60,7 +60,7 @@ export function VenueRouteModal({
               className="magnetic-button inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
               aria-label="Cerrar"
             >
-              <CloseIcon size={18} />
+              <CloseIcon size={26} />
             </button>
           </div>
 

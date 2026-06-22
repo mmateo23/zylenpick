@@ -1,14 +1,19 @@
-import type { Metadata } from "next";
+﻿import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
-import Script from "next/script";
 
 import { AnalyticsAttribution } from "@/components/analytics/analytics-attribution";
+import { GoogleAnalyticsConsent } from "@/components/analytics/google-analytics-consent";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
+import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
+import { PickyaloToaster } from "@/components/ui/pickyalo-toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSiteUrl } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 import "./globals.css";
+import "sileo/styles.css";
 import { ThemeProvider } from "./theme-provider";
 
 const geistSans = localFont({
@@ -25,6 +30,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
+  applicationName: "Pickyalo",
+  manifest: "/manifest.webmanifest",
   title: {
     default: "Pickyalo | Productos y platos para recoger",
     template: "%s | Pickyalo",
@@ -34,7 +41,15 @@ export const metadata: Metadata = {
   icons: {
     icon: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
     shortcut: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
-    apple: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Pickyalo",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
   },
   openGraph: {
     title: "Pickyalo | Productos y platos para recoger",
@@ -62,6 +77,9 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#381932",
+};
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,30 +91,24 @@ export default function RootLayout({
       className={cn("font-sans", geistSans.variable)}
       suppressHydrationWarning
     >
-      <head>
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-CVNZF0EVMY"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-CVNZF0EVMY');
-          `}
-        </Script>
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
+          <ServiceWorkerRegister />
+          <GoogleAnalyticsConsent />
           <PostHogProvider>
             <AnalyticsAttribution />
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              {children}
+              <InstallPrompt />
+              <PickyaloToaster />
+              <CookieConsentBanner />
+            </TooltipProvider>
           </PostHogProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
+

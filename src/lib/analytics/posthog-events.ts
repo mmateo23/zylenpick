@@ -2,6 +2,8 @@
 
 import posthog, { type Properties } from "posthog-js";
 
+import { readAnalyticsConsent } from "@/lib/cookies/analytics-consent";
+
 export type PickyaloPostHogEventName =
   | "plato_visto"
   | "local_visto"
@@ -76,6 +78,10 @@ export function capturePickyaloEvent(
     return;
   }
 
+  if (readAnalyticsConsent() !== "accepted") {
+    return;
+  }
+
   const dedupeKey = options.dedupeKey;
   const retryCount = options.retryCount ?? 0;
 
@@ -94,7 +100,7 @@ export function capturePickyaloEvent(
     ...properties,
   });
 
-  if (!posthog.__loaded) {
+  if (!posthog.__loaded || posthog.has_opted_out_capturing()) {
     if (retryCount >= MAX_CAPTURE_RETRIES) {
       return;
     }

@@ -811,7 +811,7 @@ export function DemoHome({
                       aria-label="Ver local"
                       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
                     >
-                      <MoreHorizontal className="h-5 w-5" />
+                      <MoreHorizontal className="h-6 w-6" />
                     </Link>
                   </header>
 
@@ -836,14 +836,14 @@ export function DemoHome({
                         aria-label="Ver detalle del plato"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
-                        <Info className="h-5 w-5" />
+                        <Info className="h-6 w-6" />
                       </Link>
                       <Link
                         href={getPostModalHref(heroPostItem)}
                         aria-label="Compartir plato"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
-                        <Send className="h-5 w-5" />
+                        <Send className="h-6 w-6" />
                       </Link>
                     </div>
                     <Link
@@ -851,7 +851,7 @@ export function DemoHome({
                       aria-label="Añadir para recoger"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
                     >
-                      <CartIcon size={20} aria-hidden />
+                      <CartIcon size={24} aria-hidden />
                     </Link>
                   </div>
 
@@ -1105,7 +1105,7 @@ export function DemoHome({
                     aria-label="Ver zona"
                     className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
                   >
-                    <MoreHorizontal className="h-5 w-5" />
+                    <MoreHorizontal className="h-6 w-6" />
                   </Link>
                 </header>
 
@@ -1149,14 +1149,14 @@ export function DemoHome({
                         aria-label="Ver detalle de la zona"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
-                        <Info className="h-5 w-5" />
+                        <Info className="h-6 w-6" />
                       </Link>
                       <Link
                         href={FEATURED_HOME_ZONE.href}
                         aria-label="Compartir zona"
                         className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                       >
-                        <Send className="h-5 w-5" />
+                        <Send className="h-6 w-6" />
                       </Link>
                     </div>
                     <Link
@@ -1164,7 +1164,7 @@ export function DemoHome({
                       aria-label="Ver zona en Talavera de la Reina"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#111111] text-white shadow-[0_12px_28px_rgba(0,0,0,0.2)] transition hover:bg-black"
                     >
-                      <MapPin className="h-5 w-5" />
+                      <MapPin className="h-6 w-6" />
                     </Link>
                   </div>
 

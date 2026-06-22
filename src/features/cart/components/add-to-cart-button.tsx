@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 
@@ -6,6 +6,7 @@ import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { CartVenue } from "@/features/cart/types";
 import { captureAddToCart } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
+import { showCartToast, showErrorToast } from "@/lib/ui/toast";
 
 type AddToCartButtonProps = {
   venue: CartVenue;
@@ -43,6 +44,10 @@ export function AddToCartButton({
 
     if (result.status === "conflict") {
       setFeedback(`Tu cesta pertenece a ${result.conflictingVenueName}.`);
+      showErrorToast({
+        title: "Cesta de otro local",
+        description: result.conflictingVenueName,
+      });
       return;
     }
 
@@ -77,6 +82,10 @@ export function AddToCartButton({
     });
 
     setFeedback("Añadido para recoger.");
+    showCartToast({
+      title: "Añadido a tu cesta",
+      description: item.name,
+    });
   };
 
   return (
@@ -104,3 +113,4 @@ export function AddToCartButton({
     </div>
   );
 }
+

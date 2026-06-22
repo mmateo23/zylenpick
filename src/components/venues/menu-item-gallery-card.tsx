@@ -142,7 +142,7 @@ export function MenuItemGalleryCard({
                 aria-label="Destacado"
                 className="featured-badge-animated inline-flex h-9 w-9 items-center justify-center rounded-full border border-warning/40 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] text-warning backdrop-blur-xl"
               >
-                <FeaturedBadgeIcon size={17} />
+                <FeaturedBadgeIcon size={22} />
               </span>
             ) : null}
             {item.isPickupMonthHighlight ? (
@@ -214,7 +214,7 @@ export function MenuItemGalleryCard({
                   className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-text-inverse/16 bg-[color-mix(in_srgb,var(--overlay-card-to)_42%,transparent)] text-text-inverse backdrop-blur-xl sm:right-4 sm:top-4"
                   aria-label="Cerrar visor"
                 >
-                  <CloseIcon size={18} />
+                  <CloseIcon size={26} />
                 </button>
                 {images.length > 1 ? (
                   <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto p-3 sm:p-4 lg:hidden">

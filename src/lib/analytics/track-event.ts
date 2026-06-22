@@ -1,3 +1,5 @@
+import { readAnalyticsConsent } from "@/lib/cookies/analytics-consent";
+
 type AnalyticsParams = Record<string, string | number | boolean | undefined>;
 
 type GtagEvent = (
@@ -12,6 +14,10 @@ export function trackEvent(eventName: string, parameters: AnalyticsParams = {}) 
   }
 
   if (isInternalTrackingPath(window.location.pathname)) {
+    return;
+  }
+
+  if (readAnalyticsConsent() !== "accepted") {
     return;
   }
 

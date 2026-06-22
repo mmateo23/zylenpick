@@ -148,7 +148,7 @@ export function DemoSiteHeader({
               aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${iconButtonClassName}`}
             >
-              {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
             <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
@@ -178,7 +178,7 @@ export function DemoSiteHeader({
               aria-label="Tu cesta"
               className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${cartButtonClassName}`}
             >
-              <CartIcon size={18} />
+              <CartIcon size={22} />
               <CartBadge totalItems={totals.totalItems} />
             </Link>
           </div>
@@ -232,7 +232,7 @@ export function DemoSiteHeader({
                 aria-label="Tu cesta"
                 className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${desktopCartButtonClassName}`}
               >
-                <CartIcon size={18} />
+                <CartIcon size={22} />
                 <CartBadge totalItems={totals.totalItems} />
               </Link>
 
@@ -241,7 +241,7 @@ export function DemoSiteHeader({
                 aria-label={currentCityName ?? "Zona"}
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityPillClassName}`}
               >
-                <MapPinned size={18} className="shrink-0" />
+                <MapPinned size={22} className="shrink-0" />
               </Link>
             </div>
           </div>

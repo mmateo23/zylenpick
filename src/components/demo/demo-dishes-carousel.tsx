@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -50,6 +50,7 @@ import {
   capturePlatoVisto,
 } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
+import { showCartToast, showErrorToast } from "@/lib/ui/toast";
 
 gsap.registerPlugin(useGSAP);
 
@@ -1454,7 +1455,7 @@ export function DemoDishesCarousel({
 
   const handleShareDish = async (item: HomeShowcaseItem) => {
     const href = `${window.location.origin}${getVenueHref(item)}#plato-${item.id}`;
-    const shareText = `Mira esto \uD83D\uDC40 ${getDishDisplayName(item)} en ${item.venue.name} — Pickyalo`;
+    const shareText = `Mira esto \uD83D\uDC40 ${getDishDisplayName(item)} en ${item.venue.name} â€” Pickyalo`;
 
     if (navigator.share) {
       try {
@@ -1480,7 +1481,7 @@ export function DemoDishesCarousel({
     }
 
     const href = `${window.location.origin}/platos`;
-    const shareText = `Mira este Shot: ${activeShot.title} — Pickyalo`;
+    const shareText = `Mira este Shot: ${activeShot.title} â€” Pickyalo`;
 
     if (navigator.share) {
       try {
@@ -1510,6 +1511,10 @@ export function DemoDishesCarousel({
 
     if (result.status === "conflict") {
       setPostFeedback(`Tu cesta pertenece a ${result.conflictingVenueName}.`);
+      showErrorToast({
+        title: "Cesta de otro local",
+        description: result.conflictingVenueName,
+      });
       return;
     }
 
@@ -1545,6 +1550,10 @@ export function DemoDishesCarousel({
     });
 
     setPostFeedback("A\u00f1adido para recoger.");
+    showCartToast({
+      title: "Añadido a tu cesta",
+      description: cartItem.name,
+    });
   };
 
   const handleMobileSheetTouchStart = (
@@ -2164,7 +2173,7 @@ export function DemoDishesCarousel({
                               aria-label="Añadir para recoger"
                               className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
                             >
-                              <CartIcon size={18} />
+                              <CartIcon size={24} />
                             </Link>
                           </div>
 
@@ -2582,7 +2591,7 @@ export function DemoDishesCarousel({
 
           <div className="mt-6 flex justify-center sm:mt-10">
             <button type="button" onClick={handleScrollTop} className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white/72 text-black/70 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/76 backdrop-blur-xl transition hover:bg-white/[0.09]"} aria-label="Subir arriba">
-              <ArrowUp className="h-4 w-4" />
+              <ArrowUp className="h-6 w-6" />
             </button>
           </div>
         </div>
@@ -2635,7 +2644,7 @@ export function DemoDishesCarousel({
               className="absolute right-4 top-4 z-[3] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-black/32 text-white backdrop-blur-md transition hover:bg-white/[0.12]"
               aria-label="Cerrar"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6" />
             </button>
 
             <div className="absolute bottom-0 left-0 right-[4.8rem] z-[2] p-4 pb-5 sm:right-24 sm:p-6">
@@ -2681,13 +2690,13 @@ export function DemoDishesCarousel({
                 type="button"
                 onClick={() =>
                   setShotFeedback(
-                    "Este Shot se añadir? cuando está conectado al panel.",
+                    "Este Shot se añadirá cuando esté conectado al panel.",
                   )
                 }
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_34px_rgba(254,212,125,0.26)] transition hover:scale-105 sm:h-12 sm:w-12"
                 aria-label="Añadir a cesta"
               >
-                <CartIcon className="h-5 w-5" />
+                <CartIcon className="h-7 w-7" />
               </button>
               <button
                 type="button"
@@ -2695,19 +2704,19 @@ export function DemoDishesCarousel({
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
                 aria-label="Compartir Shot"
               >
-                <Send className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+                <Send className="h-6 w-6 sm:h-7 sm:w-7" />
               </button>
               <button
                 type="button"
                 onClick={() =>
                   setShotFeedback(
-                    "Abrirá la ficha real cuando el Shot está conectado al panel.",
+                    "Abrirá la ficha real cuando el Shot esté conectado al panel.",
                   )
                 }
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
                 aria-label="Ver información"
               >
-                <Info className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+                <Info className="h-6 w-6 sm:h-7 sm:w-7" />
               </button>
               <button
                 type="button"
@@ -2715,7 +2724,7 @@ export function DemoDishesCarousel({
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
                 aria-label="Expandir Shot"
               >
-                <Maximize2 className="h-[1.15rem] w-[1.15rem] sm:h-5 sm:w-5" />
+                <Maximize2 className="h-6 w-6 sm:h-7 sm:w-7" />
               </button>
             </div>
           </article>
@@ -2747,7 +2756,7 @@ export function DemoDishesCarousel({
                 className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
                 aria-label="Cerrar vídeo"
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
             </div>
           ) : null}
@@ -2804,7 +2813,7 @@ export function DemoDishesCarousel({
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
                   aria-label="Ver local"
                 >
-                  <MoreHorizontal className="h-5 w-5" />
+                  <MoreHorizontal className="h-6 w-6" />
                 </Link>
                 <button
                   type="button"
@@ -2812,7 +2821,7 @@ export function DemoDishesCarousel({
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
                   aria-label="Cerrar"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-6 w-6" />
                 </button>
               </div>
             </header>
@@ -2845,7 +2854,7 @@ export function DemoDishesCarousel({
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                     aria-label="Ver informacion del plato"
                   >
-                    <Info className="h-5 w-5" />
+                    <Info className="h-6 w-6" />
                   </Link>
                   <button
                     type="button"
@@ -2853,7 +2862,7 @@ export function DemoDishesCarousel({
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
                     aria-label="Compartir plato"
                   >
-                    <Send className="h-5 w-5" />
+                    <Send className="h-6 w-6" />
                   </button>
                 </div>
                 <button
@@ -2862,7 +2871,7 @@ export function DemoDishesCarousel({
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
                   aria-label="A\u00f1adir para recoger"
                 >
-                  <CartIcon className="h-5 w-5" />
+                  <CartIcon className="h-7 w-7" />
                 </button>
               </div>
 
@@ -2904,7 +2913,7 @@ export function DemoDishesCarousel({
                 className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
                 aria-label="Cerrar imagen"
               >
-                <X className="h-5 w-5" />
+                <X className="h-6 w-6" />
               </button>
               {activeItem.imageUrl ? (
                 <DishVisualMedia
@@ -3054,7 +3063,7 @@ export function DemoDishesCarousel({
                           className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
                           aria-label="Ver informacion del plato"
                         >
-                          <Info className="h-4 w-4" />
+                          <Info className="h-6 w-6" />
                         </button>
                         <button
                           type="button"
@@ -3062,7 +3071,7 @@ export function DemoDishesCarousel({
                           className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
                           aria-label="Compartir plato"
                         >
-                          <Send className="h-4 w-4" />
+                          <Send className="h-6 w-6" />
                         </button>
                       </div>
                       <AddToCartButton
@@ -3111,7 +3120,7 @@ export function DemoDishesCarousel({
                               className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
                               aria-label="Plato anterior"
                             >
-                              <MoveLeft className="h-4 w-4" />
+                              <MoveLeft className="h-6 w-6" />
                             </button>
                             <button
                               type="button"
@@ -3124,7 +3133,7 @@ export function DemoDishesCarousel({
                               className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
                               aria-label="Plato siguiente"
                             >
-                              <MoveRight className="h-4 w-4" />
+                              <MoveRight className="h-6 w-6" />
                             </button>
                           </div>
                         ) : null}
@@ -3169,7 +3178,7 @@ export function DemoDishesCarousel({
                       className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
                       aria-label="Plato anterior"
                     >
-                      <MoveLeft className="h-5 w-5" />
+                      <MoveLeft className="h-7 w-7" />
                     </button>
                     <button
                       type="button"
@@ -3182,7 +3191,7 @@ export function DemoDishesCarousel({
                       className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
                       aria-label="Plato siguiente"
                     >
-                      <MoveRight className="h-5 w-5" />
+                      <MoveRight className="h-7 w-7" />
                     </button>
                   </div>
                 ) : null}
@@ -3200,7 +3209,7 @@ export function DemoDishesCarousel({
                       className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/72 transition hover:bg-white/[0.08]"}
                       aria-label="Cerrar"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-6 w-6" />
                     </button>
                   </div>
 
@@ -3214,7 +3223,7 @@ export function DemoDishesCarousel({
                       className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
                       aria-label="Información del plato"
                     >
-                      <Info className="h-4 w-4" />
+                      <Info className="h-7 w-7" />
                     </button>
                     <button
                       type="button"
@@ -3222,7 +3231,7 @@ export function DemoDishesCarousel({
                       className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
                       aria-label="Compartir plato"
                     >
-                      <Send className="h-4 w-4" />
+                      <Send className="h-7 w-7" />
                     </button>
                     <AddToCartButton
                       venue={getCartVenueFromShowcaseItem(activeItem)}
@@ -3281,6 +3290,7 @@ export function DemoDishesCarousel({
     </main>
   );
 }
+
 
 
 

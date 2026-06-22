@@ -38,7 +38,7 @@ export function ActiveOrderEntry() {
   return (
     <section className="rounded-[2rem] border border-border-subtle bg-surface p-8 text-text-primary shadow-[var(--shadow-soft)] sm:p-10">
       <div className="flex h-12 w-12 items-center justify-center rounded-full border border-accent/35 bg-accent-soft text-accent-strong">
-        <ClockIcon size={20} />
+        <ClockIcon size={28} />
       </div>
       <p className="mt-6 text-sm font-medium uppercase tracking-[0.22em] text-accent-strong">
         Pedidos
