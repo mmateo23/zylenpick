@@ -13,17 +13,19 @@ import {
 export function CookieConsentBanner() {
   const [consentStatus, setConsentStatus] =
     useState<AnalyticsConsentStatus>(null);
+  const [hasLoadedConsent, setHasLoadedConsent] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const shouldShowPanel = isPanelOpen || consentStatus === null;
+  const shouldShowPanel = isPanelOpen;
 
   useEffect(() => {
     const initialStatus = readAnalyticsConsent();
     setConsentStatus(initialStatus);
-    setIsPanelOpen(initialStatus === null);
+    setHasLoadedConsent(true);
 
     return subscribeAnalyticsConsent((nextStatus) => {
       setConsentStatus(nextStatus);
-      setIsPanelOpen(nextStatus === null);
+      setHasLoadedConsent(true);
+      setIsPanelOpen(false);
     });
   }, []);
 
@@ -152,7 +154,7 @@ export function CookieConsentBanner() {
         </section>
       ) : null}
 
-      {consentStatus === "rejected" && !isPanelOpen ? (
+      {hasLoadedConsent && consentStatus !== "accepted" && !isPanelOpen ? (
         <button
           type="button"
           onClick={() => setIsPanelOpen(true)}
