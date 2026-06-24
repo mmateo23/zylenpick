@@ -4,7 +4,9 @@ import Link from "next/link";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
+  type CSSProperties,
   type FormEvent,
   type ReactNode,
 } from "react";
@@ -57,7 +59,21 @@ const inputClassName =
   "mt-3 w-full rounded-[0.9rem] border border-border-subtle bg-surface px-4 py-3 text-text-primary outline-none transition placeholder:text-text-muted focus:border-accent focus:bg-surface-strong focus:outline-none focus:ring-0";
 
 const ticketInputClassName =
-  "mt-2 w-full rounded-[0.75rem] border border-black/15 bg-white px-3 py-3 font-mono text-sm font-semibold text-black outline-none transition placeholder:text-black/35 focus:border-black focus:bg-white focus:outline-none focus:ring-0";
+  "mt-2 w-full rounded-none border-0 border-b border-dashed border-black/32 bg-transparent px-0 py-2 font-mono text-[12px] font-bold text-black outline-none transition placeholder:text-black/35 focus:border-black focus:bg-transparent focus:outline-none focus:ring-0";
+
+const receiptFrameClassName =
+  "relative mx-auto w-full max-w-[21.5rem] border border-black/20 bg-[#f4ffff] px-5 pb-7 pt-8 font-mono text-black shadow-[0_26px_72px_rgba(0,0,0,0.44),0_0_0_1px_rgba(255,255,255,0.86)_inset] ring-1 ring-white/90 before:absolute before:inset-x-0 before:top-0 before:h-3 before:content-[''] before:bg-[linear-gradient(135deg,#050816_25%,transparent_25%),linear-gradient(225deg,#050816_25%,transparent_25%)] before:bg-[length:14px_14px] before:bg-[position:0_0,7px_0] after:absolute after:inset-x-0 after:bottom-0 after:h-3 after:content-[''] after:bg-[linear-gradient(45deg,#050816_25%,transparent_25%),linear-gradient(315deg,#050816_25%,transparent_25%)] after:bg-[length:14px_14px] after:bg-[position:0_0,7px_0]";
+
+const receiptFrameStyle: CSSProperties = {
+  backgroundColor: "#f4ffff",
+  boxShadow:
+    "0 28px 78px rgba(0,0,0,0.48), inset 0 0 0 1px rgba(255,255,255,0.92)",
+  isolation: "isolate",
+  maxWidth: "21.5rem",
+  width: "100%",
+};
+
+const receiptDividerClassName = "my-4 border-t border-dashed border-black/55";
 
 function keepOnlyDigits(value: string) {
   return value.replace(/\D/g, "");
@@ -116,6 +132,8 @@ export function CartScreen({ design }: CartScreenProps) {
   const [notes, setNotes] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isHeroCheckoutOpen, setIsHeroCheckoutOpen] = useState(false);
+  const checkoutTicketRef = useRef<HTMLElement | null>(null);
   const [openSections, setOpenSections] = useState<
     Record<CartAccordionKey, boolean>
   >({
@@ -147,7 +165,7 @@ export function CartScreen({ design }: CartScreenProps) {
 
   if (!cart.venue || cart.items.length === 0) {
     return (
-      <main className="relative -mt-[5.4rem] overflow-hidden bg-page pt-[5.4rem] text-text-primary">
+      <main className="relative z-10 -mt-[5.4rem] overflow-hidden bg-page pb-10 pt-[5.4rem] text-text-primary lg:pb-20">
         <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
@@ -157,15 +175,15 @@ export function CartScreen({ design }: CartScreenProps) {
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
 
-          <div className="relative z-10 mx-auto flex min-h-[calc(76svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
+          <div className="relative z-10 mx-auto grid min-h-[calc(44svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12 lg:min-h-[30rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
             <div className="max-w-3xl">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
                 Tu cesta
               </p>
-              <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
+              <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:max-w-[22ch] lg:text-[3.25rem]">
                 {design?.texts.cart.emptyTitle ?? "Elige productos o platos para recoger."}
               </h1>
-              <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
+              <p className="mt-4 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
                 {design?.texts.cart.emptySubtitle ??
                   "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida."}
               </p>
@@ -176,34 +194,123 @@ export function CartScreen({ design }: CartScreenProps) {
                 {design?.texts.cart.emptyCta ?? "Ver platos"}
               </Link>
             </div>
+
+            <div
+              className={`${receiptFrameClassName} hidden lg:block`}
+              style={receiptFrameStyle}
+            >
+              <div className="text-center">
+                <p className="text-[2rem] font-black uppercase leading-none tracking-[-0.08em]">
+                  PICKYALO
+                </p>
+                <p className="mt-4 text-[12px] leading-5">
+                  Productos y platos destacados
+                  <br />
+                  de locales cercanos
+                </p>
+              </div>
+
+              <div className={receiptDividerClassName} />
+
+              <div className="flex items-start justify-between gap-4 text-[14px] font-black uppercase">
+                <span>Orden</span>
+                <span>#000</span>
+              </div>
+              <p className="mt-1 text-[12px] leading-5">
+                Cesta pendiente de selección
+              </p>
+
+              <div className={receiptDividerClassName} />
+
+              <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2 text-[12px] font-black uppercase">
+                <span>Cant</span>
+                <span>Descr</span>
+                <span className="text-right">Imp</span>
+              </div>
+              <div className="mt-2 space-y-1 text-[12px] leading-4">
+                {[
+                  ["01 x", "Explora selección", "-"],
+                  ["01 x", "Elige un local", "-"],
+                  ["01 x", "Recoge cerca", "-"],
+                ].map(([quantity, description, price]) => (
+                  <div
+                    key={description}
+                    className="grid grid-cols-[3.5rem_1fr_3rem] gap-2"
+                  >
+                    <span>{quantity}</span>
+                    <span>{description}</span>
+                    <span className="text-right">{price}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className={receiptDividerClassName} />
+
+              <div className="flex items-center justify-between text-[1.35rem] font-black uppercase tracking-[-0.06em]">
+                <span>Total:</span>
+                <span>--</span>
+              </div>
+
+              <div className={receiptDividerClassName} />
+
+              <p className="text-center text-[10px] leading-4">
+                Al confirmar una cesta aceptas que el local prepare tu selección
+                para recogida. No se realiza pago online desde este ticket.
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
-                1
-              </p>
-              <p className="mt-3 text-2xl font-semibold leading-tight">
-                Entra en una zona.
-              </p>
+        <section className="relative z-20 mx-auto w-full max-w-[76rem] px-3 py-5 sm:px-6 sm:py-7 lg:hidden lg:-mt-4 lg:px-8">
+          <div className="relative overflow-hidden rounded-[1.35rem] border border-black/10 bg-white p-4 text-black shadow-[0_18px_54px_rgba(0,0,0,0.08)] sm:p-5">
+            <div className="absolute inset-x-5 top-0 border-t border-dashed border-black/20" />
+            <div className="absolute inset-x-5 bottom-0 border-t border-dashed border-black/20" />
+
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-mono text-[10px] font-black uppercase tracking-[0.24em] text-black/45">
+                  Cesta vacía
+                </p>
+                <h2 className="mt-2 text-2xl font-black leading-none tracking-[-0.05em] sm:text-3xl">
+                  Empieza con algo que apetezca.
+                </h2>
+                <p className="mt-3 max-w-[34rem] text-sm leading-6 text-black/62">
+                  Guarda productos o platos de un único local y confirma la
+                  recogida desde un ticket claro, sin pasos de más.
+                </p>
+              </div>
+
+              <Link
+                href="/platos"
+                className="inline-flex shrink-0 justify-center rounded-full bg-black px-5 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition hover:bg-black/85"
+              >
+                Explorar
+              </Link>
             </div>
-            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
-                2
-              </p>
-              <p className="mt-3 text-2xl font-semibold leading-tight">
-                Abre un local.
-              </p>
-            </div>
-            <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-accent-strong">
-                3
-              </p>
-              <p className="mt-3 text-2xl font-semibold leading-tight">
-                Guarda tu selección.
-              </p>
+
+            <div className="my-5 border-t border-dashed border-black/20" />
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                ["01", "Explora", "Mira productos y platos destacados cerca de ti."],
+                ["02", "Elige", "Abre un local y guarda lo que quieras recoger."],
+                ["03", "Recoge", "Completa el ticket y pasa por el local."],
+              ].map(([step, title, description]) => (
+                <div
+                  key={step}
+                  className="rounded-[1rem] border border-black/10 bg-black/[0.025] p-4"
+                >
+                  <p className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-black/38">
+                    {step}
+                  </p>
+                  <p className="mt-3 text-lg font-black leading-none">
+                    {title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-black/58">
+                    {description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -221,6 +328,29 @@ export function CartScreen({ design }: CartScreenProps) {
   }`;
   const ticketItems = cart.items.slice(0, 2);
   const hiddenTicketItemsCount = Math.max(cart.items.length - ticketItems.length, 0);
+  const desktopTicketItems = cart.items.slice(0, 3);
+  const hiddenDesktopTicketItemsCount = Math.max(
+    cart.items.length - desktopTicketItems.length,
+    0,
+  );
+
+  const scrollToCheckoutTicket = () => {
+    const ticket =
+      checkoutTicketRef.current ?? document.getElementById("cart-checkout-ticket");
+    if (!ticket) return;
+
+    const top = ticket.getBoundingClientRect().top + window.scrollY - 112;
+    window.history.replaceState(null, "", "#cart-checkout-ticket");
+    window.scrollTo({
+      behavior: "smooth",
+      top: Math.max(top, 0),
+    });
+
+    window.setTimeout(() => {
+      const firstInput = document.getElementById("desktop-customer-name");
+      firstInput?.focus({ preventScroll: true });
+    }, 650);
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -280,7 +410,7 @@ export function CartScreen({ design }: CartScreenProps) {
   };
 
   return (
-    <main className="relative -mt-[5.4rem] overflow-hidden bg-page pt-[5.4rem] text-text-primary">
+    <main className="relative z-10 -mt-[5.4rem] overflow-hidden bg-page pb-10 pt-[5.4rem] text-text-primary lg:pb-20">
       <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
@@ -292,26 +422,199 @@ export function CartScreen({ design }: CartScreenProps) {
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_18%),linear-gradient(90deg,rgba(5,8,22,0.97)_0%,rgba(5,8,22,0.9)_42%,rgba(5,8,22,0.68)_72%,rgba(5,8,22,0.44)_100%),linear-gradient(180deg,rgba(5,8,22,0.34)_0%,rgba(5,8,22,0.68)_48%,rgba(5,8,22,0.98)_100%)]" />
 
-        <div className="relative z-10 mx-auto flex min-h-[calc(68svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
-          <div className="max-w-4xl">
-            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
+        <div className="relative z-10 mx-auto grid min-h-[calc(58svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:min-h-[32rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
+          <div className="max-w-4xl lg:max-w-[34rem] lg:rounded-[1.35rem] lg:border lg:border-white/12 lg:bg-black/55 lg:p-6 lg:shadow-[0_22px_70px_rgba(0,0,0,0.36)] lg:backdrop-blur-md">
+            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)] lg:text-text-inverse/78 lg:[text-shadow:none]">
               Tu cesta
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-text-inverse/75 backdrop-blur-xl">
+              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-text-inverse/75 backdrop-blur-xl lg:border-white/16 lg:bg-white/10 lg:text-white/82">
                 {cart.venue.name}
               </span>
-              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl">
+              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl lg:border-white/16 lg:bg-white/10 lg:text-white/82">
                 {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               </span>
             </div>
-            <h1 className="mt-6 max-w-[12ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em] [text-shadow:0_6px_28px_rgba(0,0,0,0.72)]">
+            <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] [text-shadow:0_6px_28px_rgba(0,0,0,0.72)] lg:max-w-[13ch] lg:text-[3.05rem] lg:[text-shadow:none]">
               {design?.texts.cart.filledTitle ?? "Revisa tu recogida."}
             </h1>
-            <p className="mt-6 max-w-[42rem] text-base leading-7 text-text-inverse/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.68)] sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-[42rem] text-base leading-7 text-text-inverse/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.68)] sm:text-lg sm:leading-8 lg:max-w-[28rem] lg:text-base lg:leading-7 lg:text-white/78 lg:[text-shadow:none]">
               {design?.texts.cart.filledSubtitle ??
                 "Tu pedido se prepara en el local para que solo tengas que llegar y recoger."}
             </p>
+          </div>
+
+          <div
+            className={`${receiptFrameClassName} hidden lg:block`}
+            style={receiptFrameStyle}
+          >
+            <div className="text-center">
+              <p className="text-[1.6rem] font-black uppercase leading-none tracking-[-0.08em]">
+                {cart.venue.name}
+              </p>
+              <p className="mt-3 text-[11px] leading-4">
+                {cart.venue.cityName}
+                <br />
+                {cart.venue.address ?? "Dirección pendiente"}
+                <br />
+                {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
+              </p>
+            </div>
+
+            <div className={receiptDividerClassName} />
+
+            <div className="flex items-start justify-between gap-4 text-[14px] font-black uppercase">
+              <span>Orden</span>
+              <span>#{cart.venue.id.slice(0, 3).toUpperCase()}</span>
+            </div>
+            <p className="mt-1 text-[12px] leading-5">
+              Recogida estimada: {selectedPickupLabel}
+            </p>
+
+            <div className={receiptDividerClassName} />
+
+            <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2 text-[12px] font-black uppercase">
+              <span>Cant</span>
+              <span>Descr</span>
+              <span className="text-right">Imp</span>
+            </div>
+            <div className="mt-2 space-y-1 text-[12px] leading-4">
+              {desktopTicketItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-[3.5rem_1fr_3rem] gap-2"
+                >
+                  <span>{item.quantity} x</span>
+                  <span className="truncate">
+                    {item.name}
+                  </span>
+                  <span className="text-right">
+                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  </span>
+                </div>
+              ))}
+              {hiddenDesktopTicketItemsCount > 0 ? (
+                <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2">
+                  <span>+{hiddenDesktopTicketItemsCount}</span>
+                  <span>Más productos</span>
+                  <span className="text-right">...</span>
+                </div>
+              ) : null}
+            </div>
+
+            <div className={receiptDividerClassName} />
+
+            <div className="flex items-center justify-between text-[1.35rem] font-black uppercase tracking-[-0.06em]">
+              <span>Total:</span>
+              <span>{formatPrice(totals.totalAmount, currency)}</span>
+            </div>
+
+            <div className={receiptDividerClassName} />
+
+            <p className="text-center text-[10px] leading-4">
+              Aviso: el pedido se prepara para recoger en el local. Al continuar,
+              confirmas los datos de recogida y aceptas que el local gestione la
+              preparación de tu selección.
+            </p>
+
+            {isHeroCheckoutOpen ? (
+              <form
+                onSubmit={handleSubmit}
+                className="mt-5 space-y-3 border-t border-dashed border-black/35 pt-4"
+              >
+                <div>
+                  <label
+                    htmlFor="hero-customer-name"
+                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
+                  >
+                    Nombre
+                  </label>
+                  <input
+                    id="hero-customer-name"
+                    value={customerName}
+                    onChange={(event) => setCustomerName(event.target.value)}
+                    className={ticketInputClassName}
+                    placeholder="Tu nombre"
+                    autoComplete="name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="hero-customer-phone"
+                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
+                  >
+                    Teléfono
+                  </label>
+                  <input
+                    id="hero-customer-phone"
+                    value={customerPhone}
+                    onChange={(event) =>
+                      setCustomerPhone(keepOnlyDigits(event.target.value))
+                    }
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className={ticketInputClassName}
+                    placeholder="Tu teléfono"
+                    autoComplete="tel"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="hero-pickup-at"
+                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
+                  >
+                    Hora estimada
+                  </label>
+                  <select
+                    id="hero-pickup-at"
+                    value={pickupAt}
+                    onChange={(event) => setPickupAt(event.target.value)}
+                    className={ticketInputClassName}
+                  >
+                    {pickupOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {feedback ? (
+                  <p className="border-y border-dashed border-black/35 py-2 text-[10px] font-bold leading-4 text-black/75">
+                    {feedback}
+                  </p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="mt-2 inline-flex w-full justify-center border border-black bg-black px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#ecffff] transition hover:bg-black/85 disabled:opacity-60"
+                  style={{ color: "#f4ffff" }}
+                >
+                  {isSubmitting ? "Preparando..." : "Preparar para recoger"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={scrollToCheckoutTicket}
+                  className="inline-flex w-full justify-center border border-black/20 bg-transparent px-4 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.12em] text-black transition hover:bg-black/[0.04]"
+                >
+                  Ver ticket completo
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsHeroCheckoutOpen(true)}
+                className="mt-5 inline-flex w-full justify-center border border-black bg-black px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#ecffff] transition hover:bg-black/85"
+                style={{ color: "#f4ffff" }}
+              >
+                Completar datos
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -321,8 +624,6 @@ export function CartScreen({ design }: CartScreenProps) {
         className="mx-auto w-full max-w-[44rem] space-y-4 px-3 py-5 pb-24 sm:px-6 lg:hidden"
       >
         <section className="relative overflow-hidden rounded-[1.25rem] border border-black/15 bg-white p-4 text-black shadow-[0_18px_48px_rgba(0,0,0,0.12)]">
-          <div className="absolute inset-x-5 top-0 border-t border-dashed border-black/25" />
-          <div className="absolute inset-x-5 bottom-0 border-t border-dashed border-black/25" />
 
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
@@ -372,10 +673,10 @@ export function CartScreen({ design }: CartScreenProps) {
             </p>
           ) : null}
 
-          <div className="mt-4 border-t border-dashed border-black/25 pt-4">
+          <div className="mt-4 border-t border-dashed border-black/55 pt-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-black/45">
-                Pedido
+              <p className="text-[12px] font-black uppercase">
+                Cant&nbsp;&nbsp; Descr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Imp
               </p>
               {hiddenTicketItemsCount > 0 ? (
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-black/45">
@@ -620,7 +921,7 @@ export function CartScreen({ design }: CartScreenProps) {
         </CartAccordion>
       </form>
 
-      <section className="mx-auto hidden w-full max-w-[96rem] gap-8 px-3 py-8 sm:px-6 sm:py-10 lg:grid lg:px-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <section className="relative z-20 mx-auto hidden w-full max-w-[96rem] gap-8 px-3 py-8 sm:px-6 sm:py-10 lg:-mt-4 lg:grid lg:px-8 lg:pt-0 lg:pb-24 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div>
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -717,48 +1018,83 @@ export function CartScreen({ design }: CartScreenProps) {
           </div>
         </div>
 
-        <aside className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 text-text-primary shadow-[var(--shadow-soft)] ring-1 ring-accent-soft xl:sticky xl:top-28 xl:self-start">
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-            Recogida en local
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold leading-tight">
-            {cart.venue.name}
-          </h2>
-          <p className="mt-4 text-sm leading-6 text-text-secondary">
-            {cart.venue.cityName}
-          </p>
-          <p className="mt-4 rounded-[0.9rem] border border-border-subtle bg-surface-muted p-4 text-sm leading-6 text-text-secondary">
-            Recogerás tu pedido directamente en el local, sin esperas
-            innecesarias.
-          </p>
-          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-text-secondary">
-            <LocationPinIcon size={18} className="mt-0.5 text-icon-highlight" />
-            {cart.venue.address ?? "Dirección pendiente"}
-          </p>
-          <p className="mt-2 inline-flex items-start gap-2 text-sm leading-6 text-text-secondary">
-            <ClockIcon size={18} className="mt-0.5 text-icon-highlight" />
-            Recogida base en{" "}
-            {cart.venue.pickupEtaMin
-              ? `${cart.venue.pickupEtaMin} min`
-              : "tiempo pendiente"}
+        <aside
+          id="cart-checkout-ticket"
+          ref={checkoutTicketRef}
+          className={`${receiptFrameClassName} scroll-mt-28 xl:sticky xl:top-28 xl:self-start`}
+          style={receiptFrameStyle}
+          tabIndex={-1}
+        >
+          <div className="text-center">
+            <p className="text-[1.65rem] font-black uppercase leading-none tracking-[-0.08em]">
+              {cart.venue.name}
+            </p>
+            <p className="mt-3 text-[11px] font-bold leading-4 text-black/78">
+              {cart.venue.cityName}
+              <br />
+              {cart.venue.address ?? "Dirección pendiente"}
+              <br />
+              {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
+            </p>
+          </div>
+
+          <div className={receiptDividerClassName} />
+
+          <div className="flex items-start justify-between gap-4 text-[14px] font-black uppercase">
+            <span>Orden</span>
+            <span>#{cart.venue.id.slice(0, 3).toUpperCase()}</span>
+          </div>
+          <p className="mt-1 text-[12px] leading-5 text-black/78">
+            Recogida seleccionada: {selectedPickupLabel}
           </p>
 
-          <div className="mt-6 rounded-[0.9rem] border border-border-subtle bg-surface-muted p-4">
-            <div className="flex items-center justify-between text-sm text-text-secondary">
-              <span>Productos</span>
-              <span>{totals.totalItems}</span>
+          <p className="mt-4 border-y border-dashed border-black/40 py-3 text-[11px] leading-5 text-black/70">
+            Aviso: el local prepara tu selección para recoger. No se realiza
+            pago online desde este ticket.
+          </p>
+
+          <div className="mt-4 border-t border-dashed border-black/25 pt-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-mono text-[10px] font-black uppercase tracking-[0.22em] text-black/45">
+                Cant&nbsp;&nbsp; Descr&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Imp
+              </p>
+              {hiddenDesktopTicketItemsCount > 0 ? (
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-black/45">
+                  +{hiddenDesktopTicketItemsCount} mas
+                </p>
+              ) : null}
             </div>
-            <div className="mt-3 flex items-center justify-between text-lg font-semibold">
-              <span>Total</span>
-              <span>{formatPrice(totals.totalAmount, currency)}</span>
+
+            <div className="mt-3 space-y-2">
+              {desktopTicketItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-[3.5rem_1fr_3rem] items-start gap-2 text-[12px] leading-4"
+                >
+                  <span>{item.quantity} x</span>
+                  <span className="truncate">
+                    {item.name}
+                  </span>
+                  <span className="text-right">
+                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <div className={receiptDividerClassName} />
+
+          <div className="flex items-center justify-between text-[1.35rem] font-black uppercase tracking-[-0.06em]">
+            <span>Total:</span>
+            <span>{formatPrice(totals.totalAmount, currency)}</span>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4 border-t border-dashed border-black/25 pt-4">
             <div>
               <label
                 htmlFor="desktop-customer-name"
-                className="text-sm text-text-secondary"
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
                 Nombre
               </label>
@@ -766,7 +1102,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 id="desktop-customer-name"
                 value={customerName}
                 onChange={(event) => setCustomerName(event.target.value)}
-                className={inputClassName}
+                className={ticketInputClassName}
                 placeholder="Tu nombre"
                 autoComplete="name"
               />
@@ -775,7 +1111,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <div>
               <label
                 htmlFor="desktop-customer-phone"
-                className="text-sm text-text-secondary"
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
                 Teléfono
               </label>
@@ -788,7 +1124,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className={inputClassName}
+                className={ticketInputClassName}
                 placeholder="Tu teléfono"
                 autoComplete="tel"
               />
@@ -797,7 +1133,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <div>
               <label
                 htmlFor="desktop-pickup-at"
-                className="text-sm text-text-secondary"
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
                 Hora estimada de recogida
               </label>
@@ -805,7 +1141,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 id="desktop-pickup-at"
                 value={pickupAt}
                 onChange={(event) => setPickupAt(event.target.value)}
-                className={inputClassName}
+                className={ticketInputClassName}
               >
                 {pickupOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -818,7 +1154,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <div>
               <label
                 htmlFor="desktop-notes"
-                className="text-sm text-text-secondary"
+                className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
                 Notas opcionales
               </label>
@@ -826,26 +1162,31 @@ export function CartScreen({ design }: CartScreenProps) {
                 id="desktop-notes"
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
-                className={`${inputClassName} min-h-28 resize-y`}
+                className={`${ticketInputClassName} min-h-24 resize-y`}
                 placeholder="Alguna indicación adicional"
               />
             </div>
 
             {feedback ? (
-              <p className="text-sm leading-6 text-text-secondary">
+              <p className="rounded-[0.8rem] border border-black/10 bg-black/[0.035] px-3 py-2 text-sm font-semibold text-black">
                 {feedback}
               </p>
             ) : null}
 
             <div className="space-y-3 pt-1">
-              <p className="text-sm leading-6 text-text-secondary">
+              <p className="border-y border-dashed border-black/45 py-3 text-center text-[10px] leading-4 text-black/70">
+                Aviso legal: al preparar la recogida confirmas que los datos
+                introducidos son correctos y autorizas al local a gestionar tu
+                selección. No se realiza pago online desde este ticket.
+              </p>
+              <p className="text-sm leading-6 text-black/62">
                 {design?.texts.cart.ctaMicrocopy ??
                   "El local prepara tu pedido para recoger a la hora elegida."}
               </p>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover disabled:opacity-60"
+                className="magnetic-button inline-flex w-full justify-center rounded-full bg-black px-5 py-3.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition hover:bg-black/85 disabled:opacity-60"
               >
                 {isSubmitting
                   ? "Preparando pedido..."
@@ -856,14 +1197,14 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="button"
                 onClick={() => clearCart()}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
+                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
               >
                 Vaciar cesta
               </button>
 
               <Link
                 href={`/zonas/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
+                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
               >
                 Volver al local
               </Link>
