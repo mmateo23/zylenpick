@@ -21,6 +21,20 @@
   --overlay-card-mid: rgba(6, 10, 11, 0.18);
   --overlay-card-to: rgba(6, 10, 11, 0.88);
   --shadow-soft: 0 18px 60px rgba(5, 8, 22, 0.1);
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 999px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
   --status-danger: #e5484d;
   --status-warning: #d6a648;
 
@@ -594,7 +608,9 @@ video {
   .bubble-background-orb,
   .magic-border-beam,
   .gold-spotlight-card::before,
-  .gold-spotlight-card::after {
+  .gold-spotlight-card::after,
+  [class*="projectTitleIn"],
+  [class*="projectCopyIn"] {
     animation: none;
   }
 }
@@ -621,6 +637,103 @@ video {
   }
 }
 
+@keyframes projectTitleIn {
+  0% {
+    transform: translateY(32px);
+    opacity: 0;
+  }
 
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes projectCopyIn {
+  0% {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.site-shell-main-wide {
+  width: min(calc(100vw - 64px), 1480px);
+  margin-inline: auto;
+  padding-block: 2rem;
+}
+
+@media (min-width: 640px) {
+  .site-shell-main-wide {
+    padding-block: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-shell-main-wide {
+    padding-block: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .site-shell-main-wide {
+    width: calc(100vw - 20px);
+  }
+
+  .project-slider-intro,
+  .project-slider-outro {
+    padding: 6rem 0.85rem 2rem !important;
+  }
+
+  .project-slider-intro > div,
+  .project-slider-outro > div {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2rem !important;
+  }
+
+  .project-slider-intro h1,
+  .project-slider-outro h2 {
+    font-size: clamp(3.4rem, 18vw, 5.4rem) !important;
+    line-height: 0.9 !important;
+    max-width: 10ch !important;
+  }
+
+  .project-slider-stage-content {
+    align-items: center !important;
+    padding: 5.8rem 1.15rem 8rem !important;
+  }
+
+  .project-slider-copy-block {
+    max-width: 100% !important;
+  }
+
+  .project-slider-copy-block h2 {
+    font-size: clamp(2.55rem, 13.4vw, 4.1rem) !important;
+    line-height: 0.92 !important;
+    letter-spacing: -0.055em !important;
+    max-width: 10.8ch !important;
+  }
+
+  .project-slider-copy-block p:last-child {
+    margin-top: 1.2rem !important;
+    max-width: 21rem !important;
+    font-size: 1rem !important;
+    line-height: 1.55 !important;
+  }
+
+  .project-slider-indicator,
+  .project-slider-progress-track {
+    display: none !important;
+  }
+
+  .project-slider-scroll img {
+    object-position: center center !important;
+  }
+}
 
 

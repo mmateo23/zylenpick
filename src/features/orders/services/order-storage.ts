@@ -32,6 +32,7 @@ function readOrders(): OrderRecord[] {
 
     return parsedValue.map((order) => ({
       ...order,
+      pickupCode: order.pickupCode ?? getFallbackPickupCode(order.id),
       resolutionStatus: order.resolutionStatus ?? "active",
       resolvedAt: order.resolvedAt ?? null,
     }));
@@ -69,6 +70,15 @@ function writeActiveOrderId(orderId: string | null) {
 
 function createOrderId() {
   return `ZP-${Date.now().toString().slice(-6)}`;
+}
+
+function createPickupCode() {
+  return `PY-${Math.floor(1000 + Math.random() * 9000)}`;
+}
+
+function getFallbackPickupCode(orderId: string) {
+  const numericPart = orderId.replace(/\D/g, "").slice(-4).padStart(4, "0");
+  return `PY-${numericPart}`;
 }
 
 function isOrderExpired(order: OrderRecord) {
@@ -111,6 +121,7 @@ export function createOrderFromCart(input: {
 
   const order: OrderRecord = {
     id: createOrderId(),
+    pickupCode: createPickupCode(),
     createdAt: new Date().toISOString(),
     pickupAt: input.pickupAt,
     customerName: input.customerName.trim(),

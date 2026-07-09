@@ -302,7 +302,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
       return;
     }
 
-    await navigator.clipboard.writeText(order.id);
+    await navigator.clipboard.writeText(order.pickupCode);
     setHasCopiedOrderCode(true);
 
     window.setTimeout(() => {
@@ -386,22 +386,22 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                 <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-accent-strong">
                   C&oacute;digo de recogida
                 </span>
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <span className="text-2xl font-semibold tracking-[0.08em] text-text-primary sm:text-3xl">
-                    {order.id}
+                <div className="mt-3 rounded-[1.15rem] border border-text-primary/10 bg-white px-4 py-5 text-center shadow-[0_12px_28px_rgba(56,25,50,0.08)]">
+                  <span className="block text-[clamp(2.8rem,12vw,5.5rem)] font-black leading-none tracking-[0.08em] text-text-primary">
+                    {order.pickupCode}
                   </span>
+                  <p className="mx-auto mt-4 max-w-[24rem] text-xs leading-5 text-text-secondary">
+                    Ens&eacute;&ntilde;alo en el local. El equipo puede validar tu
+                    recogida introduciendo este c&oacute;digo.
+                  </p>
                   <button
                     type="button"
                     onClick={handleCopyOrderCode}
-                    className="inline-flex rounded-full border border-accent/35 bg-surface px-3 py-1.5 text-xs font-semibold text-accent-strong transition hover:border-accent-strong"
+                    className="mt-4 inline-flex rounded-full border border-accent/35 bg-surface px-4 py-2 text-xs font-semibold text-accent-strong transition hover:border-accent-strong"
                   >
                     {hasCopiedOrderCode ? "Copiado" : <>Copiar c&oacute;digo</>}
                   </button>
                 </div>
-                <p className="mt-2 text-xs leading-5 text-text-secondary">
-                  Mu&eacute;stralo al llegar al local para localizar tu pedido
-                  r&aacute;pido.
-                </p>
               </div>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-strong px-4 py-2 text-sm font-semibold text-text-primary shadow-[var(--card-shadow)]">

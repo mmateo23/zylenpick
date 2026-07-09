@@ -68,6 +68,17 @@ export function PrintableOrderTicket({
           </p>
           <h1 className="mt-3 text-3xl font-semibold">{order.venue.name}</h1>
           <p className="mt-2 text-sm text-black/70">Pedido {order.id}</p>
+          <div className="mt-5 border border-dashed border-black/35 px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.2em] text-black/60">
+              Código de recogida
+            </p>
+            <p className="mt-2 text-4xl font-black tracking-[0.12em]">
+              {order.pickupCode}
+            </p>
+            <p className="mt-2 text-xs leading-5 text-black/65">
+              Enseña este código en el local para validar la recogida.
+            </p>
+          </div>
         </header>
 
         <div className="mt-6 space-y-3 text-sm leading-6">

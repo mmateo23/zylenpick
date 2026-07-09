@@ -4,6 +4,7 @@ export type OrderResolutionStatus = "active" | "completed" | "cancelled";
 
 export type OrderRecord = {
   id: string;
+  pickupCode: string;
   createdAt: string;
   pickupAt: string;
   customerName: string;
