@@ -2,9 +2,9 @@ export const pickyaloDesignTokens = {
   color: {
     bg: {
       page: "#FDE3AD",
-      pageAlt: "#FFF7E8",
-      surface: "#FFF7E8",
-      surfaceStrong: "#ffffff",
+      pageAlt: "#F6D99A",
+      surface: "rgba(255, 247, 232, 0.86)",
+      surfaceStrong: "#FFF7E8",
     },
     text: {
       primary: "#24110E",
@@ -14,7 +14,7 @@ export const pickyaloDesignTokens = {
     brand: {
       primary: "#741314",
       cream: "#FDE3AD",
-      primarySoft: "rgba(116, 19, 20, 0.08)",
+      primarySoft: "rgba(116, 19, 20, 0.10)",
     },
     border: {
       subtle: "rgba(116, 19, 20, 0.16)",
@@ -23,6 +23,13 @@ export const pickyaloDesignTokens = {
     cta: {
       primaryBg: "#741314",
       primaryText: "#FDE3AD",
+      primaryHover: "#5F0F10",
+    },
+    focus: {
+      ring: "#741314",
+    },
+    selection: {
+      bg: "rgba(116, 19, 20, 0.10)",
     },
     status: {
       danger: "#e5484d",

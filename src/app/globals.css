@@ -4,23 +4,26 @@
 
 :root {
   /* Theme foundation: stable base tokens */
-  --bg-page: #f6f1e6;
-  --bg-page-alt: #e8e1d2;
-  --bg-surface: rgba(255, 255, 255, 0.7);
-  --bg-surface-strong: #ffffff;
+  --brand-primary: #741314;
+  --brand-cream: #FDE3AD;
+  --brand-primary-soft: rgba(116, 19, 20, 0.10);
+  --bg-page: #FDE3AD;
+  --bg-page-alt: #F6D99A;
+  --bg-surface: rgba(255, 247, 232, 0.86);
+  --bg-surface-strong: #FFF7E8;
   --bg-surface-muted: rgba(255, 255, 255, 0.48);
-  --text-primary: #181816;
-  --text-secondary: rgba(24, 24, 22, 0.62);
-  --text-muted: rgba(24, 24, 22, 0.42);
+  --text-primary: #24110E;
+  --text-secondary: rgba(36, 17, 14, 0.68);
+  --text-muted: rgba(36, 17, 14, 0.46);
   --text-inverse: #ffffff;
-  --border-subtle: rgba(0, 0, 0, 0.1);
-  --border-strong: rgba(0, 0, 0, 0.16);
+  --border-subtle: rgba(116, 19, 20, 0.16);
+  --border-strong: rgba(116, 19, 20, 0.28);
   --overlay-hero-from: rgba(6, 18, 13, 0.62);
   --overlay-hero-to: rgba(5, 8, 22, 0.82);
   --overlay-card-from: rgba(6, 10, 11, 0.04);
   --overlay-card-mid: rgba(6, 10, 11, 0.18);
   --overlay-card-to: rgba(6, 10, 11, 0.88);
-  --shadow-soft: 0 18px 60px rgba(5, 8, 22, 0.1);
+  --shadow-soft: 0 18px 60px rgba(116, 19, 20, 0.12);
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
@@ -39,18 +42,18 @@
   --status-warning: #d6a648;
 
   /* Theme foundation: interchangeable accent tokens */
-  --brand-accent: #fed47d;
+  --brand-accent: var(--brand-primary);
   --brand-accent-strong: #FED47D;
   --brand-accent-bright: #FFE7A8;
-  --brand-accent-soft: rgba(254, 212, 125, 0.14);
-  --brand-accent-border: rgba(254, 212, 125, 0.32);
+  --brand-accent-soft: var(--brand-primary-soft);
+  --brand-accent-border: rgba(116, 19, 20, 0.22);
   --brand-accent-shadow: rgba(254, 212, 125, 0.22);
-  --cta-primary-bg: var(--brand-accent);
-  --cta-primary-hover: var(--brand-accent-bright);
-  --cta-primary-text: #2a120d;
+  --cta-primary-bg: #741314;
+  --cta-primary-hover: #5F0F10;
+  --cta-primary-text: #FDE3AD;
   --icon-highlight: var(--brand-accent-strong);
-  --focus-ring: var(--brand-accent);
-  --selection-bg: var(--brand-accent-soft);
+  --focus-ring: #741314;
+  --selection-bg: rgba(116, 19, 20, 0.10);
   --price-highlight: var(--brand-accent-strong);
 
   /* Legacy color aliases kept while pages migrate to the theme foundation. */
@@ -231,7 +234,7 @@ video {
 }
 
 ::selection {
-  background: rgba(254, 212, 125, 0.22);
+  background: var(--selection-bg);
 }
 
 @layer base {

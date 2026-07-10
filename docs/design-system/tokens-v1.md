@@ -9,19 +9,21 @@ Este documento es el contrato tecnico de tokens de Pickyalo. Define que nombres 
 
 ## Update v0.2 - Brand Base
 
-`Brand Base` queda como base oficial tras validacion en Style Lab. El espejo TS (`src/lib/design-system/tokens.ts`) ya usa estos valores, pero `src/app/globals.css` se actualizara despues para evitar una migracion visual accidental.
+`Brand Base` queda como base oficial tras validacion en Style Lab. CSS tokens v0.2 ya estan expuestos en `src/app/globals.css`; legacy tokens siguen presentes por compatibilidad.
 
 | Token semantico | Valor v0.2 | CSS actual previsto | Tailwind actual | Uso |
 | --- | --- | --- | --- | --- |
-| `brand.primary` | `#741314` | `--brand-primary` pendiente | pendiente | Marca, CTA principal y estados activos. |
-| `brand.cream` | `#FDE3AD` | `--brand-cream` pendiente | pendiente | Fondo principal y texto sobre granate. |
-| `bg.page` | `#FDE3AD` | `--bg-page` pendiente de actualizar | `bg-page` tras CSS | Fondo principal Brand Base. |
-| `text.primary` | `#24110E` | `--text-primary` pendiente de actualizar | `text-text-primary` tras CSS | Texto principal sobre fondos claros. |
-| `bg.surface` | `#FFF7E8` | `--bg-surface` pendiente de actualizar | `bg-surface` tras CSS | Cards y paneles calidos. |
-| `border.subtle` | `rgba(116, 19, 20, 0.16)` | `--border-subtle` pendiente de actualizar | `border-border-subtle` tras CSS | Bordes base con tinte granate. |
-| `cta.primary.bg` | `#741314` | `--cta-primary-bg` pendiente de actualizar | `bg-cta` tras CSS | CTA principal. |
-| `cta.primary.text` | `#FDE3AD` | `--cta-primary-text` pendiente de actualizar | `text-cta-text` tras CSS | Texto sobre CTA principal. |
-| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` pendiente de actualizar | `shadow-[var(--shadow-soft)]` tras CSS | Sombra suave oficial. |
+| `brand.primary` | `#741314` | `--brand-primary` | pendiente | Marca, CTA principal y estados activos. |
+| `brand.cream` | `#FDE3AD` | `--brand-cream` | pendiente | Fondo principal y texto sobre granate. |
+| `bg.page` | `#FDE3AD` | `--bg-page` | `bg-page` | Fondo principal Brand Base. |
+| `bg.pageAlt` | `#F6D99A` | `--bg-page-alt` | `bg-page-alt` | Bandas alternas y fondos secundarios. |
+| `text.primary` | `#24110E` | `--text-primary` | `text-text-primary` | Texto principal sobre fondos claros. |
+| `bg.surface` | `rgba(255, 247, 232, 0.86)` | `--bg-surface` | `bg-surface` | Cards y paneles calidos. |
+| `bg.surfaceStrong` | `#FFF7E8` | `--bg-surface-strong` | `bg-surface-strong` | Superficies solidas calidas. |
+| `border.subtle` | `rgba(116, 19, 20, 0.16)` | `--border-subtle` | `border-border-subtle` | Bordes base con tinte granate. |
+| `cta.primary.bg` | `#741314` | `--cta-primary-bg` | `bg-cta` | CTA principal. |
+| `cta.primary.text` | `#FDE3AD` | `--cta-primary-text` | `text-cta-text` | Texto sobre CTA principal. |
+| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` | `shadow-[var(--shadow-soft)]` | Sombra suave oficial. |
 
 `#fed47d` y la base crema anterior quedan como legacy visual. No usarlos en diseno nuevo salvo comparativas o migracion controlada.
 
@@ -38,18 +40,18 @@ Este documento es el contrato tecnico de tokens de Pickyalo. Define que nombres 
 
 | Token semantico | Valor | CSS actual | Tailwind actual | Uso |
 | --- | --- | --- | --- | --- |
-| `bg.page` | `#FDE3AD` | `--bg-page` pendiente de actualizar | `bg-page` tras CSS | Fondo principal Brand Base. |
-| `bg.pageAlt` | `#FFF7E8` | `--bg-page-alt` pendiente de actualizar | `bg-page-alt` tras CSS | Bandas alternas y fondos secundarios. |
-| `bg.surface` | `#FFF7E8` | `--bg-surface` pendiente de actualizar | `bg-surface` tras CSS | Superficie clara sobre blanco hueso. |
-| `bg.surfaceStrong` | `#ffffff` | `--bg-surface-strong` | `bg-surface-strong` | Cards, inputs y paneles solidos. |
-| `text.primary` | `#24110E` | `--text-primary` pendiente de actualizar | `text-text-primary` tras CSS | Texto principal. |
-| `text.secondary` | `rgba(36,17,14,0.68)` | `--text-secondary` pendiente de actualizar | `text-text-secondary` tras CSS | Texto secundario. |
-| `text.muted` | `rgba(36,17,14,0.46)` | `--text-muted` pendiente de actualizar | `text-text-muted` tras CSS | Texto auxiliar, hints, metadata. |
-| `brand.primary` | `#741314` | `--brand-primary` pendiente | pendiente | Marca y CTA principal. |
-| `brand.cream` | `#FDE3AD` | `--brand-cream` pendiente | pendiente | Fondo principal y texto sobre granate. |
-| `brand.primarySoft` | `rgba(116,19,20,0.08)` | `--brand-primary-soft` pendiente | pendiente | Fondos suaves de chips o llamadas. |
-| `border.subtle` | `rgba(116,19,20,0.16)` | `--border-subtle` pendiente de actualizar | `border-border-subtle` tras CSS | Borde por defecto. |
-| `border.strong` | `rgba(116,19,20,0.28)` | `--border-strong` pendiente de actualizar | `border-border-strong` tras CSS | Borde enfatizado o hover. |
+| `bg.page` | `#FDE3AD` | `--bg-page` | `bg-page` | Fondo principal Brand Base. |
+| `bg.pageAlt` | `#F6D99A` | `--bg-page-alt` | `bg-page-alt` | Bandas alternas y fondos secundarios. |
+| `bg.surface` | `rgba(255, 247, 232, 0.86)` | `--bg-surface` | `bg-surface` | Superficie clara sobre blanco hueso. |
+| `bg.surfaceStrong` | `#FFF7E8` | `--bg-surface-strong` | `bg-surface-strong` | Cards, inputs y paneles solidos. |
+| `text.primary` | `#24110E` | `--text-primary` | `text-text-primary` | Texto principal. |
+| `text.secondary` | `rgba(36,17,14,0.68)` | `--text-secondary` | `text-text-secondary` | Texto secundario. |
+| `text.muted` | `rgba(36,17,14,0.46)` | `--text-muted` | `text-text-muted` | Texto auxiliar, hints, metadata. |
+| `brand.primary` | `#741314` | `--brand-primary` | pendiente | Marca y CTA principal. |
+| `brand.cream` | `#FDE3AD` | `--brand-cream` | pendiente | Fondo principal y texto sobre granate. |
+| `brand.primarySoft` | `rgba(116,19,20,0.10)` | `--brand-primary-soft` | pendiente | Fondos suaves de chips o llamadas. |
+| `border.subtle` | `rgba(116,19,20,0.16)` | `--border-subtle` | `border-border-subtle` | Borde por defecto. |
+| `border.strong` | `rgba(116,19,20,0.28)` | `--border-strong` | `border-border-strong` | Borde enfatizado o hover. |
 | `status.danger` | `#e5484d` | `--status-danger` | `bg-danger`, `text-danger`, `border-danger` | Estados destructivos o error. |
 | `status.warning` | `#d6a648` | `--status-warning` | `bg-warning`, `text-warning`, `border-warning` | Estados destacados/advertencia. |
 
@@ -59,10 +61,10 @@ Estos aliases existen y se pueden usar cuando la semantica sea exacta. No sustit
 
 | Alias | Valor | CSS actual | Tailwind actual | Uso |
 | --- | --- | --- | --- | --- |
-| `cta.primaryBg` | `#741314` | `--cta-primary-bg` pendiente de actualizar | `bg-cta` tras CSS | CTA principal. |
-| `cta.primaryHover` | `rgba(116,19,20,0.88)` | `--cta-primary-hover` pendiente de actualizar | `hover:bg-cta-hover` tras CSS | Hover del CTA principal. |
-| `cta.primaryText` | `#FDE3AD` | `--cta-primary-text` pendiente de actualizar | `text-cta-text` tras CSS | Texto sobre CTA granate. |
-| `focus.ring` | `#741314` | `--focus-ring` pendiente de actualizar | `ring-focus-ring` tras CSS | Focus rings si Tailwind lo permite. |
+| `cta.primaryBg` | `#741314` | `--cta-primary-bg` | `bg-cta` | CTA principal. |
+| `cta.primaryHover` | `#5F0F10` | `--cta-primary-hover` | `hover:bg-cta-hover` | Hover del CTA principal. |
+| `cta.primaryText` | `#FDE3AD` | `--cta-primary-text` | `text-cta-text` | Texto sobre CTA granate. |
+| `focus.ring` | `#741314` | `--focus-ring` | `ring-focus-ring` | Focus rings si Tailwind lo permite. |
 | `price.highlight` | `var(--brand-accent-strong)` | `--price-highlight` | `text-price-highlight` | Precio o valor comercial destacado. |
 | `icon.highlight` | `var(--brand-accent-strong)` | `--icon-highlight` | `text-icon-highlight` | Iconos de enfasis. |
 
@@ -80,7 +82,7 @@ Estos aliases existen y se pueden usar cuando la semantica sea exacta. No sustit
 
 | Token semantico | Valor | CSS actual | Tailwind actual | Uso |
 | --- | --- | --- | --- | --- |
-| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` pendiente de actualizar | `shadow-[var(--shadow-soft)]` tras CSS | Sombra suave oficial. |
+| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` | `shadow-[var(--shadow-soft)]` | Sombra suave oficial. |
 
 ## Spacing Tokens Oficiales
 

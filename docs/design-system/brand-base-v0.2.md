@@ -3,6 +3,8 @@
 Fecha: 2026-07-10  
 Estado: decision de marca aprobada, sin migracion masiva.
 
+Nota: CSS tokens v0.2 expuestos en `src/app/globals.css`. Legacy tokens siguen presentes por compatibilidad.
+
 ## Decision Final
 
 La direccion principal de Pickyalo pasa a ser `Brand Base`: fondo blanco hueso y granate como color principal de marca.
@@ -14,7 +16,9 @@ La direccion principal de Pickyalo pasa a ser `Brand Base`: fondo blanco hueso y
 | `brand.primary` | `#741314` | Marca, CTA principal, enfasis y estados activos. |
 | `brand.cream` | `#FDE3AD` | Fondo principal y texto sobre granate. |
 | `text.primary` | `#24110E` | Texto principal sobre fondos claros. |
-| `bg.surface` | `#FFF7E8` | Cards, paneles y superficies calidas. |
+| `bg.pageAlt` | `#F6D99A` | Bandas alternas y fondos secundarios. |
+| `bg.surface` | `rgba(255, 247, 232, 0.86)` | Cards, paneles y superficies calidas. |
+| `bg.surfaceStrong` | `#FFF7E8` | Superficies solidas calidas. |
 | `border.subtle` | `rgba(116, 19, 20, 0.16)` | Bordes base sobre blanco hueso. |
 | `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | Sombra suave oficial. |
 
@@ -22,7 +26,7 @@ La direccion principal de Pickyalo pasa a ser `Brand Base`: fondo blanco hueso y
 
 - Usar `#FDE3AD` como fondo principal de marca.
 - Usar `#741314` para CTAs, navegacion activa, badges destacados y elementos de identidad.
-- Usar `#FFF7E8` para cards y superficies con lectura prolongada.
+- Usar `rgba(255, 247, 232, 0.86)` y `#FFF7E8` para cards y superficies con lectura prolongada.
 - Mantener comida real y assets reales como soporte visual principal.
 
 ## Version Inversa

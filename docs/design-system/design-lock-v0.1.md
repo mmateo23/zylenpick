@@ -12,7 +12,7 @@ Decision: `Brand Base` queda aprobada como direccion principal de Pickyalo.
 - `#FDE3AD` sustituye al crema anterior como fondo principal.
 - `#fed47d` queda como legacy visual; no usar en diseno nuevo.
 - La version inversa con fondo granate y logo negativo queda reservada para hero, splash, campanas o piezas de impacto, no para toda la UI.
-- `src/app/globals.css` aun no se modifica en esta fase; la migracion de variables CSS debe hacerse de forma controlada.
+- `src/app/globals.css` expone los tokens CSS v0.2; los aliases legacy siguen presentes por compatibilidad.
 
 Referencia de decision: `docs/design-system/brand-base-v0.2.md`.
 
@@ -37,18 +37,18 @@ La direccion por defecto es clara. Las experiencias oscuras existentes quedan to
 
 | Token | Valor | CSS actual |
 | --- | --- | --- |
-| `bg.page` | `#FDE3AD` | `--bg-page` pendiente de actualizar |
-| `bg.pageAlt` | `#FFF7E8` | `--bg-page-alt` pendiente de actualizar |
-| `bg.surface` | `#FFF7E8` | `--bg-surface` pendiente de actualizar |
-| `bg.surfaceStrong` | `#ffffff` | `--bg-surface-strong` |
-| `text.primary` | `#24110E` | `--text-primary` pendiente de actualizar |
-| `text.secondary` | `rgba(36,17,14,0.68)` | `--text-secondary` pendiente de actualizar |
-| `text.muted` | `rgba(36,17,14,0.46)` | `--text-muted` pendiente de actualizar |
-| `brand.primary` | `#741314` | `--brand-primary` pendiente |
-| `brand.cream` | `#FDE3AD` | `--brand-cream` pendiente |
-| `brand.primarySoft` | `rgba(116,19,20,0.08)` | `--brand-primary-soft` pendiente |
-| `border.subtle` | `rgba(116,19,20,0.16)` | `--border-subtle` pendiente de actualizar |
-| `border.strong` | `rgba(116,19,20,0.28)` | `--border-strong` pendiente de actualizar |
+| `bg.page` | `#FDE3AD` | `--bg-page` |
+| `bg.pageAlt` | `#F6D99A` | `--bg-page-alt` |
+| `bg.surface` | `rgba(255, 247, 232, 0.86)` | `--bg-surface` |
+| `bg.surfaceStrong` | `#FFF7E8` | `--bg-surface-strong` |
+| `text.primary` | `#24110E` | `--text-primary` |
+| `text.secondary` | `rgba(36,17,14,0.68)` | `--text-secondary` |
+| `text.muted` | `rgba(36,17,14,0.46)` | `--text-muted` |
+| `brand.primary` | `#741314` | `--brand-primary` |
+| `brand.cream` | `#FDE3AD` | `--brand-cream` |
+| `brand.primarySoft` | `rgba(116,19,20,0.10)` | `--brand-primary-soft` |
+| `border.subtle` | `rgba(116,19,20,0.16)` | `--border-subtle` |
+| `border.strong` | `rgba(116,19,20,0.28)` | `--border-strong` |
 | `status.danger` | `#e5484d` | `--status-danger` |
 | `status.warning` | `#d6a648` | `--status-warning` |
 
@@ -66,7 +66,7 @@ La direccion por defecto es clara. Las experiencias oscuras existentes quedan to
 
 | Token | Valor | CSS actual |
 | --- | --- | --- |
-| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` pendiente de actualizar |
+| `shadow.soft` | `0 18px 60px rgba(116, 19, 20, 0.12)` | `--shadow-soft` |
 
 ### Spacing
 
