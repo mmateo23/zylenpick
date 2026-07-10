@@ -36,7 +36,7 @@ const mobileNavigationItems = [
   { label: "El proyecto", href: "/el-proyecto" },
 ];
 
-const logoSrc = "/logo/Pickyalo_Logo_Vanilla.svg";
+const logoSrc = "/logo/LogoNuevo.svg";
 const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 function formatActiveOrderTime(pickupAt: string | null | undefined) {
@@ -70,7 +70,7 @@ function CartBadge({ totalItems }: CartBadgeProps) {
   }
 
   return (
-    <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-[#E5484D] px-1 text-[9px] font-semibold leading-none text-white shadow-[0_6px_16px_rgba(0,0,0,0.18)]">
+    <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[9px] font-semibold leading-none text-white shadow-[var(--shadow-soft)]">
       {getBadgeLabel(totalItems)}
     </span>
   );
@@ -78,7 +78,7 @@ function CartBadge({ totalItems }: CartBadgeProps) {
 
 function ActiveOrderBadge() {
   return (
-    <span className="absolute -right-1.5 -top-1.5 inline-flex h-3.5 w-3.5 rounded-full border border-white/45 bg-accent shadow-[0_6px_16px_rgba(0,0,0,0.18)]" />
+    <span className="absolute -right-1.5 -top-1.5 inline-flex h-3.5 w-3.5 rounded-full border border-page bg-cta shadow-[var(--shadow-soft)]" />
   );
 }
 
@@ -168,18 +168,18 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const dockRailClassName =
     "bg-transparent";
   const dockButtonClassName =
-    "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+    "border-transparent bg-transparent text-text-secondary hover:bg-accent-soft hover:text-accent";
   const orderButtonClassName = hasOrderSignal
-    ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
+    ? "border-accent-border bg-accent-soft text-accent hover:bg-accent-soft"
     : dockButtonClassName;
   const cityButtonClassName = selectedCity?.slug
-    ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
+    ? "border-accent-border bg-accent-soft text-accent hover:bg-accent-soft"
     : dockButtonClassName;
 
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-full border border-white/10 bg-[#160f0c]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
+        <div className="rounded-[var(--radius-lg)] border border-border-subtle bg-surface px-2 py-1.5 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
           <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             {showNavigation ? (
               <button
@@ -208,12 +208,12 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[78px]"
+                  className="h-auto w-[82px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#FED47D]"
+                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-accent"
               >
                 {activeCategoryLabel}
               </span>
@@ -251,12 +251,12 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[106px]"
+                  className="h-auto w-[112px]"
                 />
               </Link>
               <span
                 key={activeCategoryLabel}
-                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#FED47D]/22 bg-[#FED47D]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#FED47D]"
+                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-accent-border bg-accent-soft px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-accent"
               >
                 {activeCategoryLabel}
               </span>
@@ -273,8 +273,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
                         isItemActive(item.href)
-                          ? "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_30px_rgba(254,212,125,0.26)]"
-                          : "text-white/68 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white"
+                          ? "bg-cta font-bold text-cta-text shadow-[var(--shadow-soft)]"
+                          : "text-text-secondary hover:-translate-y-[1px] hover:bg-accent-soft hover:text-accent"
                       }`}
                     >
                       {item.label}
@@ -309,7 +309,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
                 <LocationPinIcon size={22} className="shrink-0" />
-                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-white/14 bg-black/58 px-3 py-1.5 text-[11px] font-semibold text-white/84 opacity-0 shadow-[0_14px_36px_rgba(0,0,0,0.24)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-border-subtle bg-surface-strong px-3 py-1.5 text-[11px] font-semibold text-text-primary opacity-0 shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>
               </Link>
@@ -320,7 +320,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
         {showNavigation && isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-white/16 bg-white/[0.10] p-3 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
+            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-border-subtle bg-surface-strong p-3 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
             <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
@@ -330,8 +330,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
-                          ? "bg-white/[0.08] text-white"
-                          : "text-white/76 hover:bg-white/[0.05]"
+                          ? "bg-accent-soft text-accent"
+                          : "text-text-secondary hover:bg-accent-soft hover:text-accent"
                       }`}
                     >
                       {item.href === "/cart" ? (
@@ -342,7 +342,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       ) : item.href === "/zonas" ? (
                         <LocationPinIcon
                           size={21}
-                          className={selectedCity?.slug ? "shrink-0 text-[#FED47D]" : "shrink-0"}
+                          className={selectedCity?.slug ? "shrink-0 text-accent" : "shrink-0"}
                         />
                       ) : null}
                       <span>{item.label}</span>

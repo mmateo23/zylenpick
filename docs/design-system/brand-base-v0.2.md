@@ -41,6 +41,8 @@ La direccion principal de Pickyalo pasa a ser `Brand Base`: fondo blanco hueso y
 
 ## Orden De Migracion Recomendado
 
+Nota: Home es la primera página completa migrada a Brand Base v0.2 junto con SiteHeader.
+
 1. Actualizar CSS variables oficiales en `src/app/globals.css`.
 2. Migrar `SiteHeader`.
 3. Migrar Home con Brand Base.
