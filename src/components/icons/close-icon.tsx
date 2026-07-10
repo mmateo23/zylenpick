@@ -1,16 +1,6 @@
 import type { IconProps } from "@/components/icons/icon-base";
-import { IconBase } from "@/components/icons/icon-base";
+import { X } from "lucide-react";
 
-export function CloseIcon(props: IconProps) {
-  return (
-    <IconBase {...props}>
-      <path
-        d="M6 6l12 12M18 6L6 18"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </IconBase>
-  );
+export function CloseIcon({ size = 20, ...props }: IconProps) {
+  return <X size={size} strokeWidth={2} {...props} />;
 }

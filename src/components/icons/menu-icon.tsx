@@ -1,16 +1,6 @@
 import type { IconProps } from "@/components/icons/icon-base";
-import { IconBase } from "@/components/icons/icon-base";
+import { Menu } from "lucide-react";
 
-export function MenuIcon(props: IconProps) {
-  return (
-    <IconBase {...props}>
-      <path
-        d="M4 7h16M4 12h16M4 17h16"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </IconBase>
-  );
+export function MenuIcon({ size = 20, ...props }: IconProps) {
+  return <Menu size={size} strokeWidth={2} {...props} />;
 }
