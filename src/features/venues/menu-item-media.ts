@@ -1,3 +1,10 @@
+const panDeAjoImageUrl =
+  "https://images.unsplash.com/photo-1587676353811-1708ddf47031?q=80&w=357&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
+const primaryImageOverrideByItemName: Record<string, string> = {
+  "Pan de ajo": panDeAjoImageUrl,
+};
+
 const secondaryImageByItemName: Record<string, string> = {
   "Croquetas de jamón":
     "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80",
@@ -19,8 +26,7 @@ const secondaryImageByItemName: Record<string, string> = {
     "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=1200&q=80",
   "Pizza Pepperoni":
     "https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=1200&q=80",
-  "Pan de ajo":
-    "https://images.pexels.com/photos/13698106/pexels-photo-13698106.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "Pan de ajo": panDeAjoImageUrl,
   "California Roll":
     "https://images.unsplash.com/photo-1579584425555-c3ce17fd4351?auto=format&fit=crop&w=1200&q=80",
   "Sushi variado":
@@ -28,6 +34,14 @@ const secondaryImageByItemName: Record<string, string> = {
   Gyozas:
     "https://images.unsplash.com/photo-1563245372-f21724e3856díauto=format&fit=crop&w=1200&q=80",
 };
+
+export function getMenuItemPrimaryImageOverride(itemName: string) {
+  return primaryImageOverrideByItemName[itemName] ?? null;
+}
+
+export function getMenuItemDisplayImage(itemName: string, imageUrl: string | null) {
+  return getMenuItemPrimaryImageOverride(itemName) ?? imageUrl;
+}
 
 export function getMenuItemSecondaryImage(itemName: string) {
   return secondaryImageByItemName[itemName] ?? null;

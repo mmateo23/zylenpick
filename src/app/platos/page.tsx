@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { getActiveSiteChips } from "@/features/chips/services/site-chips-service";
 import { getSiteFunnelSettings } from "@/features/funnel/services/site-funnel-service";
+import { getMenuItemDisplayImage } from "@/features/venues/menu-item-media";
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -19,15 +20,20 @@ export const metadata: Metadata = getBaseMetadata({
 
 function dedupeItems(items: HomeShowcaseItem[]) {
   const seen = new Set<string>();
+  const dedupedItems: HomeShowcaseItem[] = [];
 
-  return items.filter((item) => {
-    if (seen.has(item.id) || !item.imageUrl) {
-      return false;
+  for (const item of items) {
+    const imageUrl = getMenuItemDisplayImage(item.name, item.imageUrl);
+
+    if (seen.has(item.id) || !imageUrl) {
+      continue;
     }
 
     seen.add(item.id);
-    return true;
-  });
+    dedupedItems.push({ ...item, imageUrl });
+  }
+
+  return dedupedItems;
 }
 
 export default async function DishesPage() {

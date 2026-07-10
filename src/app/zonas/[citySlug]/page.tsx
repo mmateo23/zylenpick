@@ -7,6 +7,7 @@ import {
   getCityBySlug,
   getHomeShowcase,
 } from "@/features/venues/services/venues-service";
+import { getMenuItemDisplayImage } from "@/features/venues/menu-item-media";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
@@ -23,15 +24,20 @@ type CityVenuesPageProps = {
 
 function dedupeItems(items: HomeShowcaseItem[]) {
   const seen = new Set<string>();
+  const dedupedItems: HomeShowcaseItem[] = [];
 
-  return items.filter((item) => {
-    if (seen.has(item.id) || !item.imageUrl) {
-      return false;
+  for (const item of items) {
+    const imageUrl = getMenuItemDisplayImage(item.name, item.imageUrl);
+
+    if (seen.has(item.id) || !imageUrl) {
+      continue;
     }
 
     seen.add(item.id);
-    return true;
-  });
+    dedupedItems.push({ ...item, imageUrl });
+  }
+
+  return dedupedItems;
 }
 
 export async function generateMetadata({

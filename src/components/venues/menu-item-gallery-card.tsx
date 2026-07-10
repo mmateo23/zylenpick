@@ -7,7 +7,10 @@ import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { CartVenue } from "@/features/cart/types";
-import { getMenuItemSecondaryImage } from "@/features/venues/menu-item-media";
+import {
+  getMenuItemDisplayImage,
+  getMenuItemSecondaryImage,
+} from "@/features/venues/menu-item-media";
 import type { MenuItemAllergen, VenueMenuItem } from "@/features/venues/types";
 import { capturePlatoVisto } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
@@ -52,7 +55,7 @@ export function MenuItemGalleryCard({
 
   const images = useMemo(() => {
     const gallery = [
-      item.imageUrl,
+      getMenuItemDisplayImage(item.name, item.imageUrl),
       item.secondaryImageUrl ?? getMenuItemSecondaryImage(item.name),
     ].filter(Boolean) as string[];
 
@@ -181,7 +184,7 @@ export function MenuItemGalleryCard({
               description: item.description,
               priceAmount: item.priceAmount,
               currency: item.currency,
-              imageUrl: item.imageUrl,
+              imageUrl: primaryImage,
             }}
             className="mt-0"
             source="dish_card"
@@ -363,7 +366,7 @@ export function MenuItemGalleryCard({
                       description: item.description,
                       priceAmount: item.priceAmount,
                       currency: item.currency,
-                      imageUrl: item.imageUrl,
+                      imageUrl: primaryImage,
                     }}
                     className="mt-0"
                     source="dish_detail"
