@@ -13,8 +13,7 @@ import { getBaseMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
 
-const talaveraHeroImageSrc =
-  "/zones/talavera/talavera_de_la_reina_emerald.svg";
+const talaveraHeroImageSrc = "/home/zonas/talavera-poster-local.webp";
 
 type CityVenuesPageProps = {
   params: {

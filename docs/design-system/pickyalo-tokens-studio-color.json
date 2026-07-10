@@ -1,0 +1,150 @@
+{
+  "color": {
+    "bg": {
+      "page": {
+        "value": "#f6f1e6",
+        "type": "color"
+      },
+      "page-alt": {
+        "value": "#e8e1d2",
+        "type": "color"
+      },
+      "surface": {
+        "value": "rgba(255, 255, 255, 0.7)",
+        "type": "color"
+      },
+      "surface-strong": {
+        "value": "#ffffff",
+        "type": "color"
+      },
+      "surface-muted": {
+        "value": "rgba(255, 255, 255, 0.48)",
+        "type": "color"
+      }
+    },
+    "text": {
+      "primary": {
+        "value": "#181816",
+        "type": "color"
+      },
+      "secondary": {
+        "value": "rgba(24, 24, 22, 0.62)",
+        "type": "color"
+      },
+      "muted": {
+        "value": "rgba(24, 24, 22, 0.42)",
+        "type": "color"
+      },
+      "inverse": {
+        "value": "#ffffff",
+        "type": "color"
+      }
+    },
+    "border": {
+      "subtle": {
+        "value": "rgba(0, 0, 0, 0.1)",
+        "type": "color"
+      },
+      "strong": {
+        "value": "rgba(0, 0, 0, 0.16)",
+        "type": "color"
+      }
+    },
+    "overlay": {
+      "hero-from": {
+        "value": "rgba(6, 18, 13, 0.62)",
+        "type": "color"
+      },
+      "hero-to": {
+        "value": "rgba(5, 8, 22, 0.82)",
+        "type": "color"
+      },
+      "card-from": {
+        "value": "rgba(6, 10, 11, 0.04)",
+        "type": "color"
+      },
+      "card-mid": {
+        "value": "rgba(6, 10, 11, 0.18)",
+        "type": "color"
+      },
+      "card-to": {
+        "value": "rgba(6, 10, 11, 0.88)",
+        "type": "color"
+      }
+    },
+    "brand": {
+      "accent": {
+        "value": "#fed47d",
+        "type": "color"
+      },
+      "accent-strong": {
+        "value": "#FED47D",
+        "type": "color"
+      },
+      "accent-bright": {
+        "value": "#FFE7A8",
+        "type": "color"
+      },
+      "accent-soft": {
+        "value": "rgba(254, 212, 125, 0.14)",
+        "type": "color"
+      },
+      "accent-border": {
+        "value": "rgba(254, 212, 125, 0.32)",
+        "type": "color"
+      },
+      "accent-shadow": {
+        "value": "rgba(254, 212, 125, 0.22)",
+        "type": "color"
+      }
+    },
+    "cta": {
+      "primary-bg": {
+        "value": "{color.brand.accent}",
+        "type": "color"
+      },
+      "primary-hover": {
+        "value": "{color.brand.accent-bright}",
+        "type": "color"
+      },
+      "primary-text": {
+        "value": "#2a120d",
+        "type": "color"
+      }
+    },
+    "icon": {
+      "highlight": {
+        "value": "{color.brand.accent-strong}",
+        "type": "color"
+      }
+    },
+    "focus": {
+      "ring": {
+        "value": "{color.brand.accent}",
+        "type": "color"
+      }
+    },
+    "selection": {
+      "bg": {
+        "value": "{color.brand.accent-soft}",
+        "type": "color"
+      }
+    },
+    "price": {
+      "highlight": {
+        "value": "{color.brand.accent-strong}",
+        "type": "color"
+      }
+    },
+    "status": {
+      "danger": {
+        "value": "#e5484d",
+        "type": "color"
+      },
+      "warning": {
+        "value": "#d6a648",
+        "type": "color"
+      }
+    }
+  }
+}

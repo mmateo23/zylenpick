@@ -1,0 +1,320 @@
+{
+  "collections": [
+    {
+      "name": "Color",
+      "modes": ["Light"],
+      "variables": [
+        {
+          "name": "color/bg/page",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#f6f1e6",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--bg-page)"
+          }
+        },
+        {
+          "name": "color/bg/page-alt",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#e8e1d2",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--bg-page-alt)"
+          }
+        },
+        {
+          "name": "color/bg/surface",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(255, 255, 255, 0.7)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--bg-surface)"
+          }
+        },
+        {
+          "name": "color/bg/surface-strong",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#ffffff",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--bg-surface-strong)"
+          }
+        },
+        {
+          "name": "color/bg/surface-muted",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(255, 255, 255, 0.48)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--bg-surface-muted)"
+          }
+        },
+        {
+          "name": "color/text/primary",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#181816",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--text-primary)"
+          }
+        },
+        {
+          "name": "color/text/secondary",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(24, 24, 22, 0.62)",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--text-secondary)"
+          }
+        },
+        {
+          "name": "color/text/muted",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(24, 24, 22, 0.42)",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--text-muted)"
+          }
+        },
+        {
+          "name": "color/text/inverse",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#ffffff",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--text-inverse)"
+          }
+        },
+        {
+          "name": "color/border/subtle",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(0, 0, 0, 0.1)",
+          "scopes": ["STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--border-subtle)"
+          }
+        },
+        {
+          "name": "color/border/strong",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(0, 0, 0, 0.16)",
+          "scopes": ["STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--border-strong)"
+          }
+        },
+        {
+          "name": "color/overlay/hero-from",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(6, 18, 13, 0.62)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--overlay-hero-from)"
+          }
+        },
+        {
+          "name": "color/overlay/hero-to",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(5, 8, 22, 0.82)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--overlay-hero-to)"
+          }
+        },
+        {
+          "name": "color/overlay/card-from",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(6, 10, 11, 0.04)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--overlay-card-from)"
+          }
+        },
+        {
+          "name": "color/overlay/card-mid",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(6, 10, 11, 0.18)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--overlay-card-mid)"
+          }
+        },
+        {
+          "name": "color/overlay/card-to",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(6, 10, 11, 0.88)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--overlay-card-to)"
+          }
+        },
+        {
+          "name": "color/brand/accent",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#fed47d",
+          "scopes": ["FILL", "TEXT_FILL", "STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent)"
+          }
+        },
+        {
+          "name": "color/brand/accent-strong",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#FED47D",
+          "scopes": ["FILL", "TEXT_FILL", "STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent-strong)"
+          }
+        },
+        {
+          "name": "color/brand/accent-bright",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#FFE7A8",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent-bright)"
+          }
+        },
+        {
+          "name": "color/brand/accent-soft",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(254, 212, 125, 0.14)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent-soft)"
+          }
+        },
+        {
+          "name": "color/brand/accent-border",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(254, 212, 125, 0.32)",
+          "scopes": ["STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent-border)"
+          }
+        },
+        {
+          "name": "color/brand/accent-shadow",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "rgba(254, 212, 125, 0.22)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--brand-accent-shadow)"
+          }
+        },
+        {
+          "name": "color/cta/primary-bg",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--cta-primary-bg)"
+          }
+        },
+        {
+          "name": "color/cta/primary-hover",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent-bright)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--cta-primary-hover)"
+          }
+        },
+        {
+          "name": "color/cta/primary-text",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#2a120d",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--cta-primary-text)"
+          }
+        },
+        {
+          "name": "color/icon/highlight",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent-strong)",
+          "scopes": ["TEXT_FILL", "STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--icon-highlight)"
+          }
+        },
+        {
+          "name": "color/focus/ring",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent)",
+          "scopes": ["STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--focus-ring)"
+          }
+        },
+        {
+          "name": "color/selection/bg",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent-soft)",
+          "scopes": ["FILL"],
+          "codeSyntax": {
+            "WEB": "var(--selection-bg)"
+          }
+        },
+        {
+          "name": "color/price/highlight",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "var(--brand-accent-strong)",
+          "scopes": ["TEXT_FILL"],
+          "codeSyntax": {
+            "WEB": "var(--price-highlight)"
+          }
+        },
+        {
+          "name": "color/status/danger",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#e5484d",
+          "scopes": ["FILL", "TEXT_FILL", "STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--status-danger)"
+          }
+        },
+        {
+          "name": "color/status/warning",
+          "type": "COLOR",
+          "mode": "Light",
+          "value": "#d6a648",
+          "scopes": ["FILL", "TEXT_FILL", "STROKE"],
+          "codeSyntax": {
+            "WEB": "var(--status-warning)"
+          }
+        }
+      ]
+    }
+  ]
+}

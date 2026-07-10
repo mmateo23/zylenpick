@@ -679,6 +679,244 @@ video {
   }
 }
 
+.project-hero-action-zone {
+  position: relative;
+  margin-top: 2.4rem;
+  min-height: 15rem;
+}
+
+.project-food-cloud {
+  pointer-events: none;
+  position: absolute;
+  inset: -7.5rem -5.5rem 0 auto;
+  width: min(45vw, 38rem);
+  height: 27rem;
+}
+
+.project-food-asset {
+  position: absolute;
+  filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.36));
+  transform-origin: center;
+}
+
+.project-food-asset-post {
+  right: -1.5rem;
+  top: -2.2rem;
+  width: clamp(17rem, 30vw, 31rem);
+  transform: rotate(5deg);
+}
+
+.project-hero-ticket {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  max-width: 28rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px dashed rgba(254, 212, 125, 0.52);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1rem 1rem 1rem 1.1rem;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(18px);
+}
+
+.project-hero-ticket span {
+  display: block;
+  color: rgba(254, 212, 125, 0.9);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.project-hero-ticket strong {
+  display: block;
+  margin-top: 0.35rem;
+  max-width: 17rem;
+  color: white;
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.project-hero-ticket a {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #fed47d;
+  color: #381932;
+  padding: 0.72rem 0.95rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.project-cta-button,
+.project-slide-action,
+.project-hero-ticket a {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    filter 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.project-cta-button:hover,
+.project-slide-action:hover,
+.project-hero-ticket a:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.08);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+}
+
+.project-cta-button:focus-visible,
+.project-slide-action:focus-visible,
+.project-hero-ticket a:focus-visible,
+.project-mini-action:focus-visible {
+  outline: 3px solid rgba(254, 212, 125, 0.88);
+  outline-offset: 4px;
+}
+
+.project-hero-actions-grid {
+  position: relative;
+  z-index: 2;
+  margin-top: 0.8rem;
+  display: grid;
+  max-width: 28rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.project-mini-action {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.055);
+  padding: 0.95rem;
+  color: white;
+  text-decoration: none;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.project-mini-action:hover {
+  transform: translateY(-2px);
+  border-color: rgba(254, 212, 125, 0.32);
+  background: rgba(254, 212, 125, 0.09);
+}
+
+.project-mini-action span {
+  color: rgba(254, 212, 125, 0.78);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.project-mini-action strong {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 0.94rem;
+  line-height: 1.15;
+}
+
+.project-mini-action small {
+  display: block;
+  margin-top: 0.45rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.project-title-accent {
+  color: #fed47d;
+  text-shadow: 0 18px 48px rgba(254, 212, 125, 0.18);
+}
+
+.project-title-strike {
+  position: relative;
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.52);
+  text-decoration-line: line-through;
+  text-decoration-color: #fed47d;
+  text-decoration-thickness: 0.08em;
+  text-decoration-skip-ink: none;
+}
+
+.project-title-muted {
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.project-slide-description {
+  width: fit-content;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 1.15rem;
+  background: rgba(16, 7, 13, 0.52);
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(14px);
+}
+
+.project-slide-action {
+  min-width: 8.5rem;
+  text-align: center;
+  box-shadow:
+    0 0 0 1px rgba(254, 212, 125, 0.22),
+    0 16px 44px rgba(254, 212, 125, 0.12);
+}
+
+.project-outro-pizza-layer {
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+  right: clamp(-18rem, -11vw, -7rem);
+  top: 7%;
+  width: min(62vw, 58rem);
+  height: min(62vw, 54rem);
+  opacity: 0.42;
+  animation: projectPizzaDrift 15s ease-in-out infinite alternate;
+}
+
+.project-outro-pizza {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: clamp(34rem, 58vw, 56rem);
+  transform: rotate(-10deg);
+  filter: drop-shadow(0 28px 48px rgba(0, 0, 0, 0.34));
+}
+
+@keyframes projectPizzaDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  100% {
+    transform: translate3d(-3rem, 2rem, 0) scale(1.06);
+  }
+}
+
+.project-closing-proof {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.project-closing-proof span {
+  border: 1px solid rgba(254, 212, 125, 0.28);
+  border-radius: 999px;
+  background: rgba(254, 212, 125, 0.08);
+  color: rgba(255, 255, 255, 0.78);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 @media (max-width: 767px) {
   .site-shell-main-wide {
     width: calc(100vw - 20px);
@@ -726,6 +964,19 @@ video {
     line-height: 1.55 !important;
   }
 
+  .project-slide-description {
+    width: auto;
+    max-width: 100% !important;
+    padding: 0.9rem 1rem;
+    border-radius: 1rem;
+    background: rgba(16, 7, 13, 0.62);
+  }
+
+  .project-slide-action {
+    width: 100%;
+    min-width: 0;
+  }
+
   .project-slider-indicator,
   .project-slider-progress-track {
     display: none !important;
@@ -733,6 +984,58 @@ video {
 
   .project-slider-scroll img {
     object-position: center center !important;
+  }
+
+  .project-hero-action-zone {
+    margin-top: 2rem;
+    min-height: 18rem;
+  }
+
+  .project-food-cloud {
+    inset: auto -4.8rem -1.2rem auto;
+    width: 23rem;
+    height: 17rem;
+    opacity: 0.64;
+  }
+
+  .project-food-asset-post {
+    right: -1rem;
+    top: 0.8rem;
+    width: 17.5rem;
+  }
+
+  .project-hero-ticket {
+    max-width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .project-hero-ticket a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .project-hero-actions-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .project-outro-pizza-layer {
+    right: -13rem;
+    top: 40%;
+    width: 32rem;
+    height: 28rem;
+    opacity: 0.22;
+  }
+
+  .project-outro-pizza {
+    width: 31rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-outro-pizza-layer {
+    animation: none;
   }
 }
 

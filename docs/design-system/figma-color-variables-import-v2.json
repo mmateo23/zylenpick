@@ -1,0 +1,252 @@
+{
+  "variables": [
+    {
+      "name": "color/bg/page",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#f6f1e6",
+      "codeSyntax": "var(--bg-page)"
+    },
+    {
+      "name": "color/bg/page-alt",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#e8e1d2",
+      "codeSyntax": "var(--bg-page-alt)"
+    },
+    {
+      "name": "color/bg/surface",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(255, 255, 255, 0.7)",
+      "codeSyntax": "var(--bg-surface)"
+    },
+    {
+      "name": "color/bg/surface-strong",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#ffffff",
+      "codeSyntax": "var(--bg-surface-strong)"
+    },
+    {
+      "name": "color/bg/surface-muted",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(255, 255, 255, 0.48)",
+      "codeSyntax": "var(--bg-surface-muted)"
+    },
+    {
+      "name": "color/text/primary",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#181816",
+      "codeSyntax": "var(--text-primary)"
+    },
+    {
+      "name": "color/text/secondary",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(24, 24, 22, 0.62)",
+      "codeSyntax": "var(--text-secondary)"
+    },
+    {
+      "name": "color/text/muted",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(24, 24, 22, 0.42)",
+      "codeSyntax": "var(--text-muted)"
+    },
+    {
+      "name": "color/text/inverse",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#ffffff",
+      "codeSyntax": "var(--text-inverse)"
+    },
+    {
+      "name": "color/border/subtle",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(0, 0, 0, 0.1)",
+      "codeSyntax": "var(--border-subtle)"
+    },
+    {
+      "name": "color/border/strong",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(0, 0, 0, 0.16)",
+      "codeSyntax": "var(--border-strong)"
+    },
+    {
+      "name": "color/overlay/hero-from",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(6, 18, 13, 0.62)",
+      "codeSyntax": "var(--overlay-hero-from)"
+    },
+    {
+      "name": "color/overlay/hero-to",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(5, 8, 22, 0.82)",
+      "codeSyntax": "var(--overlay-hero-to)"
+    },
+    {
+      "name": "color/overlay/card-from",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(6, 10, 11, 0.04)",
+      "codeSyntax": "var(--overlay-card-from)"
+    },
+    {
+      "name": "color/overlay/card-mid",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(6, 10, 11, 0.18)",
+      "codeSyntax": "var(--overlay-card-mid)"
+    },
+    {
+      "name": "color/overlay/card-to",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(6, 10, 11, 0.88)",
+      "codeSyntax": "var(--overlay-card-to)"
+    },
+    {
+      "name": "color/brand/accent",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#fed47d",
+      "codeSyntax": "var(--brand-accent)"
+    },
+    {
+      "name": "color/brand/accent-strong",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#FED47D",
+      "codeSyntax": "var(--brand-accent-strong)"
+    },
+    {
+      "name": "color/brand/accent-bright",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#FFE7A8",
+      "codeSyntax": "var(--brand-accent-bright)"
+    },
+    {
+      "name": "color/brand/accent-soft",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(254, 212, 125, 0.14)",
+      "codeSyntax": "var(--brand-accent-soft)"
+    },
+    {
+      "name": "color/brand/accent-border",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(254, 212, 125, 0.32)",
+      "codeSyntax": "var(--brand-accent-border)"
+    },
+    {
+      "name": "color/brand/accent-shadow",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(254, 212, 125, 0.22)",
+      "codeSyntax": "var(--brand-accent-shadow)"
+    },
+    {
+      "name": "color/cta/primary-bg",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#fed47d",
+      "codeSyntax": "var(--cta-primary-bg)"
+    },
+    {
+      "name": "color/cta/primary-hover",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#FFE7A8",
+      "codeSyntax": "var(--cta-primary-hover)"
+    },
+    {
+      "name": "color/cta/primary-text",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#2a120d",
+      "codeSyntax": "var(--cta-primary-text)"
+    },
+    {
+      "name": "color/icon/highlight",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#FED47D",
+      "codeSyntax": "var(--icon-highlight)"
+    },
+    {
+      "name": "color/focus/ring",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#fed47d",
+      "codeSyntax": "var(--focus-ring)"
+    },
+    {
+      "name": "color/selection/bg",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "rgba(254, 212, 125, 0.14)",
+      "codeSyntax": "var(--selection-bg)"
+    },
+    {
+      "name": "color/price/highlight",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#FED47D",
+      "codeSyntax": "var(--price-highlight)"
+    },
+    {
+      "name": "color/status/danger",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#e5484d",
+      "codeSyntax": "var(--status-danger)"
+    },
+    {
+      "name": "color/status/warning",
+      "collection": "Color",
+      "mode": "Mode 1",
+      "type": "COLOR",
+      "value": "#d6a648",
+      "codeSyntax": "var(--status-warning)"
+    }
+  ]
+}

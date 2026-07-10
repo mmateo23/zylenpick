@@ -116,7 +116,6 @@ export function DemoBentoGallery({
   ).length;
   const isZoneMode = mode === "zonas";
   const primaryCitySlug = items[0]?.venue.citySlug ?? null;
-  const heroEyebrow = isZoneMode ? "Locales para recoger" : "Demo de locales";
   const heroTitle = isZoneMode
     ? `Productos y platos en ${zoneName ?? "tu zona"}`
     : "\u00bfQu\u00e9 local nos apetece hoy?";
@@ -274,9 +273,6 @@ export function DemoBentoGallery({
                 Explorador visual
               </div>
               <div className="space-y-4">
-                <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.34em] text-white/44">
-                  {heroEyebrow}
-                </p>
                 <h1 className="max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
                   {heroTitle}
                 </h1>
@@ -325,9 +321,6 @@ export function DemoBentoGallery({
                     Toca un local para ver su selección y elegir qué recoger.
                   </p>
                 </div>
-                <span className="rounded-full border border-white/10 bg-black/14 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-white/54 backdrop-blur-xl">
-                  Actualizado
-                </span>
               </div>
               <div className="mt-5 flex flex-wrap gap-2.5">
                 {venueLabels.map((item) => (

@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { SiteShell } from "@/components/layout/site-shell";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { ProjectPage } from "@/components/project/project-page";
-import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 
 export const metadata: Metadata = {
   title: "El proyecto | Pickyalo",
@@ -12,11 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectRoutePage() {
-  const siteMedia = await getSiteMediaAssetMap();
-
   return (
     <SiteShell showBasicFooter={false} wideContent>
-      <ProjectPage siteMedia={siteMedia} />
+      <ProjectPage />
       <div className="mt-6">
         <ZylenPickFooter />
       </div>

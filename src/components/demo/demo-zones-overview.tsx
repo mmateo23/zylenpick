@@ -33,56 +33,49 @@ const comingSoonZones = [
     slug: "toledo",
     name: "Toledo",
     region: "Castilla-La Mancha",
-    imageUrl:
-      "https://images.unsplash.com/photo-1569230516306-5a8cb5586399?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/toledo-card.jpg",
   },
   {
     id: "soon-soria",
     slug: "soria",
     name: "Soria",
     region: "Castilla y León",
-    imageUrl:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/soria-card.jpg",
   },
   {
     id: "soon-avila",
     slug: "avila",
     name: "Ávila",
     region: "Castilla y León",
-    imageUrl:
-      "https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/avila-card.jpg",
   },
   {
     id: "soon-segovia",
     slug: "segovia",
     name: "Segovia",
     region: "Castilla y León",
-    imageUrl:
-      "https://images.pexels.com/photos/19788095/pexels-photo-19788095.jpeg?auto=compress&cs=tinysrgb&w=1400",
+    imageUrl: "/home/zonas/segovia-card.jpg",
   },
   {
     id: "soon-guadalajara",
     slug: "guadalajara",
     name: "Guadalajara",
     region: "Castilla-La Mancha",
-    imageUrl:
-      "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/guadalajara-card.jpg",
   },
   {
     id: "soon-cuenca",
     slug: "cuenca",
     name: "Cuenca",
     region: "Castilla-La Mancha",
-    imageUrl:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/cuenca-card.jpg",
   },
   {
     id: "soon-ciudad-real",
     slug: "ciudad-real",
     name: "Ciudad Real",
     region: "Castilla-La Mancha",
-    imageUrl:
-      "https://images.unsplash.com/photo-1472396961693-142e6e269027?q=80&w=1400&auto=format&fit=crop",
+    imageUrl: "/home/zonas/ciudad-real-card.jpg",
   },
 ];
 
@@ -278,9 +271,6 @@ export function DemoZonesOverview({
                   Una lectura rápida de las ciudades disponibles ahora mismo.
                 </p>
               </div>
-              <span className="rounded-full border border-white/10 bg-black/14 px-3.5 py-2 text-[10px] font-medium uppercase tracking-[0.24em] text-white/54 backdrop-blur-xl">
-                Live demo
-              </span>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2.5">

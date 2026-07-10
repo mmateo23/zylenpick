@@ -5,20 +5,28 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { SiteMediaAssetMap } from "@/features/site-media/site-media";
-
-type ProjectScrollSliderProps = {
-  siteMedia: SiteMediaAssetMap;
-};
-
 type ProjectSlide = {
+  id: string;
   eyebrow: string;
-  title: string;
+  title: Array<{
+    text: string;
+    tone?: "accent" | "strike" | "muted";
+  }>;
   description: string;
   imageUrl: string;
+  actionLabel: string;
+  actionHref: string;
 };
 
-export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
+const productAssets = [
+  {
+    src: "/home/project/project_post_pickyalo.png",
+    alt: "",
+    className: "project-food-asset project-food-asset-post",
+  },
+];
+
+export function ProjectScrollSlider() {
   const sliderRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const isMobileRef = useRef(false);
@@ -27,49 +35,54 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
   const slides: ProjectSlide[] = useMemo(
     () => [
       {
-        eyebrow: "01 / cerca",
-        title: "Descubrir algo bueno cerca no deberia ser complicado.",
+        id: "discover",
+        eyebrow: "01 / descubre cerca",
+        title: [
+          { text: "Lo bueno de " },
+          { text: "cerca", tone: "accent" },
+          { text: " entra primero por los ojos." },
+        ],
         description:
-          "Pickyalo convierte productos y platos destacados de locales cercanos en una seleccion visual, rapida y facil de recoger.",
-        imageUrl: siteMedia.project_hero.imageUrl,
+          "Pickyalo reune productos y platos destacados de locales cercanos en una galeria visual, real y facil de mirar.",
+        imageUrl:
+          "https://images.unsplash.com/photo-1682685795463-0674c065f315?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        actionLabel: "Explorar",
+        actionHref: "/platos",
       },
       {
-        eyebrow: "02 / problema",
-        title: "Cuando todo parece igual, decidir se vuelve ruido.",
+        id: "choose",
+        eyebrow: "02 / decide rapido",
+        title: [
+          { text: "Menos " },
+          { text: "ruido", tone: "strike" },
+          { text: ". Mas " },
+          { text: "esto si", tone: "accent" },
+          { text: "." },
+        ],
         description:
-          "Menus largos, fotos pobres y demasiadas vueltas hacen que acabes eligiendo lo mismo de siempre.",
-        imageUrl: siteMedia.project_problem.imageUrl,
+          "Sin cartas infinitas, fotos pobres ni vueltas de mas. Ves lo que merece la pena y eliges sin acabar en lo de siempre.",
+        imageUrl:
+          "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=3032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        actionLabel: "Elegir",
+        actionHref: "/platos",
       },
       {
-        eyebrow: "03 / seleccion",
-        title: "La decision entra primero por los ojos.",
+        id: "pickup",
+        eyebrow: "03 / recoge en el local",
+        title: [
+          { text: "Lo pides claro. " },
+          { text: "Lo recoges facil", tone: "accent" },
+          { text: ". Y el barrio sigue vivo." },
+        ],
         description:
-          "Mostramos una seleccion clara de productos activos para que entiendas rapido que merece la pena recoger.",
-        imageUrl: siteMedia.project_idea.imageUrl,
-      },
-      {
-        eyebrow: "04 / mira",
-        title: "Mira productos reales de locales reales.",
-        description:
-          "La experiencia empieza como una galeria editorial: visual, directa y pensada para decidir sin friccion.",
-        imageUrl: siteMedia.project_step_discover.imageUrl,
-      },
-      {
-        eyebrow: "05 / elige",
-        title: "Elige rapido, sin perderte en una carta infinita.",
-        description:
-          "Pickyalo no intenta ensenarte todo. Te ayuda a encontrar algo bueno y accionable cerca de ti.",
-        imageUrl: siteMedia.project_step_order.imageUrl,
-      },
-      {
-        eyebrow: "06 / recoge",
-        title: "Recoges en el local y ayudas al comercio cercano.",
-        description:
-          "El pedido queda claro, el local prepara tu seleccion y tu solo llegas, confirmas y recoges.",
-        imageUrl: siteMedia.project_step_pickup.imageUrl,
+          "El local prepara tu seleccion, tu pasas a recogerla y compras mejor sin perder tiempo ni alejarte de lo cercano.",
+        imageUrl:
+          "https://images.unsplash.com/photo-1531920382591-9179c11ab2d5?q=80&w=2342&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        actionLabel: "Recoger",
+        actionHref: "/zonas",
       },
     ],
-    [siteMedia],
+    [],
   );
 
   useEffect(() => {
@@ -138,14 +151,24 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
       <section
         className="project-slider-intro"
         style={{
+          position: "relative",
           minHeight: "92svh",
           display: "flex",
           alignItems: "flex-end",
           padding: "7rem 1rem 3.5rem",
+          overflow: "hidden",
+          borderTopLeftRadius: "2rem",
+          borderTopRightRadius: "2rem",
+          backgroundImage:
+            "linear-gradient(90deg, rgba(16,7,13,0.9), rgba(16,7,13,0.58) 52%, rgba(16,7,13,0.78)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         <div
           style={{
+            position: "relative",
+            zIndex: 1,
             display: "grid",
             gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
             gap: "3rem",
@@ -163,12 +186,52 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
               cercanos se sienta tan claro como mirar un buen escaparate.
             </p>
             <div style={actionsStyle}>
-              <Link href="/platos" style={primaryButtonStyle}>
+              <Link
+                href="/platos"
+                className="project-cta-button"
+                style={primaryButtonStyle}
+              >
                 Explorar
               </Link>
-              <Link href="/unete" style={secondaryButtonStyle}>
-                Tengo un local
+              <Link
+                href="/unete"
+                className="project-cta-button"
+                style={secondaryButtonStyle}
+              >
+                Locales
               </Link>
+            </div>
+            <div className="project-hero-action-zone">
+              <div className="project-food-cloud" aria-hidden="true">
+                {productAssets.map((asset) => (
+                  <img
+                    key={asset.src}
+                    src={asset.src}
+                    alt={asset.alt}
+                    className={asset.className}
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+              <div className="project-hero-ticket">
+                <div>
+                  <span>Selección viva</span>
+                  <strong>Productos que se entienden antes de pedir.</strong>
+                </div>
+                <Link href="/platos">Escaparate</Link>
+              </div>
+              <div className="project-hero-actions-grid">
+                <Link href="/platos" className="project-mini-action">
+                  <span>01</span>
+                  <strong>Explorar</strong>
+                  <small>Productos destacados listos para decidir.</small>
+                </Link>
+                <Link href="/zonas" className="project-mini-action">
+                  <span>02</span>
+                  <strong>Cerca</strong>
+                  <small>Locales y zonas donde recoger sin dar vueltas.</small>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -194,7 +257,7 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
           <div style={{ position: "absolute", inset: 0 }}>
             {slides.map((slide, index) => (
               <img
-                key={slide.title}
+                key={slide.id}
                 data-project-slide-image
                 src={slide.imageUrl}
                 alt=""
@@ -243,7 +306,7 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
             <div style={{ position: "relative", width: "100%", maxWidth: "58rem" }}>
               {slides.map((slide, index) => (
                 <div
-                  key={slide.title}
+                  key={slide.id}
                   data-project-slide-content
                   className="project-slider-copy-block"
                   style={{
@@ -257,8 +320,28 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
                   }}
                 >
                   <p style={eyebrowStyle}>{slide.eyebrow}</p>
-                  <h2 style={slideTitleStyle}>{slide.title}</h2>
-                  <p style={slideCopyStyle}>{slide.description}</p>
+                  <h2 style={slideTitleStyle}>
+                    {slide.title.map((part, partIndex) => (
+                      <span
+                        key={`${slide.id}-${partIndex}`}
+                        className={
+                          part.tone ? `project-title-${part.tone}` : undefined
+                        }
+                      >
+                        {part.text}
+                      </span>
+                    ))}
+                  </h2>
+                  <p className="project-slide-description" style={slideCopyStyle}>
+                    {slide.description}
+                  </p>
+                  <Link
+                    href={slide.actionHref}
+                    className="project-slide-action"
+                    style={slideActionStyle}
+                  >
+                    {slide.actionLabel}
+                  </Link>
                 </div>
               ))}
             </div>
@@ -311,14 +394,32 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
       <section
         className="project-slider-outro"
         style={{
+          position: "relative",
           minHeight: "86svh",
           display: "flex",
           alignItems: "center",
           padding: "5rem 1rem",
+          overflow: "hidden",
+          borderBottomLeftRadius: "2rem",
+          borderBottomRightRadius: "2rem",
+          backgroundImage:
+            "linear-gradient(90deg, rgba(16,7,13,0.88), rgba(16,7,13,0.58) 52%, rgba(16,7,13,0.78)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
+        <div className="project-outro-pizza-layer" aria-hidden="true">
+          <img
+            src="/home/assets/asset_pizza_transparent.png"
+            alt=""
+            loading="lazy"
+            className="project-outro-pizza"
+          />
+        </div>
         <div
           style={{
+            position: "relative",
+            zIndex: 1,
             display: "grid",
             gridTemplateColumns: "minmax(0, 1fr) minmax(20rem, 0.85fr)",
             gap: "2rem",
@@ -335,12 +436,25 @@ export function ProjectScrollSlider({ siteMedia }: ProjectScrollSliderProps) {
               Queremos que un buen producto cercano sea facil de encontrar,
               facil de entender y facil de recoger.
             </p>
+            <div className="project-closing-proof">
+              <span>Productos activos</span>
+              <span>Locales cercanos</span>
+              <span>Recogida clara</span>
+            </div>
             <div style={actionsStyle}>
-              <Link href="/platos" style={primaryButtonStyle}>
+              <Link
+                href="/platos"
+                className="project-cta-button"
+                style={primaryButtonStyle}
+              >
                 Explorar
               </Link>
-              <Link href="/zonas" style={secondaryButtonStyle}>
-                Ver zonas
+              <Link
+                href="/zonas"
+                className="project-cta-button"
+                style={secondaryButtonStyle}
+              >
+                Zonas
               </Link>
             </div>
           </div>
@@ -388,9 +502,24 @@ const slideTitleStyle = {
 const slideCopyStyle = {
   marginTop: "1.75rem",
   maxWidth: "42rem",
-  color: "rgba(255,255,255,0.78)",
+  color: "rgba(255,255,255,0.94)",
   fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
-  lineHeight: 1.75,
+  fontWeight: 650,
+  lineHeight: 1.62,
+};
+
+const slideActionStyle = {
+  display: "inline-flex",
+  justifyContent: "center",
+  marginTop: "1.65rem",
+  borderRadius: "999px",
+  border: "1px solid rgba(254,212,125,0.72)",
+  background: "#fed47d",
+  color: "#381932",
+  padding: "0.86rem 1.35rem",
+  fontSize: "0.92rem",
+  fontWeight: 900,
+  textDecoration: "none",
 };
 
 const actionsStyle = {
@@ -458,6 +587,8 @@ const progressBarStyle = {
 };
 
 const closingCardStyle = {
+  position: "relative" as const,
+  overflow: "hidden",
   border: "1px solid rgba(255,255,255,0.12)",
   borderRadius: "2rem",
   background: "rgba(255,255,255,0.06)",
