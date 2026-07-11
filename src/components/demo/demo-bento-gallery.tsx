@@ -268,10 +268,6 @@ export function DemoBentoGallery({
         <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
           <div className="mt-6 flex flex-1 flex-col justify-center sm:mt-10">
             <div className="zone-hero-copy max-w-[40rem]">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
-                <Sparkles className="h-3.5 w-3.5 text-[#FED47D]" />
-                Explorador visual
-              </div>
               <div className="space-y-4">
                 <h1 className="max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
                   {heroTitle}

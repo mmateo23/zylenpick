@@ -28,15 +28,18 @@ export function Logo({
   return (
     <span className={joinClasses("inline-flex items-center gap-3", className)}>
       <Image
-        src="/logo/Pickyalo_isotipo_Coral.svg"
+        src={mode === "full" ? "/logo/LogoNuevo.svg" : "/logo/Agrupar.svg"}
         alt="Pickyalo"
-        width={128}
-        height={128}
+        width={mode === "full" ? 180 : 128}
+        height={mode === "full" ? 62 : 128}
         priority={priority}
-        className={joinClasses("h-6 w-auto shrink-0", iconClassName)}
+        className={joinClasses(
+          mode === "full" ? "h-8 w-auto shrink-0" : "h-6 w-auto shrink-0",
+          iconClassName,
+        )}
       />
 
-      {mode === "full" ? (
+      {mode === "full" && textClassName ? (
         <span
           className={joinClasses(
             inter.className,

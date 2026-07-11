@@ -48,8 +48,8 @@ export function ZylenPickFooter({
         <div
           className={
             isLightTheme
-              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,212,125,0.13),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(255,222,128,0.12),transparent_28%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,212,125,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,214,102,0.14),transparent_26%)]"
+              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.10),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(116,19,20,0.08),transparent_28%)]"
+              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(253,227,173,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(253,227,173,0.14),transparent_26%)]"
           }
         />
 
@@ -57,7 +57,7 @@ export function ZylenPickFooter({
           <div>
             <div className="inline-flex items-center">
               <Image
-                src="/logo/Pickyalo_Logo_Coral.svg"
+                src="/logo/LogoNuevo.svg"
                 alt="Pickyalo"
                 width={136}
                 height={28}
@@ -68,7 +68,7 @@ export function ZylenPickFooter({
             <h2
               className={
                 isLightTheme
-                  ? "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-[#111111]"
+                  ? "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-text-primary"
                   : "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white"
               }
             >
@@ -78,7 +78,7 @@ export function ZylenPickFooter({
             <p
               className={
                 isLightTheme
-                  ? "mt-4 max-w-[36rem] text-sm leading-7 text-black/56 sm:text-base"
+                  ? "mt-4 max-w-[36rem] text-sm leading-7 text-text-secondary sm:text-base"
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >
@@ -97,7 +97,7 @@ export function ZylenPickFooter({
                   href={link.href}
                   className={
                     isLightTheme
-                      ? "group flex items-center justify-between rounded-[1.15rem] border border-black/8 bg-white/58 px-4 py-4 text-sm text-black/72 backdrop-blur-xl transition hover:bg-white"
+                      ? "group flex items-center justify-between rounded-[1.15rem] border border-border-subtle bg-surface-strong px-4 py-4 text-sm text-text-secondary backdrop-blur-xl transition hover:bg-accent-soft"
                       : "group flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-white/72 backdrop-blur-xl transition hover:bg-white/[0.07]"
                   }
                 >
@@ -114,8 +114,8 @@ export function ZylenPickFooter({
               href="/zonas"
               className={
                 isLightTheme
-                  ? "group flex items-center justify-between rounded-[1.15rem] border border-black/8 bg-[#111111] px-4 py-4 text-sm text-white transition hover:bg-black"
-                  : "group flex items-center justify-between rounded-[1.15rem] border border-[#FED47D]/20 bg-[rgba(254,212,125,0.08)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(254,212,125,0.14)]"
+                  ? "group flex items-center justify-between rounded-[1.15rem] border border-border-subtle bg-cta px-4 py-4 text-sm text-cta-text transition hover:bg-cta-hover"
+                  : "group flex items-center justify-between rounded-[1.15rem] border border-[rgba(253,227,173,0.28)] bg-[rgba(253,227,173,0.10)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(253,227,173,0.16)]"
               }
             >
               <span className="flex items-center gap-3">

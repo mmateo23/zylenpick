@@ -121,12 +121,12 @@ export function InstallPrompt() {
   return (
     <aside
       aria-label="Instalar Pickyalo"
-      className="fixed left-1/2 top-[calc(0.75rem+env(safe-area-inset-top))] z-[65] w-[min(calc(100vw-1.5rem),35rem)] -translate-x-1/2 rounded-[1.5rem] border border-[#381932]/10 bg-[#fffaf3]/95 px-2.5 py-2 text-[#381932] shadow-[0_18px_56px_rgba(56,25,50,0.16)] backdrop-blur-xl sm:top-4 sm:rounded-full"
+      className="fixed left-1/2 top-[calc(0.75rem+env(safe-area-inset-top))] z-[65] w-[min(calc(100vw-1.5rem),35rem)] -translate-x-1/2 rounded-[1.5rem] border border-border-subtle bg-surface-strong/95 px-2.5 py-2 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-xl sm:top-4 sm:rounded-full"
     >
       <div className="flex items-center gap-2.5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FED47D] shadow-[0_10px_24px_rgba(254,212,125,0.28)]">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent shadow-[var(--shadow-soft)]">
           <Image
-            src="/logo/Pickyalo_isotipo_Coral.svg"
+            src="/logo/Agrupar.svg"
             alt=""
             width={25}
             height={25}
@@ -139,7 +139,7 @@ export function InstallPrompt() {
           <p className="truncate text-sm font-black">
             {"A\u00f1adir Pickyalo a inicio"}
           </p>
-          <p className="truncate text-xs font-medium text-[#381932]/62">
+          <p className="truncate text-xs font-medium text-text-secondary">
             {canInstall
               ? "\u00c1brelo como una app cuando quieras."
               : "En iPhone: Compartir y A\u00f1adir a pantalla de inicio."}
@@ -151,7 +151,7 @@ export function InstallPrompt() {
             <button
               type="button"
               onClick={() => void handleInstall()}
-              className="rounded-full bg-[#C26157] px-3.5 py-2 text-xs font-black text-white shadow-[0_8px_18px_rgba(194,97,87,0.22)] transition hover:bg-[#aa5048]"
+              className="rounded-full bg-cta px-3.5 py-2 text-xs font-black text-cta-text shadow-[var(--shadow-soft)] transition hover:bg-cta-hover"
             >
               Instalar
             </button>
@@ -161,7 +161,7 @@ export function InstallPrompt() {
             <button
               type="button"
               onClick={dismiss}
-              className="rounded-full bg-[#C26157] px-3.5 py-2 text-xs font-black text-white shadow-[0_8px_18px_rgba(194,97,87,0.22)] transition hover:bg-[#aa5048]"
+              className="rounded-full bg-cta px-3.5 py-2 text-xs font-black text-cta-text shadow-[var(--shadow-soft)] transition hover:bg-cta-hover"
             >
               Entendido
             </button>

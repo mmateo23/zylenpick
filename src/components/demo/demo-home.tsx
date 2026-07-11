@@ -166,6 +166,7 @@ export function DemoHome({
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [showLoader, setShowLoader] = useState(true);
   const [isLoaderVisible, setIsLoaderVisible] = useState(true);
+  const [loaderProgress, setLoaderProgress] = useState(0);
   const [isPageReady, setIsPageReady] = useState(false);
   const [showLocationPrompt, setShowLocationPrompt] = useState(false);
   const [locationPromptExpanded, setLocationPromptExpanded] = useState(false);
@@ -249,13 +250,25 @@ export function DemoHome({
       return undefined;
     }
 
-    setShowLoader(false);
-    const timeoutId = window.setTimeout(() => {
+    setLoaderProgress(0);
+    const loaderStartedAt = window.performance.now();
+    const loaderProgressIntervalId = window.setInterval(() => {
+      const elapsedMs = window.performance.now() - loaderStartedAt;
+      setLoaderProgress(Math.min(100, Math.round((elapsedMs / 1800) * 100)));
+    }, 40);
+    const hideLoaderTimeoutId = window.setTimeout(() => {
+      setLoaderProgress(100);
+      setShowLoader(false);
+      window.clearInterval(loaderProgressIntervalId);
+    }, 1800);
+    const removeLoaderTimeoutId = window.setTimeout(() => {
       setIsLoaderVisible(false);
-    }, 720);
+    }, 2520);
 
     return () => {
-      window.clearTimeout(timeoutId);
+      window.clearInterval(loaderProgressIntervalId);
+      window.clearTimeout(hideLoaderTimeoutId);
+      window.clearTimeout(removeLoaderTimeoutId);
     };
   }, [isPageReady]);
 
@@ -421,6 +434,20 @@ export function DemoHome({
           }
         }
 
+        @keyframes pickyaloLoaderLogoColorReveal {
+          0% {
+            clip-path: inset(0 100% 0 0);
+          }
+          48%,
+          100% {
+            clip-path: inset(0 0 0 0);
+          }
+        }
+
+        .pickyalo-loader-logo-color {
+          animation: pickyaloLoaderLogoColorReveal 1.9s ease-in-out infinite;
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .home-hero-card-float {
             animation: none !important;
@@ -440,17 +467,20 @@ export function DemoHome({
             animation: none !important;
             transform: none !important;
           }
+          .pickyalo-loader-logo-color {
+            animation: none !important;
+            clip-path: inset(0 0 0 0) !important;
+          }
         }
       `}</style>
       {isLoaderVisible ? (
         <div
-          className={`fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#FED47D] px-6 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`fixed inset-0 z-[100] flex min-h-[100dvh] items-center justify-center overflow-hidden bg-[#FDE3AD] px-6 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             showLoader
               ? "opacity-100"
               : "pointer-events-none scale-[1.015] opacity-0 blur-[1px]"
           } motion-reduce:transition-none`}
         >
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_32%,rgba(255,255,255,0.22),transparent_34%),radial-gradient(circle_at_50%_100%,rgba(6,33,19,0.16),transparent_44%)]" />
           <div
             className={`relative flex w-full max-w-xs flex-col items-center justify-center gap-4 text-center transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
               showLoader
@@ -458,23 +488,32 @@ export function DemoHome({
                 : "-translate-y-2 opacity-0"
             } motion-reduce:transition-none`}
           >
-            <div className="w-32 sm:w-36">
+            <div className="relative w-36 sm:w-44">
               <Image
-                src="/logo/Pickyalo_Logo_Black.svg"
+                src="/logo/LogoNuevo.svg"
                 alt="Pickyalo"
-                width={144}
-                height={48}
+                width={176}
+                height={60}
                 priority
-                className="h-auto w-full"
+                className="h-auto w-full opacity-90 [filter:grayscale(1)_sepia(1)_saturate(1.9)_hue-rotate(315deg)_brightness(0.54)_contrast(1.18)]"
               />
+              <div className="pickyalo-loader-logo-color absolute inset-0 overflow-hidden">
+                <Image
+                  src="/logo/LogoNuevo.svg"
+                  alt=""
+                  width={176}
+                  height={60}
+                  priority
+                  aria-hidden="true"
+                  className="h-auto w-full"
+                />
+              </div>
             </div>
-            <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#282828]">
-              <span className="animate-pulse [animation-delay:0ms]">
-                Cargando
-              </span>
-              <span className="animate-pulse [animation-delay:120ms]">.</span>
-              <span className="animate-pulse [animation-delay:240ms]">.</span>
-              <span className="animate-pulse [animation-delay:360ms]">.</span>
+            <div
+              className="min-w-20 text-center text-[12px] font-semibold tabular-nums tracking-[0.28em] text-[#741314]"
+              aria-label={`Cargando ${loaderProgress}%`}
+            >
+              {loaderProgress}%
             </div>
           </div>
         </div>
@@ -502,7 +541,7 @@ export function DemoHome({
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           <div className="relative w-32 sm:w-40 md:w-48">
             <Image
-              src="/logo/Pickyalo_Logo_Vanilla.svg"
+              src="/logo/LogoNuevo_Negativo.svg"
               alt={template?.logoAlt ?? "Pickyalo"}
               width={144}
               height={48}
@@ -516,7 +555,7 @@ export function DemoHome({
                   <div className="pointer-events-auto relative">
                     {locationAccepted ? (
                       <div className="mb-2 flex justify-center">
-                        <div className="rounded-full border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
+                        <div className="rounded-full border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
                           <span className="text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A]">
                             {zoneLabel}
                           </span>
@@ -525,7 +564,7 @@ export function DemoHome({
                     ) : null}
 
                     {locationPromptExpanded ? (
-                      <div className="w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] p-3 text-left shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
+                      <div className="w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] p-3 text-left shadow-[0_12px_28px_rgba(0,0,0,0.14)]">
                         <div className="flex items-start gap-2.5">
                           <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center">
                             <Bell
@@ -547,7 +586,7 @@ export function DemoHome({
                               setLocationPromptExpanded(false);
                               setShowLocationPrompt(false);
                             }}
-                            className="rounded-full border border-[#FED47D]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A] transition hover:bg-white/90 hover:text-[#3A2119]"
+                            className="rounded-full border border-[#741314]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A] transition hover:bg-white/90 hover:text-[#3A2119]"
                           >
                             Ahora no
                           </button>
@@ -558,7 +597,7 @@ export function DemoHome({
                               setLocationPromptExpanded(false);
                               setShowLocationPrompt(false);
                             }}
-                            className="rounded-full bg-[#FED47D] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-[#2A120D] transition hover:bg-[#FFE7A8]"
+                            className="rounded-full bg-[#741314] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
                           >
                             Permitir
                           </button>
@@ -572,7 +611,7 @@ export function DemoHome({
                             setLocationPromptExpanded(true);
                           }
                         }}
-                        className="flex items-center gap-1.5 rounded-full border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
+                        className="flex items-center gap-1.5 rounded-full border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]"
                       >
                         <span className="inline-flex items-center justify-center">
                           <span
@@ -599,7 +638,7 @@ export function DemoHome({
                 <div className="pointer-events-none absolute left-full top-[20%] z-20 ml-3 hidden -translate-y-1/2 sm:block">
                   <div className="pointer-events-auto relative flex flex-col items-start gap-2">
                     {locationAccepted ? (
-                      <div className="relative z-10 ml-4 rounded-full border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
+                      <div className="relative z-10 ml-4 rounded-full border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)]">
                         <span className="text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A] sm:whitespace-nowrap">
                           {zoneLabel}
                         </span>
@@ -609,7 +648,7 @@ export function DemoHome({
                     <div className="relative">
                       <span className="absolute left-0 top-1/2 z-0 h-2.5 w-2.5 -translate-x-[45%] -translate-y-1/2 rotate-45 rounded-[2px] bg-[#eefaf4]" />
                       {locationPromptExpanded ? (
-                        <div className="relative z-10 w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] p-3 text-left shadow-[0_10px_24px_rgba(0,0,0,0.1)]">
+                        <div className="relative z-10 w-[min(calc(100vw-2rem),17rem)] rounded-[1rem] border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] p-3 text-left shadow-[0_10px_24px_rgba(0,0,0,0.1)]">
                           <div className="flex items-start gap-2.5">
                             <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center">
                               <Bell
@@ -631,7 +670,7 @@ export function DemoHome({
                                 setLocationPromptExpanded(false);
                                 setShowLocationPrompt(false);
                               }}
-                              className="rounded-full border border-[#FED47D]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A] transition hover:bg-white/90 hover:text-[#3A2119]"
+                              className="rounded-full border border-[#741314]/60 bg-white/70 px-2.5 py-1 text-[10px] font-medium tracking-[0.04em] text-[#7A3C2A] transition hover:bg-white/90 hover:text-[#3A2119]"
                             >
                               Ahora no
                             </button>
@@ -641,7 +680,7 @@ export function DemoHome({
                                 setLocationAccepted(true);
                                 setLocationPromptExpanded(false);
                               }}
-                              className="rounded-full bg-[#FED47D] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-[#2A120D] transition hover:bg-[#FFE7A8]"
+                              className="rounded-full bg-[#741314] px-3 py-1 text-[10px] font-semibold tracking-[0.04em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
                             >
                               Permitir
                             </button>
@@ -655,7 +694,7 @@ export function DemoHome({
                               setLocationPromptExpanded(true);
                             }
                           }}
-                          className="relative z-10 flex items-center gap-1.5 rounded-full border border-[#FED47D]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)] transition hover:bg-[#fff7e6]"
+                          className="relative z-10 flex items-center gap-1.5 rounded-full border border-[#741314]/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,242,210,0.94)_100%)] px-3 py-1.5 text-left shadow-[0_8px_20px_rgba(0,0,0,0.08)] transition hover:bg-[#fff7e6]"
                         >
                           <span className="inline-flex items-center justify-center">
                             <span
@@ -684,7 +723,7 @@ export function DemoHome({
           </div>
 
           <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_22px_56px_rgba(0,0,0,0.5)] sm:mt-6 lg:max-w-[9ch]">
-            {"Elige productos y platos destacados en segundos"}
+            {"Elige productos y platos en segundos"}
           </h1>
 
           <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-white/84 drop-shadow-[0_10px_28px_rgba(0,0,0,0.42)] sm:mt-4 sm:text-xl sm:leading-8">
@@ -694,13 +733,13 @@ export function DemoHome({
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             <Link
               href={template?.primaryHref ?? "/platos"}
-              className="inline-flex items-center justify-center rounded-full bg-[#FED47D] px-6 py-3.5 text-sm font-semibold text-[#2A120D] shadow-[0_20px_54px_rgba(254,212,125,0.26)] transition hover:-translate-y-0.5 hover:bg-[#FFE7A8] md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full bg-[#741314] px-6 py-3.5 text-sm font-semibold text-[#FDE3AD] shadow-[0_20px_54px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10] md:cursor-none"
             >
               Ver platos
             </Link>
             <Link
               href={getZonesHref(selectedCity)}
-              className="inline-flex items-center justify-center rounded-full border border-[#FED47D]/24 bg-black/20 px-5 py-3.5 text-sm font-semibold text-[#FFF2D2] transition hover:-translate-y-0.5 hover:bg-[#A9402A]/18 md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full border border-[#741314]/24 bg-black/20 px-5 py-3.5 text-sm font-semibold text-[#FDE3AD] transition hover:-translate-y-0.5 hover:bg-[#A9402A]/18 md:cursor-none"
             >
               Explorar zonas
             </Link>
@@ -708,7 +747,7 @@ export function DemoHome({
           </div>
 
           <div className="relative mx-auto mt-8 flex w-full max-w-[20.5rem] items-center justify-center self-center overflow-visible px-2 pb-8 pt-5 sm:max-w-[22rem] lg:mx-auto lg:mt-0 lg:max-w-[24rem] lg:-translate-x-4 lg:px-0 lg:pb-0 lg:pt-0">
-            <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.14),rgba(169,64,42,0.1)_38%,transparent_70%)] blur-3xl sm:h-[30rem] sm:w-[30rem]" />
+            <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),rgba(169,64,42,0.1)_38%,transparent_70%)] blur-3xl sm:h-[30rem] sm:w-[30rem]" />
             {heroPostItem ? (
               <div
                 className="home-hero-deck-scene group relative isolate w-full transform-gpu overflow-visible motion-safe:animate-[homeHeroDeckScene_9s_ease-in-out_infinite]"
@@ -717,7 +756,7 @@ export function DemoHome({
               >
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-x-8 -inset-y-6 -z-20 rounded-[3rem] bg-[radial-gradient(circle_at_50%_42%,rgba(254,212,125,0.16),rgba(169,64,42,0.08)_38%,transparent_72%)] blur-2xl"
+                  className="absolute -inset-x-8 -inset-y-6 -z-20 rounded-[3rem] bg-[radial-gradient(circle_at_50%_42%,rgba(116,19,20,0.16),rgba(169,64,42,0.08)_38%,transparent_72%)] blur-2xl"
                 />
                 <div
                   aria-hidden="true"
@@ -785,9 +824,9 @@ export function DemoHome({
                       className="flex min-w-0 items-center gap-3"
                     >
                       <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
-                        {heroPostItem.venue.logoUrl ? (
+                        {typeof heroPostItem.venue.logoUrl === "string" ? (
                           <Image
-                            src={heroPostItem.venue.logoUrl}
+                            src={heroPostItem.venue.logoUrl ?? "/logo/Agrupar.svg"}
                             alt={heroPostItem.venue.name}
                             fill
                             sizes="40px"
@@ -849,7 +888,7 @@ export function DemoHome({
                     <Link
                       href={getPostModalHref(heroPostItem)}
                       aria-label="Añadir para recoger"
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#5F0F10]"
                     >
                       <CartIcon size={24} aria-hidden />
                     </Link>
@@ -860,7 +899,7 @@ export function DemoHome({
                       <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111] sm:text-xl sm:leading-6">
                         {heroPostItem.name}
                       </h2>
-                      <span className="shrink-0 rounded-full bg-[#FED47D] px-3 py-1.5 text-sm font-bold text-[#2A120D]">
+                      <span className="shrink-0 rounded-full bg-[#741314] px-3 py-1.5 text-sm font-bold text-[#FDE3AD]">
                         {formatHomePrice(heroPostItem)}
                       </span>
                     </div>
@@ -888,12 +927,12 @@ export function DemoHome({
       </div>
 
       <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-8 lg:py-24">
-        <div className="pointer-events-none absolute left-[-18vw] top-8 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.14),transparent_68%)] blur-2xl" />
+        <div className="pointer-events-none absolute left-[-18vw] top-8 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-2xl" />
         <div className="pointer-events-none absolute bottom-0 right-[-12vw] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.12),transparent_70%)] blur-2xl" />
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#FED47D]">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
                 Selección visual
               </p>
               <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-[0.9] tracking-[-0.07em] text-white sm:text-6xl">
@@ -905,7 +944,7 @@ export function DemoHome({
             </div>
             <Link
               href="/platos"
-              className="inline-flex w-fit rounded-full bg-[#FED47D] px-5 py-3 text-sm font-semibold text-[#2A120D] shadow-[0_18px_46px_rgba(254,212,125,0.26)] transition hover:-translate-y-0.5 hover:bg-[#FFE7A8]"
+              className="inline-flex w-fit rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_46px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
             >
               Explorar platos
             </Link>
@@ -913,9 +952,9 @@ export function DemoHome({
 
           <div className="group/preview relative mt-10 overflow-visible rounded-[2.35rem] bg-[linear-gradient(145deg,rgba(82,78,66,0.72),rgba(15,16,13,0.94))] p-5 shadow-[0_34px_110px_rgba(0,0,0,0.34),0_0_70px_rgba(169,64,42,0.18)] sm:rounded-[2.8rem] sm:p-8 lg:p-10">
             <div className="absolute inset-0 rounded-[inherit] bg-[url('https://images.unsplash.com/photo-1584384689201-e0bcbe2c7f1d?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center opacity-58" />
-            <div className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(4,8,7,0.18),rgba(4,8,7,0.54)_62%,rgba(4,8,7,0.74)),radial-gradient(circle_at_22%_12%,rgba(254,212,125,0.18),transparent_34%)]" />
+            <div className="absolute inset-0 rounded-[inherit] bg-[linear-gradient(180deg,rgba(4,8,7,0.18),rgba(4,8,7,0.54)_62%,rgba(4,8,7,0.74)),radial-gradient(circle_at_22%_12%,rgba(116,19,20,0.18),transparent_34%)]" />
             <div className="relative z-10 max-w-3xl">
-              <span className="inline-flex rounded-full border border-white/76 bg-black/28 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#FED47D] backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-xs">
+              <span className="inline-flex rounded-full border border-white/76 bg-black/28 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.34em] text-[#741314] backdrop-blur-sm sm:px-5 sm:py-2.5 sm:text-xs">
                 Mira primero
               </span>
               <h3 className="mt-6 max-w-2xl text-4xl font-semibold leading-[0.94] tracking-[-0.07em] text-white sm:text-6xl">
@@ -979,7 +1018,7 @@ export function DemoHome({
           </div>
 
           <div className="relative mt-10 overflow-visible py-4 sm:py-6">
-            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[30rem] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(254,212,125,0.12),rgba(169,64,42,0.055)_42%,transparent_72%)] blur-2xl" />
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-[30rem] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(116,19,20,0.12),rgba(169,64,42,0.055)_42%,transparent_72%)] blur-2xl" />
 
             {dishExplorerPreviewItems.length ? (
               <div className="relative z-10 grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4 lg:gap-5">
@@ -987,7 +1026,7 @@ export function DemoHome({
                   <Link
                     key={`home-explorer-preview-${item.id}`}
                     href={getPreviewItemHref(item)}
-                    className={`group relative block min-h-[15.5rem] overflow-hidden rounded-[1.35rem] bg-black/22 text-left shadow-[0_20px_70px_rgba(0,0,0,0.26)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(254,212,125,0.14)] motion-reduce:transition-none sm:min-h-[19rem] lg:min-h-[22rem] ${
+                    className={`group relative block min-h-[15.5rem] overflow-hidden rounded-[1.35rem] bg-black/22 text-left shadow-[0_20px_70px_rgba(0,0,0,0.26)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(116,19,20,0.14)] motion-reduce:transition-none sm:min-h-[19rem] lg:min-h-[22rem] ${
                       index === 0 ? "lg:col-span-2 lg:min-h-[28rem]" : ""
                     }`}
                   >
@@ -1010,7 +1049,7 @@ export function DemoHome({
                     <div className="absolute left-3 top-3 rounded-full bg-black/46 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/84 backdrop-blur-md sm:left-4 sm:top-4">
                       {item.venue.cityName}
                     </div>
-                    <div className="absolute right-3 top-3 rounded-full bg-[#FED47D] px-2.5 py-1 text-[11px] font-bold text-[#2A120D] shadow-[0_12px_30px_rgba(254,212,125,0.20)] sm:right-4 sm:top-4">
+                    <div className="absolute right-3 top-3 rounded-full bg-[#741314] px-2.5 py-1 text-[11px] font-bold text-[#FDE3AD] shadow-[0_12px_30px_rgba(116,19,20,0.20)] sm:right-4 sm:top-4">
                       {formatHomePrice(item)}
                     </div>
                     <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
@@ -1037,11 +1076,11 @@ export function DemoHome({
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
           <div className="order-2 lg:order-1">
             <div className="relative mx-auto max-w-[22.5rem] overflow-visible lg:mx-0">
-              <div className="absolute left-1/2 top-1/2 h-[31rem] w-[31rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.24),rgba(169,64,42,0.18)_34%,rgba(169,64,42,0.08)_52%,transparent_72%)] blur-3xl" />
+              <div className="absolute left-1/2 top-1/2 h-[31rem] w-[31rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.24),rgba(169,64,42,0.18)_34%,rgba(169,64,42,0.08)_52%,transparent_72%)] blur-3xl" />
               <div className="group relative isolate w-full transform-gpu overflow-visible">
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-x-10 -inset-y-8 -z-20 rounded-[3rem] bg-[radial-gradient(circle_at_50%_42%,rgba(254,212,125,0.28),rgba(169,64,42,0.16)_38%,rgba(169,64,42,0.06)_58%,transparent_74%)] blur-2xl"
+                  className="absolute -inset-x-10 -inset-y-8 -z-20 rounded-[3rem] bg-[radial-gradient(circle_at_50%_42%,rgba(116,19,20,0.28),rgba(169,64,42,0.16)_38%,rgba(169,64,42,0.06)_58%,transparent_74%)] blur-2xl"
                 />
                 <div
                   aria-hidden="true"
@@ -1111,7 +1150,7 @@ export function DemoHome({
 
                 <Link href={FEATURED_HOME_ZONE.href} className="block shrink-0">
                   <div className="relative aspect-square overflow-hidden bg-[#141414]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,rgba(254,212,125,0.32),rgba(169,64,42,0.18)_42%,rgba(7,14,10,1)_100%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_30%,rgba(116,19,20,0.32),rgba(169,64,42,0.18)_42%,rgba(7,14,10,1)_100%)]" />
                     <Image
                       src={FEATURED_HOME_ZONE.posterSrc}
                       alt={FEATURED_HOME_ZONE.imageAlt}
@@ -1173,7 +1212,7 @@ export function DemoHome({
                       <h3 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111] sm:text-xl sm:leading-6">
                         {FEATURED_HOME_ZONE.name}
                       </h3>
-                      <span className="shrink-0 rounded-full bg-[#FED47D] px-3 py-1.5 text-sm font-bold text-[#2A120D]">
+                      <span className="shrink-0 rounded-full bg-[#741314] px-3 py-1.5 text-sm font-bold text-[#FDE3AD]">
                         {FEATURED_HOME_ZONE.cta}
                       </span>
                     </div>
@@ -1198,7 +1237,7 @@ export function DemoHome({
           </div>
 
           <div className="order-1 lg:order-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#FED47D]">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
               Zonas
             </p>
             <h2 className="mt-4 max-w-xl text-4xl font-semibold leading-[0.9] tracking-[-0.07em] text-white sm:text-6xl">
@@ -1209,7 +1248,7 @@ export function DemoHome({
             </p>
             <Link
               href={getZonesHref(selectedCity)}
-              className="mt-7 inline-flex rounded-full border border-[#FED47D]/32 bg-[#FED47D]/14 px-5 py-3 text-sm font-semibold text-[#FFF2D2] transition hover:-translate-y-0.5 hover:bg-[#FED47D]/22"
+              className="mt-7 inline-flex rounded-full border border-[#741314]/32 bg-[#741314]/14 px-5 py-3 text-sm font-semibold text-[#FDE3AD] transition hover:-translate-y-0.5 hover:bg-[#741314]/22"
             >
               Ver zonas
             </Link>
@@ -1221,7 +1260,7 @@ export function DemoHome({
         <div className="mx-auto max-w-6xl">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#FED47D]">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
                 Recogida
               </p>
               <h2 className="mt-4 max-w-4xl text-4xl font-semibold leading-[0.9] tracking-[-0.07em] text-white sm:text-6xl">
@@ -1232,8 +1271,8 @@ export function DemoHome({
               No hay menús infinitos. El flujo está pensado para mirar, decidir y recoger.
             </p>
           </div>
-          <div className="group/route relative mt-12 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[radial-gradient(circle_at_18%_20%,rgba(254,212,125,0.13),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025))] p-5 shadow-[0_34px_100px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
-            <div className="pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.14),transparent_70%)] blur-3xl" />
+          <div className="group/route relative mt-12 overflow-hidden rounded-[2.5rem] border border-white/10 bg-[radial-gradient(circle_at_18%_20%,rgba(116,19,20,0.13),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.025))] p-5 shadow-[0_34px_100px_rgba(0,0,0,0.24)] sm:p-8 lg:p-10">
+            <div className="pointer-events-none absolute -left-24 top-8 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_70%)] blur-3xl" />
             <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.16),transparent_70%)] blur-3xl" />
             <div className="absolute inset-0 opacity-30 [background-image:linear-gradient(90deg,rgba(255,255,255,0.045)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.035)_1px,transparent_1px)] [background-size:44px_44px]" />
 
@@ -1245,9 +1284,9 @@ export function DemoHome({
             >
               <defs>
                 <linearGradient id="pickup-route-main" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="0%" stopColor="rgba(254,212,125,0.04)" />
-                  <stop offset="45%" stopColor="rgba(254,212,125,0.62)" />
-                  <stop offset="100%" stopColor="rgba(254,212,125,0.12)" />
+                  <stop offset="0%" stopColor="rgba(116,19,20,0.04)" />
+                  <stop offset="45%" stopColor="rgba(116,19,20,0.62)" />
+                  <stop offset="100%" stopColor="rgba(116,19,20,0.12)" />
                 </linearGradient>
               </defs>
               <path
@@ -1300,7 +1339,7 @@ export function DemoHome({
               ].map(({ label, title, text, Icon, lift, backgroundImage }) => (
                 <div
                   key={title}
-                  className={`group/step relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#160f0c]/72 bg-cover bg-center p-5 shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur-md transition duration-500 hover:-translate-y-2 hover:border-[#FED47D]/30 hover:shadow-[0_28px_90px_rgba(169,64,42,0.18)] motion-reduce:transition-none ${lift}`}
+                  className={`group/step relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#160f0c]/72 bg-cover bg-center p-5 shadow-[0_24px_70px_rgba(0,0,0,0.22)] backdrop-blur-md transition duration-500 hover:-translate-y-2 hover:border-[#741314]/30 hover:shadow-[0_28px_90px_rgba(169,64,42,0.18)] motion-reduce:transition-none ${lift}`}
                   style={
                     backgroundImage
                       ? {
@@ -1310,15 +1349,15 @@ export function DemoHome({
                   }
                 >
                   {backgroundImage ? (
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_12%,rgba(254,212,125,0.22),transparent_42%),linear-gradient(90deg,rgba(4,8,7,0.34),rgba(4,8,7,0.08)_45%,rgba(4,8,7,0.42))]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_12%,rgba(116,19,20,0.22),transparent_42%),linear-gradient(90deg,rgba(4,8,7,0.34),rgba(4,8,7,0.08)_45%,rgba(4,8,7,0.42))]" />
                   ) : null}
-                  <div className="absolute -inset-2 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_0%,rgba(254,212,125,0.16),transparent_62%)] opacity-0 blur-xl transition duration-500 group-hover/step:opacity-100" />
+                  <div className="absolute -inset-2 rounded-[2.25rem] bg-[radial-gradient(circle_at_50%_0%,rgba(116,19,20,0.16),transparent_62%)] opacity-0 blur-xl transition duration-500 group-hover/step:opacity-100" />
                   <div className="relative">
                     <div className="mb-6 flex items-center justify-between gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] border border-[#FED47D]/28 bg-[#A9402A]/16 text-[#FED47D] shadow-[0_0_42px_rgba(169,64,42,0.26)] transition duration-500 group-hover/step:scale-110 group-hover/step:bg-[#A9402A]/24 motion-reduce:transition-none">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] border border-[#741314]/28 bg-[#A9402A]/16 text-[#741314] shadow-[0_0_42px_rgba(169,64,42,0.26)] transition duration-500 group-hover/step:scale-110 group-hover/step:bg-[#A9402A]/24 motion-reduce:transition-none">
                         <Icon className="h-6 w-6" strokeWidth={2.1} />
                       </div>
-                      <div className="h-2 w-2 rounded-full bg-[#FED47D] shadow-[0_0_22px_rgba(254,212,125,0.8)]" />
+                      <div className="h-2 w-2 rounded-full bg-[#741314] shadow-[0_0_22px_rgba(116,19,20,0.8)]" />
                     </div>
                     <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/38">
                       {label}
@@ -1338,18 +1377,18 @@ export function DemoHome({
       </section>
 
       <section className="relative z-10 overflow-hidden px-4 py-16 [contain-intrinsic-size:760px] [content-visibility:auto] sm:px-8 lg:py-24">
-        <div className="pointer-events-none absolute left-[-14vw] top-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.12),transparent_70%)] blur-3xl" />
+        <div className="pointer-events-none absolute left-[-14vw] top-10 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.12),transparent_70%)] blur-3xl" />
         <div className="pointer-events-none absolute bottom-0 right-[-14vw] h-96 w-96 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.15),transparent_72%)] blur-3xl" />
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.12fr_0.88fr] lg:items-center">
           <div className="group/local relative overflow-visible">
-            <div className="absolute -inset-5 rounded-[3rem] bg-[radial-gradient(circle_at_50%_44%,rgba(254,212,125,0.15),rgba(169,64,42,0.08)_42%,transparent_72%)] blur-2xl transition duration-500 group-hover/local:opacity-100" />
+            <div className="absolute -inset-5 rounded-[3rem] bg-[radial-gradient(circle_at_50%_44%,rgba(116,19,20,0.15),rgba(169,64,42,0.08)_42%,transparent_72%)] blur-2xl transition duration-500 group-hover/local:opacity-100" />
             <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-[linear-gradient(145deg,rgba(255,255,255,0.1),rgba(255,255,255,0.035))] p-5 shadow-[0_34px_110px_rgba(0,0,0,0.32)] backdrop-blur-md sm:p-7 lg:p-8">
               <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(90deg,rgba(255,255,255,0.055)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:42px_42px]" />
               <div className="absolute right-[-4rem] top-[-4rem] h-56 w-56 rounded-full bg-[#A9402A]/18 blur-3xl" />
 
               <div className="relative grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
                 <div>
-                  <div className="inline-flex rounded-full border border-[#FED47D]/24 bg-black/24 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FED47D] backdrop-blur-md">
+                  <div className="inline-flex rounded-full border border-[#741314]/24 bg-black/24 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-[#741314] backdrop-blur-md">
                     Para locales
                   </div>
                   <h2 className="mt-5 max-w-xl text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white sm:text-6xl">
@@ -1360,15 +1399,15 @@ export function DemoHome({
                   </p>
                   <Link
                     href="/unete"
-                    className="mt-7 inline-flex rounded-full bg-[#FED47D] px-5 py-3 text-sm font-semibold text-[#2A120D] shadow-[0_18px_46px_rgba(254,212,125,0.26)] transition hover:-translate-y-0.5 hover:bg-[#FFE7A8]"
+                    className="mt-7 inline-flex rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_46px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
                   >
                     Quiero que mi local está aquí
                   </Link>
                 </div>
 
                 <div className="relative min-h-[23rem]">
-                  <div className="absolute inset-0 rounded-[2.3rem] border border-white/10 bg-[radial-gradient(circle_at_48%_45%,rgba(254,212,125,0.14),rgba(255,255,255,0.045)_42%,rgba(0,0,0,0.12)_100%)] shadow-[inset_0_20px_70px_rgba(255,255,255,0.04),0_26px_80px_rgba(0,0,0,0.22)]" />
-                  <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.2),transparent_68%)] blur-3xl" />
+                  <div className="absolute inset-0 rounded-[2.3rem] border border-white/10 bg-[radial-gradient(circle_at_48%_45%,rgba(116,19,20,0.14),rgba(255,255,255,0.045)_42%,rgba(0,0,0,0.12)_100%)] shadow-[inset_0_20px_70px_rgba(255,255,255,0.04),0_26px_80px_rgba(0,0,0,0.22)]" />
+                  <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.2),transparent_68%)] blur-3xl" />
 
                   <div className="absolute inset-0 z-10 overflow-visible">
                     <Image
@@ -1395,14 +1434,14 @@ export function DemoHome({
                   </div>
 
                   <div className="relative z-20 flex min-h-[23rem] flex-col justify-between p-4 sm:p-5">
-                    <div className="self-end rounded-full border border-[#FED47D]/20 bg-black/42 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#FED47D] backdrop-blur-md">
+                    <div className="self-end rounded-full border border-[#741314]/20 bg-black/42 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#741314] backdrop-blur-md">
                       Visual real
                     </div>
 
                     <div className="rounded-[1.45rem] border border-white/10 bg-black/48 p-4 shadow-[0_24px_70px_rgba(0,0,0,0.3)] backdrop-blur-md">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div className="min-w-0">
-                          <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FED47D]">
+                          <span className="block text-[10px] font-semibold uppercase tracking-[0.22em] text-[#741314]">
                             Selección visual
                           </span>
                           <span className="mt-1 block max-w-[15rem] text-sm font-semibold leading-5 text-white/86">
@@ -1428,7 +1467,7 @@ export function DemoHome({
           </div>
 
           <div className="relative space-y-4">
-            <div className="absolute -left-8 top-0 bottom-0 hidden w-px bg-gradient-to-b from-[#FED47D]/0 via-[#FED47D]/48 to-[#FED47D]/0 lg:block" />
+            <div className="absolute -left-8 top-0 bottom-0 hidden w-px bg-gradient-to-b from-[#741314]/0 via-[#741314]/48 to-[#741314]/0 lg:block" />
             {[
               {
                 Icon: TrendingUp,
@@ -1448,11 +1487,11 @@ export function DemoHome({
             ].map(({ Icon, title, text }) => (
               <div
                 key={title}
-                className="group/benefit relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.045] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.16)] transition duration-500 hover:-translate-y-1 hover:border-[#FED47D]/28 hover:bg-white/[0.065] hover:shadow-[0_28px_84px_rgba(169,64,42,0.16)] motion-reduce:transition-none"
+                className="group/benefit relative overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[0.045] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.16)] transition duration-500 hover:-translate-y-1 hover:border-[#741314]/28 hover:bg-white/[0.065] hover:shadow-[0_28px_84px_rgba(169,64,42,0.16)] motion-reduce:transition-none"
               >
                 <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-[#A9402A]/0 blur-2xl transition duration-500 group-hover/benefit:bg-[#A9402A]/14" />
                 <div className="relative flex gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] border border-[#FED47D]/22 bg-[#A9402A]/12 text-[#FED47D] transition duration-500 group-hover/benefit:scale-105 group-hover/benefit:bg-[#A9402A]/20 motion-reduce:transition-none">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] border border-[#741314]/22 bg-[#A9402A]/12 text-[#741314] transition duration-500 group-hover/benefit:scale-105 group-hover/benefit:bg-[#A9402A]/20 motion-reduce:transition-none">
                     <Icon className="h-5 w-5" strokeWidth={2.1} />
                   </div>
                   <div>
@@ -1464,7 +1503,7 @@ export function DemoHome({
                 </div>
               </div>
             ))}
-            <div className="rounded-[1.5rem] border border-[#FED47D]/16 bg-[#A9402A]/10 p-5 text-sm font-medium leading-6 text-[#FFF2D2]">
+            <div className="rounded-[1.5rem] border border-[#741314]/16 bg-[#A9402A]/10 p-5 text-sm font-medium leading-6 text-[#FDE3AD]">
               Una herramienta pensada para enseñar mejor lo que ya haces bien, sin añadir más trabajo al día.
             </div>
           </div>
@@ -1480,10 +1519,10 @@ export function DemoHome({
           }}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(169,64,42,0.24),rgba(255,255,255,0.03)_36%,rgba(0,0,0,0.18)_100%)]" />
-          <div className="absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.13),transparent_70%)] blur-3xl" />
+          <div className="absolute right-[-10%] top-[-20%] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.13),transparent_70%)] blur-3xl" />
           <div className="relative grid gap-9 lg:grid-cols-[1fr_0.72fr] lg:items-end">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#FED47D]">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
                 El proyecto
               </p>
               <h2 className="mt-5 max-w-4xl text-4xl font-semibold leading-[0.92] tracking-[-0.07em] text-white sm:text-6xl">
@@ -1513,7 +1552,7 @@ export function DemoHome({
               <div className="mt-5 flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <Link
                   href="/el-proyecto"
-                  className="inline-flex justify-center rounded-full bg-[#FED47D] px-5 py-3 text-sm font-semibold text-[#2A120D] shadow-[0_18px_46px_rgba(254,212,125,0.20)] transition hover:-translate-y-0.5 hover:bg-[#FFE7A8]"
+                  className="inline-flex justify-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_46px_rgba(116,19,20,0.20)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
                 >
                   Conocer el proyecto
                 </Link>

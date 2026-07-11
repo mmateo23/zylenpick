@@ -100,9 +100,9 @@ const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
   logoWidth: 210,
   logoHeight: 44,
   logoClassName: "h-auto w-[108px] sm:w-[118px]",
-  compactLogoWidth: 40,
-  compactLogoHeight: 9,
-  compactLogoClassName: "h-auto w-[1.05rem] opacity-90 sm:w-[2.1rem]",
+  compactLogoWidth: 92,
+  compactLogoHeight: 30,
+  compactLogoClassName: "h-auto w-[3.7rem] opacity-95 drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)] sm:w-[5.2rem]",
   homeHref: "/",
   emptyEyebrow: "Platos",
   emptyTitle: "No hay platos disponibles",
@@ -110,7 +110,7 @@ const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
     "En cuanto haya platos con imagen en el showcase, esta demo usara ese contenido real para construir el explorador visual.",
   backLabel: "Volver al inicio",
   backCompactLabel: "Inicio",
-  heroEyebrow: "Explorador visual",
+  heroEyebrow: "Decide rapido",
   heroTitle: "¿Qué nos apetece hoy?",
   heroDescription:
     "Un laboratorio visual para descubrir platos como si fuera un explorador social: foto primero, contexto justo y detalle solo al abrir.",
@@ -2445,8 +2445,8 @@ export function DemoDishesCarousel({
                         <div
                           className={
                             isLightTheme
-                              ? "absolute left-2 top-2 z-[2] inline-flex items-center rounded-[0.82rem] border border-black/8 bg-white/82 px-2 py-1 shadow-[0_10px_24px_rgba(0,0,0,0.06)] backdrop-blur-xl sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1.5"
-                              : "absolute left-2 top-2 z-[2] inline-flex items-center rounded-[0.82rem] border border-white/10 bg-black/30 px-2 py-1 backdrop-blur-xl sm:left-2.5 sm:top-2.5 sm:px-2.5 sm:py-1.5"
+                              ? "absolute left-3 top-3 z-[2] inline-flex items-center sm:left-3.5 sm:top-3.5"
+                              : "absolute left-3 top-3 z-[2] inline-flex items-center sm:left-3.5 sm:top-3.5"
                           }
                         >
                           <Image

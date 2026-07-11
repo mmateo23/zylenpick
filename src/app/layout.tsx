@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   description:
     "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
   icons: {
-    icon: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
-    shortcut: "/logo/Pickyalo_isotipo_Vanilla_APP.svg",
+    icon: "/logo/Agrupar.svg",
+    shortcut: "/logo/Agrupar.svg",
     apple: "/icons/apple-touch-icon.png",
   },
   appleWebApp: {
@@ -61,7 +61,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo/Pickyalo_Logo_Coral.svg",
+        url: "/logo/LogoNuevo.svg",
         width: 1200,
         height: 630,
         alt: "Pickyalo",
@@ -73,12 +73,12 @@ export const metadata: Metadata = {
     title: "Pickyalo | Productos y platos para recoger",
     description:
       "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
-    images: ["/logo/Pickyalo_Logo_Coral.svg"],
+    images: ["/logo/LogoNuevo.svg"],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#381932",
+  themeColor: "#741314",
 };
 export default function RootLayout({
   children,

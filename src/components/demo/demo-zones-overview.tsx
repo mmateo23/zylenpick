@@ -232,11 +232,6 @@ export function DemoZonesOverview({
 
         <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
           <div className="zones-hero-copy max-w-[42rem]">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.28em] text-white/60 backdrop-blur-xl">
-              <Sparkles className="h-3.5 w-3.5 text-[#FED47D]" />
-              Explorador visual
-            </div>
-
             <div className="space-y-4">
               <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.34em] text-white/44">
                 Zonas disponibles
@@ -251,14 +246,6 @@ export function DemoZonesOverview({
               </p>
             </div>
 
-            <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-7">
-              <span className="zones-chip rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
-                {cities.length === 1 ? "Zona activa" : `${cities.length} zonas activas`}
-              </span>
-              <span className="zones-chip rounded-full border border-[#FED47D]/14 bg-[#FED47D]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FED47D] backdrop-blur-xl">
-                Entrada directa a la zona
-              </span>
-            </div>
           </div>
 
           <div className="mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6">

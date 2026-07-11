@@ -196,7 +196,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               <span className="h-9 w-9" aria-hidden="true" />
             )}
 
-            <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
+            <div className="flex min-w-0 items-center justify-center">
               <Link
                 href="/"
                 className="inline-flex min-h-[22px] items-center justify-center"
@@ -211,12 +211,6 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   className="h-auto w-[82px]"
                 />
               </Link>
-              <span
-                key={activeCategoryLabel}
-                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-accent"
-              >
-                {activeCategoryLabel}
-              </span>
             </div>
 
             <Link

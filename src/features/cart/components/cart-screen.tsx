@@ -75,6 +75,9 @@ const receiptFrameStyle: CSSProperties = {
 
 const receiptDividerClassName = "my-4 border-t border-dashed border-black/55";
 
+const cartTicketHeroImageUrl =
+  "https://images.unsplash.com/photo-1528459105426-b9548367069b?q=85&w=1800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+
 function keepOnlyDigits(value: string) {
   return value.replace(/\D/g, "");
 }
@@ -410,14 +413,12 @@ export function CartScreen({ design }: CartScreenProps) {
   };
 
   return (
-    <main className="relative z-10 -mt-[5.4rem] overflow-hidden bg-page pb-10 pt-[5.4rem] text-text-primary lg:pb-20">
+    <main className="relative z-10 -mt-[7rem] overflow-hidden bg-page pb-10 pt-[7rem] text-text-primary lg:pb-20">
       <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
           style={{
-            backgroundImage: cart.venue.coverUrl ?? cart.items[0]?.imageUrl
-              ? `url(${cart.venue.coverUrl ?? cart.items[0]?.imageUrl})`
-              : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
+            backgroundImage: `url(${cartTicketHeroImageUrl})`,
           }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_18%),linear-gradient(90deg,rgba(5,8,22,0.97)_0%,rgba(5,8,22,0.9)_42%,rgba(5,8,22,0.68)_72%,rgba(5,8,22,0.44)_100%),linear-gradient(180deg,rgba(5,8,22,0.34)_0%,rgba(5,8,22,0.68)_48%,rgba(5,8,22,0.98)_100%)]" />

@@ -5,6 +5,8 @@ Estado: decision de marca aprobada, sin migracion masiva.
 
 Nota: CSS tokens v0.2 expuestos en `src/app/globals.css`. Legacy tokens siguen presentes por compatibilidad.
 
+Nota: Home real migrada a Brand Base v0.2. Logos publicos principales migrados a la nueva familia `LogoNuevo`. Assets legacy siguen presentes por compatibilidad.
+
 ## Decision Final
 
 La direccion principal de Pickyalo pasa a ser `Brand Base`: fondo blanco hueso y granate como color principal de marca.
