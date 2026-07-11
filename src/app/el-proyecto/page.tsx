@@ -15,7 +15,7 @@ export default async function ProjectRoutePage() {
     <SiteShell showBasicFooter={false} wideContent>
       <ProjectPage />
       <div className="mt-6">
-        <ZylenPickFooter />
+        <ZylenPickFooter theme="light" />
       </div>
     </SiteShell>
   );

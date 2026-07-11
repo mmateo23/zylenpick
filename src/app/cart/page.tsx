@@ -23,10 +23,10 @@ export default async function CartPage() {
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-cover bg-center"
         style={{ backgroundImage: `url(${cartTicketHeroImageUrl})` }}
       />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(5,8,22,0.22),rgba(5,8,22,0.72))]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(36,17,14,0.16),rgba(253,227,173,0.78))]" />
       <SiteHeader />
       <CartScreen design={design} />
-      <ZylenPickFooter />
+      <ZylenPickFooter theme="light" />
     </div>
   );
 }

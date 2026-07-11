@@ -11,11 +11,11 @@ export function PickyaloToaster() {
       options={{
         duration: 4200,
         roundness: 18,
-        fill: "#fffdf5",
+        fill: "#FFF7E8",
         autopilot: false,
         styles: {
-          title: "font-weight: 800; color: #381932;",
-          description: "color: rgba(56, 25, 50, 0.72);",
+          title: "font-weight: 800; color: #24110E;",
+          description: "color: rgba(36, 17, 14, 0.68);",
           button: "font-weight: 700;",
         },
       }}

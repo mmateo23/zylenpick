@@ -105,13 +105,13 @@ export default async function JoinPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="#solicitud"
-                  className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(254,212,125,0.1),rgba(227,89,55,0.92))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(254,212,125,0.16)]"
+                  className="magnetic-button inline-flex justify-center rounded-full border border-[#741314] bg-[#741314] px-6 py-3.5 text-sm font-semibold text-[#FDE3AD] shadow-[0_16px_36px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10]"
                 >
                   Quiero aparecer en Pickyalo
                 </Link>
                 <Link
                   href="#como-se-vera"
-                  className="magnetic-button inline-flex justify-center rounded-full border border-white/12 bg-black/18 px-6 py-3.5 text-sm font-semibold text-white/82 backdrop-blur-md transition hover:bg-black/26"
+                  className="magnetic-button inline-flex justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FDE3AD]/12 px-6 py-3.5 text-sm font-semibold text-[#FDE3AD] backdrop-blur-md transition hover:bg-[#FDE3AD]/18"
                 >
                   Ver cómo se ver?
                 </Link>

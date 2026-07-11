@@ -128,7 +128,7 @@ export function ProjectScrollSlider() {
         .querySelectorAll<HTMLElement>("[data-project-slide-indicator]")
         .forEach((indicator, index) => {
           indicator.style.color =
-            index === nextIndex ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.44)";
+            index === nextIndex ? "rgba(116,19,20,1)" : "rgba(116,19,20,0.44)";
           const marker = indicator.querySelector<HTMLElement>("[data-project-marker]");
           if (marker) {
             marker.style.width = index === nextIndex ? "2rem" : "0.75rem";
@@ -147,7 +147,7 @@ export function ProjectScrollSlider() {
   }, [slides.length]);
 
   return (
-    <div className="relative w-full rounded-[2rem] bg-[#10070d] text-white">
+    <div className="relative w-full rounded-[2rem] border-2 border-[#741314] bg-[linear-gradient(135deg,#FFF7E8,#FDE3AD)] text-[#24110E]">
       <section
         className="project-slider-intro"
         style={{
@@ -160,7 +160,7 @@ export function ProjectScrollSlider() {
           borderTopLeftRadius: "2rem",
           borderTopRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(90deg, rgba(16,7,13,0.9), rgba(16,7,13,0.58) 52%, rgba(16,7,13,0.78)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(90deg, rgba(253,227,173,0.94), rgba(255,247,232,0.62) 52%, rgba(253,227,173,0.84)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -215,7 +215,7 @@ export function ProjectScrollSlider() {
               </div>
               <div className="project-hero-ticket">
                 <div>
-                  <span>Selección viva</span>
+                  <span>SelecciÃ³n viva</span>
                   <strong>Productos que se entienden antes de pedir.</strong>
                 </div>
                 <Link href="/platos">Escaparate</Link>
@@ -288,7 +288,7 @@ export function ProjectScrollSlider() {
               position: "absolute",
               inset: 0,
               background:
-                "radial-gradient(circle at 26% 48%, rgba(194,97,87,0.24), transparent 38%), radial-gradient(circle at 82% 24%, rgba(254,212,125,0.14), transparent 30%)",
+                "radial-gradient(circle at 26% 48%, rgba(194,97,87,0.24), transparent 38%), radial-gradient(circle at 82% 24%, rgba(116,19,20,0.14), transparent 30%)",
             }}
           />
 
@@ -432,7 +432,7 @@ export function ProjectScrollSlider() {
             <h2 style={heroTitleStyle}>Un escaparate vivo para cada barrio.</h2>
           </div>
           <div style={closingCardStyle}>
-            <p style={{ color: "#fff", fontSize: "1.35rem", lineHeight: 1.45 }}>
+            <p style={{ color: "#24110E", fontSize: "1.35rem", lineHeight: 1.45 }}>
               Queremos que un buen producto cercano sea facil de encontrar,
               facil de entender y facil de recoger.
             </p>
@@ -465,7 +465,7 @@ export function ProjectScrollSlider() {
 }
 
 const eyebrowStyle = {
-  color: "#fed47d",
+  color: "#741314",
   fontSize: "0.78rem",
   fontWeight: 800,
   letterSpacing: "0.28em",
@@ -475,7 +475,7 @@ const eyebrowStyle = {
 const heroTitleStyle = {
   marginTop: "1.25rem",
   maxWidth: "12ch",
-  color: "#fff",
+  color: "#741314",
   fontSize: "clamp(4rem, 10vw, 7.8rem)",
   fontWeight: 800,
   lineHeight: 0.86,
@@ -483,7 +483,7 @@ const heroTitleStyle = {
 };
 
 const heroCopyStyle = {
-  color: "rgba(255,255,255,0.82)",
+  color: "rgba(36,17,14,0.74)",
   fontSize: "clamp(1.45rem, 2.3vw, 2rem)",
   fontWeight: 600,
   lineHeight: 1.12,
@@ -492,7 +492,7 @@ const heroCopyStyle = {
 const slideTitleStyle = {
   marginTop: "1.25rem",
   maxWidth: "12ch",
-  color: "#fff",
+  color: "#741314",
   fontSize: "clamp(3.4rem, 8.5vw, 6.5rem)",
   fontWeight: 800,
   lineHeight: 0.9,
@@ -502,7 +502,7 @@ const slideTitleStyle = {
 const slideCopyStyle = {
   marginTop: "1.75rem",
   maxWidth: "42rem",
-  color: "rgba(255,255,255,0.94)",
+  color: "rgba(36,17,14,0.78)",
   fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
   fontWeight: 650,
   lineHeight: 1.62,
@@ -513,9 +513,9 @@ const slideActionStyle = {
   justifyContent: "center",
   marginTop: "1.65rem",
   borderRadius: "999px",
-  border: "1px solid rgba(254,212,125,0.72)",
-  background: "#fed47d",
-  color: "#381932",
+  border: "1px solid #741314",
+  background: "#741314",
+  color: "#FDE3AD",
   padding: "0.86rem 1.35rem",
   fontSize: "0.92rem",
   fontWeight: 900,
@@ -533,8 +533,8 @@ const primaryButtonStyle = {
   display: "inline-flex",
   justifyContent: "center",
   borderRadius: "999px",
-  background: "#fed47d",
-  color: "#381932",
+  background: "#741314",
+  color: "#FDE3AD",
   padding: "0.9rem 1.35rem",
   fontSize: "0.92rem",
   fontWeight: 800,
@@ -545,9 +545,9 @@ const secondaryButtonStyle = {
   display: "inline-flex",
   justifyContent: "center",
   borderRadius: "999px",
-  border: "1px solid rgba(255,255,255,0.18)",
-  background: "rgba(255,255,255,0.08)",
-  color: "#fff",
+  border: "1px solid #741314",
+  background: "rgba(255,247,232,0.76)",
+  color: "#741314",
   padding: "0.9rem 1.35rem",
   fontSize: "0.92rem",
   fontWeight: 800,
@@ -572,7 +572,7 @@ const progressTrackStyle = {
   width: 1,
   height: "22rem",
   transform: "translateY(-50%)",
-  background: "rgba(255,255,255,0.22)",
+  background: "rgba(116,19,20,0.22)",
 };
 
 const progressBarStyle = {
@@ -583,16 +583,16 @@ const progressBarStyle = {
   height: "100%",
   transform: "translateX(-50%) scaleY(0)",
   transformOrigin: "top",
-  background: "#fff",
+  background: "#741314",
 };
 
 const closingCardStyle = {
   position: "relative" as const,
   overflow: "hidden",
-  border: "1px solid rgba(255,255,255,0.12)",
+  border: "1px solid rgba(116,19,20,0.32)",
   borderRadius: "2rem",
-  background: "rgba(255,255,255,0.06)",
+  background: "rgba(255,247,232,0.78)",
   padding: "2rem",
-  boxShadow: "0 30px 90px rgba(0,0,0,0.28)",
+  boxShadow: "0 30px 90px rgba(116,19,20,0.12)",
   backdropFilter: "blur(14px)",
 };

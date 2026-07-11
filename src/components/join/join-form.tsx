@@ -11,16 +11,16 @@ const serviceOptions = [
 
 const businessTypes = [
   "Restaurante",
-  "Hamburguesería",
-  "Pizzería",
+  "HamburgueserÃ­a",
+  "PizzerÃ­a",
   "Sushi",
-  "Cafetería",
-  "Pastelería",
+  "CafeterÃ­a",
+  "PastelerÃ­a",
   "Otro",
 ];
 
 function fieldClassName() {
-  return "w-full rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/78 px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] focus:bg-[color:var(--surface-strong)]/92 focus:shadow-[0_0_0_4px_rgba(254,212,125,0.06)]";
+  return "w-full rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/78 px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] focus:bg-[color:var(--surface-strong)]/92 focus:shadow-[0_0_0_4px_rgba(116,19,20,0.06)]";
 }
 
 function sectionTitleClassName() {
@@ -148,7 +148,7 @@ export function JoinForm() {
       if (!response.ok) {
         throw new Error(
           responseData.message ??
-            "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
+            "No hemos podido enviar tu solicitud. Revisa los campos e intÃ©ntalo de nuevo.",
         );
       }
 
@@ -162,7 +162,7 @@ export function JoinForm() {
       setFeedback(
         error instanceof Error
           ? error.message
-          : "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
+          : "No hemos podido enviar tu solicitud. Revisa los campos e intÃ©ntalo de nuevo.",
       );
     } finally {
       setIsSubmitting(false);
@@ -177,7 +177,7 @@ export function JoinForm() {
     >
       <div
         data-join-glow
-        className="pointer-events-none absolute right-[-10%] top-[-12%] h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.14),transparent_68%)] blur-3xl"
+        className="pointer-events-none absolute right-[-10%] top-[-12%] h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-3xl"
       />
 
       <div data-join-head className="relative z-[1]">
@@ -187,7 +187,7 @@ export function JoinForm() {
         </div>
 
         <h2 className="mt-5 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.55rem]">
-          Cuéntanos lo básico y hablamos contigo.
+          CuÃ©ntanos lo bÃ¡sico y hablamos contigo.
         </h2>
 
         <p className="mt-4 max-w-[52ch] text-sm leading-7 text-[color:var(--muted)] sm:text-[0.96rem]">
@@ -203,7 +203,7 @@ export function JoinForm() {
             Te guiamos
           </span>
           <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Sin líos técnicos
+            Sin lÃ­os tÃ©cnicos
           </span>
         </div>
       </div>
@@ -233,7 +233,7 @@ export function JoinForm() {
                 required
               >
                 <option value="" disabled>
-                  Selecciona una opción
+                  Selecciona una opciÃ³n
                 </option>
                 {businessTypes.map((businessType) => (
                   <option key={businessType} value={businessType}>
@@ -252,14 +252,14 @@ export function JoinForm() {
 
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Dirección
+                DirecciÃ³n
               </span>
               <input name="address" className={fieldClassName()} required />
             </label>
 
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Teléfono del local
+                TelÃ©fono del local
               </span>
               <input
                 name="venuePhone"
@@ -315,7 +315,7 @@ export function JoinForm() {
 
             <label className="grid gap-2">
               <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Teléfono de contacto
+                TelÃ©fono de contacto
               </span>
               <input
                 name="contactPhone"
@@ -384,7 +384,7 @@ export function JoinForm() {
                 name="message"
                 rows={5}
                 className={fieldClassName()}
-                placeholder="Cuéntanos qué vendes mejor, qué zona cubres o qué quieres mejorar."
+                placeholder="CuÃ©ntanos quÃ© vendes mejor, quÃ© zona cubres o quÃ© quieres mejorar."
               />
             </label>
 
@@ -396,7 +396,7 @@ export function JoinForm() {
                 required
               />
               <span className="text-sm leading-6 text-[color:var(--muted-strong)]">
-                Acepto la política de privacidad y autorizo a Pickyalo a
+                Acepto la polÃ­tica de privacidad y autorizo a Pickyalo a
                 ponerse en contacto conmigo sobre esta solicitud.
               </span>
             </label>
@@ -416,7 +416,7 @@ export function JoinForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(254,212,125,0.1),rgba(227,89,55,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(254,212,125,0.14)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
+          className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(116,19,20,0.1),rgba(227,89,55,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(116,19,20,0.14)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
         >
           {isSubmitting ? "Enviando solicitud..." : "Quiero aparecer en Pickyalo"}
         </button>

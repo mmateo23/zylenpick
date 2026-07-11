@@ -61,94 +61,94 @@ export function CookieConsentBanner() {
       {shouldShowPanel ? (
         <section
           aria-label="Preferencias de cookies"
-          className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[23rem] text-[#381932] sm:bottom-5 sm:right-5 sm:left-auto sm:mx-0"
+          className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[23rem] text-[#741314] sm:bottom-5 sm:right-5 sm:left-auto sm:mx-0"
         >
-          <div className="relative overflow-hidden rounded-[1rem] border border-[#381932]/14 bg-[#fffdf5] shadow-[0_22px_70px_rgba(56,25,50,0.18)]">
+          <div className="relative overflow-hidden rounded-[1rem] border border-[#741314]/14 bg-[#FFF7E8] shadow-[0_22px_70px_rgba(56,25,50,0.18)]">
             <div
               aria-hidden="true"
-              className="h-2.5 bg-[radial-gradient(circle_at_6px_-3px,transparent_7px,#fffdf5_8px)] bg-[length:16px_10px]"
+              className="h-2.5 bg-[radial-gradient(circle_at_6px_-3px,transparent_7px,#FFF7E8_8px)] bg-[length:16px_10px]"
             />
 
             <div className="px-4 pb-4 pt-3.5 sm:px-4.5">
               <div className="flex items-start gap-3">
                 <div
                   aria-hidden="true"
-                  className="pickyalo-cookie-ticket-icon relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.8rem] border border-dashed border-[#381932]/22 bg-[#FFE9EC] font-mono text-[13px] font-black text-[#C26157] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)] [animation:pickyalo-cookie-ticket-wiggle_5.2s_ease-in-out_infinite]"
+                  className="pickyalo-cookie-ticket-icon relative flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.8rem] border border-dashed border-[#741314]/22 bg-[#FDE3AD] font-mono text-[13px] font-black text-[#741314] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.55)] [animation:pickyalo-cookie-ticket-wiggle_5.2s_ease-in-out_infinite]"
                 >
-                  <span className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#fffdf5]" />
-                  <span className="absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#fffdf5]" />
+                  <span className="absolute -left-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#FFF7E8]" />
+                  <span className="absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#FFF7E8]" />
                   PY
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#C26157]">
+                  <p className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[#741314]">
                     Cookie ticket
                   </p>
                   <h2 className="mt-1 text-[1.35rem] font-black uppercase leading-[0.9] tracking-[-0.05em]">
-                    Analítica clara
+                    AnalÃ­tica clara
                   </h2>
-                  <p className="mt-2 text-[13px] leading-5 text-[#381932]/76">
-                    Usamos analítica para mejorar Pickyalo. No vendemos tus
-                    datos ni capturamos información personal.
+                  <p className="mt-2 text-[13px] leading-5 text-[#741314]/76">
+                    Usamos analÃ­tica para mejorar Pickyalo. No vendemos tus
+                    datos ni capturamos informaciÃ³n personal.
                   </p>
                 </div>
               </div>
 
-              <div className="my-3 border-t border-dashed border-[#381932]/22" />
+              <div className="my-3 border-t border-dashed border-[#741314]/22" />
 
-              <div className="grid grid-cols-3 gap-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#381932]/62">
+              <div className="grid grid-cols-3 gap-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#741314]/62">
                 <div>
                   <span className="block">Uso</span>
-                  <strong className="mt-0.5 block text-[10px] text-[#381932]">
+                  <strong className="mt-0.5 block text-[10px] text-[#741314]">
                     Producto
                   </strong>
                 </div>
                 <div>
                   <span className="block">Venta</span>
-                  <strong className="mt-0.5 block text-[10px] text-[#381932]">
+                  <strong className="mt-0.5 block text-[10px] text-[#741314]">
                     No
                   </strong>
                 </div>
                 <div>
                   <span className="block">Personal</span>
-                  <strong className="mt-0.5 block text-[10px] text-[#381932]">
+                  <strong className="mt-0.5 block text-[10px] text-[#741314]">
                     No
                   </strong>
                 </div>
               </div>
 
-              <div className="my-3 border-t border-dashed border-[#381932]/22" />
+              <div className="my-3 border-t border-dashed border-[#741314]/22" />
 
               <div className="flex flex-col gap-2">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={handleReject}
-                    className="inline-flex min-h-10 items-center justify-center rounded-[0.75rem] border border-[#381932]/18 bg-[#fffdf5] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.11em] text-[#381932] transition hover:bg-[#FFE9EC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26157]/45"
+                    className="inline-flex min-h-10 items-center justify-center rounded-[0.75rem] border border-[#741314]/18 bg-[#FFF7E8] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.11em] text-[#741314] transition hover:bg-[#FDE3AD] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]/45"
                   >
                     Rechazar
                   </button>
                   <button
                     type="button"
                     onClick={handleAccept}
-                    className="inline-flex min-h-10 items-center justify-center rounded-[0.75rem] border border-[#381932]/18 bg-[#fffdf5] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.11em] text-[#381932] transition hover:bg-[#FFE9EC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26157]/45"
+                    className="inline-flex min-h-10 items-center justify-center rounded-[0.75rem] border border-[#741314]/18 bg-[#FFF7E8] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.11em] text-[#741314] transition hover:bg-[#FDE3AD] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]/45"
                   >
-                    Aceptar analítica
+                    Aceptar analÃ­tica
                   </button>
                 </div>
 
                 <Link
                   href="/cookies"
-                  className="self-center font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#C26157] underline-offset-4 hover:underline"
+                  className="self-center font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#741314] underline-offset-4 hover:underline"
                 >
-                  Política de cookies
+                  PolÃ­tica de cookies
                 </Link>
               </div>
             </div>
 
             <div
               aria-hidden="true"
-              className="h-2.5 rotate-180 bg-[radial-gradient(circle_at_6px_-3px,transparent_7px,#fffdf5_8px)] bg-[length:16px_10px]"
+              className="h-2.5 rotate-180 bg-[radial-gradient(circle_at_6px_-3px,transparent_7px,#FFF7E8_8px)] bg-[length:16px_10px]"
             />
           </div>
         </section>
@@ -159,7 +159,7 @@ export function CookieConsentBanner() {
           type="button"
           onClick={() => setIsPanelOpen(true)}
           aria-label="Cambiar preferencias de cookies"
-          className="fixed bottom-3 left-3 z-[70] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#381932]/12 bg-[#fffdf5] text-[#381932] shadow-[0_10px_30px_rgba(56,25,50,0.14)] transition hover:bg-[#FFE9EC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C26157]/45"
+          className="fixed bottom-3 left-3 z-[70] inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#741314]/12 bg-[#FFF7E8] text-[#741314] shadow-[0_10px_30px_rgba(56,25,50,0.14)] transition hover:bg-[#FDE3AD] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]/45"
         >
           <svg
             aria-hidden="true"
@@ -169,14 +169,14 @@ export function CookieConsentBanner() {
           >
             <path
               d="M20.2 13.2a7.8 7.8 0 1 1-9.4-9.4 3.1 3.1 0 0 0 3.7 3.7 3.1 3.1 0 0 0 2 3.9 3.1 3.1 0 0 0 3.7 1.8Z"
-              fill="#FFE9EC"
+              fill="#FDE3AD"
               stroke="currentColor"
               strokeWidth="1.6"
               strokeLinejoin="round"
             />
             <path
               d="M9 10.2h.01M13.6 14.5h.01M8.4 16.4h.01M15.2 9.4h.01"
-              stroke="#C26157"
+              stroke="#741314"
               strokeWidth="2.4"
               strokeLinecap="round"
             />

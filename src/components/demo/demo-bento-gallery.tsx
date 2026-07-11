@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 

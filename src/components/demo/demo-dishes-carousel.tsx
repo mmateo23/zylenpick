@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -806,16 +806,16 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
     return isLightTheme
       ? {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#0f4fff]/12 bg-[linear-gradient(145deg,rgba(255,255,255,0.88),rgba(240,245,255,0.82),rgba(255,246,214,0.92))] shadow-[0_18px_42px_rgba(21,62,158,0.08)] backdrop-blur-xl",
-          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.34),rgba(255,215,102,0.42),transparent)]",
-          badge: "mt-2 inline-flex rounded-full border border-[#0f4fff]/12 bg-[linear-gradient(135deg,rgba(15,79,255,0.08),rgba(255,215,102,0.18))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#1840a8]",
+          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.34),rgba(116,19,20,0.42),transparent)]",
+          badge: "mt-2 inline-flex rounded-full border border-[#0f4fff]/12 bg-[linear-gradient(135deg,rgba(15,79,255,0.08),rgba(116,19,20,0.18))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#1840a8]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#153b8d]/56",
           body: "mt-3 text-sm leading-6 text-black/64",
           close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-white/72 text-[#153b8d]/44 transition hover:text-[#153b8d]/72",
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#4f86ff]/18 bg-[linear-gradient(160deg,rgba(18,28,58,0.84),rgba(10,26,44,0.9),rgba(65,52,18,0.72))] shadow-[0_18px_42px_rgba(0,0,0,0.24)] backdrop-blur-xl",
-          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(116,162,255,0.42),rgba(255,215,102,0.46),transparent)]",
-          badge: "mt-2 inline-flex rounded-full border border-[#4f86ff]/16 bg-[linear-gradient(135deg,rgba(57,95,196,0.28),rgba(255,215,102,0.14))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#dfe7ff]",
+          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(116,162,255,0.42),rgba(116,19,20,0.46),transparent)]",
+          badge: "mt-2 inline-flex rounded-full border border-[#4f86ff]/16 bg-[linear-gradient(135deg,rgba(57,95,196,0.28),rgba(116,19,20,0.14))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#dfe7ff]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/42",
           body: "mt-3 text-sm leading-6 text-white/68",
           close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/44 transition hover:text-white/74",
@@ -826,7 +826,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
     return isLightTheme
       ? {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#ffd766]/16 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,249,236,0.82))] shadow-[0_16px_36px_rgba(0,0,0,0.05)] backdrop-blur-xl",
-          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,161,47,0.24),rgba(255,215,102,0.42),transparent)]",
+          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,161,47,0.24),rgba(116,19,20,0.42),transparent)]",
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/18 bg-[linear-gradient(135deg,rgba(255,186,73,0.12),rgba(255,236,174,0.2))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#8b5d10]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-black/34",
           body: "mt-3 text-sm leading-6 text-black/62",
@@ -834,7 +834,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#ffd766]/14 bg-[linear-gradient(180deg,rgba(49,33,8,0.52),rgba(255,255,255,0.04))] backdrop-blur-xl",
-          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,190,88,0.28),rgba(255,215,102,0.44),transparent)]",
+          line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,190,88,0.28),rgba(116,19,20,0.44),transparent)]",
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/14 bg-[linear-gradient(135deg,rgba(255,183,66,0.12),rgba(255,240,187,0.06))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#ffe2a6]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/38",
           body: "mt-3 text-sm leading-6 text-white/64",
@@ -845,7 +845,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
   return isLightTheme
     ? {
         panel: "overflow-hidden rounded-[1.15rem] border border-black/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(255,255,255,0.6))] shadow-[0_16px_36px_rgba(0,0,0,0.06)] backdrop-blur-xl",
-        line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.22),rgba(255,215,102,0.32),transparent)]",
+        line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.22),rgba(116,19,20,0.32),transparent)]",
         badge: "mt-2 inline-flex rounded-full border border-black/8 bg-black/[0.03] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-black/62",
         eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-black/34",
         body: "mt-3 text-sm leading-6 text-black/62",
@@ -853,7 +853,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
       }
     : {
         panel: "overflow-hidden rounded-[1.15rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.035))] backdrop-blur-xl",
-        line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(116,162,255,0.28),rgba(255,215,102,0.38),transparent)]",
+        line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(116,162,255,0.28),rgba(116,19,20,0.38),transparent)]",
         badge: "mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-white/62",
         eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/34",
         body: "mt-3 text-sm leading-6 text-white/62",
@@ -1298,7 +1298,7 @@ export function DemoDishesCarousel({
     [activeItem, activeVenueItems],
   );
   const hasActiveVenueNavigation = activeVenueItems.length > 1;
-  const isLightTheme = false;
+  const isLightTheme = true;
   const activeLogoSrc = isLightTheme
     ? content.logoLightSrc ?? content.logoSrc
     : content.logoDarkSrc ?? content.logoSrc;
@@ -2002,8 +2002,8 @@ export function DemoDishesCarousel({
         <div
           className={
             isLightTheme
-              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(255,180,93,0.10),transparent_22%),linear-gradient(180deg,rgba(7,16,13,0.68)_0%,rgba(5,7,12,0.76)_100%)]"
+              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]"
+              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(255,180,93,0.10),transparent_22%),linear-gradient(180deg,rgba(7,16,13,0.68)_0%,rgba(5,7,12,0.76)_100%)]"
           }
         />
 
@@ -2013,29 +2013,29 @@ export function DemoDishesCarousel({
               <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
                 <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
                   <Image
-                    src="https://images.unsplash.com/photo-1602097193786-f7a04b4f5bab?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src="https://images.unsplash.com/photo-1584384689201-e0bcbe2c7f1d?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt=""
                     aria-hidden="true"
                     fill
                     sizes="100vw"
-                    className="object-cover opacity-56 saturate-[1.06]"
+                    className="object-cover opacity-72 saturate-[1.05]"
                     priority
                   />
-                  <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(4,11,8,0.92)_0%,rgba(5,14,10,0.80)_46%,rgba(4,8,7,0.64)_100%)]" />
+                  <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(253,227,173,0.30)_0%,rgba(253,227,173,0)_100%)]" />
                 </div>
-                <div className="absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(254,212,125,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(254,212,125,0.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.055),transparent_42%)]" />
+                <div className="absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(253,227,173,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(253,227,173,0.14),transparent_32%),linear-gradient(180deg,rgba(255,247,232,0.08),transparent_42%)]" />
                 <div className="absolute inset-0 -z-10 rounded-[inherit] opacity-[0.18] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.28)_1px,transparent_0)] [background-size:22px_22px]" />
-                <div className="absolute inset-x-6 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#FED47D]/35 to-transparent" />
+                <div className="absolute inset-x-6 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#741314]/35 to-transparent" />
 
                 <div className="relative z-10 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:grid-cols-[minmax(0,1fr)_minmax(21rem,27rem)] lg:gap-12">
                 <div className="max-w-[42rem]">
-                  <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.28em] text-black/44" : "text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FED47D]/90"}>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FDE3AD]/88 drop-shadow-[0_6px_18px_rgba(0,0,0,0.42)]">
                     {"CERCA DE TI"}
                   </p>
                   <h1 className="mt-3 max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)] sm:max-w-[10ch]">
                     {"Elige qu\u00e9 te apetece"}
                   </h1>
-                  <p className={isLightTheme ? "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-black/62 sm:text-lg sm:leading-8" : "mt-5 max-w-[29rem] text-[1.05rem] leading-7 text-white/78 drop-shadow-[0_8px_24px_rgba(0,0,0,0.34)] sm:text-lg sm:leading-8"}>
+                  <p className="mt-5 inline-flex max-w-[31rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-lg font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-xl sm:leading-8">
                     {"Mira una selección visual de productos y platos destacados para recoger."}
                   </p>
                 </div>
@@ -2052,7 +2052,7 @@ export function DemoDishesCarousel({
                       onPointerEnter={() => setIsHeroDishBurstActive(true)}
                       onPointerLeave={() => setIsHeroDishBurstActive(false)}
                     >
-                      <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(254,212,125,0.16),rgba(169,64,42,0.10)_38%,transparent_72%)] blur-3xl" />
+                      <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.16),rgba(169,64,42,0.10)_38%,transparent_72%)] blur-3xl" />
                       {PLATOS_HERO_BURST_LAYERS.map((layer) => (
                         <Image
                           key={layer.src}
@@ -2096,7 +2096,7 @@ export function DemoDishesCarousel({
                           event.preventDefault();
                           openDishPost(heroDishPostItem);
                         }}
-                        className="relative z-10 flex w-full cursor-pointer flex-col overflow-hidden rounded-[1.8rem] bg-[#f8f7f3] text-[#111111] shadow-[0_34px_84px_rgba(0,0,0,0.52),0_0_70px_rgba(254,212,125,0.12)] transition duration-500 hover:scale-[1.035] motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite]"
+                        className="relative z-10 flex w-full cursor-pointer flex-col overflow-hidden rounded-[1.8rem] bg-[#f8f7f3] text-[#111111] shadow-[0_34px_84px_rgba(0,0,0,0.52),0_0_70px_rgba(116,19,20,0.12)] transition duration-500 hover:scale-[1.035] motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite]"
                       >
                         <header className="flex items-center justify-between gap-3 px-3.5 py-3">
                           <Link
@@ -2171,7 +2171,7 @@ export function DemoDishesCarousel({
                             <Link
                               href={getDishHref(heroDishPostItem)}
                               aria-label="Añadir para recoger"
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD]"
                             >
                               <CartIcon size={24} />
                             </Link>
@@ -2182,7 +2182,7 @@ export function DemoDishesCarousel({
                               <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111]">
                                 {getDishDisplayName(heroDishPostItem)}
                               </h2>
-                              <span className="shrink-0 rounded-full bg-[#FED47D] px-3 py-1.5 text-sm font-bold text-[#2A120D]">
+                              <span className="shrink-0 rounded-full bg-[#741314] px-3 py-1.5 text-sm font-bold text-[#FDE3AD]">
                                 {formatPrice(heroDishPostItem)}
                               </span>
                             </div>
@@ -2205,7 +2205,7 @@ export function DemoDishesCarousel({
                   {["R\u00e1pido", "Selección visual", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
                     <span
                       key={label}
-                      className={isLightTheme ? "rounded-full border border-black/8 bg-white/62 px-3.5 py-2 text-[11px] font-semibold text-black/58 shadow-[0_10px_28px_rgba(0,0,0,0.05)]" : "rounded-full border border-white/12 bg-white/[0.055] px-3.5 py-2 text-[11px] font-semibold text-white/78 shadow-[0_10px_28px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:border-[#FED47D]/30 hover:bg-[#FED47D]/10 hover:text-white"}
+                      className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/92 px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md transition hover:border-[#741314]/30 hover:bg-[#741314]/10 hover:text-[#FDE3AD] sm:px-3 sm:py-2 sm:text-xs"}
                     >
                       {label}
                     </span>
@@ -2272,14 +2272,14 @@ export function DemoDishesCarousel({
                         className={
                           isEventFilter
                             ? isActive
-                              ? "rounded-full border border-[#ffd766]/50 bg-[linear-gradient(135deg,rgba(14,88,255,0.24),rgba(254,212,125,0.16),rgba(255,215,102,0.26))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#fff3c4] shadow-[0_10px_30px_rgba(0,86,255,0.18)] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                              ? "rounded-full border border-[#ffd766]/50 bg-[linear-gradient(135deg,rgba(14,88,255,0.24),rgba(116,19,20,0.16),rgba(116,19,20,0.26))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#fff3c4] shadow-[0_10px_30px_rgba(0,86,255,0.18)] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
-                                ? "rounded-full border border-[#0f4fff]/18 bg-[linear-gradient(135deg,rgba(34,93,255,0.08),rgba(255,215,102,0.1))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#1742b0] transition hover:border-[#0f4fff]/28 hover:bg-[linear-gradient(135deg,rgba(34,93,255,0.12),rgba(255,215,102,0.14))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#4f86ff]/28 bg-[linear-gradient(135deg,rgba(33,74,196,0.22),rgba(255,215,102,0.12))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#dce6ff] transition hover:border-[#74a2ff]/36 hover:bg-[linear-gradient(135deg,rgba(33,74,196,0.28),rgba(255,215,102,0.18))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#0f4fff]/18 bg-[linear-gradient(135deg,rgba(34,93,255,0.08),rgba(116,19,20,0.1))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#1742b0] transition hover:border-[#0f4fff]/28 hover:bg-[linear-gradient(135deg,rgba(34,93,255,0.12),rgba(116,19,20,0.14))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#4f86ff]/28 bg-[linear-gradient(135deg,rgba(33,74,196,0.22),rgba(116,19,20,0.12))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#dce6ff] transition hover:border-[#74a2ff]/36 hover:bg-[linear-gradient(135deg,rgba(33,74,196,0.28),rgba(116,19,20,0.18))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                             : isActive
                               ? isLightTheme
-                                ? "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#FED47D] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
                                 ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                                 : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
@@ -2358,8 +2358,8 @@ export function DemoDishesCarousel({
                           className={
                             isActive
                               ? isLightTheme
-                                ? "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#FED47D] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
                                 ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                                 : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
@@ -2384,7 +2384,7 @@ export function DemoDishesCarousel({
                   {categoryOptions.map((category) => {
                     const isActive = categoryFilter === category;
                     return (
-                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} className={isActive ? (isLightTheme ? "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A9402A] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#FED47D] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-black/8 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
+                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} className={isActive ? (isLightTheme ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A9402A] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#741314] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-black/8 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
                         {category}
                       </button>
                     );
@@ -2458,7 +2458,7 @@ export function DemoDishesCarousel({
                             className={content.compactLogoClassName}
                           />
                         </div>
-                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,212,125,0.16),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(255,215,102,0.14),transparent_36%)] transition-opacity duration-500 ease-out group-hover:lg:opacity-0" />
+                        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.16),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(116,19,20,0.14),transparent_36%)] transition-opacity duration-500 ease-out group-hover:lg:opacity-0" />
                         <div className={isLightTheme ? "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)_34%,rgba(20,16,8,0.06))] transition-opacity duration-500 ease-out group-hover:lg:opacity-0" : "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)_32%,rgba(0,0,0,0.12))] transition-opacity duration-500 ease-out group-hover:lg:opacity-0"}/>
                         {promo.videoUrl ? (
                           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.04),rgba(4,7,11,0.1)_42%,rgba(4,7,11,0.48))]" />
@@ -2468,7 +2468,7 @@ export function DemoDishesCarousel({
                             <p className="line-clamp-2 text-[0.82rem] font-bold leading-[1.04] tracking-[-0.035em] text-white sm:text-[1rem]">
                               {promo.dish}
                             </p>
-                            <p className="mt-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#FED47D]">
+                            <p className="mt-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#741314]">
                               {promo.label}
                             </p>
                           </div>
@@ -2518,7 +2518,7 @@ export function DemoDishesCarousel({
                               {getDishDisplayName(item)}
                             </p>
                             <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
-                              <span className="shrink-0 rounded-[0.45rem] bg-[#FED47D] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#2A120D] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
+                              <span className="shrink-0 rounded-[0.45rem] bg-[#741314] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
                                 {formatPrice(item)}
                               </span>
                             </div>
@@ -2527,7 +2527,7 @@ export function DemoDishesCarousel({
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 hidden px-3 pb-3 pt-8 sm:block sm:px-4">
                           <div className="space-y-1.5">
                             <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
-                            <p className="font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FED47D] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
+                            <p className="font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FDE3AD] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.48)]">{getDecisionSignal(item)}</p>
                           </div>
                         </div>
                       </div>
@@ -2554,8 +2554,15 @@ export function DemoDishesCarousel({
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
                         <div className="flex max-w-[88%] flex-col items-center">
                           {renderHoverTitle(item)}
-                          <p className="mt-3 translate-y-2 font-serif text-[1.28rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FED47D] opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{formatPrice(item)} · {getDecisionSignal(item)}</p>
-                          <p className="mt-2 translate-y-2 text-[0.68rem] font-medium uppercase tracking-[0.22em] text-white/72 opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{getCardMicroContext(item)}</p>
+                          <p className="mt-3 flex translate-y-2 items-center justify-center gap-2 font-serif text-[1.28rem] font-semibold italic leading-none tracking-[-0.02em] text-[#741314] opacity-0 transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">
+                            <span className="bg-[#FDE3AD]/95 px-3 py-2 shadow-[0_12px_28px_rgba(36,17,14,0.18)]">
+                              {formatPrice(item)}
+                            </span>
+                            <span className="text-[#FDE3AD] drop-shadow-[0_4px_14px_rgba(0,0,0,0.45)]">
+                              {getDecisionSignal(item)}
+                            </span>
+                          </p>
+                          <p className="mt-2 translate-y-2 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD] opacity-0 drop-shadow-[0_4px_14px_rgba(0,0,0,0.48)] transition-[transform,opacity] duration-500 ease-out group-hover:lg:translate-y-0 group-hover:lg:opacity-100 group-focus-visible:lg:translate-y-0 group-focus-visible:lg:opacity-100">{getCardMicroContext(item)}</p>
                         </div>
                       </div>
                       <div className="absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
@@ -2564,7 +2571,7 @@ export function DemoDishesCarousel({
                             {getDishDisplayName(item)}
                           </p>
                           <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
-                            <span className="shrink-0 rounded-[0.45rem] bg-[#FED47D] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#2A120D] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
+                            <span className="shrink-0 rounded-[0.45rem] bg-[#741314] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.26)]">
                               {formatPrice(item)}
                             </span>
                           </div>
@@ -2573,7 +2580,7 @@ export function DemoDishesCarousel({
                       <div className="absolute inset-x-0 bottom-0 hidden px-3 pb-3 pt-8 sm:block sm:px-4">
                         <div className="translate-y-0 transition-[transform,opacity] duration-500 ease-out will-change-transform group-hover:sm:-translate-y-2 group-focus-visible:sm:-translate-y-2 group-hover:lg:opacity-0 group-focus-visible:lg:opacity-0">
                           <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">{getDishDisplayName(item)}</p>
-                          <p className="mt-1.5 font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FED47D] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">{getDecisionSignal(item)}</p>
+                          <p className="mt-1.5 font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FDE3AD] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.48)]">{getDecisionSignal(item)}</p>
                         </div>
                       </div>
                     </div>
@@ -2633,7 +2640,7 @@ export function DemoDishesCarousel({
               />
             ) : null}
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.12)_38%,rgba(0,0,0,0.9))]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_48%,rgba(254,212,125,0.16),transparent_34%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_48%,rgba(116,19,20,0.16),transparent_34%)]" />
 
             <button
               type="button"
@@ -2662,7 +2669,7 @@ export function DemoDishesCarousel({
                   {activeShot.description}
                 </p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#FED47D] px-3 py-1.5 text-xs font-black text-[#2A120D]">
+                  <span className="rounded-full bg-[#741314] px-3 py-1.5 text-xs font-black text-[#FDE3AD]">
                     {activeShot.priceLabel}
                   </span>
                   <button
@@ -2678,7 +2685,7 @@ export function DemoDishesCarousel({
                   </button>
                 </div>
                 {shotFeedback ? (
-                  <p className="mt-3 inline-flex rounded-full border border-[#FED47D]/20 bg-[#FED47D]/12 px-3 py-1.5 text-[0.72rem] font-bold text-[#FFE0A2]">
+                  <p className="mt-3 inline-flex rounded-full border border-[#741314]/20 bg-[#741314]/12 px-3 py-1.5 text-[0.72rem] font-bold text-[#FDE3AD]">
                     {shotFeedback}
                   </p>
                 ) : null}
@@ -2693,7 +2700,7 @@ export function DemoDishesCarousel({
                     "Este Shot se añadirá cuando esté conectado al panel.",
                   )
                 }
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_34px_rgba(254,212,125,0.26)] transition hover:scale-105 sm:h-12 sm:w-12"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_34px_rgba(116,19,20,0.26)] transition hover:scale-105 sm:h-12 sm:w-12"
                 aria-label="Añadir a cesta"
               >
                 <CartIcon className="h-7 w-7" />
@@ -2868,7 +2875,7 @@ export function DemoDishesCarousel({
                 <button
                   type="button"
                   onClick={() => handleAddPostToCart(activeItem)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#FED47D] text-[#2A120D] shadow-[0_14px_30px_rgba(254,212,125,0.30)] transition hover:bg-[#FFE7A8]"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD]"
                   aria-label="A\u00f1adir para recoger"
                 >
                   <CartIcon className="h-7 w-7" />
@@ -3041,7 +3048,7 @@ export function DemoDishesCarousel({
                       {getDishDisplayName(activeItem)}
                     </h2>
                     <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                      <span className={isLightTheme ? "rounded-full border border-[#FED47D]/35 bg-[#FED47D]/10 px-3 py-1.5 text-sm font-bold text-[#FED47D]" : "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/10 px-3 py-1.5 text-sm font-bold text-[#FED47D]"}>
+                      <span className={isLightTheme ? "rounded-full border border-[#741314]/35 bg-[#741314]/10 px-3 py-1.5 text-sm font-bold text-[#741314]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3 py-1.5 text-sm font-bold text-[#741314]"}>
                         {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
                       </span>
                       {activeItem.pickupEtaMin ? (
@@ -3251,7 +3258,7 @@ export function DemoDishesCarousel({
                   </div>
 
                   <div className={isLightTheme ? "mt-5 flex flex-wrap items-center gap-3 text-sm text-black/74" : "mt-5 flex flex-wrap items-center gap-3 text-sm text-white/74"}>
-                    <span className={isLightTheme ? "rounded-full border border-[#FED47D]/35 bg-[#FED47D]/10 px-3.5 py-2 font-bold text-[#FED47D]" : "rounded-full border border-[#FED47D]/28 bg-[#FED47D]/10 px-3.5 py-2 font-bold text-[#FED47D]"}>
+                    <span className={isLightTheme ? "rounded-full border border-[#741314]/35 bg-[#741314]/10 px-3.5 py-2 font-bold text-[#741314]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-2 font-bold text-[#741314]"}>
                       {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
                     </span>
                     {activeItem.pickupEtaMin ? (

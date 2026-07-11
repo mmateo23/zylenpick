@@ -53,10 +53,10 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]">
-            Así se verá
+            AsÃ­ se verÃ¡
           </p>
           <h2 className="mt-3 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.45rem]">
-            Tu selección clara, bonita y lista para elegir.
+            Tu selecciÃ³n clara, bonita y lista para elegir.
           </h2>
         </div>
         <span className="hidden rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)]/76 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[color:var(--muted)] sm:inline-flex">
@@ -80,7 +80,7 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
               />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,10,10,0.02),rgba(7,10,10,0.1)_56%,rgba(7,10,10,0.46)_100%)]" />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-4">
-                <span className="rounded-full border border-white/10 bg-black/24 px-3 py-1.5 text-[0.9rem] font-bold italic text-[#FED47D] backdrop-blur-md">
+                <span className="rounded-full border border-white/10 bg-black/24 px-3 py-1.5 text-[0.9rem] font-bold italic text-[#741314] backdrop-blur-md">
                   {formatPrice(item)}
                 </span>
                 <span className="max-w-[12rem] truncate rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white/70 backdrop-blur-md">
@@ -100,7 +100,7 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
           Nombre del local
         </span>
         <span className="rounded-full border border-[color:var(--border)] bg-[color:var(--surface-strong)]/76 px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-          Fácil de elegir
+          FÃ¡cil de elegir
         </span>
       </div>
 
@@ -108,8 +108,8 @@ export function JoinVisualShowcase({ items }: JoinVisualShowcaseProps) {
           href="/platos"
         className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[color:var(--foreground)] transition hover:text-[color:var(--brand)]"
       >
-        Ver cómo se ven los platos
-        <span aria-hidden="true">↗</span>
+        Ver cÃ³mo se ven los platos
+        <span aria-hidden="true">â†—</span>
       </Link>
     </section>
   );

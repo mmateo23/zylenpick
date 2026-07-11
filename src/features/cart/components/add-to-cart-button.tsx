@@ -95,7 +95,7 @@ export function AddToCartButton({
         onClick={handleAdd}
         className={
           buttonClassName ??
-          "magnetic-button inline-flex items-center rounded-full bg-[color:var(--surface-dark)] px-5 py-3 text-sm font-semibold text-white shadow-[var(--card-shadow)] transition hover:bg-[color:var(--surface-dark-soft)]"
+          "magnetic-button inline-flex items-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[var(--card-shadow)] transition hover:bg-[#5F0F10]"
         }
       >
         {label}

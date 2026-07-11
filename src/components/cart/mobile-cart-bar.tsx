@@ -21,10 +21,10 @@ export function MobileCartBar() {
     <div className="fixed inset-x-0 bottom-4 z-40 px-4 md:hidden">
       <Link
         href="/cart"
-        className="magnetic-button mx-auto flex w-full max-w-xl items-center justify-between rounded-[1.6rem] border border-white/10 bg-[color:var(--surface-dark)]/96 px-5 py-4 text-white shadow-[var(--shadow)] backdrop-blur"
+        className="magnetic-button mx-auto flex w-full max-w-xl items-center justify-between rounded-[1.6rem] border border-[#741314] bg-[#FFF7E8]/96 px-5 py-4 text-[#24110E] shadow-[var(--shadow-soft)] backdrop-blur"
       >
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[color:var(--brand)] text-white shadow-[var(--card-shadow)]">
+          <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[var(--card-shadow)]">
             <CartIcon size={26} />
           </span>
           <div>
@@ -32,7 +32,7 @@ export function MobileCartBar() {
               Ver cesta · {totals.totalItems} artículo
               {totals.totalItems === 1 ? "" : "s"}
             </p>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-[#24110E]/68">
               Recoge tu pedido cuando quieras
             </p>
           </div>

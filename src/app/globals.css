@@ -43,40 +43,40 @@
 
   /* Theme foundation: interchangeable accent tokens */
   --brand-accent: var(--brand-primary);
-  --brand-accent-strong: #FED47D;
-  --brand-accent-bright: #FFE7A8;
+  --brand-accent-strong: var(--brand-primary);
+  --brand-accent-bright: var(--brand-cream);
   --brand-accent-soft: var(--brand-primary-soft);
   --brand-accent-border: rgba(116, 19, 20, 0.22);
-  --brand-accent-shadow: rgba(254, 212, 125, 0.22);
+  --brand-accent-shadow: rgba(116, 19, 20, 0.18);
   --cta-primary-bg: #741314;
   --cta-primary-hover: #5F0F10;
   --cta-primary-text: #FDE3AD;
-  --icon-highlight: var(--brand-accent-strong);
+  --icon-highlight: var(--brand-primary);
   --focus-ring: #741314;
   --selection-bg: rgba(116, 19, 20, 0.10);
-  --price-highlight: var(--brand-accent-strong);
+  --price-highlight: var(--brand-primary);
 
   /* Legacy color aliases kept while pages migrate to the theme foundation. */
-  --background: #0d1312;
-  --foreground: #f3efe8;
-  --surface: #151c1a;
-  --surface-strong: #1d2724;
-  --surface-dark: #0b100f;
-  --surface-dark-soft: #13201c;
-  --border: rgba(255, 255, 255, 0.08);
-  --zylen: #FED47D;
-  --zylen-strong: #FED47D;
-  --zylen-soft: #3A2119;
-  --zylen-accent: #FED47D;
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --surface: var(--bg-surface);
+  --surface-strong: var(--bg-surface-strong);
+  --surface-dark: var(--brand-primary);
+  --surface-dark-soft: #5F0F10;
+  --border: var(--border-subtle);
+  --zylen: var(--brand-primary);
+  --zylen-strong: var(--brand-primary);
+  --zylen-soft: var(--brand-primary-soft);
+  --zylen-accent: var(--brand-primary);
   --brand: var(--zylen);
   --brand-strong: var(--zylen-strong);
   --brand-soft: var(--zylen-soft);
   --accent: var(--zylen-accent);
-  --muted: #9faaa5;
-  --muted-strong: #cfd6d1;
-  --shadow: 0 28px 70px rgba(0, 0, 0, 0.36);
-  --soft-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
-  --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  --muted: var(--text-muted);
+  --muted-strong: var(--text-secondary);
+  --shadow: var(--shadow-soft);
+  --soft-shadow: var(--shadow-soft);
+  --card-shadow: 0 10px 24px rgba(116, 19, 20, 0.14);
 }
 
 .dark {
@@ -100,12 +100,12 @@
   --status-danger: #ff6b70;
   --status-warning: #f3d58d;
 
-  --brand-accent: #fed47d;
-  --brand-accent-strong: #fed47d;
-  --brand-accent-bright: #ffe7a8;
-  --brand-accent-soft: rgba(254, 212, 125, 0.14);
-  --brand-accent-border: rgba(254, 212, 125, 0.32);
-  --brand-accent-shadow: rgba(254, 212, 125, 0.22);
+  --brand-accent: #741314;
+  --brand-accent-strong: #741314;
+  --brand-accent-bright: #FDE3AD;
+  --brand-accent-soft: rgba(116, 19, 20, 0.14);
+  --brand-accent-border: rgba(116, 19, 20, 0.32);
+  --brand-accent-shadow: rgba(116, 19, 20, 0.22);
 }
 
 * {
@@ -246,8 +246,8 @@ video {
 @layer base {
   body {
     background-image:
-      radial-gradient(circle at top left, rgba(254, 212, 125, 0.16), transparent 20%),
-      radial-gradient(circle at 85% 0%, rgba(254, 212, 125, 0.12), transparent 24%),
+      radial-gradient(circle at top left, rgba(116, 19, 20, 0.16), transparent 20%),
+      radial-gradient(circle at 85% 0%, rgba(116, 19, 20, 0.12), transparent 24%),
       linear-gradient(180deg, rgba(8, 12, 11, 0.92), rgba(13, 19, 18, 1));
   }
 }
@@ -326,7 +326,7 @@ video {
     inset: -35%;
     z-index: -1;
     background:
-      radial-gradient(circle at 24% 24%, rgba(254, 212, 125, 0.16), transparent 22%),
+      radial-gradient(circle at 24% 24%, rgba(116, 19, 20, 0.16), transparent 22%),
       radial-gradient(circle at 82% 18%, rgba(227, 89, 55, 0.16), transparent 28%),
       radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.06), transparent 26%);
     pointer-events: none;
@@ -355,7 +355,7 @@ video {
     background: linear-gradient(
       180deg,
       rgba(227, 89, 55, 0),
-      rgba(254, 212, 125, 0.16) 22%,
+      rgba(116, 19, 20, 0.16) 22%,
       rgba(255, 255, 255, 0.2) 48%,
       rgba(227, 89, 55, 0.08) 72%,
       rgba(227, 89, 55, 0)
@@ -723,7 +723,7 @@ video {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  border: 1px dashed rgba(254, 212, 125, 0.52);
+  border: 1px dashed rgba(116, 19, 20, 0.52);
   border-radius: 1.2rem;
   background: rgba(255, 255, 255, 0.1);
   padding: 1rem 1rem 1rem 1.1rem;
@@ -733,7 +733,7 @@ video {
 
 .project-hero-ticket span {
   display: block;
-  color: rgba(254, 212, 125, 0.9);
+  color: rgba(116, 19, 20, 0.9);
   font-size: 0.68rem;
   font-weight: 900;
   letter-spacing: 0.22em;
@@ -752,7 +752,7 @@ video {
 .project-hero-ticket a {
   flex: 0 0 auto;
   border-radius: 999px;
-  background: #fed47d;
+  background: #741314;
   color: #381932;
   padding: 0.72rem 0.95rem;
   font-size: 0.78rem;
@@ -784,7 +784,7 @@ video {
 .project-slide-action:focus-visible,
 .project-hero-ticket a:focus-visible,
 .project-mini-action:focus-visible {
-  outline: 3px solid rgba(254, 212, 125, 0.88);
+  outline: 3px solid rgba(116, 19, 20, 0.88);
   outline-offset: 4px;
 }
 
@@ -813,12 +813,12 @@ video {
 
 .project-mini-action:hover {
   transform: translateY(-2px);
-  border-color: rgba(254, 212, 125, 0.32);
-  background: rgba(254, 212, 125, 0.09);
+  border-color: rgba(116, 19, 20, 0.32);
+  background: rgba(116, 19, 20, 0.09);
 }
 
 .project-mini-action span {
-  color: rgba(254, 212, 125, 0.78);
+  color: rgba(116, 19, 20, 0.78);
   font-size: 0.72rem;
   font-weight: 900;
 }
@@ -839,8 +839,8 @@ video {
 }
 
 .project-title-accent {
-  color: #fed47d;
-  text-shadow: 0 18px 48px rgba(254, 212, 125, 0.18);
+  color: #741314;
+  text-shadow: 0 18px 48px rgba(116, 19, 20, 0.18);
 }
 
 .project-title-strike {
@@ -848,7 +848,7 @@ video {
   display: inline-block;
   color: rgba(255, 255, 255, 0.52);
   text-decoration-line: line-through;
-  text-decoration-color: #fed47d;
+  text-decoration-color: #741314;
   text-decoration-thickness: 0.08em;
   text-decoration-skip-ink: none;
 }
@@ -872,8 +872,8 @@ video {
   min-width: 8.5rem;
   text-align: center;
   box-shadow:
-    0 0 0 1px rgba(254, 212, 125, 0.22),
-    0 16px 44px rgba(254, 212, 125, 0.12);
+    0 0 0 1px rgba(116, 19, 20, 0.22),
+    0 16px 44px rgba(116, 19, 20, 0.12);
 }
 
 .project-outro-pizza-layer {
@@ -917,9 +917,9 @@ video {
 }
 
 .project-closing-proof span {
-  border: 1px solid rgba(254, 212, 125, 0.28);
+  border: 1px solid rgba(116, 19, 20, 0.28);
   border-radius: 999px;
-  background: rgba(254, 212, 125, 0.08);
+  background: rgba(116, 19, 20, 0.08);
   color: rgba(255, 255, 255, 0.78);
   padding: 0.55rem 0.75rem;
   font-size: 0.78rem;

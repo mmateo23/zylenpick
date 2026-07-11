@@ -30,7 +30,7 @@ function showToast(options: SileoOptions) {
 
   return sileo.show({
     duration: 4200,
-    fill: "#fffdf5",
+    fill: "#FFF7E8",
     roundness: 18,
     position: getToastPosition(),
     ...options,

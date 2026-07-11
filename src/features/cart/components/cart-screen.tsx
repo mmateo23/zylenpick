@@ -62,10 +62,10 @@ const ticketInputClassName =
   "mt-2 w-full rounded-none border-0 border-b border-dashed border-black/32 bg-transparent px-0 py-2 font-mono text-[12px] font-bold text-black outline-none transition placeholder:text-black/35 focus:border-black focus:bg-transparent focus:outline-none focus:ring-0";
 
 const receiptFrameClassName =
-  "relative mx-auto w-full max-w-[21.5rem] border border-black/20 bg-[#f4ffff] px-5 pb-7 pt-8 font-mono text-black shadow-[0_26px_72px_rgba(0,0,0,0.44),0_0_0_1px_rgba(255,255,255,0.86)_inset] ring-1 ring-white/90 before:absolute before:inset-x-0 before:top-0 before:h-3 before:content-[''] before:bg-[linear-gradient(135deg,#050816_25%,transparent_25%),linear-gradient(225deg,#050816_25%,transparent_25%)] before:bg-[length:14px_14px] before:bg-[position:0_0,7px_0] after:absolute after:inset-x-0 after:bottom-0 after:h-3 after:content-[''] after:bg-[linear-gradient(45deg,#050816_25%,transparent_25%),linear-gradient(315deg,#050816_25%,transparent_25%)] after:bg-[length:14px_14px] after:bg-[position:0_0,7px_0]";
+  "relative mx-auto w-full max-w-[21.5rem] border border-black/20 bg-[#FFF7E8] px-5 pb-7 pt-8 font-mono text-black shadow-[0_26px_72px_rgba(0,0,0,0.44),0_0_0_1px_rgba(255,255,255,0.86)_inset] ring-1 ring-white/90 before:absolute before:inset-x-0 before:top-0 before:h-3 before:content-[''] before:bg-[linear-gradient(135deg,#050816_25%,transparent_25%),linear-gradient(225deg,#050816_25%,transparent_25%)] before:bg-[length:14px_14px] before:bg-[position:0_0,7px_0] after:absolute after:inset-x-0 after:bottom-0 after:h-3 after:content-[''] after:bg-[linear-gradient(45deg,#050816_25%,transparent_25%),linear-gradient(315deg,#050816_25%,transparent_25%)] after:bg-[length:14px_14px] after:bg-[position:0_0,7px_0]";
 
 const receiptFrameStyle: CSSProperties = {
-  backgroundColor: "#f4ffff",
+  backgroundColor: "#FFF7E8",
   boxShadow:
     "0 28px 78px rgba(0,0,0,0.48), inset 0 0 0 1px rgba(255,255,255,0.92)",
   isolation: "isolate",
@@ -188,7 +188,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </h1>
               <p className="mt-4 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
                 {design?.texts.cart.emptySubtitle ??
-                  "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida."}
+                  "Tu selecciÃ³n aparecerÃ¡ aquÃ­ cuando guardes algo desde un local. DespuÃ©s solo tendrÃ¡s que confirmar la hora de recogida."}
               </p>
               <Link
                 href="/platos"
@@ -220,7 +220,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 <span>#000</span>
               </div>
               <p className="mt-1 text-[12px] leading-5">
-                Cesta pendiente de selección
+                Cesta pendiente de selecciÃ³n
               </p>
 
               <div className={receiptDividerClassName} />
@@ -232,7 +232,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </div>
               <div className="mt-2 space-y-1 text-[12px] leading-4">
                 {[
-                  ["01 x", "Explora selección", "-"],
+                  ["01 x", "Explora selecciÃ³n", "-"],
                   ["01 x", "Elige un local", "-"],
                   ["01 x", "Recoge cerca", "-"],
                 ].map(([quantity, description, price]) => (
@@ -257,7 +257,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <div className={receiptDividerClassName} />
 
               <p className="text-center text-[10px] leading-4">
-                Al confirmar una cesta aceptas que el local prepare tu selección
+                Al confirmar una cesta aceptas que el local prepare tu selecciÃ³n
                 para recogida. No se realiza pago online desde este ticket.
               </p>
             </div>
@@ -272,20 +272,20 @@ export function CartScreen({ design }: CartScreenProps) {
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-mono text-[10px] font-black uppercase tracking-[0.24em] text-black/45">
-                  Cesta vacía
+                  Cesta vacÃ­a
                 </p>
                 <h2 className="mt-2 text-2xl font-black leading-none tracking-[-0.05em] sm:text-3xl">
                   Empieza con algo que apetezca.
                 </h2>
                 <p className="mt-3 max-w-[34rem] text-sm leading-6 text-black/62">
-                  Guarda productos o platos de un único local y confirma la
-                  recogida desde un ticket claro, sin pasos de más.
+                  Guarda productos o platos de un Ãºnico local y confirma la
+                  recogida desde un ticket claro, sin pasos de mÃ¡s.
                 </p>
               </div>
 
               <Link
                 href="/platos"
-                className="inline-flex shrink-0 justify-center rounded-full bg-black px-5 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(0,0,0,0.16)] transition hover:bg-black/85"
+                className="inline-flex shrink-0 justify-center rounded-full bg-[#741314] px-5 py-3 text-sm font-black text-[#FDE3AD] shadow-[0_12px_28px_rgba(116,19,20,0.16)] transition hover:bg-[#5F0F10]"
               >
                 Explorar
               </Link>
@@ -359,10 +359,10 @@ export function CartScreen({ design }: CartScreenProps) {
     event.preventDefault();
 
     if (!customerName.trim() || !customerPhone.trim() || !pickupAt) {
-      setFeedback("Completa nombre, teléfono y hora estimada de recogida.");
+      setFeedback("Completa nombre, telÃ©fono y hora estimada de recogida.");
       showErrorToast({
         title: "Faltan datos",
-        description: "Completa nombre, teléfono y hora estimada de recogida.",
+        description: "Completa nombre, telÃ©fono y hora estimada de recogida.",
       });
       return;
     }
@@ -383,7 +383,7 @@ export function CartScreen({ design }: CartScreenProps) {
       setFeedback("No hemos podido crear el pedido.");
       showErrorToast({
         title: "No se pudo crear el pedido",
-        description: "Revisa la cesta e inténtalo otra vez.",
+        description: "Revisa la cesta e intÃ©ntalo otra vez.",
       });
       return;
     }
@@ -456,7 +456,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <p className="mt-3 text-[11px] leading-4">
                 {cart.venue.cityName}
                 <br />
-                {cart.venue.address ?? "Dirección pendiente"}
+                {cart.venue.address ?? "DirecciÃ³n pendiente"}
                 <br />
                 {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
               </p>
@@ -497,7 +497,7 @@ export function CartScreen({ design }: CartScreenProps) {
               {hiddenDesktopTicketItemsCount > 0 ? (
                 <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2">
                   <span>+{hiddenDesktopTicketItemsCount}</span>
-                  <span>Más productos</span>
+                  <span>MÃ¡s productos</span>
                   <span className="text-right">...</span>
                 </div>
               ) : null}
@@ -515,7 +515,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <p className="text-center text-[10px] leading-4">
               Aviso: el pedido se prepara para recoger en el local. Al continuar,
               confirmas los datos de recogida y aceptas que el local gestione la
-              preparación de tu selección.
+              preparaciÃ³n de tu selecciÃ³n.
             </p>
 
             {isHeroCheckoutOpen ? (
@@ -545,7 +545,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     htmlFor="hero-customer-phone"
                     className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
                   >
-                    Teléfono
+                    TelÃ©fono
                   </label>
                   <input
                     id="hero-customer-phone"
@@ -557,7 +557,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className={ticketInputClassName}
-                    placeholder="Tu teléfono"
+                    placeholder="Tu telÃ©fono"
                     autoComplete="tel"
                   />
                 </div>
@@ -592,8 +592,8 @@ export function CartScreen({ design }: CartScreenProps) {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-2 inline-flex w-full justify-center border border-black bg-black px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#ecffff] transition hover:bg-black/85 disabled:opacity-60"
-                  style={{ color: "#f4ffff" }}
+                  className="mt-2 inline-flex w-full justify-center border border-[#741314] bg-[#741314] px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#FDE3AD] transition hover:bg-[#5F0F10] disabled:opacity-60"
+                  style={{ color: "#FDE3AD" }}
                 >
                   {isSubmitting ? "Preparando..." : "Preparar para recoger"}
                 </button>
@@ -610,8 +610,8 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="button"
                 onClick={() => setIsHeroCheckoutOpen(true)}
-                className="mt-5 inline-flex w-full justify-center border border-black bg-black px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#ecffff] transition hover:bg-black/85"
-                style={{ color: "#f4ffff" }}
+                className="mt-5 inline-flex w-full justify-center border border-[#741314] bg-[#741314] px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
+                style={{ color: "#FDE3AD" }}
               >
                 Completar datos
               </button>
@@ -638,7 +638,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 {cart.venue.cityName}
               </p>
             </div>
-            <span className="shrink-0 rounded-full border border-black bg-black px-3 py-1.5 font-mono text-sm font-black text-white">
+            <span className="shrink-0 rounded-full border border-[#741314] bg-[#741314] px-3 py-1.5 font-mono text-sm font-black text-white">
               {formatPrice(totals.totalAmount, currency)}
             </span>
           </div>
@@ -681,7 +681,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </p>
               {hiddenTicketItemsCount > 0 ? (
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-black/45">
-                  +{hiddenTicketItemsCount} más
+                  +{hiddenTicketItemsCount} mÃ¡s
                 </p>
               ) : null}
             </div>
@@ -734,7 +734,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   htmlFor="mobile-customer-phone"
                   className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
                 >
-                  Teléfono
+                  TelÃ©fono
                 </label>
                 <input
                   id="mobile-customer-phone"
@@ -746,7 +746,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   inputMode="numeric"
                   pattern="[0-9]*"
                   className={ticketInputClassName}
-                  placeholder="Tu teléfono"
+                  placeholder="Tu telÃ©fono"
                   autoComplete="tel"
                 />
               </div>
@@ -782,7 +782,7 @@ export function CartScreen({ design }: CartScreenProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="magnetic-button mt-4 inline-flex w-full justify-center rounded-full bg-black px-5 py-3.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition hover:bg-black/85 disabled:opacity-60"
+            className="magnetic-button mt-4 inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
           >
             {isSubmitting
               ? "Preparando pedido..."
@@ -860,7 +860,7 @@ export function CartScreen({ design }: CartScreenProps) {
         <CartAccordion
           id="cart-details-mobile"
           title="Notas y detalles del local"
-          meta={cart.venue.address ?? "Dirección pendiente"}
+          meta={cart.venue.address ?? "DirecciÃ³n pendiente"}
           isOpen={openSections.details}
           onToggle={() => toggleSection("details")}
         >
@@ -877,13 +877,13 @@ export function CartScreen({ design }: CartScreenProps) {
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 className={`${inputClassName} min-h-24 resize-y`}
-                placeholder="Alguna indicación adicional"
+                placeholder="Alguna indicaciÃ³n adicional"
               />
             </div>
 
             <div className="rounded-[1rem] border border-border-subtle bg-surface-muted p-4 text-sm leading-6 text-text-secondary">
               <p>
-                Recogerás tu pedido directamente en el local, sin esperas
+                RecogerÃ¡s tu pedido directamente en el local, sin esperas
                 innecesarias.
               </p>
               <p className="mt-3 inline-flex items-start gap-2">
@@ -891,7 +891,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   size={18}
                   className="mt-0.5 text-icon-highlight"
                 />
-                {cart.venue.address ?? "Dirección pendiente"}
+                {cart.venue.address ?? "DirecciÃ³n pendiente"}
               </p>
               <p className="mt-2 inline-flex items-start gap-2">
                 <ClockIcon size={18} className="mt-0.5 text-icon-highlight" />
@@ -927,10 +927,10 @@ export function CartScreen({ design }: CartScreenProps) {
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
-                Selección
+                SelecciÃ³n
               </p>
               <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
-                Selección guardada.
+                SelecciÃ³n guardada.
               </h2>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
@@ -1033,7 +1033,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <p className="mt-3 text-[11px] font-bold leading-4 text-black/78">
               {cart.venue.cityName}
               <br />
-              {cart.venue.address ?? "Dirección pendiente"}
+              {cart.venue.address ?? "DirecciÃ³n pendiente"}
               <br />
               {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
             </p>
@@ -1050,7 +1050,7 @@ export function CartScreen({ design }: CartScreenProps) {
           </p>
 
           <p className="mt-4 border-y border-dashed border-black/40 py-3 text-[11px] leading-5 text-black/70">
-            Aviso: el local prepara tu selección para recoger. No se realiza
+            Aviso: el local prepara tu selecciÃ³n para recoger. No se realiza
             pago online desde este ticket.
           </p>
 
@@ -1114,7 +1114,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 htmlFor="desktop-customer-phone"
                 className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
-                Teléfono
+                TelÃ©fono
               </label>
               <input
                 id="desktop-customer-phone"
@@ -1126,7 +1126,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className={ticketInputClassName}
-                placeholder="Tu teléfono"
+                placeholder="Tu telÃ©fono"
                 autoComplete="tel"
               />
             </div>
@@ -1164,7 +1164,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 className={`${ticketInputClassName} min-h-24 resize-y`}
-                placeholder="Alguna indicación adicional"
+                placeholder="Alguna indicaciÃ³n adicional"
               />
             </div>
 
@@ -1178,7 +1178,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <p className="border-y border-dashed border-black/45 py-3 text-center text-[10px] leading-4 text-black/70">
                 Aviso legal: al preparar la recogida confirmas que los datos
                 introducidos son correctos y autorizas al local a gestionar tu
-                selección. No se realiza pago online desde este ticket.
+                selecciÃ³n. No se realiza pago online desde este ticket.
               </p>
               <p className="text-sm leading-6 text-black/62">
                 {design?.texts.cart.ctaMicrocopy ??
@@ -1187,7 +1187,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="magnetic-button inline-flex w-full justify-center rounded-full bg-black px-5 py-3.5 text-sm font-black text-white shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition hover:bg-black/85 disabled:opacity-60"
+                className="magnetic-button inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
               >
                 {isSubmitting
                   ? "Preparando pedido..."
