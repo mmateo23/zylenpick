@@ -28,6 +28,12 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
+const clashGroteskBold = localFont({
+  src: "./fonts/ClashGrotesk-Bold.woff2",
+  variable: "--font-clash-grotesk-bold",
+  weight: "700",
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   applicationName: "Pickyalo",
@@ -88,11 +94,11 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={cn("font-sans", geistSans.variable)}
+      className={cn("font-sans", geistSans.variable, clashGroteskBold.variable)}
       suppressHydrationWarning
     >
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${clashGroteskBold.variable} antialiased`}
       >
         <ThemeProvider>
           <ServiceWorkerRegister />

@@ -81,6 +81,34 @@ function getPostModalHref(item: HomeShowcaseItem) {
   return `/platos?post=${encodeURIComponent(item.id)}`;
 }
 
+function getHomeGalleryDecisionSignal(item: HomeShowcaseItem) {
+  if (item.isFeatured || item.isHomeFeatured) {
+    return "Muy elegido";
+  }
+
+  if (item.isPickupMonthHighlight) {
+    return "De los mas pedidos";
+  }
+
+  if (item.pickupEtaMin) {
+    return "Rapido";
+  }
+
+  return "Para recoger";
+}
+
+function getHomeGalleryCardClassName(item: HomeShowcaseItem, index: number) {
+  const isLarge =
+    index === 0 || item.isFeatured || item.isHomeFeatured || item.isPickupMonthHighlight;
+  const desktopSpan = isLarge
+    ? "lg:row-span-2"
+    : index === 5
+      ? "lg:col-span-2 lg:row-span-1"
+      : "lg:row-span-1";
+
+  return `group relative block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 bg-[#FFF7E8] shadow-[0_16px_36px_rgba(116,19,20,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(116,19,20,0.16)] sm:rounded-[1rem] ${desktopSpan} lg:h-full`;
+}
+
 function shouldIgnorePostNavigation(target: EventTarget | null) {
   return (
     target instanceof HTMLElement &&
@@ -150,7 +178,7 @@ const FEATURED_HOME_ZONE = {
   imageAlt: "Platos para recoger en Talavera de la Reina",
   avatarSrc:
     "https://tse3.mm.bing.net/th/id/OIP.a2oALG8ItEFAkuxZUKyfqgAAAA?pid=ImgDet&w=184&h=123&c=7&o=7&rm=3",
-  posterSrc: "/home/zonas/talavera-poster.webp",
+  posterSrc: "/home/zonas/talavera-poster-local.webp",
   videoSrc: "https://cdn.pixabay.com/video/2026/05/01/349917.mov",
   cta: "Ver zona",
   href: "/zonas/talavera-de-la-reina",
@@ -302,10 +330,11 @@ export function DemoHome({
     [previewItems],
   );
   const dishExplorerPreviewItems = useMemo(() => previewItems.slice(0, 8), [previewItems]);
+  const showLegacyHomeSections = false;
   return (
     <main
       data-demo-home-root
-      className="zylen-visual-skin relative min-h-[100svh] overflow-x-hidden text-white md:cursor-none"
+      className="zylen-visual-skin relative min-h-[100svh] overflow-x-hidden text-[#24110E] md:cursor-none"
     >
       <style jsx global>{`
         @keyframes homeHeroCardFloat {
@@ -529,7 +558,7 @@ export function DemoHome({
         <div className="brand-particle-field" />
         <div className="brand-ambient-orb brand-ambient-orb--green left-[-12vw] top-[12vh] h-[36vh] w-[42vw]" />
         <div className="brand-ambient-orb brand-ambient-orb--amber right-[-14vw] top-[10vh] h-[38vh] w-[44vw]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_0%,rgba(3,4,4,0.16)_46%,rgba(3,4,4,0.72)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(255,247,232,0.38)_0%,transparent_42%),linear-gradient(180deg,rgba(116,19,20,0.03)_0%,rgba(116,19,20,0.08)_100%)]" />
       </div>
 
       <div
@@ -541,7 +570,7 @@ export function DemoHome({
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
           <div className="relative w-32 sm:w-40 md:w-48">
             <Image
-              src="/logo/LogoNuevo_Negativo.svg"
+              src="/logo/LogoNuevo.svg"
               alt={template?.logoAlt ?? "Pickyalo"}
               width={144}
               height={48}
@@ -722,11 +751,11 @@ export function DemoHome({
             ) : null}
           </div>
 
-          <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_22px_56px_rgba(0,0,0,0.5)] sm:mt-6 lg:max-w-[9ch]">
+          <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#741314] sm:mt-6 lg:max-w-[9ch]">
             {"Elige productos y platos en segundos"}
           </h1>
 
-          <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-white/84 drop-shadow-[0_10px_28px_rgba(0,0,0,0.42)] sm:mt-4 sm:text-xl sm:leading-8">
+          <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-[#24110E]/72 sm:mt-4 sm:text-xl sm:leading-8">
             {"Mira, elige y recoge en local."}
           </p>
 
@@ -739,7 +768,7 @@ export function DemoHome({
             </Link>
             <Link
               href={getZonesHref(selectedCity)}
-              className="inline-flex items-center justify-center rounded-full border border-[#741314]/24 bg-black/20 px-5 py-3.5 text-sm font-semibold text-[#FDE3AD] transition hover:-translate-y-0.5 hover:bg-[#A9402A]/18 md:cursor-none"
+              className="inline-flex items-center justify-center rounded-full border border-[#741314]/55 bg-[#FDE3AD]/72 px-5 py-3.5 text-sm font-semibold text-[#741314] shadow-[0_14px_36px_rgba(116,19,20,0.10)] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD] md:cursor-none"
             >
               Explorar zonas
             </Link>
@@ -918,7 +947,7 @@ export function DemoHome({
               </article>
               </div>
             ) : (
-              <div className="relative flex aspect-[4/5] items-center justify-center rounded-[2.15rem] border border-white/14 bg-white/[0.075] px-8 text-center text-sm text-white/62 shadow-[0_46px_120px_rgba(0,0,0,0.58)] backdrop-blur-xl">
+              <div className="relative flex aspect-[4/5] items-center justify-center rounded-[2.15rem] border border-[#741314]/34 bg-[#FDE3AD]/54 px-8 text-center text-sm text-[#24110E]/62 shadow-[0_26px_80px_rgba(116,19,20,0.12)] backdrop-blur-xl">
                 Los platos aparecerán aquí cuando haya contenido visual.
               </div>
             )}
@@ -926,6 +955,177 @@ export function DemoHome({
         </div>
       </div>
 
+      <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-8 lg:py-24">
+        <div className="pointer-events-none absolute left-[-18vw] top-8 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-2xl" />
+        <div className="pointer-events-none absolute bottom-0 right-[-12vw] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.12),transparent_70%)] blur-2xl" />
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
+                Seleccion cercana
+              </p>
+              <h2 className="mt-4 max-w-3xl text-4xl font-semibold leading-[0.9] tracking-[-0.07em] text-[#741314] sm:text-6xl">
+                Mira platos reales y decide sin vueltas.
+              </h2>
+              <p className="mt-5 max-w-2xl text-base leading-7 text-[#24110E]/66">
+                Una seleccion corta, visual y pensada para recoger cerca.
+              </p>
+            </div>
+            <Link
+              href="/platos"
+              className="inline-flex w-fit rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_46px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
+            >
+              Ver platos
+            </Link>
+          </div>
+
+          {dishExplorerPreviewItems.length ? (
+            <div className="-mx-1.5 mt-8 grid grid-cols-2 auto-rows-[8.8rem] gap-1.5 sm:mx-0 sm:mt-10 sm:auto-rows-[9.6rem] sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
+              {dishExplorerPreviewItems.slice(0, 8).map((item, index) => (
+                <Link
+                  key={item.id}
+                  href={getPostModalHref(item)}
+                  className={getHomeGalleryCardClassName(item, index)}
+                  aria-label={`Ver ${item.name} en platos`}
+                >
+                  <div className="relative h-full overflow-hidden rounded-[inherit]">
+                    <Image
+                      src={item.imageUrl ?? "/home/assets/asset_pizza_transparent.png"}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                      className="object-cover transition duration-500 group-hover:scale-[1.035]"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(36,17,14,0.04)_34%,rgba(36,17,14,0.58))]" />
+                    <div className="pointer-events-none absolute left-2 top-2 z-[2] rounded-full border border-[#FDE3AD]/24 bg-[#741314]/54 px-2 py-1 text-[0.6rem] font-bold leading-none text-[#FDE3AD] shadow-[0_8px_20px_rgba(36,17,14,0.22)] backdrop-blur-md sm:left-2.5 sm:top-2.5">
+                      {item.venue.cityName}
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
+                      <div className="ml-auto max-w-[84%]">
+                        <p className="line-clamp-2 text-[0.82rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
+                          {item.name}
+                        </p>
+                        <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
+                          <span className="shrink-0 rounded-[0.45rem] bg-[#FDE3AD] px-1.5 py-1 text-[0.62rem] font-black leading-none text-[#741314] shadow-[0_8px_18px_rgba(0,0,0,0.22)]">
+                            {formatHomePrice(item)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-x-0 bottom-0 hidden px-3 pb-3 pt-8 sm:block sm:px-4">
+                      <div className="translate-y-0 transition-[transform,opacity] duration-500 ease-out will-change-transform group-hover:sm:-translate-y-2">
+                        <p className="line-clamp-2 text-[0.92rem] font-semibold leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.38)] sm:text-[1.06rem]">
+                          {item.name}
+                        </p>
+                        <p className="mt-1.5 font-serif text-[0.9rem] font-semibold italic leading-none tracking-[-0.02em] text-[#FDE3AD] opacity-100 [text-shadow:0_3px_12px_rgba(0,0,0,0.34)]">
+                          {formatHomePrice(item)} · {getHomeGalleryDecisionSignal(item)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 rounded-[1.5rem] border-2 border-[#741314] bg-[#FDE3AD]/54 px-5 py-8 text-center text-sm font-medium text-[#24110E]/68 shadow-[0_18px_54px_rgba(116,19,20,0.10)]">
+              Los platos apareceran aqui cuando haya contenido visual.
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="relative z-10 px-4 py-16 sm:px-8 lg:py-24">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-[1.4rem] border-2 border-[#741314] bg-[linear-gradient(135deg,#FFF7E8,#FDE3AD)] shadow-[0_18px_54px_rgba(116,19,20,0.12)] sm:rounded-[2rem]">
+          <div className="relative grid gap-8 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
+            <div className="flex flex-col justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]/72">
+                  Tu zona en Pickyalo
+                </p>
+                <h2 className="mt-5 max-w-[11ch] text-[clamp(2.5rem,6vw,5.6rem)] font-semibold leading-[0.88] tracking-[-0.08em] text-[#741314]">
+                  Primero miras cerca. Luego eliges.
+                </h2>
+                <p className="mt-5 max-w-xl text-base font-medium leading-7 text-[#24110E]/72">
+                  Talavera es el ejemplo: una zona visual con platos reales, locales cercanos y una decision rapida antes de salir a recoger.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-2">
+                {FEATURED_HOME_ZONE.stats.map((stat) => (
+                  <span
+                    key={stat}
+                    className="rounded-full border border-[#741314] bg-[#FFF7E8]/88 px-3 py-2 text-xs font-semibold text-[#741314]"
+                  >
+                    {stat}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/zonas"
+                  className="inline-flex rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_46px_rgba(116,19,20,0.22)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
+                >
+                  Ver zonas
+                </Link>
+                <Link
+                  href="/unete"
+                  className="inline-flex rounded-full border border-[#741314] bg-[#FFF7E8]/88 px-5 py-3 text-sm font-semibold text-[#741314] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD]"
+                >
+                  Unir mi local
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="relative min-h-[18rem] overflow-hidden rounded-[1.15rem] border border-[#741314] sm:rounded-[1.45rem] lg:min-h-[24rem]">
+                <Image
+                  src={FEATURED_HOME_ZONE.posterSrc}
+                  alt={FEATURED_HOME_ZONE.imageAlt}
+                  fill
+                  sizes="(min-width: 1024px) 52vw, 92vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(36,17,14,0.02),rgba(36,17,14,0.48))]" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <span className="inline-flex rounded-full bg-[#741314] px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#FDE3AD]">
+                    {FEATURED_HOME_ZONE.subtitle}
+                  </span>
+                  <h3 className="mt-4 text-4xl font-semibold leading-[0.92] tracking-[-0.06em] text-[#FFF7E8] drop-shadow-[0_8px_22px_rgba(0,0,0,0.34)] sm:text-5xl">
+                    {FEATURED_HOME_ZONE.name}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  ["01", "Mira", "Platos reales de locales cercanos."],
+                  ["02", "Elige", "Una seleccion visual, sin vueltas."],
+                  ["03", "Recoge", "Vas al local y te lo llevas."],
+                ].map(([step, title, text]) => (
+                  <div
+                    key={step}
+                    className="rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 p-4"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#741314] text-xs font-bold text-[#FDE3AD]">
+                      {step}
+                    </span>
+                    <h3 className="mt-4 text-lg font-semibold tracking-[-0.04em] text-[#741314]">
+                      {title}
+                    </h3>
+                    <p className="mt-2 text-sm font-medium leading-6 text-[#24110E]/68">
+                      {text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {showLegacyHomeSections ? (
+        <>
       <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-8 lg:py-24">
         <div className="pointer-events-none absolute left-[-18vw] top-8 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-2xl" />
         <div className="pointer-events-none absolute bottom-0 right-[-12vw] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.12),transparent_70%)] blur-2xl" />
@@ -1568,7 +1768,10 @@ export function DemoHome({
         </div>
       </section>
 
-      <ZylenPickFooter />
+        </>
+      ) : null}
+
+      <ZylenPickFooter theme="light" />
     </main>
   );
 }

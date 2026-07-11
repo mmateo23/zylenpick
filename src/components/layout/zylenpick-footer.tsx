@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, MapPinned, Sparkles, Store, Utensils } from "lucide-react";
+import {
+  ArrowUpRight,
+  MapPinned,
+  Sparkles,
+  Store,
+  Utensils,
+} from "lucide-react";
 
 type ZylenPickFooterProps = {
   theme?: "dark" | "light";
@@ -31,6 +37,29 @@ const footerLinks = [
   },
 ];
 
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <rect
+        x="3"
+        y="3"
+        width="18"
+        height="18"
+        rx="5"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
+      <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function ZylenPickFooter({
   theme = "dark",
 }: ZylenPickFooterProps) {
@@ -41,7 +70,7 @@ export function ZylenPickFooter({
       <div
         className={
           isLightTheme
-            ? "relative overflow-hidden rounded-[1.4rem] border border-black/[0.03] bg-[linear-gradient(135deg,rgba(246,242,234,0.98),rgba(242,236,225,0.94))] shadow-[0_10px_30px_rgba(0,0,0,0.035)] sm:rounded-[2rem]"
+            ? "relative overflow-hidden rounded-[1.4rem] border-2 border-[#741314] bg-[linear-gradient(135deg,#FFF7E8,#FDE3AD)] shadow-[0_18px_54px_rgba(116,19,20,0.12)] sm:rounded-[2rem]"
             : "relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(10,14,16,0.96),rgba(7,10,13,0.92))] shadow-[0_18px_48px_rgba(0,0,0,0.24)] sm:rounded-[2rem]"
         }
       >
@@ -68,7 +97,7 @@ export function ZylenPickFooter({
             <h2
               className={
                 isLightTheme
-                  ? "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-text-primary"
+                  ? "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-[#741314]"
                   : "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white"
               }
             >
@@ -78,7 +107,7 @@ export function ZylenPickFooter({
             <p
               className={
                 isLightTheme
-                  ? "mt-4 max-w-[36rem] text-sm leading-7 text-text-secondary sm:text-base"
+                  ? "mt-4 max-w-[36rem] text-sm font-medium leading-7 text-[#24110E]/72 sm:text-base"
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >
@@ -97,7 +126,7 @@ export function ZylenPickFooter({
                   href={link.href}
                   className={
                     isLightTheme
-                      ? "group flex items-center justify-between rounded-[1.15rem] border border-border-subtle bg-surface-strong px-4 py-4 text-sm text-text-secondary backdrop-blur-xl transition hover:bg-accent-soft"
+                      ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 px-4 py-4 text-sm text-[#741314] backdrop-blur-xl transition hover:bg-[#FDE3AD]"
                       : "group flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-white/72 backdrop-blur-xl transition hover:bg-white/[0.07]"
                   }
                 >
@@ -114,7 +143,7 @@ export function ZylenPickFooter({
               href="/zonas"
               className={
                 isLightTheme
-                  ? "group flex items-center justify-between rounded-[1.15rem] border border-border-subtle bg-cta px-4 py-4 text-sm text-cta-text transition hover:bg-cta-hover"
+                  ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314]/40 bg-cta px-4 py-4 text-sm text-cta-text transition hover:bg-cta-hover"
                   : "group flex items-center justify-between rounded-[1.15rem] border border-[rgba(253,227,173,0.28)] bg-[rgba(253,227,173,0.10)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(253,227,173,0.16)]"
               }
             >
@@ -124,6 +153,23 @@ export function ZylenPickFooter({
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>
+
+            <a
+              href="https://www.instagram.com/pickyalo/"
+              target="_blank"
+              rel="noreferrer"
+              className={
+                isLightTheme
+                  ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 px-4 py-4 text-sm text-[#741314] backdrop-blur-xl transition hover:bg-[#FDE3AD]"
+                  : "group flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-white/72 backdrop-blur-xl transition hover:bg-white/[0.07]"
+              }
+            >
+              <span className="flex items-center gap-3">
+                <InstagramIcon className="h-4 w-4" />
+                <span className="font-medium">Instagram</span>
+              </span>
+              <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+            </a>
           </div>
         </div>
       </div>

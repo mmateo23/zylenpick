@@ -123,14 +123,20 @@ body {
   min-height: 100vh;
 }
 
+.font-pickyalo-wordmark {
+  font-family: var(--font-clash-grotesk-bold), var(--font-geist-sans), Arial, Helvetica,
+    sans-serif;
+  font-weight: 700;
+}
+
 .zylen-visual-skin {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(circle at 18% 18%, rgba(254, 212, 125, 0.16), transparent 23%),
-    radial-gradient(circle at 78% 20%, rgba(255, 172, 78, 0.18), transparent 25%),
-    radial-gradient(circle at 50% 116%, rgba(254, 212, 125, 0.10), transparent 30%),
-    linear-gradient(180deg, #090b0a 0%, #050706 48%, #030404 100%);
+    radial-gradient(circle at 18% 18%, rgba(116, 19, 20, 0.10), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(255, 247, 232, 0.72), transparent 28%),
+    radial-gradient(circle at 50% 112%, rgba(116, 19, 20, 0.08), transparent 32%),
+    linear-gradient(180deg, #fde3ad 0%, #fff7e8 54%, #fde3ad 100%);
 }
 
 .zylen-visual-skin::before {
@@ -139,10 +145,10 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.26;
+  opacity: 0.12;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(116, 19, 20, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(116, 19, 20, 0.045) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(circle at 50% 18%, black, transparent 68%);
 }
@@ -153,8 +159,8 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.18;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.18) 0.7px, transparent 0.7px);
+  opacity: 0.07;
+  background-image: radial-gradient(rgba(116, 19, 20, 0.14) 0.7px, transparent 0.7px);
   background-size: 3px 3px;
   mix-blend-mode: overlay;
 }
@@ -169,11 +175,11 @@ body {
 }
 
 .zylen-visual-skin .brand-ambient-orb--green {
-  background: rgba(254, 212, 125, 0.16);
+  background: rgba(116, 19, 20, 0.10);
 }
 
 .zylen-visual-skin .brand-ambient-orb--amber {
-  background: rgba(255, 172, 78, 0.16);
+  background: rgba(255, 247, 232, 0.72);
   animation-delay: -7s;
 }
 
@@ -183,8 +189,8 @@ body {
   pointer-events: none;
   opacity: 0.12;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 0.8px, transparent 0.9px),
-    radial-gradient(circle, rgba(255, 180, 93, 0.75) 0 0.65px, transparent 0.8px);
+    radial-gradient(circle, rgba(116, 19, 20, 0.18) 0 0.8px, transparent 0.9px),
+    radial-gradient(circle, rgba(116, 19, 20, 0.10) 0 0.65px, transparent 0.8px);
   background-position:
     0 0,
     18px 24px;

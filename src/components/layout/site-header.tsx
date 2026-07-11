@@ -179,7 +179,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-[var(--radius-lg)] border border-border-subtle bg-surface px-2 py-1.5 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
+        <div className="rounded-[var(--radius-lg)] border border-[#741314]/30 bg-surface px-2 py-1.5 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
           <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             {showNavigation ? (
               <button
@@ -303,7 +303,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
                 <LocationPinIcon size={22} className="shrink-0" />
-                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-border-subtle bg-surface-strong px-3 py-1.5 text-[11px] font-semibold text-text-primary opacity-0 shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-[#741314]/30 bg-surface-strong px-3 py-1.5 text-[11px] font-semibold text-text-primary opacity-0 shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>
               </Link>
@@ -314,7 +314,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
         {showNavigation && isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-border-subtle bg-surface-strong p-3 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
+            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-[#741314]/30 bg-surface-strong p-3 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
             <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
