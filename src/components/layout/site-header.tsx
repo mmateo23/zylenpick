@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { LayoutGrid, MapPinned, Store } from "lucide-react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
 import { ClockIcon } from "@/components/icons/clock-icon";
@@ -23,9 +24,9 @@ type SiteHeaderProps = {
 };
 
 const navigationItems = [
-  { label: "Selección", href: "/platos" },
-  { label: "Zonas", href: "/zonas" },
-  { label: "Únete", href: "/unete" },
+  { label: "Selección", href: "/platos", Icon: LayoutGrid },
+  { label: "Zonas", href: "/zonas", Icon: MapPinned },
+  { label: "Únete", href: "/unete", Icon: Store },
 ];
 
 const mobileNavigationItems = [
@@ -37,7 +38,6 @@ const mobileNavigationItems = [
 ];
 
 const logoSrc = "/logo/LogoNuevo.svg";
-const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 function formatActiveOrderTime(pickupAt: string | null | undefined) {
   if (!pickupAt) {
@@ -106,7 +106,6 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const { activeOrder } = useActiveOrder();
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
 
   const hasCartItems = totals.totalItems > 0;
   const activeOrderHref = activeOrder ? `/checkout/success/${activeOrder.id}` : null;
@@ -150,36 +149,25 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setActiveCategoryIndex(
-        (currentIndex) => (currentIndex + 1) % rotatingCategoryLabels.length,
-      );
-    }, 2200);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
   const isItemActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
   const zoneHref = selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
-  const activeCategoryLabel = rotatingCategoryLabels[activeCategoryIndex];
 
   const dockRailClassName =
-    "bg-transparent";
+    "border-[#741314]/16 bg-[#FFF7E8]/78 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_12px_28px_rgba(116,19,20,0.09)] backdrop-blur-md";
   const dockButtonClassName =
-    "border-transparent bg-transparent text-text-secondary hover:bg-accent-soft hover:text-accent";
+    "border-[#741314]/18 bg-[#FDE3AD]/72 text-[#741314] shadow-[0_8px_20px_rgba(116,19,20,0.08)] backdrop-blur-md hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
   const orderButtonClassName = hasOrderSignal
-    ? "border-accent-border bg-accent-soft text-accent hover:bg-accent-soft"
+    ? "border-[#741314] bg-[#741314] text-[#FDE3AD] hover:bg-[#5F0F10]"
     : dockButtonClassName;
   const cityButtonClassName = selectedCity?.slug
-    ? "border-accent-border bg-accent-soft text-accent hover:bg-accent-soft"
+    ? "border-[#741314] bg-[#741314] text-[#FDE3AD] hover:bg-[#5F0F10]"
     : dockButtonClassName;
 
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-[var(--radius-lg)] border border-[#741314]/30 bg-surface px-2 py-1.5 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
+        <div className="rounded-full border border-[#741314]/26 bg-[#FDE3AD]/92 px-2 py-1.5 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5">
           <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
             {showNavigation ? (
               <button
@@ -248,12 +236,6 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                   className="h-auto w-[112px]"
                 />
               </Link>
-              <span
-                key={activeCategoryLabel}
-                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-accent-border bg-accent-soft px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-accent"
-              >
-                {activeCategoryLabel}
-              </span>
             </div>
 
             {showNavigation ? (
@@ -261,19 +243,28 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 <div
                   className={`inline-flex items-center gap-0.5 rounded-full ${dockRailClassName}`}
                 >
-                  {navigationItems.map((item) => (
+                {navigationItems.map((item) => {
+                  const Icon = item.Icon;
+
+                  return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
+                      aria-label={item.label}
+                      title={item.label}
+                      className={`group/nav relative inline-flex h-10 w-10 items-center justify-center rounded-full border outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-[#741314]/28 ${
                         isItemActive(item.href)
-                          ? "bg-cta font-bold text-cta-text shadow-[var(--shadow-soft)]"
-                          : "text-text-secondary hover:-translate-y-[1px] hover:bg-accent-soft hover:text-accent"
+                          ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_10px_22px_rgba(116,19,20,0.18)]"
+                          : "border-transparent text-[#741314]/72 hover:-translate-y-[1px] hover:bg-[#741314]/10 hover:text-[#741314]"
                       }`}
                     >
-                      {item.label}
+                      <Icon size={23} strokeWidth={2.05} />
+                      <span className="pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-50 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full border border-[#741314]/24 bg-[#FFF7E8]/96 px-2.5 py-1 text-[10px] font-semibold text-[#741314] opacity-0 shadow-[0_12px_28px_rgba(116,19,20,0.12)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/nav:translate-y-0 group-hover/nav:opacity-100 group-focus-visible/nav:translate-y-0 group-focus-visible/nav:opacity-100">
+                        {item.label}
+                      </span>
                     </Link>
-                  ))}
+                  );
+                })}
                 </div>
               </nav>
             ) : null}
@@ -303,7 +294,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 className={`group/location relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityButtonClassName}`}
               >
                 <LocationPinIcon size={22} className="shrink-0" />
-                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-[#741314]/30 bg-surface-strong px-3 py-1.5 text-[11px] font-semibold text-text-primary opacity-0 shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
+                <span className="pointer-events-none absolute right-0 top-[calc(100%+0.55rem)] z-50 max-w-[14rem] translate-y-1 whitespace-nowrap rounded-full border border-[#741314]/30 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-semibold text-[#741314] opacity-0 shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/location:translate-y-0 group-hover/location:opacity-100 group-focus-visible/location:translate-y-0 group-focus-visible/location:opacity-100">
                   {selectedCity?.name ?? "Elegir zona"}
                 </span>
               </Link>
@@ -314,7 +305,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
         {showNavigation && isMobileMenuOpen ? (
           <div
             id="mobile-navigation"
-            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-[#741314]/30 bg-surface-strong p-3 text-text-primary shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
+            className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-[#741314]/30 bg-[#FFF7E8]/98 p-3 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
             <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
@@ -324,8 +315,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       href={item.href}
                       className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
-                          ? "bg-accent-soft text-accent"
-                          : "text-text-secondary hover:bg-accent-soft hover:text-accent"
+                          ? "bg-[#741314] text-[#FDE3AD]"
+                          : "text-[#741314]/78 hover:bg-[#741314]/10 hover:text-[#741314]"
                       }`}
                     >
                       {item.href === "/cart" ? (
@@ -336,7 +327,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                       ) : item.href === "/zonas" ? (
                         <LocationPinIcon
                           size={21}
-                          className={selectedCity?.slug ? "shrink-0 text-accent" : "shrink-0"}
+                          className={selectedCity?.slug ? "shrink-0 text-[#741314]" : "shrink-0"}
                         />
                       ) : null}
                       <span>{item.label}</span>

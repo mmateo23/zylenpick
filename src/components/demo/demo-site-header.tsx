@@ -3,9 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
-import { MapPinned, Menu, X } from "lucide-react";
+import { LayoutGrid, MapPinned, Menu, Store, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
 
@@ -18,6 +18,7 @@ type DemoSiteHeaderProps = {
 type NavItem = {
   label: string;
   href: string;
+  Icon?: typeof LayoutGrid;
 };
 
 const mobileNavigationItems: NavItem[] = [
@@ -45,7 +46,6 @@ function CartBadge({ totalItems }: { totalItems: number }) {
 }
 
 const logoSrc = "/logo/Pickyalo_Logo_Vanilla.svg";
-const rotatingCategoryLabels = ["#PLATOS", "#CAFÉS", "#HELADOS", "#TACOS"];
 
 export function DemoSiteHeader({
   currentCityName = null,
@@ -55,12 +55,11 @@ export function DemoSiteHeader({
   const pathname = usePathname();
   const { totals } = useCart();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
   const navigationItems = useMemo<NavItem[]>(
     () => [
-      { label: "Selección", href: "/platos" },
-      { label: "Zonas", href: "/zonas" },
-      { label: "Únete", href: "/unete" },
+      { label: "Selección", href: "/platos", Icon: LayoutGrid },
+      { label: "Zonas", href: "/zonas", Icon: MapPinned },
+      { label: "Únete", href: "/unete", Icon: Store },
     ],
     [],
   );
@@ -72,18 +71,7 @@ export function DemoSiteHeader({
 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const activeCategoryLabel = rotatingCategoryLabels[activeCategoryIndex];
   const headerLogoSrc = isLightTheme ? "/logo/Pickyalo_Logo_Black.svg" : logoSrc;
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setActiveCategoryIndex(
-        (currentIndex) => (currentIndex + 1) % rotatingCategoryLabels.length,
-      );
-    }, 2200);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
 
   const shellClassName = isLightTheme
     ? "border-white/60 bg-white/58 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)]"
@@ -106,16 +94,16 @@ export function DemoSiteHeader({
       : iconButtonClassName;
 
   const desktopNavRailClassName = isLightTheme
-    ? "bg-transparent"
-    : "bg-transparent";
+    ? "border border-black/8 bg-white/58 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_10px_24px_rgba(20,20,20,0.07)] backdrop-blur-md"
+    : "border border-white/10 bg-white/[0.07] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_30px_rgba(0,0,0,0.16)] backdrop-blur-md";
 
   const desktopNavItemClassName = isLightTheme
-    ? "text-[#181816]/66 hover:text-[#181816] hover:bg-black/[0.045] hover:-translate-y-[1px]"
-    : "text-white/68 hover:text-white hover:bg-white/[0.07] hover:-translate-y-[1px]";
+    ? "border-transparent text-[#181816]/66 hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
+    : "border-transparent text-white/68 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white";
 
   const desktopNavItemActiveClassName = isLightTheme
-    ? "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_28px_rgba(254,212,125,0.22)]"
-    : "bg-[#FED47D] font-bold text-[#2A120D] shadow-[0_10px_30px_rgba(254,212,125,0.26)]";
+    ? "border-[#FED47D] bg-[#FED47D] text-[#2A120D] shadow-[0_10px_24px_rgba(254,212,125,0.22)]"
+    : "border-[#FED47D] bg-[#FED47D] text-[#2A120D] shadow-[0_10px_28px_rgba(254,212,125,0.26)]";
 
   const desktopDockIconClassName = isLightTheme
     ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
@@ -151,7 +139,7 @@ export function DemoSiteHeader({
               {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
-            <div className="flex min-w-0 flex-col items-center justify-center gap-0.5">
+            <div className="flex min-w-0 items-center justify-center">
               <Link
                 href="/"
                 className="inline-flex min-h-[20px] items-center justify-center"
@@ -165,12 +153,6 @@ export function DemoSiteHeader({
                   className="h-auto w-[78px] sm:w-[86px]"
                 />
               </Link>
-              <span
-                key={activeCategoryLabel}
-                className="block h-3 text-[9px] font-black leading-none tracking-[0.14em] text-[#FED47D]"
-              >
-                {activeCategoryLabel}
-              </span>
             </div>
 
             <Link
@@ -198,31 +180,40 @@ export function DemoSiteHeader({
                   className="h-auto w-[106px]"
                 />
               </Link>
-              <span
-                key={activeCategoryLabel}
-                className="inline-flex h-7 min-w-[5.6rem] items-center justify-center rounded-full border border-[#FED47D]/22 bg-[#FED47D]/10 px-2.5 text-[10px] font-black leading-none tracking-[0.16em] text-[#FED47D]"
-              >
-                {activeCategoryLabel}
-              </span>
             </div>
 
             <nav aria-label="Navegación principal" className="flex justify-center">
               <div
                 className={`inline-flex items-center gap-0.5 rounded-full ${desktopNavRailClassName}`}
               >
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-normal transition ${
-                      isItemActive(item.href)
-                        ? desktopNavItemActiveClassName
-                        : desktopNavItemClassName
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {navigationItems.map((item) => {
+                  const Icon = item.Icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      aria-label={item.label}
+                      title={item.label}
+                      className={`group/nav relative inline-flex h-10 w-10 items-center justify-center rounded-full border outline-none transition duration-200 ${
+                        isItemActive(item.href)
+                          ? desktopNavItemActiveClassName
+                          : desktopNavItemClassName
+                      }`}
+                    >
+                      {Icon ? <Icon size={23} strokeWidth={2.05} /> : null}
+                      <span
+                        className={`pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-50 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold opacity-0 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/nav:translate-y-0 group-hover/nav:opacity-100 group-focus-visible/nav:translate-y-0 group-focus-visible/nav:opacity-100 ${
+                          isLightTheme
+                            ? "border-black/10 bg-white text-[#181816]"
+                            : "border-white/10 bg-[#160f0c] text-white"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             </nav>
 
