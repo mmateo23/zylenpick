@@ -139,40 +139,40 @@ export default async function VenuePage({ params }: VenuePageProps) {
       />
 
       <main>
-        <section className="relative -mt-[5.4rem] overflow-hidden bg-[var(--overlay-hero-to)] pt-[5.4rem] text-text-inverse">
+        <section className="relative -mt-[5.4rem] overflow-hidden bg-[#FDE3AD] pt-[5.4rem] text-[#24110E]">
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
               backgroundImage: venue.coverUrl
                 ? `url(${venue.coverUrl})`
-                : "linear-gradient(135deg, var(--brand-accent-soft), var(--overlay-hero-to))",
+                : "linear-gradient(135deg, rgba(116,19,20,0.10), #FDE3AD)",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,var(--brand-accent-soft),transparent_24%),linear-gradient(90deg,rgba(5,8,22,0.88)_0%,rgba(5,8,22,0.74)_36%,rgba(5,8,22,0.22)_68%,transparent_100%),linear-gradient(180deg,rgba(5,8,22,0.08)_0%,rgba(5,8,22,0.34)_50%,rgba(5,8,22,0.9)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.10),transparent_24%),linear-gradient(90deg,rgba(253,227,173,0.95)_0%,rgba(253,227,173,0.76)_36%,rgba(255,247,232,0.32)_68%,transparent_100%),linear-gradient(180deg,rgba(253,227,173,0.12)_0%,rgba(253,227,173,0.28)_50%,rgba(253,227,173,0.86)_100%)]" />
 
           <div className="relative z-10 mx-auto flex min-h-[calc(78svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
             <div className="max-w-4xl">
               <Link
                 href={`/zonas/${venue.city.slug}`}
-                className="inline-flex w-fit text-xs font-semibold uppercase tracking-[0.2em] text-text-inverse/60 transition hover:text-text-inverse"
+                className="inline-flex w-fit text-xs font-semibold uppercase tracking-[0.2em] text-[#741314]/72 transition hover:text-[#741314]"
               >
                 Volver a {venue.city.name}
               </Link>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.24em] text-text-inverse/75 backdrop-blur-xl">
+                <span className="rounded-full border border-[#741314]/16 bg-[#FFF7E8]/82 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#741314] backdrop-blur-xl">
                   {venue.city.name}
                 </span>
-                <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl">
+                <span className="rounded-full border border-[#741314]/16 bg-[#FFF7E8]/82 px-4 py-2 text-xs font-semibold text-[#741314] backdrop-blur-xl">
                   {venue.pickupEtaMin
                     ? `${venue.pickupEtaMin} min recogida`
                     : "Recogida disponible"}
                 </span>
                 <span
-                  className={`rounded-full border border-text-inverse/10 px-4 py-2 text-xs font-medium backdrop-blur-xl ${
+                  className={`rounded-full border border-[#741314]/16 px-4 py-2 text-xs font-semibold backdrop-blur-xl ${
                     venue.isOpenNow
-                      ? "bg-accent-soft text-text-inverse"
-                      : "bg-text-inverse/[0.045] text-text-inverse/75"
+                      ? "bg-[#741314] text-[#FDE3AD]"
+                      : "bg-[#FFF7E8]/82 text-[#741314]"
                   }`}
                 >
                   {venue.isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
@@ -190,15 +190,15 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 />
               </div>
 
-              <p className="mt-6 max-w-[50rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8">
+              <p className="mt-6 max-w-[50rem] text-base leading-7 text-[#24110E]/76 sm:text-lg sm:leading-8">
                 {venue.description}
               </p>
 
-              <p className="mt-7 inline-flex items-center gap-2 text-sm font-medium text-text-inverse/60">
-                <WalkIcon size={18} className="text-accent-bright" />
+              <p className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#741314]">
+                <WalkIcon size={18} className="text-[#741314]" />
                 Selección visual con {totalMenuItems} productos y platos destacados.
               </p>
-              <p className="mt-4 max-w-[46rem] text-sm leading-6 text-text-inverse/62">
+              <p className="mt-4 max-w-[46rem] text-sm leading-6 text-[#24110E]/68">
                 Descubre la selección de {venue.name}. Explora productos,
                 platos, precios y opciones de recogida rápida en {venue.city.name} sin dar vueltas.
               </p>

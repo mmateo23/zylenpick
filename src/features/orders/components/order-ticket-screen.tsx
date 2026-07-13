@@ -478,30 +478,30 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
       </section>
 
       <aside className="space-y-6">
-        <div className="rounded-[1.6rem] border border-white/16 bg-white/[0.10] p-5 text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)] backdrop-blur-2xl backdrop-saturate-150 sm:rounded-[2rem] sm:p-6">
-          <p className="text-xs font-medium uppercase tracking-[0.26em] text-white/55">
+        <div className="rounded-[1.6rem] border border-border-subtle bg-surface p-5 text-text-primary shadow-[var(--shadow-soft)] sm:rounded-[2rem] sm:p-6">
+          <p className="text-xs font-medium uppercase tracking-[0.26em] text-text-muted">
             Siguiente paso
           </p>
           <h2 className="mt-4 text-3xl font-semibold leading-[1] sm:text-4xl">
             {design?.texts.success.nextStepTitle ??
               "Ve al local cuando esté listo."}
           </h2>
-          <div className="mt-5 space-y-3 rounded-[1.25rem] border border-white/10 bg-white/7 px-4 py-4">
-            <p className="text-sm font-semibold text-white">
+          <div className="mt-5 space-y-3 rounded-[1.25rem] border border-border-subtle bg-surface-strong px-4 py-4">
+            <p className="text-sm font-semibold text-text-primary">
               {order.venue.name}
             </p>
-            <p className="flex items-start gap-2 text-sm leading-6 text-white/76">
+            <p className="flex items-start gap-2 text-sm leading-6 text-text-secondary">
               <LocationPinIcon
                 size={18}
                 className="mt-0.5 shrink-0 text-accent"
               />
               {order.venue.address ?? "Dirección pendiente"}
             </p>
-            <p className="flex items-center gap-2 text-sm text-white/76">
+            <p className="flex items-center gap-2 text-sm text-text-secondary">
               <ClockIcon size={18} className="text-accent" />
               Lista a las {formatPickupTime(order.pickupAt)}
             </p>
-            <p className="pt-1 text-xs leading-5 text-white/55">
+            <p className="pt-1 text-xs leading-5 text-text-muted">
               {design?.texts.success.nextStepMicrocopy ??
                 "Ten esta pantalla a mano cuando llegues al local."}
             </p>
@@ -531,29 +531,29 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
 
           {journeyMetrics ? (
             <div className="mt-6 grid gap-3">
-              <div className="flex items-center gap-3 rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3">
+              <div className="flex items-center gap-3 rounded-[1.4rem] border border-border-subtle bg-surface-strong px-4 py-3">
                 <LocationPinIcon size={18} className="text-accent" />
                 <div>
-                  <p className="text-sm text-white/60">Distancia</p>
-                  <p className="text-base font-semibold text-white">
+                  <p className="text-sm text-text-muted">Distancia</p>
+                  <p className="text-base font-semibold text-text-primary">
                     {journeyMetrics.distanceMeters} m
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3">
+              <div className="flex items-center gap-3 rounded-[1.4rem] border border-border-subtle bg-surface-strong px-4 py-3">
                 <WalkIcon size={18} className="text-accent" />
                 <div>
-                  <p className="text-sm text-white/60">Tiempo andando</p>
-                  <p className="text-base font-semibold text-white">
+                  <p className="text-sm text-text-muted">Tiempo andando</p>
+                  <p className="text-base font-semibold text-text-primary">
                     {journeyMetrics.walkingMinutes} min
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 rounded-[1.4rem] border border-white/10 bg-white/5 px-4 py-3">
+              <div className="flex items-center gap-3 rounded-[1.4rem] border border-border-subtle bg-surface-strong px-4 py-3">
                 <StepsIcon size={18} className="text-accent" />
                 <div>
-                  <p className="text-sm text-white/60">Pasos aproximados</p>
-                  <p className="text-base font-semibold text-white">
+                  <p className="text-sm text-text-muted">Pasos aproximados</p>
+                  <p className="text-base font-semibold text-text-primary">
                     {journeyMetrics.steps}
                   </p>
                 </div>
@@ -561,15 +561,15 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
             </div>
           ) : null}
 
-          <div className="mt-7 border-t border-white/12 pt-6">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/45">
+          <div className="mt-7 border-t border-border-subtle pt-6">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
               Soporte
             </p>
             <div className="mt-3 space-y-3">
               <Link
                 href={`/checkout/success/${order.id}/ticket?print=1`}
                 target="_blank"
-                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white"
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3.5 text-sm font-semibold text-text-primary transition hover:bg-[#FDE3AD]/45"
               >
                 Descargar ticket
               </Link>
@@ -594,8 +594,8 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                 }}
                 className={`magnetic-button inline-flex w-full items-center justify-center gap-2 rounded-full border px-5 py-3.5 text-sm font-semibold ${
                   order.venue.phone
-                    ? "border-white/10 bg-white/8 text-white"
-                    : "cursor-not-allowed border-white/8 bg-white/5 text-white/45"
+                    ? "border-border-subtle bg-surface-strong text-text-primary hover:bg-[#FDE3AD]/45"
+                    : "cursor-not-allowed border-border-subtle bg-surface-strong text-text-muted opacity-60"
                 }`}
               >
                 <PhoneIcon size={18} />
@@ -624,8 +624,8 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                 }}
                 className={`magnetic-button inline-flex w-full items-center justify-center rounded-full border px-5 py-3.5 text-sm font-semibold ${
                   order.venue.email
-                    ? "border-white/10 bg-white/8 text-white"
-                    : "cursor-not-allowed border-white/8 bg-white/5 text-white/45"
+                    ? "border-border-subtle bg-surface-strong text-text-primary hover:bg-[#FDE3AD]/45"
+                    : "cursor-not-allowed border-border-subtle bg-surface-strong text-text-muted opacity-60"
                 }`}
               >
                 Escribir al local
@@ -633,8 +633,8 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
             </div>
           </div>
 
-          <div className="mt-7 border-t border-white/12 pt-6">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/45">
+          <div className="mt-7 border-t border-border-subtle pt-6">
+            <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
               Más acciones
             </p>
             <div className="mt-3 space-y-3">
@@ -644,8 +644,8 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                 disabled={!canComplete}
                 className={`magnetic-button inline-flex w-full items-center justify-center rounded-full border px-5 py-3.5 text-sm font-semibold ${
                   canComplete
-                    ? "border-white/10 bg-white/8 text-white"
-                    : "cursor-not-allowed border-white/8 bg-white/5 text-white/45"
+                    ? "border-border-subtle bg-surface-strong text-text-primary hover:bg-[#FDE3AD]/45"
+                    : "cursor-not-allowed border-border-subtle bg-surface-strong text-text-muted opacity-60"
                 }`}
               >
                 Marcar como recogido
@@ -655,7 +655,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                 <button
                   type="button"
                   onClick={handleCancelOrder}
-                  className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white"
+                  className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3.5 text-sm font-semibold text-text-primary transition hover:bg-[#FDE3AD]/45"
                 >
                   Cancelar pedido
                 </button>
@@ -663,14 +663,14 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
 
               <Link
                 href="#ticket"
-                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white"
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3.5 text-sm font-semibold text-text-primary transition hover:bg-[#FDE3AD]/45"
               >
                 Ver resumen
               </Link>
 
               <Link
                 href="/"
-                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/8 px-5 py-3.5 text-sm font-semibold text-white"
+                className="magnetic-button inline-flex w-full items-center justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3.5 text-sm font-semibold text-text-primary transition hover:bg-[#FDE3AD]/45"
               >
                 Volver al inicio
               </Link>

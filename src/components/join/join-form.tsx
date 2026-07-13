@@ -1,30 +1,22 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
+import Link from "next/link";
+import { FormEvent, useState } from "react";
 
-const serviceOptions = [
-  { value: "pickup", label: "Recogida" },
-  { value: "delivery", label: "Domicilio" },
-  { value: "both", label: "Ambos" },
-];
+import { Logo } from "@/components/branding/logo";
 
 const businessTypes = [
   "Restaurante",
-  "HamburgueserÃ­a",
-  "PizzerÃ­a",
-  "Sushi",
-  "CafeterÃ­a",
-  "PastelerÃ­a",
+  "Bar",
+  "Cafetería",
+  "Panadería",
+  "Pastelería",
+  "Tienda gourmet",
   "Otro",
 ];
 
 function fieldClassName() {
-  return "w-full rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/78 px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition-[border-color,background-color,box-shadow] duration-200 placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)] focus:bg-[color:var(--surface-strong)]/92 focus:shadow-[0_0_0_4px_rgba(116,19,20,0.06)]";
-}
-
-function sectionTitleClassName() {
-  return "text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--brand)]";
+  return "w-full border-0 border-b border-[#24110E]/32 bg-transparent px-0 py-3 text-base font-semibold text-[#24110E] outline-none transition placeholder:text-[#24110E]/38 focus:border-[#741314]";
 }
 
 function keepOnlyDigits(value: string) {
@@ -37,77 +29,6 @@ export function JoinForm() {
   const [feedbackType, setFeedbackType] = useState<"success" | "error" | null>(
     null,
   );
-  const rootRef = useRef<HTMLFormElement | null>(null);
-
-  useEffect(() => {
-    const root = rootRef.current;
-
-    if (!root) {
-      return;
-    }
-
-    const reduceMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    if (reduceMotion) {
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      gsap.set(
-        [
-          "[data-join-head]",
-          "[data-join-section]",
-          "[data-join-footer]",
-          "[data-join-feedback]",
-        ],
-        {
-          y: 18,
-          autoAlpha: 0,
-        },
-      );
-
-      gsap.to("[data-join-glow]", {
-        y: -8,
-        x: 6,
-        duration: 8.4,
-        ease: "sine.inOut",
-        repeat: -1,
-        yoyo: true,
-      });
-
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-      tl.to("[data-join-head]", {
-        y: 0,
-        autoAlpha: 1,
-        duration: 0.72,
-      })
-        .to(
-          "[data-join-section]",
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 0.62,
-            stagger: 0.08,
-          },
-          "-=0.36",
-        )
-        .to(
-          "[data-join-footer]",
-          {
-            y: 0,
-            autoAlpha: 1,
-            duration: 0.58,
-          },
-          "-=0.28",
-        );
-    }, root);
-
-    return () => {
-      ctx.revert();
-    };
-  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -117,19 +38,21 @@ export function JoinForm() {
 
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
+    const contactEmail = String(formData.get("contactEmail") ?? "").trim();
+    const contactPhone = String(formData.get("contactPhone") ?? "").trim();
 
     const payload = {
       venueName: String(formData.get("venueName") ?? "").trim(),
       businessType: String(formData.get("businessType") ?? "").trim(),
       area: String(formData.get("area") ?? "").trim(),
       address: String(formData.get("address") ?? "").trim(),
-      venuePhone: String(formData.get("venuePhone") ?? "").trim(),
-      venueEmail: String(formData.get("venueEmail") ?? "").trim(),
-      website: String(formData.get("website") ?? "").trim(),
+      venuePhone: contactPhone,
+      venueEmail: contactEmail,
+      website: "",
       contactName: String(formData.get("contactName") ?? "").trim(),
-      contactPhone: String(formData.get("contactPhone") ?? "").trim(),
-      contactEmail: String(formData.get("contactEmail") ?? "").trim(),
-      serviceType: String(formData.get("serviceType") ?? "").trim(),
+      contactPhone,
+      contactEmail,
+      serviceType: "pickup",
       message: String(formData.get("message") ?? "").trim(),
       privacyAccepted: formData.get("privacyAccepted") === "on",
     };
@@ -148,21 +71,21 @@ export function JoinForm() {
       if (!response.ok) {
         throw new Error(
           responseData.message ??
-            "No hemos podido enviar tu solicitud. Revisa los campos e intÃ©ntalo de nuevo.",
+            "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
         );
       }
 
       formElement.reset();
       setFeedbackType("success");
       setFeedback(
-        "Solicitud enviada correctamente. Revisaremos tus datos y te contactaremos pronto.",
+        "Solicitud enviada. La revisaremos y te contactaremos para el siguiente paso.",
       );
     } catch (error) {
       setFeedbackType("error");
       setFeedback(
         error instanceof Error
           ? error.message
-          : "No hemos podido enviar tu solicitud. Revisa los campos e intÃ©ntalo de nuevo.",
+          : "No hemos podido enviar tu solicitud. Revisa los campos e inténtalo de nuevo.",
       );
     } finally {
       setIsSubmitting(false);
@@ -171,264 +94,206 @@ export function JoinForm() {
 
   return (
     <form
-      ref={rootRef}
       onSubmit={handleSubmit}
-      className="spotlight-panel relative overflow-hidden rounded-[2.1rem] border border-[color:var(--border)] bg-[color:var(--surface)]/76 p-6 shadow-[var(--shadow)] backdrop-blur-md sm:p-8"
+      className="relative mx-auto w-full max-w-[44rem] overflow-hidden rounded-[1.35rem] border border-[#24110E]/18 bg-[#FFF7E8] px-5 py-6 text-[#24110E] shadow-[0_26px_70px_rgba(36,17,14,0.18)] sm:px-8 sm:py-8 lg:px-10"
+      style={{
+        backgroundImage:
+          "linear-gradient(180deg, rgba(255,247,232,0.72), rgba(255,247,232,0.9)), url('/join/notebook-paper.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
       <div
-        data-join-glow
-        className="pointer-events-none absolute right-[-10%] top-[-12%] h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-3xl"
+        className="pointer-events-none absolute left-0 right-0 top-0 h-3 bg-[radial-gradient(circle_at_8px_-4px,transparent_8px,#FFF7E8_9px)] bg-[length:18px_12px]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 right-0 h-3 rotate-180 bg-[radial-gradient(circle_at_8px_-4px,transparent_8px,#FFF7E8_9px)] bg-[length:18px_12px]"
+        aria-hidden="true"
       />
 
-      <div data-join-head className="relative z-[1]">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.24em] text-[color:var(--muted-strong)]">
-          <span className="inline-block h-2 w-2 rounded-full bg-[color:var(--brand)]" />
-          Primer contacto
+      <div className="relative z-[1] flex items-start justify-between gap-5 border-b border-dashed border-[#24110E]/28 pb-5">
+        <div>
+          <Logo priority iconClassName="h-9" />
+          <p className="mt-4 font-mono text-[10px] font-bold uppercase tracking-[0.24em] text-[#741314]">
+            Solicitud de alta
+          </p>
         </div>
+        <div className="rounded-full border border-[#24110E]/20 px-3 py-1.5 font-mono text-[10px] font-black uppercase tracking-[0.18em]">
+          Recogida
+        </div>
+      </div>
 
-        <h2 className="mt-5 max-w-[14ch] text-balance text-3xl font-semibold leading-[0.95] tracking-[-0.05em] text-[color:var(--foreground)] sm:text-[2.55rem]">
-          CuÃ©ntanos lo bÃ¡sico y hablamos contigo.
+      <div className="relative z-[1] mt-6">
+        <h2 className="max-w-[13ch] text-balance text-4xl font-black leading-[0.88] tracking-[-0.055em] sm:text-5xl">
+          Cuéntanos lo básico.
         </h2>
-
-        <p className="mt-4 max-w-[52ch] text-sm leading-7 text-[color:var(--muted)] sm:text-[0.96rem]">
-          No tienes que tenerlo todo preparado. Con estos datos podemos revisar
-          tu local y explicarte el siguiente paso con calma.
+        <p className="mt-4 max-w-[38rem] text-sm font-semibold leading-7 text-[#24110E]/70">
+          No necesitas tener una carta perfecta. Solo necesitamos saber quién
+          eres, dónde estás y cómo contactarte.
         </p>
-
-        <div className="mt-5 flex flex-wrap gap-2.5">
-          <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Recogida
-          </span>
-          <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Te guiamos
-          </span>
-          <span className="rounded-full border border-white/8 bg-white/[0.03] px-3 py-1.5 text-[11px] font-medium text-[color:var(--muted-strong)]">
-            Sin lÃ­os tÃ©cnicos
-          </span>
-        </div>
       </div>
 
-      <div className="relative z-[1] mt-8 space-y-5">
-        <section
-          data-join-section
-          className="rounded-[1.45rem] border border-[color:var(--border)] bg-[color:var(--surface-dark)]/28 p-5"
-        >
-          <p className={sectionTitleClassName()}>Local</p>
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Nombre del local
-              </span>
-              <input name="venueName" className={fieldClassName()} required />
-            </label>
+      <div className="relative z-[1] mt-7 grid gap-5 sm:grid-cols-2">
+        <label className="grid gap-1.5 sm:col-span-2">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Local
+          </span>
+          <input
+            name="venueName"
+            className={fieldClassName()}
+            placeholder="Nombre del local"
+            required
+          />
+        </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Tipo de negocio
-              </span>
-              <select
-                name="businessType"
-                className={fieldClassName()}
-                defaultValue=""
-                required
-              >
-                <option value="" disabled>
-                  Selecciona una opciÃ³n
-                </option>
-                {businessTypes.map((businessType) => (
-                  <option key={businessType} value={businessType}>
-                    {businessType}
-                  </option>
-                ))}
-              </select>
-            </label>
+        <label className="grid gap-1.5">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Tipo
+          </span>
+          <select
+            name="businessType"
+            className={fieldClassName()}
+            defaultValue=""
+            required
+          >
+            <option value="" disabled>
+              Elige una opción
+            </option>
+            {businessTypes.map((businessType) => (
+              <option key={businessType} value={businessType}>
+                {businessType}
+              </option>
+            ))}
+          </select>
+        </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Ciudad o zona
-              </span>
-              <input name="area" className={fieldClassName()} required />
-            </label>
+        <label className="grid gap-1.5">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Zona
+          </span>
+          <input
+            name="area"
+            className={fieldClassName()}
+            placeholder="Ciudad o barrio"
+            required
+          />
+        </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                DirecciÃ³n
-              </span>
-              <input name="address" className={fieldClassName()} required />
-            </label>
+        <label className="grid gap-1.5 sm:col-span-2">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Dirección
+          </span>
+          <input
+            name="address"
+            className={fieldClassName()}
+            placeholder="Dirección o zona aproximada"
+            required
+          />
+        </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                TelÃ©fono del local
-              </span>
-              <input
-                name="venuePhone"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="tel"
-                className={fieldClassName()}
-                onInput={(event) => {
-                  event.currentTarget.value = keepOnlyDigits(
-                    event.currentTarget.value,
-                  );
-                }}
-              />
-            </label>
+        <label className="grid gap-1.5">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Contacto
+          </span>
+          <input
+            name="contactName"
+            className={fieldClassName()}
+            placeholder="Tu nombre"
+            required
+          />
+        </label>
 
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Email del local
-              </span>
-              <input
-                name="venueEmail"
-                type="email"
-                className={fieldClassName()}
-              />
-            </label>
+        <label className="grid gap-1.5">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Teléfono
+          </span>
+          <input
+            name="contactPhone"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            autoComplete="tel"
+            className={fieldClassName()}
+            placeholder="Teléfono"
+            onInput={(event) => {
+              event.currentTarget.value = keepOnlyDigits(
+                event.currentTarget.value,
+              );
+            }}
+            required
+          />
+        </label>
 
-            <label className="grid gap-2 md:col-span-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Web o Instagram
-              </span>
-              <input name="website" className={fieldClassName()} />
-            </label>
-          </div>
-        </section>
+        <label className="grid gap-1.5 sm:col-span-2">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Email
+          </span>
+          <input
+            name="contactEmail"
+            type="email"
+            className={fieldClassName()}
+            placeholder="Email de contacto"
+            required
+          />
+        </label>
 
-        <section
-          data-join-section
-          className="rounded-[1.45rem] border border-[color:var(--border)] bg-[color:var(--surface-dark)]/28 p-5"
-        >
-          <p className={sectionTitleClassName()}>Contacto y servicio</p>
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Nombre de la persona de contacto
-              </span>
-              <input
-                name="contactName"
-                className={fieldClassName()}
-                required
-              />
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                TelÃ©fono de contacto
-              </span>
-              <input
-                name="contactPhone"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                autoComplete="tel"
-                className={fieldClassName()}
-                onInput={(event) => {
-                  event.currentTarget.value = keepOnlyDigits(
-                    event.currentTarget.value,
-                  );
-                }}
-                required
-              />
-            </label>
-
-            <label className="grid gap-2 md:col-span-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Email de contacto
-              </span>
-              <input
-                name="contactEmail"
-                type="email"
-                className={fieldClassName()}
-                required
-              />
-            </label>
-
-            <fieldset className="grid gap-3 md:col-span-2">
-              <legend className="text-sm font-medium text-[color:var(--foreground)]">
-                Tipo de servicio
-              </legend>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {serviceOptions.map((serviceOption) => (
-                  <label
-                    key={serviceOption.value}
-                    className="flex items-center gap-3 rounded-[1.2rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/88 px-4 py-3 text-sm text-[color:var(--foreground)] transition-[border-color,background-color] duration-200 hover:border-[color:var(--brand)]/40 hover:bg-[color:var(--surface-strong)]"
-                  >
-                    <input
-                      type="radio"
-                      name="serviceType"
-                      value={serviceOption.value}
-                      className="h-4 w-4 accent-[color:var(--brand)]"
-                      required
-                    />
-                    <span>{serviceOption.label}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          </div>
-        </section>
-
-        <section
-          data-join-section
-          className="rounded-[1.45rem] border border-[color:var(--border)] bg-[color:var(--surface-dark)]/28 p-5"
-        >
-          <p className={sectionTitleClassName()}>Contexto adicional</p>
-          <div className="mt-5 grid gap-5">
-            <label className="grid gap-2">
-              <span className="text-sm font-medium text-[color:var(--foreground)]">
-                Mensaje adicional
-              </span>
-              <textarea
-                name="message"
-                rows={5}
-                className={fieldClassName()}
-                placeholder="CuÃ©ntanos quÃ© vendes mejor, quÃ© zona cubres o quÃ© quieres mejorar."
-              />
-            </label>
-
-            <label className="flex items-start gap-3 rounded-[1rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)]/72 px-4 py-4">
-              <input
-                type="checkbox"
-                name="privacyAccepted"
-                className="mt-1 h-4 w-4 accent-[color:var(--brand)]"
-                required
-              />
-              <span className="text-sm leading-6 text-[color:var(--muted-strong)]">
-                Acepto la polÃ­tica de privacidad y autorizo a Pickyalo a
-                ponerse en contacto conmigo sobre esta solicitud.
-              </span>
-            </label>
-          </div>
-        </section>
+        <label className="grid gap-1.5 sm:col-span-2">
+          <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+            Algo que quieras contar
+          </span>
+          <textarea
+            name="message"
+            rows={3}
+            className={fieldClassName()}
+            placeholder="Qué vendes mejor, qué quieres destacar o cuándo prefieres que te contactemos."
+          />
+        </label>
       </div>
 
-      <div
-        data-join-footer
-        className="relative z-[1] mt-6 flex flex-col gap-4 border-t border-white/8 pt-6 sm:flex-row sm:items-center sm:justify-between"
-      >
-        <p className="max-w-[40ch] text-sm leading-6 text-[color:var(--muted)]">
-          Revisamos cada solicitud personalmente. Si encaja, te ayudamos a dejar
-          tu ficha lista para que la gente pueda elegir y recoger.
+      <div className="relative z-[1] mt-7 border-y border-dashed border-[#24110E]/28 py-5">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            name="privacyAccepted"
+            className="mt-1 h-4 w-4 shrink-0 accent-[#741314]"
+            required
+          />
+          <span className="text-sm font-semibold leading-6 text-[#24110E]/72">
+            Acepto que Pickyalo me contacte para valorar el alta del local y he
+            leído la{" "}
+            <Link
+              href="/privacidad"
+              className="text-[#741314] underline underline-offset-4"
+            >
+              política de privacidad
+            </Link>
+            .
+          </span>
+        </label>
+      </div>
+
+      <div className="relative z-[1] mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-[25rem] font-mono text-[10px] font-bold uppercase leading-5 tracking-[0.12em] text-[#24110E]/52">
+          Sin compromiso. Revisamos la solicitud antes de activar cualquier
+          ficha.
         </p>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="magnetic-button inline-flex justify-center rounded-full border border-[color:var(--brand)]/24 bg-[linear-gradient(135deg,rgba(116,19,20,0.1),rgba(227,89,55,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_16px_36px_rgba(116,19,20,0.14)] transition disabled:cursor-not-allowed disabled:opacity-60 sm:min-w-[12rem]"
+          className="inline-flex justify-center rounded-full border border-[#741314] bg-[#741314] px-6 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_16px_36px_rgba(116,19,20,0.16)] transition hover:bg-[#5F0F10] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Enviando solicitud..." : "Quiero aparecer en Pickyalo"}
+          {isSubmitting ? "Enviando..." : "Enviar solicitud"}
         </button>
       </div>
 
       {feedback ? (
         <p
-          data-join-feedback
-          className={`relative z-[1] mt-4 rounded-[1rem] border px-4 py-3 text-sm leading-6 ${
+          className={`relative z-[1] mt-5 rounded-[1rem] border px-4 py-3 text-sm font-semibold leading-6 ${
             feedbackType === "success"
-              ? "border-[color:var(--border)] bg-[color:var(--surface-dark)] text-[color:var(--muted-strong)]"
-              : "border-[#E5484D]/35 bg-[#E5484D]/10 text-white"
+              ? "border-[#741314]/16 bg-[#FDE3AD]/72 text-[#24110E]/78"
+              : "border-[#E5484D]/35 bg-[#E5484D]/10 text-[#741314]"
           }`}
         >
           {feedback}
@@ -437,4 +302,3 @@ export function JoinForm() {
     </form>
   );
 }
-

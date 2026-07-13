@@ -93,23 +93,9 @@ export function DemoBentoGallery({
   zoneHeroVideoUrl = null,
 }: DemoBentoGalleryProps) {
   const rootRef = useRef<HTMLElement>(null);
-  const isLightTheme = false;
+  const isLightTheme = variant === "public";
   const selectedItems = useMemo(() => pickBentoItems(items), [items]);
   const galleryItems = useMemo(() => pickBentoItems(items), [items]);
-  const venueLabels = useMemo(() => {
-    const seen = new Set<string>();
-
-    return selectedItems
-      .filter((item) => {
-        if (seen.has(item.id)) {
-          return false;
-        }
-
-        seen.add(item.id);
-        return true;
-      })
-      .slice(0, 6);
-  }, [selectedItems]);
   const activeVenueCount = selectedItems.length;
   const featuredVenueCount = selectedItems.filter(
     (item) => item.subscriptionActive,
@@ -122,7 +108,6 @@ export function DemoBentoGallery({
   const zoneDisplayName = zoneName ?? "tu zona";
   const heroDescription =
     "Una composici\u00f3n visual para descubrir locales con una direcci\u00f3n m\u00e1s editorial, inmersiva y pensada para explorar mejor.";
-  const labelsTitle = isZoneMode ? "Locales para elegir" : "Locales destacados";
 
   useGSAP(
     () => {
@@ -184,18 +169,6 @@ export function DemoBentoGallery({
           "-=0.2",
         )
         .fromTo(
-          ".zone-label-chip",
-          { autoAlpha: 0, y: 16, scale: 0.985 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.42,
-            stagger: 0.045,
-          },
-          "-=0.24",
-        )
-        .fromTo(
           ".bento-photo-card",
           { autoAlpha: 0, y: 28, scale: 0.985 },
           {
@@ -215,7 +188,7 @@ export function DemoBentoGallery({
     <main
       ref={rootRef}
       className={`min-h-screen transition-colors ${
-        isLightTheme ? "bg-[#f6f1e6] text-[#181816]" : "bg-[#050816] text-white"
+        isLightTheme ? "bg-[#fcfaf5] text-[#24110E]" : "bg-[#050816] text-white"
       }`}
     >
       {variant === "public" ? (
@@ -227,8 +200,11 @@ export function DemoBentoGallery({
           isLightTheme={isLightTheme}
         />
       )}
-      <section className="relative overflow-hidden border-b border-white/6">
-        <div className="absolute inset-0 overflow-hidden">
+      <section className={isLightTheme ? "relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9" : "relative overflow-hidden border-b border-white/6"}>
+        {isLightTheme ? (
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]" />
+        ) : null}
+        <div className={isLightTheme ? "absolute inset-x-1.5 bottom-6 top-5 overflow-hidden rounded-[2rem] bg-[#741314] sm:inset-x-6 sm:bottom-8 sm:top-7 lg:inset-x-8 lg:top-9" : "absolute inset-0 overflow-hidden"}>
           {isZoneMode && zoneHeroVideoUrl ? (
             <video
               autoPlay
@@ -236,7 +212,7 @@ export function DemoBentoGallery({
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 h-full w-full scale-[1.04] object-cover"
+              className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-72 saturate-[1.05]"
             >
               <source src={zoneHeroVideoUrl} type="video/mp4" />
             </video>
@@ -248,7 +224,7 @@ export function DemoBentoGallery({
               unoptimized={zoneHeroImageUrl.endsWith(".svg")}
               priority
               sizes="100vw"
-              className="scale-[1.04] object-cover"
+              className="scale-[1.04] object-cover opacity-72 saturate-[1.05]"
             />
           ) : (
             <video
@@ -257,26 +233,29 @@ export function DemoBentoGallery({
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 h-full w-full scale-[1.04] object-cover"
+              className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-72 saturate-[1.05]"
             >
               <source src={bentoVideoSrc} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
-          <div className="zone-hero-sheen absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(254,212,125,0.12),transparent_62%)] blur-3xl" />
+          <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(110deg,rgba(253,227,173,0.30)_0%,rgba(253,227,173,0)_100%)]" : "absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(254,212,125,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]"} />
+          <div className={isLightTheme ? "zone-hero-sheen absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(253,227,173,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(253,227,173,0.14),transparent_32%),linear-gradient(180deg,rgba(255,247,232,0.08),transparent_42%)]" : "zone-hero-sheen absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(254,212,125,0.12),transparent_62%)] blur-3xl"} />
         </div>
-        <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
-          <div className="mt-6 flex flex-1 flex-col justify-center sm:mt-10">
-            <div className="zone-hero-copy max-w-[40rem]">
+        <div className={isLightTheme ? "relative z-10 mx-auto w-full max-w-[1600px] px-4 py-8 sm:px-7 sm:py-9 lg:px-10 lg:py-10" : "relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12"}>
+          <div className={isLightTheme ? "grid min-h-[min(52svh,31rem)] items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:gap-12" : "mt-6 flex flex-1 flex-col justify-center sm:mt-10"}>
+            <div className="zone-hero-copy max-w-[42rem]">
               <div className="space-y-4">
-                <h1 className="max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
+                <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FDE3AD] drop-shadow-[0_4px_16px_rgba(0,0,0,0.42)]" : "text-[11px] font-medium uppercase tracking-[0.34em] text-white/44"}>
+                  Zona activa
+                </p>
+                <h1 className={isLightTheme ? "max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#FDE3AD] drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)]" : "max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white"}>
                   {heroTitle}
                 </h1>
-                <p className="max-w-[34rem] text-[0.95rem] leading-6 text-white/56 sm:max-w-[36rem] sm:text-base sm:leading-7">
+                <p className={isZoneMode ? "hidden" : isLightTheme ? "inline-flex max-w-[34rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-base font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-lg sm:leading-8" : "max-w-[34rem] text-[0.95rem] leading-6 text-white/56 sm:max-w-[36rem] sm:text-base sm:leading-7"}>
                   {isZoneMode ? (
                     <>
                       Mira locales de{" "}
-                      <strong className="font-semibold text-white">
+                      <strong className={isLightTheme ? "font-semibold text-[#741314]" : "font-semibold text-white"}>
                         {zoneDisplayName}
                       </strong>
                       , abre su selección visual y elige qu\u00e9 recoger sin complicarte.
@@ -287,52 +266,36 @@ export function DemoBentoGallery({
                 </p>
               </div>
               <div className="mt-6 flex flex-wrap gap-2.5 sm:mt-7">
-                <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
+                <span className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/88 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FFF7E8] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"}>
                   {activeVenueCount} locales activos
                 </span>
-                <span className="rounded-full border border-[#FED47D]/14 bg-[#FED47D]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FED47D] backdrop-blur-xl">
+                <span className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/88 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FFF7E8] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-[#FED47D]/14 bg-[#FED47D]/10 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FED47D] backdrop-blur-xl"}>
                   {featuredVenueCount} verificados
                 </span>
-                <span className="rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl">
+                <span className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/88 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#FFF7E8] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/10 bg-white/[0.045] px-4 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"}>
                   Selección visual
                 </span>
               </div>
             </div>
 
             {isZoneMode ? (
-              <div className="mt-6 max-w-[42rem] rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm leading-6 text-white/62 backdrop-blur-xl">
+              <div className={isLightTheme ? "hidden" : "mt-6 max-w-[42rem] rounded-[1.3rem] border border-white/10 bg-white/[0.04] px-5 py-4 text-sm leading-6 text-white/62 backdrop-blur-xl"}>
                 Descubre productos y platos destacados en {zoneDisplayName}. Explora locales,
                 selecciones visuales y opciones de recogida rápida para elegir sin
                 complicarte.
               </div>
             ) : null}
 
-            <div className="zone-labels-shell mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6">
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-white/38">
-                    {labelsTitle}
-                  </p>
-                  <p className="mt-2 text-sm text-white/58">
-                    Toca un local para ver su selección y elegir qué recoger.
-                  </p>
-                </div>
-              </div>
-              <div className="mt-5 flex flex-wrap gap-2.5">
-                {venueLabels.map((item) => (
-                  <span
-                    key={item.id}
-                    className={`zone-label-chip rounded-full border px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] backdrop-blur-xl ${
-                      item.subscriptionActive
-                        ? "border-[#FED47D]/18 bg-[#FED47D]/10 text-[#d9ffe8]"
-                        : "border-white/10 bg-white/[0.05] text-white/72"
-                    }`}
-                  >
-                    {item.subscriptionActive ? "\u2b50 " : ""}
-                    {item.name}
-                  </span>
-                ))}
-              </div>
+            <div className={isLightTheme ? "zone-labels-shell relative flex min-h-[18rem] items-center justify-center overflow-visible rounded-[1.9rem] bg-[#FFF7E8]/20 p-3 shadow-[0_24px_70px_rgba(36,17,14,0.16)] backdrop-blur-sm sm:min-h-[21rem] sm:p-4" : "zone-labels-shell relative mt-6 flex min-h-[18rem] items-center justify-center overflow-visible rounded-[1.9rem] bg-white/[0.025] p-3 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-sm sm:mt-8 sm:min-h-[21rem] sm:p-4"}>
+              <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(circle_at_center,rgba(253,227,173,0.16),transparent_58%)]" />
+              <Image
+                src="/home/zonas/badges/talavera_tile_letters.png"
+                alt="Maqueta isométrica de Talavera de la Reina"
+                width={500}
+                height={500}
+                sizes="(min-width: 1024px) 20rem, (min-width: 768px) 18rem, 72vw"
+                className="relative z-20 h-auto w-full max-w-[17.5rem] object-contain drop-shadow-[0_26px_48px_rgba(0,0,0,0.3)] sm:max-w-[20rem] lg:max-w-[21rem]"
+              />
             </div>
           </div>
         </div>
@@ -413,7 +376,7 @@ export function DemoBentoGallery({
                     <span className="text-[0.9rem] font-bold italic text-[#FED47D] sm:text-[0.96rem]">
                       Ver selección
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-white/58 backdrop-blur-xl">
+                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-[#FFF7E8] backdrop-blur-xl">
                       {item.categoryName ?? "Local"}
                     </span>
                   </div>

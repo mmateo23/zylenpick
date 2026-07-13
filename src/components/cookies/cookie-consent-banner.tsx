@@ -85,11 +85,11 @@ export function CookieConsentBanner() {
                     Cookie ticket
                   </p>
                   <h2 className="mt-1 text-[1.35rem] font-black uppercase leading-[0.9] tracking-[-0.05em]">
-                    AnalÃ­tica clara
+                    Analítica clara
                   </h2>
                   <p className="mt-2 text-[13px] leading-5 text-[#741314]/76">
-                    Usamos analÃ­tica para mejorar Pickyalo. No vendemos tus
-                    datos ni capturamos informaciÃ³n personal.
+                    Usamos analítica para mejorar Pickyalo. No vendemos tus
+                    datos ni capturamos información personal.
                   </p>
                 </div>
               </div>
@@ -133,7 +133,7 @@ export function CookieConsentBanner() {
                     onClick={handleAccept}
                     className="inline-flex min-h-10 items-center justify-center rounded-[0.75rem] border border-[#741314]/18 bg-[#FFF7E8] px-3 py-2 font-mono text-[10px] font-black uppercase tracking-[0.11em] text-[#741314] transition hover:bg-[#FDE3AD] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]/45"
                   >
-                    Aceptar analÃ­tica
+                    Aceptar analítica
                   </button>
                 </div>
 
@@ -141,7 +141,7 @@ export function CookieConsentBanner() {
                   href="/cookies"
                   className="self-center font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#741314] underline-offset-4 hover:underline"
                 >
-                  PolÃ­tica de cookies
+                  Política de cookies
                 </Link>
               </div>
             </div>

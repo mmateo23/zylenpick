@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
@@ -9,6 +10,19 @@ import { getNoIndexMetadata } from "@/lib/seo";
 const cartTicketHeroImageUrl =
   "https://images.unsplash.com/photo-1528459105426-b9548367069b?q=85&w=1800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
+const cartLightThemeStyle = {
+  "--bg-page": "#fcfaf5",
+  "--bg-page-alt": "#FFF7E8",
+  "--bg-surface": "rgba(255, 247, 232, 0.88)",
+  "--bg-surface-strong": "#FFF7E8",
+  "--bg-surface-muted": "rgba(253, 227, 173, 0.42)",
+  "--text-primary": "#24110E",
+  "--text-secondary": "rgba(36, 17, 14, 0.68)",
+  "--text-muted": "rgba(36, 17, 14, 0.48)",
+  "--border-subtle": "rgba(116, 19, 20, 0.16)",
+  "--shadow-soft": "0 18px 60px rgba(116, 19, 20, 0.12)",
+} as CSSProperties;
+
 export const metadata: Metadata = getNoIndexMetadata({
   title: "Tu cesta",
   description: "Revisa tu selección para recoger en el local.",
@@ -18,12 +32,15 @@ export default async function CartPage() {
   const design = await getSiteDesignConfig();
 
   return (
-    <div className="relative min-h-screen bg-page text-text-primary">
+    <div
+      className="relative min-h-screen bg-[#fcfaf5] text-[#24110E]"
+      style={cartLightThemeStyle}
+    >
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-cover bg-center"
+        className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-cover bg-center opacity-45"
         style={{ backgroundImage: `url(${cartTicketHeroImageUrl})` }}
       />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(36,17,14,0.16),rgba(253,227,173,0.78))]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(252,250,245,0.72),rgba(252,250,245,0.96))]" />
       <SiteHeader />
       <CartScreen design={design} />
       <ZylenPickFooter theme="light" />

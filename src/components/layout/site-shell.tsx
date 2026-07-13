@@ -9,6 +9,7 @@ type SiteShellProps = {
   showNavigation?: boolean;
   showBasicFooter?: boolean;
   wideContent?: boolean;
+  className?: string;
 };
 
 export function SiteShell({
@@ -16,9 +17,17 @@ export function SiteShell({
   showNavigation = true,
   showBasicFooter = true,
   wideContent = false,
+  className,
 }: SiteShellProps) {
   return (
-    <div className="min-h-screen">
+    <div
+      className={[
+        "min-h-screen bg-[#fcfaf5] text-[#24110E]",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <SiteHeader showNavigation={showNavigation} />
       <main
         className={

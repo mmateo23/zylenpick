@@ -92,8 +92,7 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
     zonesHeroMediaType: "video",
     zonesHeroMediaUrl:
       "https://cdn.pixabay.com/video/2018/07/08/17177-278954650_large.mp4",
-    cartEmptyImageUrl:
-      "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1800&q=80",
+    cartEmptyImageUrl: "/cart/empty-cart-talavera.jpg",
   },
   zones: {
     title: "Elige dónde empieza tu próxima recogida.",
