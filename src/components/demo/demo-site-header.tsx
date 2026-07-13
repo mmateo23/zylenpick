@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { LayoutGrid, MapPinned, Menu, Store, X } from "lucide-react";
+import { BookOpen, LayoutGrid, MapPinned, Menu, ReceiptText, Store, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
 
@@ -22,10 +22,10 @@ type NavItem = {
 };
 
 const mobileNavigationItems: NavItem[] = [
-  { label: "Explorar selección", href: "/platos" },
+  { label: "Explorar selecci\u00f3n", href: "/platos" },
   { label: "Zonas", href: "/zonas" },
   { label: "Tu cesta", href: "/cart" },
-  { label: "Únete", href: "/unete" },
+  { label: "\u00danete", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
 ];
 
@@ -45,7 +45,7 @@ function CartBadge({ totalItems }: { totalItems: number }) {
   );
 }
 
-const logoSrc = "/logo/Pickyalo_Logo_Vanilla.svg";
+const logoSrc = "/logo/LogoNuevo_Negativo.svg";
 
 export function DemoSiteHeader({
   currentCityName = null,
@@ -57,9 +57,9 @@ export function DemoSiteHeader({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigationItems = useMemo<NavItem[]>(
     () => [
-      { label: "Selección", href: "/platos", Icon: LayoutGrid },
+      { label: "Selecci\u00f3n", href: "/platos", Icon: LayoutGrid },
       { label: "Zonas", href: "/zonas", Icon: MapPinned },
-      { label: "Únete", href: "/unete", Icon: Store },
+      { label: "\u00danete", href: "/unete", Icon: Store },
     ],
     [],
   );
@@ -71,47 +71,49 @@ export function DemoSiteHeader({
 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const headerLogoSrc = isLightTheme ? "/logo/Pickyalo_Logo_Black.svg" : logoSrc;
+  const headerLogoSrc = isLightTheme ? "/logo/LogoNuevo.svg" : logoSrc;
+  const dockLogoSrc = "/logo/LogoNuevo.svg";
 
   const shellClassName = isLightTheme
-    ? "border-white/60 bg-white/58 text-[#181816] shadow-[0_18px_42px_rgba(20,20,20,0.08)]"
-    : "border-white/16 bg-white/[0.10] text-white shadow-[0_20px_48px_rgba(0,0,0,0.22)]";
-
-  const cityPillClassName = isLightTheme
-    ? currentCitySlug
-      ? "border-[#FED47D]/45 bg-[#FED47D]/18 text-[#3A2119] shadow-[0_18px_42px_rgba(254,212,125,0.16)] hover:bg-[#FED47D]/24"
-      : "border-black/8 bg-black/[0.03] text-[#181816] hover:bg-black/[0.045]"
-    : currentCitySlug
-      ? "border-[#FED47D]/45 bg-[#FED47D]/18 text-[#3A2119] shadow-[0_18px_42px_rgba(254,212,125,0.16)] hover:bg-[#FED47D]/24"
-      : "border-white/16 bg-white/[0.09] text-white hover:bg-white/[0.15]";
+    ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] shadow-[0_18px_42px_rgba(116,19,20,0.08)]"
+    : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] shadow-[0_18px_42px_rgba(116,19,20,0.08)]";
 
   const iconButtonClassName = isLightTheme
-    ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
-    : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+    ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]"
+    : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
   const cartButtonClassName =
     totals.totalItems > 0
       ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
       : iconButtonClassName;
 
   const desktopNavRailClassName = isLightTheme
-    ? "border border-black/8 bg-white/58 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.72),0_10px_24px_rgba(20,20,20,0.07)] backdrop-blur-md"
-    : "border border-white/10 bg-white/[0.07] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_30px_rgba(0,0,0,0.16)] backdrop-blur-md";
+    ? "border border-[#741314]/14 bg-[#FFF7E8]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_12px_28px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150"
+    : "border border-[#741314]/14 bg-[#FFF7E8]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_12px_28px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150";
 
   const desktopNavItemClassName = isLightTheme
-    ? "border-transparent text-[#181816]/66 hover:-translate-y-[1px] hover:bg-black/[0.045] hover:text-[#181816]"
-    : "border-transparent text-white/68 hover:-translate-y-[1px] hover:bg-white/[0.07] hover:text-white";
+    ? "border-transparent text-[#741314]/72 hover:-translate-y-[1px] hover:bg-[#741314]/10 hover:text-[#741314]"
+    : "border-transparent text-[#741314]/72 hover:-translate-y-[1px] hover:bg-[#741314]/10 hover:text-[#741314]";
 
   const desktopNavItemActiveClassName = isLightTheme
-    ? "border-[#FED47D] bg-[#FED47D] text-[#2A120D] shadow-[0_10px_24px_rgba(254,212,125,0.22)]"
-    : "border-[#FED47D] bg-[#FED47D] text-[#2A120D] shadow-[0_10px_28px_rgba(254,212,125,0.26)]";
+    ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.18)]"
+    : "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_10px_28px_rgba(116,19,20,0.22)]";
 
   const desktopDockIconClassName = isLightTheme
-    ? "border-transparent bg-transparent text-[#181816]/76 hover:bg-black/[0.045] hover:text-[#181816]"
-    : "border-transparent bg-transparent text-white/82 hover:bg-white/[0.075] hover:text-white";
+    ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]"
+    : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
   const desktopCartButtonClassName =
     totals.totalItems > 0
       ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
       : desktopDockIconClassName;
+  const desktopLeftDockItems = [
+    navigationItems[0],
+    navigationItems[1],
+    { label: "Proyecto", href: "/el-proyecto", Icon: BookOpen },
+  ];
+  const desktopRightDockItems = [
+    navigationItems[2],
+    { label: "Pedidos", href: "/pedidos", Icon: ReceiptText },
+  ];
 
   const mobileNavItemClassName = isLightTheme
     ? "text-[#181816]/68 hover:bg-black/[0.04]"
@@ -123,53 +125,106 @@ export function DemoSiteHeader({
         <div
           className={
             isLightTheme
-              ? "rounded-full border border-black/8 bg-white/50 px-2 py-1.5 text-[#181816] shadow-[0_10px_30px_rgba(20,20,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
-              : "rounded-full border border-white/10 bg-[#160f0c]/42 px-2 py-1.5 text-white shadow-[0_10px_30px_rgba(0,0,0,0.16)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5"
+              ? "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-2 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
+              : "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-2 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
           }
         >
-          <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center gap-2 md:hidden">
+          <div className="flex items-center justify-center gap-1.5 md:hidden">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((value) => !value)}
               aria-expanded={isMobileMenuOpen}
               aria-controls="demo-mobile-navigation"
-              aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-label={isMobileMenuOpen ? "Cerrar men\u00fa" : "Abrir men\u00fa"}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${iconButtonClassName}`}
             >
               {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
-            <div className="flex min-w-0 items-center justify-center">
-              <Link
-                href="/"
-                className="inline-flex min-h-[20px] items-center justify-center"
-              >
-                <Image
-                  src={headerLogoSrc}
-                  alt="Pickyalo"
-                  width={210}
-                  height={42}
-                  priority
-                  className="h-auto w-[78px] sm:w-[86px]"
-                />
-              </Link>
-            </div>
+            <Link
+              href="/platos"
+              aria-label="Explorar selección"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                isItemActive("/platos")
+                  ? desktopNavItemActiveClassName
+                  : iconButtonClassName
+              }`}
+            >
+              <LayoutGrid size={22} strokeWidth={2.05} />
+            </Link>
+
+            <Link
+              href="/"
+              className="inline-flex h-9 min-w-[5.45rem] items-center justify-center rounded-full px-2 transition hover:bg-[#741314]/8"
+              aria-label="Ir al inicio"
+            >
+              <Image
+                src={dockLogoSrc}
+                alt="Pickyalo"
+                width={210}
+                height={42}
+                priority
+                className="h-auto w-[82px]"
+              />
+            </Link>
+
+            <Link
+              href={currentCitySlug ? `/zonas/${currentCitySlug}` : "/zonas"}
+              aria-label={currentCityName ? `Ver ${currentCityName}` : "Ver zonas"}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                isItemActive("/zonas")
+                  ? desktopNavItemActiveClassName
+                  : iconButtonClassName
+              }`}
+            >
+              <MapPinned size={22} strokeWidth={2.05} />
+            </Link>
 
             <Link
               href="/cart"
               aria-label="Tu cesta"
-              className={`relative inline-flex h-9 w-9 items-center justify-center justify-self-end rounded-full border transition ${cartButtonClassName}`}
+              className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cartButtonClassName}`}
             >
               <CartIcon size={22} />
               <CartBadge totalItems={totals.totalItems} />
             </Link>
           </div>
 
-          <div className="hidden items-center md:grid md:grid-cols-[auto_1fr_auto] md:gap-4">
-            <div className="flex items-center justify-start gap-2.5">
+          <div className="hidden items-center justify-center md:flex">
+            <nav
+              aria-label="Navegacion principal"
+              className={`inline-flex items-center gap-1.5 rounded-[1.7rem] ${desktopNavRailClassName}`}
+            >
+              {desktopLeftDockItems.map((item) => {
+                const Icon = item.Icon;
+                const href = item.href === "/zonas" && currentCitySlug ? `/zonas/${currentCitySlug}` : item.href;
+                const label =
+                  item.href === "/zonas" && currentCityName ? currentCityName : item.label;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={href}
+                    aria-label={label}
+                    title={label}
+                    className={`group/nav relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border outline-none transition duration-200 ${
+                      isItemActive(item.href)
+                        ? desktopNavItemActiveClassName
+                        : desktopNavItemClassName
+                    }`}
+                  >
+                    {Icon ? <Icon size={24} strokeWidth={2.05} /> : null}
+                    <span className="max-w-full truncate px-1 text-[10px] font-semibold leading-none tracking-[-0.01em]">
+                      {label}
+                    </span>
+                  </Link>
+                );
+              })}
+
               <Link
                 href="/"
-                className="inline-flex min-h-[22px] items-center justify-center px-1.5 transition hover:opacity-85"
+                className="inline-flex h-14 min-w-[8.75rem] items-center justify-center rounded-[1.25rem] px-3 transition hover:bg-black/[0.045]"
+                aria-label="Ir al inicio"
               >
                 <Image
                   src={headerLogoSrc}
@@ -177,64 +232,46 @@ export function DemoSiteHeader({
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[106px]"
+                  className="h-auto w-[108px]"
                 />
               </Link>
-            </div>
 
-            <nav aria-label="Navegación principal" className="flex justify-center">
-              <div
-                className={`inline-flex items-center gap-0.5 rounded-full ${desktopNavRailClassName}`}
-              >
-                {navigationItems.map((item) => {
-                  const Icon = item.Icon;
+              {desktopRightDockItems.map((item) => {
+                const Icon = item.Icon;
 
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-label={item.label}
-                      title={item.label}
-                      className={`group/nav relative inline-flex h-10 w-10 items-center justify-center rounded-full border outline-none transition duration-200 ${
-                        isItemActive(item.href)
-                          ? desktopNavItemActiveClassName
-                          : desktopNavItemClassName
-                      }`}
-                    >
-                      {Icon ? <Icon size={23} strokeWidth={2.05} /> : null}
-                      <span
-                        className={`pointer-events-none absolute left-1/2 top-[calc(100%+0.5rem)] z-50 -translate-x-1/2 translate-y-1 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold opacity-0 shadow-[0_12px_30px_rgba(0,0,0,0.14)] backdrop-blur-xl backdrop-saturate-150 transition duration-200 group-hover/nav:translate-y-0 group-hover/nav:opacity-100 group-focus-visible/nav:translate-y-0 group-focus-visible/nav:opacity-100 ${
-                          isLightTheme
-                            ? "border-black/10 bg-white text-[#181816]"
-                            : "border-white/10 bg-[#160f0c] text-white"
-                        }`}
-                      >
-                        {item.label}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </nav>
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    aria-label={item.label}
+                    title={item.label}
+                    className={`group/nav relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border outline-none transition duration-200 ${
+                      isItemActive(item.href)
+                        ? desktopNavItemActiveClassName
+                        : desktopNavItemClassName
+                    }`}
+                  >
+                    {Icon ? <Icon size={24} strokeWidth={2.05} /> : null}
+                    <span className="max-w-full truncate px-1 text-[10px] font-semibold leading-none tracking-[-0.01em]">
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              })}
 
-            <div className="inline-flex items-center justify-self-end gap-2">
               <Link
                 href="/cart"
                 aria-label="Tu cesta"
-                className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${desktopCartButtonClassName}`}
+                title="Tu cesta"
+                className={`relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border transition ${desktopCartButtonClassName}`}
               >
-                <CartIcon size={22} />
+                <CartIcon size={24} />
                 <CartBadge totalItems={totals.totalItems} />
+                <span className="max-w-full truncate px-1 text-[10px] font-semibold leading-none tracking-[-0.01em]">
+                  Cesta
+                </span>
               </Link>
-
-              <Link
-                href={currentCitySlug ? `/zonas/${currentCitySlug}` : "/zonas"}
-                aria-label={currentCityName ?? "Zona"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cityPillClassName}`}
-              >
-                <MapPinned size={22} className="shrink-0" />
-              </Link>
-            </div>
+            </nav>
           </div>
         </div>
 
@@ -243,7 +280,7 @@ export function DemoSiteHeader({
             id="demo-mobile-navigation"
             className={`absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border p-3 backdrop-blur-2xl backdrop-saturate-150 md:hidden ${shellClassName}`}
           >
-            <nav aria-label="Navegación móvil">
+            <nav aria-label="Navegacion movil">
               <ul className="grid gap-2">
                 {mobileNavigationItems.map((item) => (
                   <li key={item.href}>

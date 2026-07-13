@@ -12,16 +12,16 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FFF7F8] text-[#381932]">
+    <div className="min-h-screen bg-[#fcfaf5] text-[#24110E]">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-5 py-28 sm:px-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#C26157]">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#741314]">
           Legal
         </p>
         <h1 className="mt-4 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
           Política de privacidad
         </h1>
-        <div className="mt-8 space-y-6 text-base leading-8 text-[#381932]/78">
+        <div className="mt-8 space-y-6 rounded-[1.8rem] border border-[#741314]/16 bg-[#FFF7E8]/82 p-6 text-base leading-8 text-[#24110E]/78 shadow-[var(--shadow-soft)] sm:p-8">
           <p>
             Pickyalo trata la información necesaria para que puedas explorar
             productos y platos destacados de locales cercanos y preparar una
@@ -49,7 +49,7 @@ export default function PrivacyPage() {
             en la{" "}
             <Link
               href="/cookies"
-              className="font-semibold text-[#C26157] underline-offset-4 hover:underline"
+              className="font-semibold text-[#741314] underline-offset-4 hover:underline"
             >
               política de cookies
             </Link>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
           </p>
         </div>
       </main>
-      <ZylenPickFooter />
+      <ZylenPickFooter theme="light" />
     </div>
   );
 }

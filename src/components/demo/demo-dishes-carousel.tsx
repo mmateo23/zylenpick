@@ -93,9 +93,9 @@ export type DemoDishesTemplate = {
 const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
   promoHrefs: Record<PromoTileId, string>;
 } = {
-  logoSrc: "/logo/Pickyalo_Logo_Vanilla.svg",
-  logoLightSrc: "/logo/Pickyalo_Logo_Coral.svg",
-  logoDarkSrc: "/logo/Pickyalo_Logo_Vanilla.svg",
+  logoSrc: "/logo/LogoNuevo.svg",
+  logoLightSrc: "/logo/LogoNuevo.svg",
+  logoDarkSrc: "/logo/LogoNuevo_Negativo.svg",
   logoAlt: "Pickyalo",
   logoWidth: 210,
   logoHeight: 44,
@@ -1455,7 +1455,7 @@ export function DemoDishesCarousel({
 
   const handleShareDish = async (item: HomeShowcaseItem) => {
     const href = `${window.location.origin}${getVenueHref(item)}#plato-${item.id}`;
-    const shareText = `Mira esto \uD83D\uDC40 ${getDishDisplayName(item)} en ${item.venue.name} â€” Pickyalo`;
+    const shareText = `Mira esto \uD83D\uDC40 ${getDishDisplayName(item)} en ${item.venue.name} — Pickyalo`;
 
     if (navigator.share) {
       try {
@@ -1481,7 +1481,7 @@ export function DemoDishesCarousel({
     }
 
     const href = `${window.location.origin}/platos`;
-    const shareText = `Mira este Shot: ${activeShot.title} â€” Pickyalo`;
+    const shareText = `Mira este Shot: ${activeShot.title} — Pickyalo`;
 
     if (navigator.share) {
       try {
@@ -2029,13 +2029,13 @@ export function DemoDishesCarousel({
 
                 <div className="relative z-10 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:grid-cols-[minmax(0,1fr)_minmax(21rem,27rem)] lg:gap-12">
                 <div className="max-w-[42rem]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FDE3AD]/88 drop-shadow-[0_6px_18px_rgba(0,0,0,0.42)]">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#741314]">
                     {"CERCA DE TI"}
                   </p>
                   <h1 className="mt-3 max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)] sm:max-w-[10ch]">
                     {"Elige qu\u00e9 te apetece"}
                   </h1>
-                  <p className="mt-5 inline-flex max-w-[31rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-lg font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-xl sm:leading-8">
+                  <p className="mt-5 inline-flex max-w-[31rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-lg font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-xl sm:leading-8">
                     {"Mira una selección visual de productos y platos destacados para recoger."}
                   </p>
                 </div>
@@ -2790,7 +2790,7 @@ export function DemoDishesCarousel({
                 className="flex min-w-0 items-center gap-3"
               >
                 <span className="relative inline-flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
-                  {activeItem.venue.logoUrl ?? activeItem.venue.coverUrl ? (
+                  {(activeItem.venue.logoUrl ?? activeItem.venue.coverUrl) ? (
                     <Image
                       src={activeItem.venue.logoUrl ?? activeItem.venue.coverUrl ?? ""}
                       alt={activeItem.venue.name}

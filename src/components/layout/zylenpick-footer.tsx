@@ -61,7 +61,7 @@ function InstagramIcon({ className }: { className?: string }) {
 }
 
 export function ZylenPickFooter({
-  theme = "dark",
+  theme = "light",
 }: ZylenPickFooterProps) {
   const isLightTheme = theme === "light";
 
@@ -149,7 +149,7 @@ export function ZylenPickFooter({
             >
               <span className="flex items-center gap-3">
                 <MapPinned className="h-4 w-4" />
-                <span className="font-medium">Buscar cerca de m?</span>
+                <span className="font-medium">Buscar cerca de mí</span>
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
             </Link>

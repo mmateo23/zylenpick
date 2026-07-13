@@ -21,7 +21,7 @@ export default async function AccountPage() {
   const ownedVenues = await getOwnedVenuesForCurrentUser();
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-4 py-6 sm:px-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-[#fcfaf5] px-4 py-6 text-[#24110E] sm:px-6">
       <section className="app-shell-shadow flex flex-1 flex-col rounded-[2rem] border border-[color:var(--border)] bg-[color:var(--surface)] p-6">
         <div className="space-y-3">
           <p className="text-sm font-medium text-[color:var(--brand)]">

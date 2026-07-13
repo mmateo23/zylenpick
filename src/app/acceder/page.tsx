@@ -22,7 +22,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   if (user) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-6 sm:px-6">
+      <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center bg-[#fcfaf5] px-4 py-6 text-[#24110E] sm:px-6">
         <section className="app-shell-shadow rounded-[2rem] border border-[color:var(--border)] bg-[color:var(--surface)] p-6">
           <p className="text-sm font-medium text-[color:var(--brand)]">
             Sesion activa
@@ -54,7 +54,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-4 py-6 sm:px-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center bg-[#fcfaf5] px-4 py-6 text-[#24110E] sm:px-6">
       <section className="app-shell-shadow rounded-[2rem] border border-[color:var(--border)] bg-[color:var(--surface)] p-6">
         <p className="text-sm font-medium text-[color:var(--brand)]">
           Acceso MVP

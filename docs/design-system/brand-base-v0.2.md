@@ -1,5 +1,7 @@
 # Brand Base v0.2
 
+Update 2026-07-12: Se inicia la normalización visual de la web pública a Brand Base v0.2.
+
 Fecha: 2026-07-10  
 Estado: decision de marca aprobada, sin migracion masiva.
 

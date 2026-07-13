@@ -215,7 +215,7 @@ export function ProjectScrollSlider() {
               </div>
               <div className="project-hero-ticket">
                 <div>
-                  <span>SelecciÃ³n viva</span>
+                  <span>Selección viva</span>
                   <strong>Productos que se entienden antes de pedir.</strong>
                 </div>
                 <Link href="/platos">Escaparate</Link>
@@ -280,7 +280,7 @@ export function ProjectScrollSlider() {
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(90deg, rgba(16,7,13,0.86), rgba(16,7,13,0.42) 52%, rgba(16,7,13,0.76))",
+                "linear-gradient(90deg, rgba(252,250,245,0.94), rgba(255,247,232,0.72) 52%, rgba(252,250,245,0.86))",
             }}
           />
           <div
@@ -288,7 +288,7 @@ export function ProjectScrollSlider() {
               position: "absolute",
               inset: 0,
               background:
-                "radial-gradient(circle at 26% 48%, rgba(194,97,87,0.24), transparent 38%), radial-gradient(circle at 82% 24%, rgba(116,19,20,0.14), transparent 30%)",
+                "radial-gradient(circle at 26% 48%, rgba(194,97,87,0.12), transparent 38%), radial-gradient(circle at 82% 24%, rgba(253,227,173,0.22), transparent 30%)",
             }}
           />
 
@@ -361,8 +361,8 @@ export function ProjectScrollSlider() {
                     gap: "0.75rem",
                     color:
                       indicatorIndex === 0
-                        ? "rgba(255,255,255,1)"
-                        : "rgba(255,255,255,0.44)",
+                        ? "rgba(116,19,20,1)"
+                        : "rgba(116,19,20,0.44)",
                     fontSize: "0.78rem",
                     fontWeight: 700,
                   }}
@@ -403,7 +403,7 @@ export function ProjectScrollSlider() {
           borderBottomLeftRadius: "2rem",
           borderBottomRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(90deg, rgba(16,7,13,0.88), rgba(16,7,13,0.58) 52%, rgba(16,7,13,0.78)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(90deg, rgba(252,250,245,0.94), rgba(255,247,232,0.68) 52%, rgba(252,250,245,0.86)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

@@ -168,31 +168,31 @@ export function CartScreen({ design }: CartScreenProps) {
 
   if (!cart.venue || cart.items.length === 0) {
     return (
-      <main className="relative z-10 -mt-[5.4rem] overflow-hidden bg-page pb-10 pt-[5.4rem] text-text-primary lg:pb-20">
-        <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
+      <main className="relative z-10 -mt-[5.4rem] overflow-hidden bg-[#fcfaf5] pb-10 pt-[5.4rem] text-[#24110E] lg:pb-20">
+        <section className="relative overflow-hidden bg-[#fcfaf5] text-[#24110E]">
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
-              backgroundImage: `url('${design?.media.cartEmptyImageUrl ?? "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1800&q=80"}')`,
+              backgroundImage: "url('/cart/empty-cart-talavera.jpg')",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_24%),radial-gradient(circle_at_bottom_right,color-mix(in_srgb,var(--text-inverse)_5%,transparent),transparent_20%),linear-gradient(180deg,var(--overlay-hero-from)_0%,var(--overlay-hero-to)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(253,212,125,0.24),transparent_34%),linear-gradient(90deg,rgba(252,250,245,0.96)_0%,rgba(252,250,245,0.86)_38%,rgba(252,250,245,0.52)_68%,rgba(252,250,245,0.22)_100%)]" />
 
           <div className="relative z-10 mx-auto grid min-h-[calc(44svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12 lg:min-h-[30rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
             <div className="max-w-3xl">
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/60">
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#741314]/62">
                 Tu cesta
               </p>
               <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:max-w-[22ch] lg:text-[3.25rem]">
                 {design?.texts.cart.emptyTitle ?? "Elige productos o platos para recoger."}
               </h1>
-              <p className="mt-4 max-w-[42rem] text-base leading-7 text-text-inverse/75 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
+              <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#24110E]/72 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
                 {design?.texts.cart.emptySubtitle ??
-                  "Tu selecciÃ³n aparecerÃ¡ aquÃ­ cuando guardes algo desde un local. DespuÃ©s solo tendrÃ¡s que confirmar la hora de recogida."}
+                  "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida."}
               </p>
               <Link
                 href="/platos"
-                className="magnetic-button mt-8 inline-flex w-fit rounded-full border border-accent-border bg-cta px-6 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
+                className="mt-8 inline-flex w-fit rounded-full border border-accent-border bg-cta px-6 py-3 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
               >
                 {design?.texts.cart.emptyCta ?? "Ver platos"}
               </Link>
@@ -220,7 +220,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 <span>#000</span>
               </div>
               <p className="mt-1 text-[12px] leading-5">
-                Cesta pendiente de selecciÃ³n
+                Cesta pendiente de selección
               </p>
 
               <div className={receiptDividerClassName} />
@@ -232,7 +232,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </div>
               <div className="mt-2 space-y-1 text-[12px] leading-4">
                 {[
-                  ["01 x", "Explora selecciÃ³n", "-"],
+                  ["01 x", "Explora selección", "-"],
                   ["01 x", "Elige un local", "-"],
                   ["01 x", "Recoge cerca", "-"],
                 ].map(([quantity, description, price]) => (
@@ -257,7 +257,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <div className={receiptDividerClassName} />
 
               <p className="text-center text-[10px] leading-4">
-                Al confirmar una cesta aceptas que el local prepare tu selecciÃ³n
+                Al confirmar una cesta aceptas que el local prepare tu selección
                 para recogida. No se realiza pago online desde este ticket.
               </p>
             </div>
@@ -272,14 +272,14 @@ export function CartScreen({ design }: CartScreenProps) {
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-mono text-[10px] font-black uppercase tracking-[0.24em] text-black/45">
-                  Cesta vacÃ­a
+                  Cesta vacía
                 </p>
                 <h2 className="mt-2 text-2xl font-black leading-none tracking-[-0.05em] sm:text-3xl">
                   Empieza con algo que apetezca.
                 </h2>
                 <p className="mt-3 max-w-[34rem] text-sm leading-6 text-black/62">
-                  Guarda productos o platos de un Ãºnico local y confirma la
-                  recogida desde un ticket claro, sin pasos de mÃ¡s.
+                  Guarda productos o platos de un único local y confirma la
+                  recogida desde un ticket claro, sin pasos de más.
                 </p>
               </div>
 
@@ -359,10 +359,10 @@ export function CartScreen({ design }: CartScreenProps) {
     event.preventDefault();
 
     if (!customerName.trim() || !customerPhone.trim() || !pickupAt) {
-      setFeedback("Completa nombre, telÃ©fono y hora estimada de recogida.");
+      setFeedback("Completa nombre, teléfono y hora estimada de recogida.");
       showErrorToast({
         title: "Faltan datos",
-        description: "Completa nombre, telÃ©fono y hora estimada de recogida.",
+        description: "Completa nombre, teléfono y hora estimada de recogida.",
       });
       return;
     }
@@ -383,7 +383,7 @@ export function CartScreen({ design }: CartScreenProps) {
       setFeedback("No hemos podido crear el pedido.");
       showErrorToast({
         title: "No se pudo crear el pedido",
-        description: "Revisa la cesta e intÃ©ntalo otra vez.",
+        description: "Revisa la cesta e inténtalo otra vez.",
       });
       return;
     }
@@ -413,33 +413,33 @@ export function CartScreen({ design }: CartScreenProps) {
   };
 
   return (
-    <main className="relative z-10 -mt-[7rem] overflow-hidden bg-page pb-10 pt-[7rem] text-text-primary lg:pb-20">
-      <section className="relative overflow-hidden bg-[var(--overlay-hero-to)] text-text-inverse">
+    <main className="relative z-10 -mt-[7rem] overflow-hidden bg-[#fcfaf5] pb-10 pt-[7rem] text-[#24110E] lg:pb-20">
+      <section className="relative overflow-hidden bg-[#fcfaf5] text-[#24110E]">
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
           style={{
             backgroundImage: `url(${cartTicketHeroImageUrl})`,
           }}
         />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,var(--brand-accent-soft),transparent_18%),linear-gradient(90deg,rgba(5,8,22,0.97)_0%,rgba(5,8,22,0.9)_42%,rgba(5,8,22,0.68)_72%,rgba(5,8,22,0.44)_100%),linear-gradient(180deg,rgba(5,8,22,0.34)_0%,rgba(5,8,22,0.68)_48%,rgba(5,8,22,0.98)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_18%),linear-gradient(90deg,rgba(253,227,173,0.94)_0%,rgba(253,227,173,0.76)_42%,rgba(255,247,232,0.44)_72%,rgba(255,247,232,0.18)_100%),linear-gradient(180deg,rgba(253,227,173,0.18)_0%,rgba(253,227,173,0.34)_48%,rgba(253,227,173,0.78)_100%)]" />
 
         <div className="relative z-10 mx-auto grid min-h-[calc(58svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:min-h-[32rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
-          <div className="max-w-4xl lg:max-w-[34rem] lg:rounded-[1.35rem] lg:border lg:border-white/12 lg:bg-black/55 lg:p-6 lg:shadow-[0_22px_70px_rgba(0,0,0,0.36)] lg:backdrop-blur-md">
-            <p className="text-xs font-medium uppercase tracking-[0.28em] text-text-inverse/70 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)] lg:text-text-inverse/78 lg:[text-shadow:none]">
+          <div className="max-w-4xl lg:max-w-[34rem] lg:rounded-[1.35rem] lg:border lg:border-[#741314]/16 lg:bg-[#FFF7E8]/84 lg:p-6 lg:shadow-[var(--shadow-soft)] lg:backdrop-blur-md">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
               Tu cesta
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
-              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium uppercase tracking-[0.2em] text-text-inverse/75 backdrop-blur-xl lg:border-white/16 lg:bg-white/10 lg:text-white/82">
+              <span className="rounded-full border border-[#741314]/16 bg-[#FDE3AD]/54 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#741314] backdrop-blur-xl">
                 {cart.venue.name}
               </span>
-              <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.045] px-4 py-2 text-xs font-medium text-text-inverse/75 backdrop-blur-xl lg:border-white/16 lg:bg-white/10 lg:text-white/82">
+              <span className="rounded-full border border-[#741314]/16 bg-[#FDE3AD]/54 px-4 py-2 text-xs font-semibold text-[#741314] backdrop-blur-xl">
                 {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               </span>
             </div>
-            <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] [text-shadow:0_6px_28px_rgba(0,0,0,0.72)] lg:max-w-[13ch] lg:text-[3.05rem] lg:[text-shadow:none]">
+            <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-[#741314] lg:max-w-[13ch] lg:text-[3.05rem]">
               {design?.texts.cart.filledTitle ?? "Revisa tu recogida."}
             </h1>
-            <p className="mt-4 max-w-[42rem] text-base leading-7 text-text-inverse/86 [text-shadow:0_3px_18px_rgba(0,0,0,0.68)] sm:text-lg sm:leading-8 lg:max-w-[28rem] lg:text-base lg:leading-7 lg:text-white/78 lg:[text-shadow:none]">
+            <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#24110E]/72 sm:text-lg sm:leading-8 lg:max-w-[28rem] lg:text-base lg:leading-7">
               {design?.texts.cart.filledSubtitle ??
                 "Tu pedido se prepara en el local para que solo tengas que llegar y recoger."}
             </p>
@@ -456,7 +456,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <p className="mt-3 text-[11px] leading-4">
                 {cart.venue.cityName}
                 <br />
-                {cart.venue.address ?? "DirecciÃ³n pendiente"}
+                {cart.venue.address ?? "Dirección pendiente"}
                 <br />
                 {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
               </p>
@@ -497,7 +497,7 @@ export function CartScreen({ design }: CartScreenProps) {
               {hiddenDesktopTicketItemsCount > 0 ? (
                 <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2">
                   <span>+{hiddenDesktopTicketItemsCount}</span>
-                  <span>MÃ¡s productos</span>
+                  <span>Más productos</span>
                   <span className="text-right">...</span>
                 </div>
               ) : null}
@@ -515,7 +515,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <p className="text-center text-[10px] leading-4">
               Aviso: el pedido se prepara para recoger en el local. Al continuar,
               confirmas los datos de recogida y aceptas que el local gestione la
-              preparaciÃ³n de tu selecciÃ³n.
+              preparación de tu selección.
             </p>
 
             {isHeroCheckoutOpen ? (
@@ -545,7 +545,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     htmlFor="hero-customer-phone"
                     className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
                   >
-                    TelÃ©fono
+                    Teléfono
                   </label>
                   <input
                     id="hero-customer-phone"
@@ -557,7 +557,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     className={ticketInputClassName}
-                    placeholder="Tu telÃ©fono"
+                    placeholder="Tu teléfono"
                     autoComplete="tel"
                   />
                 </div>
@@ -681,7 +681,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </p>
               {hiddenTicketItemsCount > 0 ? (
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-black/45">
-                  +{hiddenTicketItemsCount} mÃ¡s
+                  +{hiddenTicketItemsCount} más
                 </p>
               ) : null}
             </div>
@@ -734,7 +734,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   htmlFor="mobile-customer-phone"
                   className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
                 >
-                  TelÃ©fono
+                  Teléfono
                 </label>
                 <input
                   id="mobile-customer-phone"
@@ -746,7 +746,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   inputMode="numeric"
                   pattern="[0-9]*"
                   className={ticketInputClassName}
-                  placeholder="Tu telÃ©fono"
+                  placeholder="Tu teléfono"
                   autoComplete="tel"
                 />
               </div>
@@ -782,7 +782,7 @@ export function CartScreen({ design }: CartScreenProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="magnetic-button mt-4 inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
+            className="mt-4 inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
           >
             {isSubmitting
               ? "Preparando pedido..."
@@ -860,7 +860,7 @@ export function CartScreen({ design }: CartScreenProps) {
         <CartAccordion
           id="cart-details-mobile"
           title="Notas y detalles del local"
-          meta={cart.venue.address ?? "DirecciÃ³n pendiente"}
+          meta={cart.venue.address ?? "Dirección pendiente"}
           isOpen={openSections.details}
           onToggle={() => toggleSection("details")}
         >
@@ -877,13 +877,13 @@ export function CartScreen({ design }: CartScreenProps) {
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 className={`${inputClassName} min-h-24 resize-y`}
-                placeholder="Alguna indicaciÃ³n adicional"
+                placeholder="Alguna indicación adicional"
               />
             </div>
 
             <div className="rounded-[1rem] border border-border-subtle bg-surface-muted p-4 text-sm leading-6 text-text-secondary">
               <p>
-                RecogerÃ¡s tu pedido directamente en el local, sin esperas
+                Recogerás tu pedido directamente en el local, sin esperas
                 innecesarias.
               </p>
               <p className="mt-3 inline-flex items-start gap-2">
@@ -891,7 +891,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   size={18}
                   className="mt-0.5 text-icon-highlight"
                 />
-                {cart.venue.address ?? "DirecciÃ³n pendiente"}
+                {cart.venue.address ?? "Dirección pendiente"}
               </p>
               <p className="mt-2 inline-flex items-start gap-2">
                 <ClockIcon size={18} className="mt-0.5 text-icon-highlight" />
@@ -906,14 +906,14 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="button"
                 onClick={() => clearCart()}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
+                className="inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
               >
                 Vaciar cesta
               </button>
 
               <Link
                 href={`/zonas/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
+                className="inline-flex w-full justify-center rounded-full border border-border-subtle bg-surface-strong px-5 py-3 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
               >
                 Volver al local
               </Link>
@@ -927,10 +927,10 @@ export function CartScreen({ design }: CartScreenProps) {
           <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
-                SelecciÃ³n
+                Selección
               </p>
               <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
-                SelecciÃ³n guardada.
+                Selección guardada.
               </h2>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
@@ -1009,7 +1009,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   <button
                     type="button"
                     onClick={() => removeCartItem(item.id)}
-                    className="magnetic-button inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-muted"
+                    className="inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-muted"
                   >
                     Eliminar
                   </button>
@@ -1033,7 +1033,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <p className="mt-3 text-[11px] font-bold leading-4 text-black/78">
               {cart.venue.cityName}
               <br />
-              {cart.venue.address ?? "DirecciÃ³n pendiente"}
+              {cart.venue.address ?? "Dirección pendiente"}
               <br />
               {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
             </p>
@@ -1050,7 +1050,7 @@ export function CartScreen({ design }: CartScreenProps) {
           </p>
 
           <p className="mt-4 border-y border-dashed border-black/40 py-3 text-[11px] leading-5 text-black/70">
-            Aviso: el local prepara tu selecciÃ³n para recoger. No se realiza
+            Aviso: el local prepara tu selección para recoger. No se realiza
             pago online desde este ticket.
           </p>
 
@@ -1114,7 +1114,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 htmlFor="desktop-customer-phone"
                 className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
               >
-                TelÃ©fono
+                Teléfono
               </label>
               <input
                 id="desktop-customer-phone"
@@ -1126,7 +1126,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className={ticketInputClassName}
-                placeholder="Tu telÃ©fono"
+                placeholder="Tu teléfono"
                 autoComplete="tel"
               />
             </div>
@@ -1164,7 +1164,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
                 className={`${ticketInputClassName} min-h-24 resize-y`}
-                placeholder="Alguna indicaciÃ³n adicional"
+                placeholder="Alguna indicación adicional"
               />
             </div>
 
@@ -1178,7 +1178,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <p className="border-y border-dashed border-black/45 py-3 text-center text-[10px] leading-4 text-black/70">
                 Aviso legal: al preparar la recogida confirmas que los datos
                 introducidos son correctos y autorizas al local a gestionar tu
-                selecciÃ³n. No se realiza pago online desde este ticket.
+                selección. No se realiza pago online desde este ticket.
               </p>
               <p className="text-sm leading-6 text-black/62">
                 {design?.texts.cart.ctaMicrocopy ??
@@ -1187,7 +1187,7 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="magnetic-button inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
+                className="inline-flex w-full justify-center rounded-full bg-[#741314] px-5 py-3.5 text-sm font-black text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.18)] transition hover:bg-[#5F0F10] disabled:opacity-60"
               >
                 {isSubmitting
                   ? "Preparando pedido..."
@@ -1198,14 +1198,14 @@ export function CartScreen({ design }: CartScreenProps) {
               <button
                 type="button"
                 onClick={() => clearCart()}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
+                className="inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
               >
                 Vaciar cesta
               </button>
 
               <Link
                 href={`/zonas/${cart.venue.citySlug}/venues/${cart.venue.slug}`}
-                className="magnetic-button inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
+                className="inline-flex w-full justify-center rounded-full border border-black/15 bg-white px-5 py-3 text-sm font-black text-black transition hover:bg-black/[0.035]"
               >
                 Volver al local
               </Link>

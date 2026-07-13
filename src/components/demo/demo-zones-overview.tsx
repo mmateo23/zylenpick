@@ -39,21 +39,21 @@ const comingSoonZones = [
     id: "soon-soria",
     slug: "soria",
     name: "Soria",
-    region: "Castilla y LeÃ³n",
+    region: "Castilla y León",
     imageUrl: "/home/zonas/soria-card.jpg",
   },
   {
     id: "soon-avila",
     slug: "avila",
-    name: "Ãvila",
-    region: "Castilla y LeÃ³n",
+    name: "Ávila",
+    region: "Castilla y León",
     imageUrl: "/home/zonas/avila-card.jpg",
   },
   {
     id: "soon-segovia",
     slug: "segovia",
     name: "Segovia",
-    region: "Castilla y LeÃ³n",
+    region: "Castilla y León",
     imageUrl: "/home/zonas/segovia-card.jpg",
   },
   {
@@ -89,7 +89,7 @@ function getCityDecisionContext(city: City, index: number) {
   }
 
   if (index < 3) {
-    return "para decidir rÃ¡pido";
+    return "para decidir rápido";
   }
 
   return "locales cercanos";
@@ -105,7 +105,7 @@ function getCityDecisionSignal(city: City, index: number) {
   }
 
   if (index < 3) {
-    return "Decidir rÃ¡pido";
+    return "Decidir rápido";
   }
 
   return "Locales cerca";
@@ -193,7 +193,7 @@ export function DemoZonesOverview({
     <main
       ref={rootRef}
       className={`min-h-screen transition-colors ${
-        isLightTheme ? "bg-[#f6f1e6] text-[#181816]" : "bg-[#050816] text-white"
+        isLightTheme ? "bg-[#fcfaf5] text-[#24110E]" : "bg-[#050816] text-white"
       }`}
     >
       {variant === "public" ? (
@@ -202,8 +202,14 @@ export function DemoZonesOverview({
         <DemoSiteHeader isLightTheme={isLightTheme} />
       )}
 
-      <section className="relative overflow-hidden border-b border-white/6">
-        <div className="absolute inset-0 overflow-hidden">
+      <section className={isLightTheme ? "relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9" : "relative overflow-hidden border-b border-white/6"}>
+        {isLightTheme ? (
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]" />
+        ) : null}
+
+        <div className={isLightTheme ? "relative z-10 mx-auto max-w-[1600px]" : "relative mx-auto w-full max-w-7xl"}>
+          <div className={isLightTheme ? "relative -mx-2 overflow-hidden rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10" : "relative flex min-h-[calc(100svh-6.5rem)] flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12"}>
+            <div className={isLightTheme ? "absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#741314]" : "absolute inset-0 -z-10 overflow-hidden"}>
           {zonesHeroMediaType === "image" ? (
             <Image
               src={zonesHeroMediaUrl}
@@ -212,7 +218,7 @@ export function DemoZonesOverview({
               fill
               priority
               sizes="100vw"
-              className="scale-[1.04] object-cover"
+              className="scale-[1.04] object-cover opacity-72 saturate-[1.05]"
             />
           ) : (
             <video
@@ -221,26 +227,26 @@ export function DemoZonesOverview({
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 h-full w-full scale-[1.04] object-cover"
+              className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-72 saturate-[1.05]"
             >
               <source src={zonesHeroMediaUrl} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]" />
-          <div className="zones-hero-glow absolute inset-y-0 left-[-12%] w-[42%] bg-[radial-gradient(circle_at_center,rgba(116,19,20,0.12),transparent_62%)] blur-3xl" />
-        </div>
+              <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(110deg,rgba(253,227,173,0.30)_0%,rgba(253,227,173,0)_100%)]" : "absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]"} />
+            </div>
+            <div className={isLightTheme ? "zones-hero-glow absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(253,227,173,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(253,227,173,0.14),transparent_32%),linear-gradient(180deg,rgba(255,247,232,0.08),transparent_42%)]" : "zones-hero-glow absolute inset-y-0 left-[-12%] -z-10 w-[42%] bg-[radial-gradient(circle_at_center,rgba(116,19,20,0.12),transparent_62%)] blur-3xl"} />
 
-        <div className="relative mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-7xl flex-col justify-center px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-10 lg:px-12">
+        <div className="relative z-10 grid min-h-[min(52svh,31rem)] items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,24rem)] lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:gap-12">
           <div className="zones-hero-copy max-w-[42rem]">
             <div className="space-y-4">
-              <p className="mt-6 text-[11px] font-medium uppercase tracking-[0.34em] text-white/44">
+              <p className={isLightTheme ? "text-[11px] font-semibold uppercase tracking-[0.28em] text-[#FDE3AD] drop-shadow-[0_4px_16px_rgba(0,0,0,0.42)]" : "mt-6 text-[11px] font-medium uppercase tracking-[0.34em] text-white/44"}>
                 Zonas disponibles
               </p>
-              <h1 className="max-w-[12ch] text-[clamp(2.35rem,8.6vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white">
+              <h1 className={isLightTheme ? "max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#FDE3AD] drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)]" : "max-w-[12ch] text-[clamp(2.35rem,8.6vw,5.5rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white"}>
                 {design?.zones.title ??
-                  "Elige dÃ³nde empieza tu prÃ³xima recogida."}
+                  "Elige dónde empieza tu próxima recogida."}
               </h1>
-              <p className="max-w-[36rem] text-[0.95rem] leading-6 text-white/56 sm:text-base sm:leading-7">
+              <p className={isLightTheme ? "inline-flex max-w-[34rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-base font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-lg sm:leading-8" : "max-w-[36rem] text-[0.95rem] leading-6 text-white/56 sm:text-base sm:leading-7"}>
                 {design?.zones.subtitle ??
                   "Explora zonas activas, entra en cada una y descubre locales preparados para recoger sin complicarte."}
               </p>
@@ -248,14 +254,14 @@ export function DemoZonesOverview({
 
           </div>
 
-          <div className="mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6">
+          <div className={isLightTheme ? "rounded-[1.9rem] border border-[#741314]/22 bg-[#FFF7E8]/86 p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-6" : "mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6"}>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-white/38">
+                <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.3em] text-[#741314]" : "text-[10px] font-medium uppercase tracking-[0.3em] text-white/38"}>
                   Ciudades activas
                 </p>
-                <p className="mt-2 text-sm text-white/58">
-                  Una lectura rÃ¡pida de las ciudades disponibles ahora mismo.
+                <p className={isLightTheme ? "mt-2 text-sm text-[#24110E]/64" : "mt-2 text-sm text-white/58"}>
+                  Una lectura rápida de las ciudades disponibles ahora mismo.
                 </p>
               </div>
             </div>
@@ -264,10 +270,23 @@ export function DemoZonesOverview({
               {heroCities.map((city) => (
                 <span
                   key={city.id}
-                  className="zones-chip rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"
+                  className={isLightTheme ? "zones-chip rounded-full border border-[#741314]/16 bg-[#FDE3AD]/70 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#741314] backdrop-blur-xl" : "zones-chip rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"}
                 >
-                  <MapPinned className="mr-2 inline h-3.5 w-3.5 text-[#741314]" />
+                  <MapPinned className={isLightTheme ? "mr-2 inline h-3.5 w-3.5 text-[#741314]" : "mr-2 inline h-3.5 w-3.5 text-[#FDE3AD]"} />
                   {city.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+            <div className={isLightTheme ? "relative z-10 mt-8 flex flex-wrap gap-2.5 border-t border-[#FDE3AD]/40 pt-5 sm:mt-9 sm:pt-6" : "relative z-10 mt-8 flex flex-wrap gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6"}>
+              {["Zonas activas", "Locales reales", "Recogida cerca", "Talavera", "M\u00e1s ciudades"].map((label) => (
+                <span
+                  key={label}
+                  className={isLightTheme ? "rounded-full border border-[#FDE3AD]/50 bg-[#741314]/24 px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs"}
+                >
+                  {label}
                 </span>
               ))}
             </div>
@@ -278,7 +297,7 @@ export function DemoZonesOverview({
       <section
         className={`relative border-t px-3 py-6 transition-colors sm:px-6 sm:py-8 lg:px-8 lg:py-10 ${
           isLightTheme
-            ? "border-black/6 bg-[#f6f1e6]"
+            ? "border-[#741314]/10 bg-[#fcfaf5]"
             : "border-white/6 bg-[#050816]"
         }`}
       >
@@ -290,7 +309,7 @@ export function DemoZonesOverview({
                   isLightTheme ? "text-[#181816]/42" : "text-white/42"
                 }`}
               >
-                SelecciÃ³n visual
+                Selección visual
               </p>
               <h2
                 className={`mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] ${
@@ -310,7 +329,7 @@ export function DemoZonesOverview({
                 href={`${cityHrefBase}/${city.slug}`}
                 className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border opacity-0 shadow-[0_18px_50px_rgba(0,0,0,0.24)] sm:rounded-[1.8rem] ${
                   isLightTheme
-                    ? "border-black/8 bg-[#e8e1d2]"
+                    ? "border-black/8 bg-[#FFF7E8]"
                     : "border-white/10 bg-[#0b1211]"
                 }`}
               >
@@ -343,15 +362,15 @@ export function DemoZonesOverview({
                       {design?.zones.cardCtaLabel ??
                         getCityDecisionSignal(city, index)}
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD]/30 bg-[#FDE3AD]/12 p-2 text-[#FDE3AD] backdrop-blur-xl">
                       <ArrowUpRight className="h-4 w-4" />
                     </span>
                   </div>
                   <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                     <p className="text-[1.5rem] font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-[2rem]">
-                      {city.name} Â· {getCityDecisionContext(city, index)}
+                      {city.name} · {getCityDecisionContext(city, index)}
                     </p>
-                    <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/58">
+                    <p className="mt-3 max-w-[28ch] text-sm font-medium leading-6 text-[#FDE3AD]">
                       {design?.zones.cardMicrocopy ??
                         "Descubre locales de esta zona."}
                     </p>
@@ -362,7 +381,7 @@ export function DemoZonesOverview({
             {comingSoonZones.map((zone) => (
               <article
                 key={zone.id}
-                aria-label={`${zone.name}, prÃ³ximamente`}
+                aria-label={`${zone.name}, próximamente`}
                 className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border opacity-0 shadow-[0_18px_50px_rgba(0,0,0,0.22)] sm:rounded-[1.8rem] ${
                   isLightTheme
                     ? "border-black/8 bg-[#e8e1d2]"
@@ -380,24 +399,24 @@ export function DemoZonesOverview({
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(116,19,20,0.20),transparent_34%),linear-gradient(180deg,rgba(6,10,11,0.06),rgba(6,10,11,0.24)_42%,rgba(6,10,11,0.9)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
                     <span className="rounded-full border border-[#741314]/25 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#FDE3AD] backdrop-blur-xl">
-                      PrÃ³ximamente
+                      Próximamente
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-white/72 backdrop-blur-xl">
+                    <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-[#FFF7E8] backdrop-blur-xl">
                       <Sparkles className="h-4 w-4" />
                     </span>
                   </div>
                   <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
                     <p className="text-[1.5rem] font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-[2rem]">
-                      {zone.name} Â· PrÃ³ximamente
+                      {zone.name} · Próximamente
                     </p>
-                    <p className="mt-3 max-w-[28ch] text-sm leading-6 text-white/58">
-                      Preparando una selecciÃ³n visual de locales en {zone.region}.
+                    <p className="mt-3 max-w-[28ch] text-sm font-medium leading-6 text-[#FDE3AD] drop-shadow-[0_6px_18px_rgba(0,0,0,0.46)]">
+                      Preparando una selección visual de locales en {zone.region}.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/68">
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
                         Zona futura
                       </span>
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-white/68">
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
                         Locales cercanos
                       </span>
                     </div>

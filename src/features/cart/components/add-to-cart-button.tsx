@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 
@@ -95,7 +95,7 @@ export function AddToCartButton({
         onClick={handleAdd}
         className={
           buttonClassName ??
-          "magnetic-button inline-flex items-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[var(--card-shadow)] transition hover:bg-[#5F0F10]"
+          "inline-flex items-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[var(--card-shadow)] transition hover:bg-[#5F0F10]"
         }
       >
         {label}
