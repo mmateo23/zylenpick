@@ -160,7 +160,7 @@ export function ProjectScrollSlider() {
           borderTopLeftRadius: "2rem",
           borderTopRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(rgba(255,247,232,0.50), rgba(255,247,232,0.50)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -280,7 +280,7 @@ export function ProjectScrollSlider() {
               position: "absolute",
               inset: 0,
               background:
-                "rgba(255,247,232,0.50)",
+                "rgba(255,247,232,0.20)",
             }}
           />
 
@@ -395,7 +395,7 @@ export function ProjectScrollSlider() {
           borderBottomLeftRadius: "2rem",
           borderBottomRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(rgba(255,247,232,0.50), rgba(255,247,232,0.50)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

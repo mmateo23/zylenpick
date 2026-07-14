@@ -74,19 +74,19 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/logo/LogoNuevo.svg",
-        width: 1200,
-        height: 630,
-        alt: "Pickyalo",
+        url: "/icons/pickyalo-icon-512.png",
+        width: 512,
+        height: 512,
+        alt: "Logo de la app Pickyalo",
       },
     ],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Pickyalo | Productos y platos para recoger",
     description:
       "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
-    images: ["/logo/LogoNuevo.svg"],
+    images: ["/icons/pickyalo-icon-512.png"],
   },
 };
 
