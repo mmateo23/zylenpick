@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
@@ -28,6 +29,15 @@ type OrderTicketScreenProps = {
   orderId: string;
   design?: SiteDesignConfig;
 };
+
+const orderLightTextStyle = {
+  "--foreground": "#741314",
+  "--muted": "rgba(116, 19, 20, 0.56)",
+  "--text-primary": "#741314",
+  "--text-secondary": "rgba(116, 19, 20, 0.72)",
+  "--text-muted": "rgba(116, 19, 20, 0.56)",
+  "--brand-accent-strong": "#741314",
+} as CSSProperties;
 
 function formatPickupTime(dateValue: string) {
   return new Intl.DateTimeFormat("es-ES", {
@@ -240,7 +250,10 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
 
   if (!order) {
     return (
-      <section className="rounded-[2rem] border border-dashed border-[color:var(--border)] bg-[color:var(--surface)] p-8 shadow-[var(--soft-shadow)]">
+      <section
+        className="rounded-[2rem] border border-dashed border-[#741314]/16 bg-[#FFF7E8] p-8 text-[#741314] shadow-[var(--soft-shadow)]"
+        style={orderLightTextStyle}
+      >
         <p className="text-lg font-semibold text-[color:var(--foreground)]">
           No hemos encontrado este pedido.
         </p>
@@ -311,7 +324,10 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
   };
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
+    <div
+      className="grid gap-8 text-[#741314] xl:grid-cols-[minmax(0,1fr)_24rem]"
+      style={orderLightTextStyle}
+    >
       <section className="rounded-[2rem] border border-border-subtle bg-surface p-5 text-text-primary shadow-[var(--shadow-soft)] sm:rounded-[2.4rem] sm:p-8">
         <div className="rounded-[1.6rem] border border-accent/35 bg-surface-strong p-5 ring-1 ring-accent-soft sm:rounded-[2rem] sm:p-7">
           <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">

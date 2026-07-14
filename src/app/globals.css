@@ -108,6 +108,24 @@
   --brand-accent-shadow: rgba(116, 19, 20, 0.22);
 }
 
+/* Public pages can opt into the light palette while the legacy app theme stays dark. */
+.public-light-theme {
+  --bg-page: #FDE3AD;
+  --bg-page-alt: #F6D99A;
+  --bg-surface: rgba(255, 247, 232, 0.9);
+  --bg-surface-strong: #FFF7E8;
+  --bg-surface-muted: rgba(255, 247, 232, 0.62);
+  --text-primary: #24110E;
+  --text-secondary: rgba(36, 17, 14, 0.68);
+  --text-muted: rgba(36, 17, 14, 0.48);
+  --text-inverse: #ffffff;
+  --border-subtle: rgba(116, 19, 20, 0.16);
+  --border-strong: rgba(116, 19, 20, 0.28);
+  --shadow-soft: 0 18px 60px rgba(116, 19, 20, 0.12);
+  --status-danger: #c43d45;
+  --status-warning: #a86f13;
+}
+
 * {
   box-sizing: border-box;
 }

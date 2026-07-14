@@ -16,6 +16,10 @@ const showcaseSlots = [
 ];
 
 function formatPrice(item: HomeShowcaseItem) {
+  if (!item.venue.pricesVisible) {
+    return "Precio pendiente";
+  }
+
   const normalizedAmount =
     Number.isInteger(item.priceAmount) && item.priceAmount >= 100
       ? item.priceAmount / 100

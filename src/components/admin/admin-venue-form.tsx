@@ -42,6 +42,7 @@ function buildInitialValues(
       isActive: true,
       isPublished: true,
       isVerified: false,
+      pricesVisible: false,
       subscriptionActive: false,
       subscriptionTier: "basic",
       sortOrder: "",
@@ -438,6 +439,12 @@ export function AdminVenueForm({
               label="Suscripción activa"
               description="El local forma parte de la red activa de Pickyalo y puede mostrar el distintivo si también está verificado."
               defaultChecked={values.subscriptionActive}
+            />
+            <ToggleField
+              name="pricesVisible"
+              label="Mostrar precios y permitir pedidos"
+              description="Actívalo solo cuando el local haya confirmado sus precios. Mientras esté apagado, la web mostrará Precio pendiente y no permitirá añadir productos nuevos a la cesta."
+              defaultChecked={values.pricesVisible}
             />
             <ToggleField
               name="isPublished"

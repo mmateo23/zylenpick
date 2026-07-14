@@ -54,7 +54,7 @@ export async function generateMetadata({
 export default async function VenuePage({ params }: VenuePageProps) {
   if (!isSupabaseConfigured()) {
     return (
-      <div className="min-h-screen bg-page text-text-primary">
+      <div className="public-light-theme min-h-screen bg-page text-text-primary">
         <SiteHeader />
         <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-6 sm:py-10 lg:px-8">
           <section className="rounded-[1.8rem] border border-dashed border-accent/45 bg-surface-muted p-8 shadow-[var(--soft-shadow)] ring-1 ring-accent-soft backdrop-blur-xl">
@@ -99,6 +99,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     email: venue.email,
     phone: venue.phone,
     pickupEtaMin: venue.pickupEtaMin,
+    pricesVisible: venue.pricesVisible,
   };
   const mapsHref = venue.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
@@ -112,7 +113,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     : null;
 
   return (
-    <div className="min-h-screen bg-page text-text-primary">
+    <div className="public-light-theme min-h-screen bg-page text-text-primary">
       <SiteHeader />
       <CityPreferenceSync
         city={{ slug: venue.city.slug, name: venue.city.name }}

@@ -168,6 +168,10 @@ type CurationFilter =
   | "cityStars";
 
 function formatPrice(item: HomeShowcaseItem) {
+  if (!item.venue.pricesVisible) {
+    return "Precio pendiente";
+  }
+
   const normalizedAmount =
     Number.isInteger(item.priceAmount) && item.priceAmount >= 100
       ? item.priceAmount / 100
@@ -251,6 +255,7 @@ function getCartVenueFromShowcaseItem(item: HomeShowcaseItem): CartVenue {
     address: item.venue.address,
     coverUrl: item.venue.coverUrl,
     pickupEtaMin: item.pickupEtaMin,
+    pricesVisible: item.venue.pricesVisible,
   };
 }
 
@@ -1502,6 +1507,11 @@ export function DemoDishesCarousel({
   };
 
   const handleAddPostToCart = (item: HomeShowcaseItem) => {
+    if (!item.venue.pricesVisible) {
+      setPostFeedback("El local todavía está confirmando sus precios.");
+      return;
+    }
+
     const venue = getCartVenueFromShowcaseItem(item);
     const cartItem = getCartItemFromShowcaseItem(item);
     const result = addItemToCart({
@@ -2875,8 +2885,9 @@ export function DemoDishesCarousel({
                 <button
                   type="button"
                   onClick={() => handleAddPostToCart(activeItem)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD]"
-                  aria-label="A\u00f1adir para recoger"
+                  disabled={!activeItem.venue.pricesVisible}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD] disabled:cursor-not-allowed disabled:opacity-45"
+                  aria-label={activeItem.venue.pricesVisible ? "Añadir para recoger" : "Precio pendiente"}
                 >
                   <CartIcon className="h-7 w-7" />
                 </button>
@@ -3089,6 +3100,8 @@ export function DemoDishesCarousel({
                         className="w-full"
                         buttonClassName={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full bg-[#141414] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/92" : "inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#07100d] transition hover:bg-white/92"}
                         feedbackClassName={isLightTheme ? "mt-2 text-xs leading-5 text-black/58" : "mt-2 text-xs leading-5 text-white/58"}
+                        disabled={!activeItem.venue.pricesVisible}
+                        disabledLabel="Disponible pronto"
                       />
                       <Link
                         href={getVenueHref(activeItem)}
@@ -3248,6 +3261,8 @@ export function DemoDishesCarousel({
                       className="min-w-[13rem]"
                       buttonClassName={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
                       feedbackClassName={isLightTheme ? "mt-2 max-w-[16rem] text-xs leading-5 text-black/58" : "mt-2 max-w-[16rem] text-xs leading-5 text-white/58"}
+                      disabled={!activeItem.venue.pricesVisible}
+                      disabledLabel="Disponible pronto"
                     />
                     <Link
                       href={getVenueHref(activeItem)}

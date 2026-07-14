@@ -23,6 +23,8 @@ type AddToCartButtonProps = {
   feedbackClassName?: string;
   source?: string;
   label?: string;
+  disabled?: boolean;
+  disabledLabel?: string;
 };
 
 export function AddToCartButton({
@@ -32,11 +34,17 @@ export function AddToCartButton({
   buttonClassName,
   feedbackClassName,
   source = "add_to_cart_button",
+  disabled = false,
+  disabledLabel = "Precio pendiente",
   label = "Añadir para recoger",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const handleAdd = () => {
+    if (disabled) {
+      return;
+    }
+
     const result = addItemToCart({
       venue,
       item,
@@ -93,12 +101,13 @@ export function AddToCartButton({
       <button
         type="button"
         onClick={handleAdd}
-        className={
+        disabled={disabled}
+        className={`${
           buttonClassName ??
           "inline-flex items-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[var(--card-shadow)] transition hover:bg-[#5F0F10]"
-        }
+        } ${disabled ? "cursor-not-allowed opacity-55" : ""}`}
       >
-        {label}
+        {disabled ? disabledLabel : label}
       </button>
       {feedback ? (
         <p

@@ -9,6 +9,7 @@ export type CartVenue = {
   email?: string | null;
   phone?: string | null;
   pickupEtaMin: number | null;
+  pricesVisible?: boolean;
 };
 
 export type CartItem = {

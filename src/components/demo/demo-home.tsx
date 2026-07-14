@@ -67,6 +67,10 @@ function getZonesHref(selectedCity: StoredCity | null) {
 }
 
 function formatHomePrice(item: HomeShowcaseItem) {
+  if (!item.venue.pricesVisible) {
+    return "Precio pendiente";
+  }
+
   return new Intl.NumberFormat("es-ES", {
     style: "currency",
     currency: item.currency,

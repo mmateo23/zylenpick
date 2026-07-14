@@ -68,6 +68,7 @@ export type Database = {
           delivery_time_max: number | null;
           is_featured: boolean;
           is_verified: boolean;
+          prices_visible: boolean;
           subscription_active: boolean;
           subscription_tier: "basic" | "oro" | "titanio";
           is_published: boolean;
@@ -98,6 +99,7 @@ export type Database = {
           delivery_time_max?: number | null;
           is_featured?: boolean;
           is_verified?: boolean;
+          prices_visible?: boolean;
           subscription_active?: boolean;
           subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;
@@ -128,6 +130,7 @@ export type Database = {
           delivery_time_max?: number | null;
           is_featured?: boolean;
           is_verified?: boolean;
+          prices_visible?: boolean;
           subscription_active?: boolean;
           subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;

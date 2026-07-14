@@ -45,8 +45,15 @@ export const metadata: Metadata = {
   description:
     "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
   icons: {
-    icon: "/logo/Agrupar.svg",
-    shortcut: "/logo/Agrupar.svg",
+    icon: [
+      { url: "/icons/pickyalo-app.svg", type: "image/svg+xml" },
+      {
+        url: "/icons/pickyalo-favicon-32.png",
+        type: "image/png",
+        sizes: "32x32",
+      },
+    ],
+    shortcut: "/icons/pickyalo-favicon-32.png",
     apple: "/icons/apple-touch-icon.png",
   },
   appleWebApp: {

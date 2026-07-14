@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
+import { CartIcon } from "@/components/icons/cart-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import type { SiteDesignConfig } from "@/features/design/site-design-config";
 import { useCart } from "@/features/cart/hooks/use-cart";
@@ -135,7 +136,6 @@ export function CartScreen({ design }: CartScreenProps) {
   const [notes, setNotes] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isHeroCheckoutOpen, setIsHeroCheckoutOpen] = useState(false);
   const checkoutTicketRef = useRef<HTMLElement | null>(null);
   const [openSections, setOpenSections] = useState<
     Record<CartAccordionKey, boolean>
@@ -176,10 +176,10 @@ export function CartScreen({ design }: CartScreenProps) {
               backgroundImage: "url('/cart/empty-cart-talavera.jpg')",
             }}
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(253,212,125,0.24),transparent_34%),linear-gradient(90deg,rgba(252,250,245,0.96)_0%,rgba(252,250,245,0.86)_38%,rgba(252,250,245,0.52)_68%,rgba(252,250,245,0.22)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(253,212,125,0.30),transparent_34%),linear-gradient(90deg,rgba(252,250,245,0.98)_0%,rgba(252,250,245,0.94)_42%,rgba(252,250,245,0.70)_70%,rgba(252,250,245,0.34)_100%)]" />
 
           <div className="relative z-10 mx-auto grid min-h-[calc(44svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12 lg:min-h-[30rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
-            <div className="max-w-3xl">
+            <div className="max-w-3xl rounded-[1.75rem] border border-[#741314]/12 bg-[#FFF7E8]/92 p-5 shadow-[0_18px_46px_rgba(116,19,20,0.10)] backdrop-blur-md sm:p-6 lg:bg-[#FFF7E8]/88">
               <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#741314]/62">
                 Tu cesta
               </p>
@@ -337,24 +337,6 @@ export function CartScreen({ design }: CartScreenProps) {
     0,
   );
 
-  const scrollToCheckoutTicket = () => {
-    const ticket =
-      checkoutTicketRef.current ?? document.getElementById("cart-checkout-ticket");
-    if (!ticket) return;
-
-    const top = ticket.getBoundingClientRect().top + window.scrollY - 112;
-    window.history.replaceState(null, "", "#cart-checkout-ticket");
-    window.scrollTo({
-      behavior: "smooth",
-      top: Math.max(top, 0),
-    });
-
-    window.setTimeout(() => {
-      const firstInput = document.getElementById("desktop-customer-name");
-      firstInput?.focus({ preventScroll: true });
-    }, 650);
-  };
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -423,7 +405,7 @@ export function CartScreen({ design }: CartScreenProps) {
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_18%),linear-gradient(90deg,rgba(253,227,173,0.94)_0%,rgba(253,227,173,0.76)_42%,rgba(255,247,232,0.44)_72%,rgba(255,247,232,0.18)_100%),linear-gradient(180deg,rgba(253,227,173,0.18)_0%,rgba(253,227,173,0.34)_48%,rgba(253,227,173,0.78)_100%)]" />
 
-        <div className="relative z-10 mx-auto grid min-h-[calc(58svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:min-h-[32rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
+        <div className="relative z-10 mx-auto flex min-h-[24rem] w-full max-w-[96rem] items-end px-5 pb-10 pt-10 sm:px-8 sm:pb-12 sm:pt-14 lg:min-h-[27rem] lg:px-12 lg:pb-12">
           <div className="max-w-4xl lg:max-w-[34rem] lg:rounded-[1.35rem] lg:border lg:border-[#741314]/16 lg:bg-[#FFF7E8]/84 lg:p-6 lg:shadow-[var(--shadow-soft)] lg:backdrop-blur-md">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
               Tu cesta
@@ -445,178 +427,6 @@ export function CartScreen({ design }: CartScreenProps) {
             </p>
           </div>
 
-          <div
-            className={`${receiptFrameClassName} hidden lg:block`}
-            style={receiptFrameStyle}
-          >
-            <div className="text-center">
-              <p className="text-[1.6rem] font-black uppercase leading-none tracking-[-0.08em]">
-                {cart.venue.name}
-              </p>
-              <p className="mt-3 text-[11px] leading-4">
-                {cart.venue.cityName}
-                <br />
-                {cart.venue.address ?? "Dirección pendiente"}
-                <br />
-                {cart.venue.phone ? `Tel. ${cart.venue.phone}` : "Recogida en local"}
-              </p>
-            </div>
-
-            <div className={receiptDividerClassName} />
-
-            <div className="flex items-start justify-between gap-4 text-[14px] font-black uppercase">
-              <span>Orden</span>
-              <span>#{cart.venue.id.slice(0, 3).toUpperCase()}</span>
-            </div>
-            <p className="mt-1 text-[12px] leading-5">
-              Recogida estimada: {selectedPickupLabel}
-            </p>
-
-            <div className={receiptDividerClassName} />
-
-            <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2 text-[12px] font-black uppercase">
-              <span>Cant</span>
-              <span>Descr</span>
-              <span className="text-right">Imp</span>
-            </div>
-            <div className="mt-2 space-y-1 text-[12px] leading-4">
-              {desktopTicketItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-[3.5rem_1fr_3rem] gap-2"
-                >
-                  <span>{item.quantity} x</span>
-                  <span className="truncate">
-                    {item.name}
-                  </span>
-                  <span className="text-right">
-                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
-                  </span>
-                </div>
-              ))}
-              {hiddenDesktopTicketItemsCount > 0 ? (
-                <div className="grid grid-cols-[3.5rem_1fr_3rem] gap-2">
-                  <span>+{hiddenDesktopTicketItemsCount}</span>
-                  <span>Más productos</span>
-                  <span className="text-right">...</span>
-                </div>
-              ) : null}
-            </div>
-
-            <div className={receiptDividerClassName} />
-
-            <div className="flex items-center justify-between text-[1.35rem] font-black uppercase tracking-[-0.06em]">
-              <span>Total:</span>
-              <span>{formatPrice(totals.totalAmount, currency)}</span>
-            </div>
-
-            <div className={receiptDividerClassName} />
-
-            <p className="text-center text-[10px] leading-4">
-              Aviso: el pedido se prepara para recoger en el local. Al continuar,
-              confirmas los datos de recogida y aceptas que el local gestione la
-              preparación de tu selección.
-            </p>
-
-            {isHeroCheckoutOpen ? (
-              <form
-                onSubmit={handleSubmit}
-                className="mt-5 space-y-3 border-t border-dashed border-black/35 pt-4"
-              >
-                <div>
-                  <label
-                    htmlFor="hero-customer-name"
-                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
-                  >
-                    Nombre
-                  </label>
-                  <input
-                    id="hero-customer-name"
-                    value={customerName}
-                    onChange={(event) => setCustomerName(event.target.value)}
-                    className={ticketInputClassName}
-                    placeholder="Tu nombre"
-                    autoComplete="name"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="hero-customer-phone"
-                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
-                  >
-                    Teléfono
-                  </label>
-                  <input
-                    id="hero-customer-phone"
-                    value={customerPhone}
-                    onChange={(event) =>
-                      setCustomerPhone(keepOnlyDigits(event.target.value))
-                    }
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className={ticketInputClassName}
-                    placeholder="Tu teléfono"
-                    autoComplete="tel"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="hero-pickup-at"
-                    className="font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-black/45"
-                  >
-                    Hora estimada
-                  </label>
-                  <select
-                    id="hero-pickup-at"
-                    value={pickupAt}
-                    onChange={(event) => setPickupAt(event.target.value)}
-                    className={ticketInputClassName}
-                  >
-                    {pickupOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {feedback ? (
-                  <p className="border-y border-dashed border-black/35 py-2 text-[10px] font-bold leading-4 text-black/75">
-                    {feedback}
-                  </p>
-                ) : null}
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="mt-2 inline-flex w-full justify-center border border-[#741314] bg-[#741314] px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#FDE3AD] transition hover:bg-[#5F0F10] disabled:opacity-60"
-                  style={{ color: "#FDE3AD" }}
-                >
-                  {isSubmitting ? "Preparando..." : "Preparar para recoger"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={scrollToCheckoutTicket}
-                  className="inline-flex w-full justify-center border border-black/20 bg-transparent px-4 py-2.5 text-center text-[10px] font-black uppercase tracking-[0.12em] text-black transition hover:bg-black/[0.04]"
-                >
-                  Ver ticket completo
-                </button>
-              </form>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsHeroCheckoutOpen(true)}
-                className="mt-5 inline-flex w-full justify-center border border-[#741314] bg-[#741314] px-4 py-3 text-center text-[11px] font-black uppercase tracking-[0.12em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
-                style={{ color: "#FDE3AD" }}
-              >
-                Completar datos
-              </button>
-            )}
-          </div>
         </div>
       </section>
 
@@ -922,107 +732,172 @@ export function CartScreen({ design }: CartScreenProps) {
         </CartAccordion>
       </form>
 
-      <section className="relative z-20 mx-auto hidden w-full max-w-[96rem] gap-8 px-3 py-8 sm:px-6 sm:py-10 lg:-mt-4 lg:grid lg:px-8 lg:pt-0 lg:pb-24 xl:grid-cols-[minmax(0,1fr)_24rem]">
-        <div>
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <section
+        className="relative z-20 mx-auto hidden w-full overflow-hidden rounded-[2.5rem] border border-[#741314]/12 bg-[#381932] justify-center gap-8 px-6 pb-24 pt-10 shadow-[0_28px_80px_rgba(56,25,50,0.16)] lg:-mt-5 lg:mb-14 lg:flex lg:items-start lg:px-8 lg:pb-10 lg:pt-8 xl:gap-10"
+        style={{ maxWidth: "72rem" }}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${cartTicketHeroImageUrl})` }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(100deg,rgba(36,17,14,0.48),rgba(56,25,50,0.30)_48%,rgba(36,17,14,0.46))]"
+        />
+        <div
+          className="relative z-10 w-full min-w-0 flex-1 pt-8 lg:pt-10"
+          style={{ maxWidth: "42rem" }}
+        >
+          <div
+            className="mb-5 flex flex-wrap items-end justify-between gap-4 rounded-[1.25rem] border border-white/65 p-4 shadow-[0_14px_36px_rgba(36,17,14,0.12)] backdrop-blur-sm"
+            style={{ backgroundColor: "rgba(255, 247, 232, 0.94)" }}
+          >
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
-                Selección
+              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[#741314]">
+                Tu selección
               </p>
-              <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
-                Selección guardada.
+              <h2 className="mt-2 text-[clamp(2rem,3vw,3.35rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-[#24110E]">
+                Todo listo en la cesta.
               </h2>
             </div>
-            <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
-              {formatPrice(totals.totalAmount, currency)}
-            </span>
+            <p className="text-right text-sm font-semibold text-[#24110E]/55">
+              {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
+              <span className="mt-1 block text-xl font-black text-[#741314]">
+                {formatPrice(totals.totalAmount, currency)}
+              </span>
+            </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:gap-4">
-            {cart.items.map((item) => (
-              <article
-                key={item.id}
-                className="group relative overflow-hidden rounded-[0.9rem] border border-border-subtle bg-surface-strong text-left shadow-[var(--shadow-soft)] transition-[border-color,box-shadow] duration-300 hover:border-border-strong hover:shadow-[var(--shadow-soft)] sm:rounded-[1.05rem]"
-              >
-                <div className="relative min-h-[18rem] overflow-hidden sm:min-h-[20rem]">
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-[1.04]"
-                    style={{
-                      backgroundImage: item.imageUrl
-                        ? `url(${item.imageUrl})`
-                        : "linear-gradient(180deg, var(--brand-accent-soft), var(--overlay-hero-to))",
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from),var(--overlay-card-mid)_42%,var(--overlay-card-to)_100%)]" />
+          <div className="relative mt-12">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute left-1/2 top-[-3.25rem] h-24 w-[46%] min-w-[15rem] max-w-[27rem] -translate-x-1/2 rounded-t-[7rem] border-[8px] border-b-0 border-[#741314]/22 bg-transparent"
+            />
 
-                  <div className="relative z-10 flex min-h-[18rem] flex-col justify-between p-4 sm:min-h-[20rem] sm:p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
-                        {item.quantity} ud.
-                      </span>
-                      <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.08] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
+            <div className="relative overflow-hidden rounded-[2rem] border-2 border-[#741314]/20 bg-[#FFF7E8] p-5 shadow-[0_24px_58px_rgba(116,19,20,0.12)] sm:p-6">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 opacity-50 [background-image:repeating-linear-gradient(90deg,transparent_0,transparent_15%,rgba(116,19,20,0.035)_15%,rgba(116,19,20,0.035)_15.5%)]"
+              />
+
+              <div className="relative z-10 flex items-center justify-between gap-4 border-b border-dashed border-[#741314]/24 pb-5">
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD]">
+                    <CartIcon size={27} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate text-lg font-black text-[#24110E]">
+                      {cart.venue.name}
+                    </p>
+                    <p className="mt-0.5 text-sm text-[#24110E]/55">
+                      Puedes ajustar tu selección antes de confirmar.
+                    </p>
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full border border-[#741314]/16 bg-white/72 px-3 py-2 text-sm font-black text-[#741314]">
+                  {formatPrice(totals.totalAmount, currency)}
+                </span>
+              </div>
+
+              <div
+                className="relative z-10 mt-4 space-y-2.5 overflow-y-auto pr-1"
+                style={{ maxHeight: "36rem" }}
+              >
+                {cart.items.map((item) => (
+                  <article
+                    key={item.id}
+                    className="flex items-center gap-3 rounded-[1.15rem] border border-[#741314]/10 bg-white/76 p-2.5 shadow-[0_8px_22px_rgba(36,17,14,0.045)]"
+                  >
+                    <div
+                      className="h-16 w-16 shrink-0 rounded-[0.85rem] bg-[#FDE3AD]/45 bg-cover bg-center"
+                      style={{
+                        width: "4rem",
+                        height: "4rem",
+                        flex: "0 0 4rem",
+                        backgroundImage: item.imageUrl
+                          ? `url(${item.imageUrl})`
+                          : "linear-gradient(145deg, #FDE3AD, #FFF7E8)",
+                      }}
+                      role="img"
+                      aria-label={item.name}
+                    />
+
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-black tracking-[-0.025em] text-[#24110E]">
+                        {item.name}
+                      </h3>
+                      {item.description ? (
+                        <p className="mt-0.5 line-clamp-1 text-xs text-[#24110E]/52">
+                          {item.description}
+                        </p>
+                      ) : null}
+                      <p className="mt-1.5 text-xs font-bold text-[#741314]">
+                        {formatPrice(item.priceAmount, item.currency)} / unidad
+                      </p>
+                    </div>
+
+                    <div className="flex min-w-[7.4rem] shrink-0 flex-col items-end gap-2">
+                      <p className="text-sm font-black text-[#24110E]">
                         {formatPrice(
                           item.priceAmount * item.quantity,
                           item.currency,
                         )}
-                      </span>
+                      </p>
+                      <div className="inline-flex items-center rounded-full border border-[#741314]/14 bg-[#FFF7E8] shadow-sm">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateCartItemQuantity(item.id, item.quantity - 1)
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-base font-black text-[#741314] transition hover:bg-[#FDE3AD]/70"
+                          aria-label={`Quitar una unidad de ${item.name}`}
+                        >
+                          −
+                        </button>
+                        <span className="min-w-8 text-center text-sm font-black text-[#24110E]">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            updateCartItemQuantity(item.id, item.quantity + 1)
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-full text-base font-black text-[#741314] transition hover:bg-[#FDE3AD]/70"
+                          aria-label={`Añadir una unidad de ${item.name}`}
+                        >
+                          +
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeCartItem(item.id)}
+                        className="text-xs font-bold text-[#24110E]/45 underline decoration-[#741314]/24 underline-offset-4 transition hover:text-[#741314]"
+                      >
+                        Eliminar
+                      </button>
                     </div>
+                  </article>
+                ))}
+              </div>
 
-                    <div>
-                      <h2 className="line-clamp-2 text-[1.45rem] font-semibold leading-[0.96] tracking-[-0.045em] text-text-inverse sm:text-[1.7rem]">
-                        {item.name}
-                      </h2>
-                      {item.description ? (
-                        <p className="mt-2 line-clamp-2 text-sm leading-6 text-text-inverse/70">
-                          {item.description}
-                        </p>
-                      ) : null}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle bg-surface-strong px-4 py-3 sm:px-5">
-                  <div className="inline-flex items-center rounded-full border border-border-subtle bg-surface-strong">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateCartItemQuantity(item.id, item.quantity - 1)
-                      }
-                      className="px-4 py-2.5 text-sm font-semibold text-text-primary"
-                    >
-                      -
-                    </button>
-                    <span className="min-w-10 text-center text-sm font-semibold text-text-primary">
-                      {item.quantity}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateCartItemQuantity(item.id, item.quantity + 1)
-                      }
-                      className="px-4 py-2.5 text-sm font-semibold text-text-primary"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => removeCartItem(item.id)}
-                    className="inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-secondary transition hover:bg-surface-muted"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </article>
-            ))}
+              <div className="relative z-10 mt-5 flex items-center justify-between gap-5 border-t border-dashed border-[#741314]/24 pt-5">
+                <p className="max-w-[34rem] text-sm leading-6 text-[#24110E]/58">
+                  El ticket de la derecha reúne los datos de recogida y confirma
+                  tu pedido directamente con el local.
+                </p>
+                <span className="shrink-0 font-mono text-xs font-black uppercase tracking-[0.16em] text-[#741314]">
+                  Cesta revisada
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
         <aside
           id="cart-checkout-ticket"
           ref={checkoutTicketRef}
-          className={`${receiptFrameClassName} scroll-mt-28 xl:sticky xl:top-28 xl:self-start`}
+          className={`${receiptFrameClassName} z-10 scroll-mt-28 lg:sticky lg:top-28 lg:shrink-0 lg:basis-[22.5rem] lg:self-start`}
           style={receiptFrameStyle}
           tabIndex={-1}
         >

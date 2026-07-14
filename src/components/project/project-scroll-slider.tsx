@@ -160,7 +160,7 @@ export function ProjectScrollSlider() {
           borderTopLeftRadius: "2rem",
           borderTopRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(90deg, rgba(253,227,173,0.94), rgba(255,247,232,0.62) 52%, rgba(253,227,173,0.84)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(rgba(255,247,232,0.50), rgba(255,247,232,0.50)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -280,15 +280,7 @@ export function ProjectScrollSlider() {
               position: "absolute",
               inset: 0,
               background:
-                "linear-gradient(90deg, rgba(252,250,245,0.94), rgba(255,247,232,0.72) 52%, rgba(252,250,245,0.86))",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "radial-gradient(circle at 26% 48%, rgba(194,97,87,0.12), transparent 38%), radial-gradient(circle at 82% 24%, rgba(253,227,173,0.22), transparent 30%)",
+                "rgba(255,247,232,0.50)",
             }}
           />
 
@@ -403,7 +395,7 @@ export function ProjectScrollSlider() {
           borderBottomLeftRadius: "2rem",
           borderBottomRightRadius: "2rem",
           backgroundImage:
-            "linear-gradient(90deg, rgba(252,250,245,0.94), rgba(255,247,232,0.68) 52%, rgba(252,250,245,0.86)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+            "linear-gradient(rgba(255,247,232,0.50), rgba(255,247,232,0.50)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

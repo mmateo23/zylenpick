@@ -25,6 +25,10 @@ function isMissingSubscriptionTierColumnError(message: string) {
   return message.toLowerCase().includes("subscription_tier");
 }
 
+function isMissingPricesVisibleColumnError(message: string) {
+  return message.toLowerCase().includes("prices_visible");
+}
+
 function isMissingCityHeroVideoColumnError(message: string) {
   return message.toLowerCase().includes("hero_video_url");
 }
@@ -79,6 +83,7 @@ function mapVenueListItem(row: {
   is_featured: boolean;
   is_verified: boolean;
   subscription_active: boolean;
+  prices_visible?: boolean;
   subscription_tier?: "basic" | "oro" | "titanio" | null;
 }): VenueListItem {
   return {
@@ -96,6 +101,7 @@ function mapVenueListItem(row: {
     isVerified: row.is_verified,
     subscriptionActive: row.subscription_active,
     subscriptionTier: row.subscription_tier ?? "basic",
+    pricesVisible: row.prices_visible ?? false,
   };
 }
 
@@ -150,6 +156,7 @@ function mapHomeShowcaseItem(row: {
     cover_url: string | null;
     pickup_eta_min: number | null;
     subscription_active: boolean;
+    prices_visible?: boolean;
     subscription_tier?: "basic" | "oro" | "titanio" | null;
     cities: {
       slug: string;
@@ -183,6 +190,7 @@ function mapHomeShowcaseItem(row: {
       cityName: row.venues.cities.name,
       subscriptionActive: row.venues.subscription_active,
       subscriptionTier: row.venues.subscription_tier ?? "basic",
+      pricesVisible: row.venues.prices_visible ?? false,
     },
   };
 }
@@ -257,7 +265,7 @@ export async function getVenuesByCitySlug(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_featured, is_verified, subscription_active, subscription_tier, cities!inner(slug)",
+      "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_featured, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug)",
     )
     .eq("is_active", true)
     .eq("is_published", true)
@@ -268,7 +276,8 @@ export async function getVenuesByCitySlug(
   if (
     error &&
     (isMissingVenueFeaturedColumnError(error.message) ||
-      isMissingSubscriptionTierColumnError(error.message))
+      isMissingSubscriptionTierColumnError(error.message) ||
+      isMissingPricesVisibleColumnError(error.message))
   ) {
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("venues")
@@ -289,6 +298,7 @@ export async function getVenuesByCitySlug(
       mapVenueListItem({
         ...venue,
         is_featured: false,
+        prices_visible: false,
         subscription_tier: "basic",
       }),
     );
@@ -313,7 +323,7 @@ export async function getVenueDetails(
   const { data: venue, error: venueError } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, subscription_tier, cities!inner(slug, name)",
+      "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug, name)",
     )
     .eq("slug", venueSlug)
     .eq("is_active", true)
@@ -321,7 +331,11 @@ export async function getVenueDetails(
     .eq("cities.slug", citySlug)
     .maybeSingle();
 
-  if (venueError && isMissingSubscriptionTierColumnError(venueError.message)) {
+  if (
+    venueError &&
+    (isMissingSubscriptionTierColumnError(venueError.message) ||
+      isMissingPricesVisibleColumnError(venueError.message))
+  ) {
     const { data: fallbackVenue, error: fallbackVenueError } = await supabase
       .from("venues")
       .select(
@@ -391,6 +405,7 @@ export async function getVenueDetails(
         isVerified: fallbackVenue.is_verified,
         subscriptionActive: fallbackVenue.subscription_active,
         subscriptionTier: "basic",
+        pricesVisible: false,
         openingHours,
         isOpenNow: openingStatus.isOpenNow,
         city: {
@@ -432,6 +447,7 @@ export async function getVenueDetails(
       isVerified: fallbackVenue.is_verified,
       subscriptionActive: fallbackVenue.subscription_active,
       subscriptionTier: "basic",
+      pricesVisible: false,
       openingHours,
       isOpenNow: openingStatus.isOpenNow,
       city: {
@@ -500,6 +516,7 @@ export async function getVenueDetails(
       isVerified: venue.is_verified,
       subscriptionActive: venue.subscription_active,
       subscriptionTier: venue.subscription_tier ?? "basic",
+      pricesVisible: venue.prices_visible ?? false,
       openingHours,
       isOpenNow: openingStatus.isOpenNow,
       city: {
@@ -541,6 +558,7 @@ export async function getVenueDetails(
       isVerified: venue.is_verified,
       subscriptionActive: venue.subscription_active,
       subscriptionTier: venue.subscription_tier ?? "basic",
+      pricesVisible: venue.prices_visible ?? false,
       openingHours,
     isOpenNow: openingStatus.isOpenNow,
     city: {
@@ -566,7 +584,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -582,7 +600,8 @@ export async function getHomeShowcase(): Promise<{
     error &&
     (isMissingHomeFeaturedColumnError(error.message) ||
       isMissingMenuItemAllergensColumnError(error.message) ||
-      isMissingSubscriptionTierColumnError(error.message))
+      isMissingSubscriptionTierColumnError(error.message) ||
+      isMissingPricesVisibleColumnError(error.message))
   ) {
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
@@ -611,6 +630,7 @@ export async function getHomeShowcase(): Promise<{
           is_home_featured: false,
           venues: {
             ...item.venues,
+            prices_visible: false,
             subscription_tier: "basic",
           },
         }),
@@ -622,6 +642,7 @@ export async function getHomeShowcase(): Promise<{
         is_home_featured: false,
         venues: {
           ...item.venues,
+          prices_visible: false,
           subscription_tier: "basic",
         },
       }),

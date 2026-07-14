@@ -166,7 +166,9 @@ export function MenuItemGalleryCard({
             ) : null}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <span className="rounded-full border border-text-inverse/10 bg-text-inverse/[0.08] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-text-inverse/80 backdrop-blur-xl">
-                {formatPrice(item.priceAmount, item.currency)}
+                {venue.pricesVisible
+                  ? formatPrice(item.priceAmount, item.currency)
+                  : "Precio pendiente"}
               </span>
               <span className="rounded-full border border-text-inverse/10 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] px-3.5 py-1.5 text-xs font-semibold text-text-inverse/90 backdrop-blur-xl">
                 {labels?.viewDetail ?? "Ver detalle"}
@@ -191,6 +193,8 @@ export function MenuItemGalleryCard({
             label={labels?.addForPickup ?? "Añadir para recoger"}
             buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-accent-soft px-5 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
             feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
+            disabled={!venue.pricesVisible}
+            disabledLabel="Disponible pronto"
           />
         </div>
       </article>
@@ -264,7 +268,9 @@ export function MenuItemGalleryCard({
                       {item.name}
                     </h4>
                     <p className="mt-4 text-2xl font-semibold text-text-inverse">
-                      {formatPrice(item.priceAmount, item.currency)}
+                      {venue.pricesVisible
+                        ? formatPrice(item.priceAmount, item.currency)
+                        : "Precio pendiente"}
                     </p>
                     <p className="mt-2 text-sm leading-6 text-text-inverse/70">
                       Preparado por un local de tu zona.
@@ -281,7 +287,9 @@ export function MenuItemGalleryCard({
                     <div className="flex items-center justify-between gap-4">
                       <span>Precio para recoger</span>
                       <span className="font-semibold text-text-inverse">
-                        {formatPrice(item.priceAmount, item.currency)}
+                        {venue.pricesVisible
+                          ? formatPrice(item.priceAmount, item.currency)
+                          : "Pendiente de confirmar"}
                       </span>
                     </div>
                     {item.categoryName ? (
@@ -373,6 +381,8 @@ export function MenuItemGalleryCard({
                     label={labels?.addForPickup ?? "Añadir para recoger"}
                     buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-cta px-5 py-3.5 text-sm font-semibold text-cta-text shadow-[var(--card-shadow)] transition hover:bg-cta-hover"
                     feedbackClassName="mt-3 text-sm leading-6 text-text-inverse/76"
+                    disabled={!venue.pricesVisible}
+                    disabledLabel="Disponible pronto"
                   />
                 </div>
               </aside>

@@ -21,6 +21,7 @@ export type AdminVenueListItem = {
   isActive: boolean;
   isPublished: boolean;
   isVerified: boolean;
+  pricesVisible: boolean;
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
   cityName: string | null;
@@ -44,6 +45,7 @@ export type AdminVenueFormValues = {
   isActive: boolean;
   isPublished: boolean;
   isVerified: boolean;
+  pricesVisible: boolean;
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
   sortOrder: string;
@@ -74,6 +76,10 @@ export type AdminCityOption = {
 type NormalizedVenueFormValues = Omit<AdminVenueFormValues, "id" | "openingHours"> & {
   openingHours: OpeningHoursValue;
 };
+
+function isMissingPricesVisibleColumnError(message: string) {
+  return message.toLowerCase().includes("prices_visible");
+}
 
 function buildOpeningHoursFromFormData(formData: FormData): OpeningHoursValue {
   const openingHours = createDefaultOpeningHours();
@@ -111,6 +117,7 @@ function normalizeVenueFormValues(
     isActive: formData.get("isActive") === "on",
     isPublished: formData.get("isPublished") === "on",
     isVerified: formData.get("isVerified") === "on",
+    pricesVisible: formData.get("pricesVisible") === "on",
     subscriptionActive: formData.get("subscriptionActive") === "on",
     subscriptionTier:
       (String(formData.get("subscriptionTier") ?? "").trim() as
@@ -349,6 +356,7 @@ export function buildVenueInitialValuesFromJoinRequest(
     isActive: true,
     isPublished: true,
     isVerified: false,
+    pricesVisible: false,
     subscriptionActive: false,
     subscriptionTier: "basic",
     sortOrder: "",
@@ -358,19 +366,35 @@ export function buildVenueInitialValuesFromJoinRequest(
 
 export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
   const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, cities(name)",
+      "id, name, slug, email, phone, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, cities(name)",
     )
     .order("sort_order", { ascending: true, nullsFirst: false })
     .order("created_at", { ascending: false });
+
+  if (error && isMissingPricesVisibleColumnError(error.message)) {
+    const fallbackResult = await supabase
+      .from("venues")
+      .select(
+        "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, cities(name)",
+      )
+      .order("sort_order", { ascending: true, nullsFirst: false })
+      .order("created_at", { ascending: false });
+
+    data = fallbackResult.data?.map((venue) => ({
+      ...venue,
+      prices_visible: false,
+    })) ?? null;
+    error = fallbackResult.error;
+  }
 
   if (error) {
     throw new Error(`Unable to load admin venues: ${error.message}`);
   }
 
-  return data.map((venue) => ({
+  return (data ?? []).map((venue) => ({
     id: venue.id,
     name: venue.name,
     slug: venue.slug,
@@ -379,6 +403,7 @@ export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
     isActive: venue.is_active,
     isPublished: venue.is_published,
     isVerified: venue.is_verified,
+    pricesVisible: venue.prices_visible,
     subscriptionActive: venue.subscription_active,
     subscriptionTier: venue.subscription_tier ?? "basic",
     cityName: venue.cities?.name ?? null,
@@ -389,13 +414,28 @@ export async function getAdminVenueById(
   venueId: string,
 ): Promise<AdminVenueFormValues | null> {
   const supabase = createSupabaseServerClient();
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
+      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, sort_order, opening_hours",
     )
     .eq("id", venueId)
     .maybeSingle();
+
+  if (error && isMissingPricesVisibleColumnError(error.message)) {
+    const fallbackResult = await supabase
+      .from("venues")
+      .select(
+        "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
+      )
+      .eq("id", venueId)
+      .maybeSingle();
+
+    data = fallbackResult.data
+      ? { ...fallbackResult.data, prices_visible: false }
+      : null;
+    error = fallbackResult.error;
+  }
 
   if (error) {
     throw new Error(`Unable to load admin venue: ${error.message}`);
@@ -423,6 +463,7 @@ export async function getAdminVenueById(
     isActive: data.is_active,
     isPublished: data.is_published,
     isVerified: data.is_verified,
+    pricesVisible: data.prices_visible,
     subscriptionActive: data.subscription_active,
     subscriptionTier: data.subscription_tier ?? "basic",
     sortOrder: data.sort_order?.toString() ?? "",
@@ -438,35 +479,53 @@ export async function createVenueAction(formData: FormData) {
   validateVenuePanelFormValues(values);
   const supabase = await createAdminMutationClient();
   await ensureUniqueVenueSlug(supabase, values.slug);
-  const { data, error } = await supabase
+  const insertValues: Database["public"]["Tables"]["venues"]["Insert"] = {
+    name: values.name,
+    slug: values.slug,
+    city_id: values.cityId || null,
+    discovery_category: values.discoveryCategory || null,
+    description: values.description || null,
+    address: values.address,
+    latitude: parseOptionalCoordinate(values.latitude),
+    longitude: parseOptionalCoordinate(values.longitude),
+    email: values.email || null,
+    phone: values.phone || null,
+    pickup_notes: values.pickupNotes || null,
+    pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
+    cover_url: values.coverUrl || null,
+    is_active: values.isActive,
+    is_published: values.isPublished,
+    is_verified: values.isVerified,
+    prices_visible: values.pricesVisible,
+    subscription_active: values.subscriptionActive,
+    subscription_tier: values.subscriptionTier,
+    sort_order: values.sortOrder ? Number(values.sortOrder) : null,
+    opening_hours: values.openingHours,
+  };
+  let { data, error } = await supabase
     .from("venues")
-    .insert({
-      name: values.name,
-      slug: values.slug,
-      city_id: values.cityId || null,
-      discovery_category: values.discoveryCategory || null,
-      description: values.description || null,
-      address: values.address,
-      latitude: parseOptionalCoordinate(values.latitude),
-      longitude: parseOptionalCoordinate(values.longitude),
-      email: values.email || null,
-      phone: values.phone || null,
-      pickup_notes: values.pickupNotes || null,
-      pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
-      cover_url: values.coverUrl || null,
-      is_active: values.isActive,
-      is_published: values.isPublished,
-      is_verified: values.isVerified,
-      subscription_active: values.subscriptionActive,
-      subscription_tier: values.subscriptionTier,
-      sort_order: values.sortOrder ? Number(values.sortOrder) : null,
-      opening_hours: values.openingHours,
-    })
+    .insert(insertValues)
     .select("id")
     .single();
 
+  if (error && isMissingPricesVisibleColumnError(error.message)) {
+    const legacyInsertValues = { ...insertValues };
+    delete legacyInsertValues.prices_visible;
+    const fallbackResult = await supabase
+      .from("venues")
+      .insert(legacyInsertValues)
+      .select("id")
+      .single();
+    data = fallbackResult.data;
+    error = fallbackResult.error;
+  }
+
   if (error) {
     throw new Error(`Unable to create venue: ${error.message}`);
+  }
+
+  if (!data) {
+    throw new Error("Unable to create venue: no venue was returned.");
   }
 
   if (linkedRequestId) {
@@ -505,31 +564,43 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
   validateVenuePanelFormValues(values);
   const supabase = await createAdminMutationClient();
   await ensureUniqueVenueSlug(supabase, values.slug, venueId);
-  const { error } = await supabase
+  const updateValues: Database["public"]["Tables"]["venues"]["Update"] = {
+    name: values.name,
+    slug: values.slug,
+    city_id: values.cityId || null,
+    discovery_category: values.discoveryCategory || null,
+    description: values.description || null,
+    address: values.address,
+    latitude: parseOptionalCoordinate(values.latitude),
+    longitude: parseOptionalCoordinate(values.longitude),
+    email: values.email || null,
+    phone: values.phone || null,
+    pickup_notes: values.pickupNotes || null,
+    pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
+    cover_url: values.coverUrl || null,
+    is_active: values.isActive,
+    is_published: values.isPublished,
+    is_verified: values.isVerified,
+    prices_visible: values.pricesVisible,
+    subscription_active: values.subscriptionActive,
+    subscription_tier: values.subscriptionTier,
+    sort_order: values.sortOrder ? Number(values.sortOrder) : null,
+    opening_hours: values.openingHours,
+  };
+  let { error } = await supabase
     .from("venues")
-    .update({
-      name: values.name,
-      slug: values.slug,
-      city_id: values.cityId || null,
-      discovery_category: values.discoveryCategory || null,
-      description: values.description || null,
-      address: values.address,
-      latitude: parseOptionalCoordinate(values.latitude),
-      longitude: parseOptionalCoordinate(values.longitude),
-      email: values.email || null,
-      phone: values.phone || null,
-      pickup_notes: values.pickupNotes || null,
-      pickup_eta_min: values.pickupEtaMin ? Number(values.pickupEtaMin) : null,
-      cover_url: values.coverUrl || null,
-      is_active: values.isActive,
-      is_published: values.isPublished,
-      is_verified: values.isVerified,
-      subscription_active: values.subscriptionActive,
-      subscription_tier: values.subscriptionTier,
-      sort_order: values.sortOrder ? Number(values.sortOrder) : null,
-      opening_hours: values.openingHours,
-    })
+    .update(updateValues)
     .eq("id", venueId);
+
+  if (error && isMissingPricesVisibleColumnError(error.message)) {
+    const legacyUpdateValues = { ...updateValues };
+    delete legacyUpdateValues.prices_visible;
+    const fallbackResult = await supabase
+      .from("venues")
+      .update(legacyUpdateValues)
+      .eq("id", venueId);
+    error = fallbackResult.error;
+  }
 
   if (error) {
     throw new Error(`Unable to update venue: ${error.message}`);

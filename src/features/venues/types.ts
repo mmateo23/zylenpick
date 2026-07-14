@@ -31,6 +31,7 @@ export type VenueListItem = {
   isVerified: boolean;
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
+  pricesVisible: boolean;
 };
 
 export type VenueMenuItem = {
@@ -66,6 +67,7 @@ export type VenueDetails = {
   isVerified: boolean;
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
+  pricesVisible: boolean;
   openingHours: OpeningHoursValue;
   isOpenNow: boolean;
   city: {
@@ -101,5 +103,6 @@ export type HomeShowcaseItem = {
     cityName: string;
     subscriptionActive: boolean;
     subscriptionTier: "basic" | "oro" | "titanio";
+    pricesVisible: boolean;
   };
 };
