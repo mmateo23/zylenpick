@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import {
   getAdminMenuItemsByVenueId,
   requireAdminVenueContext,
@@ -116,37 +117,19 @@ export default async function AdminVenueMenuItemsPage({
                         {item.sortOrder}
                       </td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-                            item.isAvailable
-                              ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-                              : "bg-white/8 text-white/58"
-                          }`}
-                        >
+                        <AdminStatusBadge tone={item.isAvailable ? "success" : "neutral"}>
                           {item.isAvailable ? "Disponible" : "Oculto"}
-                        </span>
+                        </AdminStatusBadge>
                       </td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-                            item.isFeatured
-                              ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-                              : "bg-white/8 text-white/58"
-                          }`}
-                        >
+                        <AdminStatusBadge tone={item.isFeatured ? "info" : "neutral"}>
                           {item.isFeatured ? "Sí" : "No"}
-                        </span>
+                        </AdminStatusBadge>
                       </td>
                       <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-                            item.isPickupMonthHighlight
-                              ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
-                              : "bg-white/8 text-white/58"
-                          }`}
-                        >
+                        <AdminStatusBadge tone={item.isPickupMonthHighlight ? "warning" : "neutral"}>
                           {item.isPickupMonthHighlight ? "Sí" : "No"}
-                        </span>
+                        </AdminStatusBadge>
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex flex-wrap gap-3">

@@ -1,9 +1,6 @@
 import Link from "next/link";
 
-import {
-  openingHourDayLabels,
-  openingHourDayOrder,
-} from "@/features/venues/opening-hours";
+import { AdminOpeningHoursTable } from "@/components/admin/admin-opening-hours-table";
 import type {
   AdminCityOption,
   AdminJoinRequestPrefill,
@@ -79,13 +76,14 @@ function ToggleField({
   defaultChecked: boolean;
 }) {
   return (
-    <label className="flex items-start gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+    <label className="group flex cursor-pointer items-start gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4 transition has-[:checked]:border-emerald-400/30 has-[:checked]:bg-emerald-400/[0.06]">
       <input
         name={name}
         type="checkbox"
         defaultChecked={defaultChecked}
-        className="mt-1 h-4 w-4 accent-[color:var(--brand)]"
+        className="peer sr-only"
       />
+      <span className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-white/12 transition peer-checked:bg-emerald-500 peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-emerald-300 after:absolute after:left-1 after:top-1 after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-transform peer-checked:after:translate-x-5" />
       <span>
         <span className="block text-sm font-medium text-[color:var(--foreground)]">
           {label}
@@ -423,7 +421,7 @@ export function AdminVenueForm({
             </p>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
               El distintivo de Pickyalo solo aparece cuando el local ha sido
-              revisado editorialmente y además mantiene una suscripción activa.
+              revisado documentalmente y además mantiene una suscripción activa.
             </p>
           </div>
 
@@ -431,7 +429,7 @@ export function AdminVenueForm({
             <ToggleField
               name="isVerified"
               label="Local verificado por Pickyalo"
-              description="El local ha sido revisado por Pickyalo y cumple estándares mínimos de calidad para recogida."
+              description="Pickyalo ha revisado la documentación aportada. No certifica la calidad ni sustituye a ninguna administración pública."
               defaultChecked={values.isVerified}
             />
             <ToggleField
@@ -467,85 +465,12 @@ export function AdminVenueForm({
               Horarios
             </p>
             <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
-              Edita un tramo principal y un segundo tramo opcional por día. Si el
-              día está cerrado, se mostrará en rojo en la ficha pública.
+              Activa los días de apertura y completa uno o dos tramos. Los días
+              cerrados se mostrarán como no disponibles en la ficha pública.
             </p>
           </div>
 
-          <div className="space-y-4">
-            {openingHourDayOrder.map((dayKey) => {
-              const dayValue = values.openingHours[dayKey];
-
-              return (
-                <div
-                  key={dayKey}
-                  className="grid gap-4 rounded-[1.4rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 lg:grid-cols-[4.5rem_minmax(0,1fr)]"
-                >
-                  <div className="flex items-start">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-[color:var(--foreground)]">
-                      {openingHourDayLabels[dayKey]}
-                    </span>
-                  </div>
-
-                  <div className="grid gap-4">
-                    <label className="flex items-center gap-3">
-                      <input
-                        name={`openingHours.${dayKey}.isOpen`}
-                        type="checkbox"
-                        defaultChecked={dayValue.isOpen}
-                        className="h-4 w-4 accent-[color:var(--brand)]"
-                      />
-                      <span className="text-sm text-[color:var(--foreground)]">
-                        Abierto ese día
-                      </span>
-                    </label>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="grid gap-3">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
-                          Tramo principal
-                        </p>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <input
-                            name={`openingHours.${dayKey}.firstOpen`}
-                            type="time"
-                            defaultValue={dayValue.firstOpen}
-                            className={fieldClassName()}
-                          />
-                          <input
-                            name={`openingHours.${dayKey}.firstClose`}
-                            type="time"
-                            defaultValue={dayValue.firstClose}
-                            className={fieldClassName()}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3">
-                        <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--muted)]">
-                          Segundo tramo opcional
-                        </p>
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <input
-                            name={`openingHours.${dayKey}.secondOpen`}
-                            type="time"
-                            defaultValue={dayValue.secondOpen}
-                            className={fieldClassName()}
-                          />
-                          <input
-                            name={`openingHours.${dayKey}.secondClose`}
-                            type="time"
-                            defaultValue={dayValue.secondClose}
-                            className={fieldClassName()}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <AdminOpeningHoursTable initialValue={values.openingHours} />
         </section>
 
         <div className="flex flex-wrap gap-3">

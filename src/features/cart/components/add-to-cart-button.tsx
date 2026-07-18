@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { PaperBagIcon } from "@/components/icons/pickyalo";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { CartVenue } from "@/features/cart/types";
 import { captureAddToCart } from "@/lib/analytics/posthog-events";
@@ -39,6 +40,7 @@ export function AddToCartButton({
   label = "Añadir para recoger",
 }: AddToCartButtonProps) {
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [bagAnimationKey, setBagAnimationKey] = useState(0);
 
   const handleAdd = () => {
     if (disabled) {
@@ -89,6 +91,7 @@ export function AddToCartButton({
       currency: item.currency,
     });
 
+    setBagAnimationKey((currentKey) => currentKey + 1);
     setFeedback("Añadido para recoger.");
     showCartToast({
       title: "Añadido a tu cesta",
@@ -105,8 +108,14 @@ export function AddToCartButton({
         className={`${
           buttonClassName ??
           "inline-flex items-center rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[var(--card-shadow)] transition hover:bg-[#5F0F10]"
-        } ${disabled ? "cursor-not-allowed opacity-55" : ""}`}
+        } gap-2 ${disabled ? "cursor-not-allowed opacity-55" : ""}`}
       >
+        <PaperBagIcon
+          size={21}
+          strokeWidth={2.25}
+          animated={bagAnimationKey > 0}
+          triggerKey={bagAnimationKey}
+        />
         {disabled ? disabledLabel : label}
       </button>
       {feedback ? (

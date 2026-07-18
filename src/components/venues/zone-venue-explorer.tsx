@@ -9,6 +9,7 @@ import { BorderBeam } from "@/components/magicui/border-beam";
 import {
   getDistanceInKm,
   readUserLocation,
+  USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
@@ -91,9 +92,11 @@ export function ZoneVenueExplorer({
     };
 
     window.addEventListener("storage", syncLocation);
+    window.addEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
 
     return () => {
       window.removeEventListener("storage", syncLocation);
+      window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
     };
   }, []);
 

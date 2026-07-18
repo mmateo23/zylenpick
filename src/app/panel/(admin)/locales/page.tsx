@@ -1,12 +1,7 @@
 import Link from "next/link";
 
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { getAdminVenues } from "@/features/admin/services/venues-admin-service";
-
-function statusClassName(isEnabled: boolean) {
-  return isEnabled
-    ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-    : "bg-white/8 text-white/58";
-}
 
 export default async function AdminVenuesPage() {
   const venues = await getAdminVenues();
@@ -44,13 +39,9 @@ export default async function AdminVenuesPage() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="truncate text-base font-semibold">{venue.name}</h2>
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                      venue.isPublished,
-                    )}`}
-                  >
+                  <AdminStatusBadge tone={venue.isPublished ? "success" : "neutral"}>
                     {venue.isPublished ? "Publicado" : "Oculto"}
-                  </span>
+                  </AdminStatusBadge>
                 </div>
                 <p className="mt-2 text-sm text-[color:var(--muted-strong)]">
                   {venue.cityName ?? "Sin ciudad"}
@@ -70,22 +61,16 @@ export default async function AdminVenuesPage() {
                   {venue.email ?? "Sin email"}
                 </p>
                 <div className="flex flex-wrap gap-2 sm:col-span-2 md:col-span-1 lg:col-span-2">
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                      venue.isActive,
-                    )}`}
-                  >
+                  <AdminStatusBadge tone={venue.isActive ? "success" : "neutral"}>
                     {venue.isActive ? "Activo" : "Inactivo"}
-                  </span>
-                  <span
-                    className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                      venue.isVerified && venue.subscriptionActive,
-                    )}`}
+                  </AdminStatusBadge>
+                  <AdminStatusBadge
+                    tone={venue.isVerified && venue.subscriptionActive ? "success" : "warning"}
                   >
                     {venue.isVerified && venue.subscriptionActive
                       ? "Verificado"
                       : "Sin verificar"}
-                  </span>
+                  </AdminStatusBadge>
                 </div>
               </div>
 

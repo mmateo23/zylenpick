@@ -4,25 +4,16 @@ import {
   updateFunnelPlatosAction,
   type FunnelDishOption,
 } from "@/features/admin/services/funnel-admin-service";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 
 const fieldClassName =
   "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
 
-function statusClassName(isEnabled: boolean) {
-  return isEnabled
-    ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-    : "bg-white/8 text-white/58";
-}
-
 function StatusPill({ enabled }: { enabled: boolean }) {
   return (
-    <span
-      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-        enabled,
-      )}`}
-    >
+    <AdminStatusBadge tone={enabled ? "success" : "neutral"}>
       {enabled ? "Activo" : "Inactivo"}
-    </span>
+    </AdminStatusBadge>
   );
 }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { getAdminJoinRequests } from "@/features/admin/services/join-requests-admin-service";
 
 function formatDate(value: string) {
@@ -7,18 +8,6 @@ function formatDate(value: string) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
-}
-
-function statusClassName(status: "pending" | "approved" | "rejected") {
-  if (status === "approved") {
-    return "bg-[color:var(--brand-soft)] text-[color:var(--accent)]";
-  }
-
-  if (status === "rejected") {
-    return "bg-[#E5484D]/12 text-[#FFB4B4]";
-  }
-
-  return "bg-white/8 text-white/72";
 }
 
 function statusLabel(status: "pending" | "approved" | "rejected") {
@@ -89,20 +78,24 @@ export default async function AdminJoinRequestsPage() {
                       {request.contactPhone ?? "Sin teléfono"}
                     </td>
                     <td className="px-5 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-                          request.status,
-                        )}`}
+                      <AdminStatusBadge
+                        tone={
+                          request.status === "approved"
+                            ? "success"
+                            : request.status === "rejected"
+                              ? "danger"
+                              : "warning"
+                        }
                       >
                         {statusLabel(request.status)}
-                      </span>
+                      </AdminStatusBadge>
                     </td>
                     <td className="px-5 py-4">
                       {request.linkedVenueId ? (
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="inline-flex rounded-full bg-[color:var(--brand-soft)] px-3 py-1.5 text-xs font-semibold text-[color:var(--accent)]">
+                          <AdminStatusBadge tone="success">
                             Convertida en local
-                          </span>
+                          </AdminStatusBadge>
                           <Link
                             href={`/panel/locales/${request.linkedVenueId}`}
                             className="text-xs font-semibold text-[color:var(--brand)]"
@@ -111,9 +104,9 @@ export default async function AdminJoinRequestsPage() {
                           </Link>
                         </div>
                       ) : (
-                        <span className="inline-flex rounded-full bg-white/8 px-3 py-1.5 text-xs font-semibold text-white/58">
+                        <AdminStatusBadge tone="neutral">
                           Sin convertir
-                        </span>
+                        </AdminStatusBadge>
                       )}
                     </td>
                     <td className="px-5 py-4 text-[color:var(--muted-strong)]">

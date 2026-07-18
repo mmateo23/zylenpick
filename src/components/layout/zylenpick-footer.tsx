@@ -2,13 +2,16 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { useState, type ComponentType } from "react";
+
 import {
-  ArrowUpRight,
-  MapPinned,
-  Sparkles,
-  Store,
-  Utensils,
-} from "lucide-react";
+  HotPlateIcon,
+  PaperBagIcon,
+  PickyaloFavoriteIcon,
+  PickyaloLocationIcon,
+  type AnimatedIconProps,
+} from "@/components/icons/pickyalo";
 
 type ZylenPickFooterProps = {
   theme?: "dark" | "light";
@@ -18,24 +21,28 @@ const footerLinks = [
   {
     label: "Platos",
     href: "/platos",
-    icon: Utensils,
+    icon: HotPlateIcon,
   },
   {
     label: "Zonas",
     href: "/zonas",
-    icon: MapPinned,
+    icon: PickyaloLocationIcon,
   },
   {
     label: "Únete",
     href: "/unete",
-    icon: Store,
+    icon: PaperBagIcon,
   },
   {
     label: "El proyecto",
     href: "/el-proyecto",
-    icon: Sparkles,
+    icon: PickyaloFavoriteIcon,
   },
-];
+] satisfies Array<{
+  label: string;
+  href: string;
+  icon: ComponentType<AnimatedIconProps>;
+}>;
 
 function InstagramIcon({ className }: { className?: string }) {
   return (
@@ -64,6 +71,23 @@ export function ZylenPickFooter({
   theme = "light",
 }: ZylenPickFooterProps) {
   const isLightTheme = theme === "light";
+  const [iconAnimation, setIconAnimation] = useState({
+    id: "",
+    triggerKey: 0,
+  });
+
+  const triggerIconAnimation = (id: string) => {
+    setIconAnimation((current) => ({
+      id,
+      triggerKey: current.triggerKey + 1,
+    }));
+  };
+
+  const stopIconAnimation = (id: string) => {
+    setIconAnimation((current) =>
+      current.id === id ? { ...current, id: "" } : current,
+    );
+  };
 
   return (
     <footer className="relative mt-0 overflow-hidden px-1.5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:mt-4 sm:px-6 lg:px-8">
@@ -124,6 +148,10 @@ export function ZylenPickFooter({
                 <Link
                   key={link.label}
                   href={link.href}
+                  onPointerEnter={() => triggerIconAnimation(link.label)}
+                  onPointerLeave={() => stopIconAnimation(link.label)}
+                  onFocus={() => triggerIconAnimation(link.label)}
+                  onBlur={() => stopIconAnimation(link.label)}
                   className={
                     isLightTheme
                       ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 px-4 py-4 text-sm text-[#741314] backdrop-blur-xl transition hover:bg-[#FDE3AD]"
@@ -131,7 +159,17 @@ export function ZylenPickFooter({
                   }
                 >
                   <span className="flex items-center gap-3">
-                    <Icon className="h-4 w-4" />
+                    <Icon
+                      size={19}
+                      strokeWidth={2.25}
+                      animated={iconAnimation.id === link.label}
+                      active={
+                        link.label === "El proyecto" &&
+                        iconAnimation.id === link.label
+                      }
+                      loop={false}
+                      triggerKey={iconAnimation.triggerKey}
+                    />
                     <span className="font-medium">{link.label}</span>
                   </span>
                   <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -141,6 +179,10 @@ export function ZylenPickFooter({
 
             <Link
               href="/zonas"
+              onPointerEnter={() => triggerIconAnimation("nearby")}
+              onPointerLeave={() => stopIconAnimation("nearby")}
+              onFocus={() => triggerIconAnimation("nearby")}
+              onBlur={() => stopIconAnimation("nearby")}
               className={
                 isLightTheme
                   ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314]/40 bg-cta px-4 py-4 text-sm text-cta-text transition hover:bg-cta-hover"
@@ -148,7 +190,12 @@ export function ZylenPickFooter({
               }
             >
               <span className="flex items-center gap-3">
-                <MapPinned className="h-4 w-4" />
+                <PickyaloLocationIcon
+                  size={19}
+                  strokeWidth={2.25}
+                  animated={iconAnimation.id === "nearby"}
+                  triggerKey={iconAnimation.triggerKey}
+                />
                 <span className="font-medium">Buscar cerca de mí</span>
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -165,7 +212,7 @@ export function ZylenPickFooter({
               }
             >
               <span className="flex items-center gap-3">
-                <InstagramIcon className="h-4 w-4" />
+                <InstagramIcon className="h-[19px] w-[19px] transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-110 group-focus-visible:rotate-6 group-focus-visible:scale-110 motion-reduce:transform-none motion-reduce:transition-none" />
                 <span className="font-medium">Instagram</span>
               </span>
               <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

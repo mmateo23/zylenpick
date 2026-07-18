@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { DeleteJoinRequestButton } from "@/components/admin/delete-join-request-button";
 import {
   deleteJoinRequestAction,
@@ -43,17 +44,6 @@ function statusLabel(status: "pending" | "approved" | "rejected") {
   }
 
   return "Pendiente";
-}
-
-function statusClassName(status: "pending" | "approved" | "rejected") {
-  if (status === "approved") {
-    return "bg-[color:var(--brand-soft)] text-[color:var(--accent)]";
-  }
-  if (status === "rejected") {
-    return "bg-[#E5484D]/12 text-[#FFB4B4]";
-  }
-
-  return "bg-white/8 text-white/72";
 }
 
 function DetailRow({
@@ -107,17 +97,22 @@ export default async function AdminJoinRequestDetailPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <span
-            className={`inline-flex rounded-full px-4 py-2 text-xs font-semibold ${statusClassName(
-              joinRequest.status,
-            )}`}
+          <AdminStatusBadge
+            tone={
+              joinRequest.status === "approved"
+                ? "success"
+                : joinRequest.status === "rejected"
+                  ? "danger"
+                  : "warning"
+            }
+            className="px-4 py-2"
           >
             {statusLabel(joinRequest.status)}
-          </span>
+          </AdminStatusBadge>
           {isLinked ? (
-            <span className="inline-flex rounded-full bg-[color:var(--brand-soft)] px-4 py-2 text-xs font-semibold text-[color:var(--accent)]">
+            <AdminStatusBadge tone="success" className="px-4 py-2">
               Convertida en local
-            </span>
+            </AdminStatusBadge>
           ) : null}
           <Link
             href="/panel/solicitudes"

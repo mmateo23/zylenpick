@@ -27,6 +27,7 @@ import {
 import { CartIcon } from "@/components/icons/cart-icon";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
+import { AllergenPictogram } from "@/components/venues/allergen-pictogram";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { SiteChip } from "@/features/chips/types";
@@ -37,6 +38,7 @@ import {
 import {
   getDistanceInKm,
   readUserLocation,
+  USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
 import {
@@ -1388,16 +1390,17 @@ export function DemoDishesCarousel({
   useEffect(() => {
     setUserLocation(readUserLocation());
 
+    const syncLocation = () => setUserLocation(readUserLocation());
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === "zylenpick.user-location") {
-        setUserLocation(readUserLocation());
-      }
+      if (event.key === "zylenpick.user-location") syncLocation();
     };
 
     window.addEventListener("storage", handleStorage);
+    window.addEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
     };
   }, []);
 
@@ -2023,7 +2026,7 @@ export function DemoDishesCarousel({
               <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
                 <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
                   <Image
-                    src="https://images.unsplash.com/photo-1584384689201-e0bcbe2c7f1d?q=80&w=3087&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src="https://images.unsplash.com/photo-1778048840966-04589f37c525?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt=""
                     aria-hidden="true"
                     fill
@@ -2913,6 +2916,26 @@ export function DemoDishesCarousel({
                     {getShortDescription(activeItem)}
                   </p>
                 ) : null}
+                {activeItem.allergens.length > 0 ? (
+                  <div className="rounded-[0.8rem] border border-[#C26157]/16 bg-[#FFE9EC]/55 px-3 py-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#381932]/68">
+                      Puede contener o presentar trazas de
+                    </p>
+                    <div className="mt-2 flex max-w-full gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                      {activeItem.allergens.map((allergen) => (
+                        <AllergenPictogram
+                          key={allergen}
+                          allergen={allergen}
+                          compact
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs font-medium text-[#381932]/58">
+                    Información de alérgenos pendiente. Consulta al local.
+                  </p>
+                )}
                 {activeItem.pickupEtaMin ? (
                   <p className="inline-flex items-center gap-1.5 rounded-full bg-[#f1f1f1] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
                     <Clock3 className="h-3.5 w-3.5" />

@@ -6,6 +6,7 @@ export type UserLocation = {
 };
 
 const USER_LOCATION_STORAGE_KEY = "zylenpick.user-location";
+export const USER_LOCATION_UPDATED_EVENT = "pickyalo:user-location-updated";
 
 export function getDistanceInKm(
   latitudeA: number,
@@ -33,6 +34,11 @@ export function getDistanceInKm(
 
 export function saveUserLocation(location: UserLocation) {
   window.localStorage.setItem(USER_LOCATION_STORAGE_KEY, JSON.stringify(location));
+  window.dispatchEvent(
+    new CustomEvent<UserLocation>(USER_LOCATION_UPDATED_EVENT, {
+      detail: location,
+    }),
+  );
 }
 
 export function readUserLocation(): UserLocation | null {

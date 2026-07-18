@@ -5,17 +5,12 @@ import {
   getChipDishOptions,
   updateSiteChipAction,
 } from "@/features/admin/services/chips-admin-service";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import type { SiteChip } from "@/features/chips/types";
 import { siteChipTypes, weekdayOptions } from "@/features/chips/types";
 
 const fieldClassName =
   "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
-
-function statusClassName(isEnabled: boolean) {
-  return isEnabled
-    ? "bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
-    : "bg-white/8 text-white/58";
-}
 
 function SubmitButton({ children }: { children: string }) {
   return (
@@ -40,13 +35,9 @@ function ChipSummary({ chip }: { chip: SiteChip }) {
           <p className="font-semibold text-[color:var(--foreground)]">{chip.name}</p>
           <p className="mt-1 text-xs text-[color:var(--muted)]">/{chip.slug}</p>
         </div>
-        <span
-          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${statusClassName(
-            chip.isActive,
-          )}`}
-        >
+        <AdminStatusBadge tone={chip.isActive ? "success" : "neutral"}>
           {chip.isActive ? "Activo" : "Inactivo"}
-        </span>
+        </AdminStatusBadge>
       </div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold">
         <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[color:var(--muted-strong)]">
@@ -93,7 +84,7 @@ function DishCheckboxList({
               name="itemIds"
               value={dish.id}
               defaultChecked={selected.has(dish.id)}
-              className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--brand)]"
+              className="mt-1 h-4 w-4 shrink-0 accent-emerald-500"
             />
             <span>
               <span className="block font-semibold text-[color:var(--foreground)]">
@@ -164,7 +155,7 @@ function ChipForm({
 
       <div className="flex flex-wrap gap-5">
         <label className="flex items-center gap-3 text-sm font-semibold text-[color:var(--foreground)]">
-          <input type="checkbox" name="isActive" defaultChecked={chip?.isActive ?? true} className="h-4 w-4 accent-[color:var(--brand)]" />
+          <input type="checkbox" name="isActive" defaultChecked={chip?.isActive ?? true} className="h-4 w-4 accent-emerald-500" />
           Activo
         </label>
         <label className="flex items-center gap-3 text-sm font-semibold text-[color:var(--foreground)]">

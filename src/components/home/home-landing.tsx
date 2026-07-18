@@ -14,6 +14,7 @@ import {
   getDistanceInKm,
   readUserLocation,
   saveUserLocation,
+  USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
 import { saveSelectedCity } from "@/features/location/city-preference";
@@ -178,9 +179,11 @@ export function HomeLanding({
     };
 
     window.addEventListener("storage", syncLocation);
+    window.addEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
 
     return () => {
       window.removeEventListener("storage", syncLocation);
+      window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
     };
   }, []);
 

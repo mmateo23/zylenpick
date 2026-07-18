@@ -5,6 +5,7 @@ import { AnalyticsAttribution } from "@/components/analytics/analytics-attributi
 import { GoogleAnalyticsConsent } from "@/components/analytics/google-analytics-consent";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
+import { LocationDiscoveryPrompt } from "@/components/location/location-discovery-prompt";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { PickyaloToaster } from "@/components/ui/pickyalo-toaster";
@@ -114,6 +115,7 @@ export default function RootLayout({
             <AnalyticsAttribution />
             <TooltipProvider>
               {children}
+              <LocationDiscoveryPrompt />
               <InstallPrompt />
               <PickyaloToaster />
               <CookieConsentBanner />

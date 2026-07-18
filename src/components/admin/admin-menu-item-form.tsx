@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AlertTriangle, Check, ShieldCheck } from "lucide-react";
 
 import type {
   AdminMenuItemFormValues,
@@ -20,16 +21,16 @@ type AdminMenuItemFormProps = {
 
 const allergenOptions: { value: MenuItemAllergen; label: string }[] = [
   { value: "gluten", label: "Gluten" },
-  { value: "crustaceos", label: "Crustaceos" },
+  { value: "crustaceos", label: "Crustáceos" },
   { value: "huevo", label: "Huevo" },
   { value: "pescado", label: "Pescado" },
   { value: "cacahuetes", label: "Cacahuetes" },
   { value: "soja", label: "Soja" },
   { value: "leche", label: "Leche" },
-  { value: "frutos_de_cascara", label: "Frutos de cascara" },
+  { value: "frutos_de_cascara", label: "Frutos de cáscara" },
   { value: "apio", label: "Apio" },
   { value: "mostaza", label: "Mostaza" },
-  { value: "sesamo", label: "Sesamo" },
+  { value: "sesamo", label: "Sésamo" },
   { value: "sulfitos", label: "Sulfitos" },
   { value: "altramuces", label: "Altramuces" },
   { value: "moluscos", label: "Moluscos" },
@@ -73,11 +74,18 @@ export function AdminMenuItemForm({
   const values = buildInitialValues(venue.id, initialValues);
   const [imageUrl, setImageUrl] = useState(values.imageUrl);
   const [hasImageError, setHasImageError] = useState(false);
+  const [selectedAllergens, setSelectedAllergens] = useState<MenuItemAllergen[]>(
+    values.allergens,
+  );
 
   useEffect(() => {
     setImageUrl(values.imageUrl);
     setHasImageError(false);
   }, [values.imageUrl]);
+
+  useEffect(() => {
+    setSelectedAllergens(initialValues?.allergens ?? []);
+  }, [initialValues]);
 
   const trimmedImageUrl = imageUrl.trim();
   const hasPreview = Boolean(trimmedImageUrl) && !hasImageError;
@@ -165,29 +173,102 @@ export function AdminMenuItemForm({
             />
           </label>
 
-          <fieldset className="rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 md:col-span-2">
-            <legend className="px-1 text-sm font-medium text-[color:var(--foreground)]">
-              Alergenos
+          <fieldset className="rounded-[1.35rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 md:col-span-2 sm:p-5">
+            <legend className="px-1 text-sm font-semibold text-[color:var(--foreground)]">
+              Información alimentaria
             </legend>
-            <p className="mt-2 text-xs leading-5 text-[color:var(--muted-strong)]">
-              Marca solo los alergenos confirmados para este plato.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+
+            <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex max-w-2xl items-start gap-3">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[color:var(--brand-soft)] text-[color:var(--brand)]">
+                  <ShieldCheck aria-hidden="true" className="h-[18px] w-[18px]" />
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[color:var(--foreground)]">
+                    Alérgenos de declaración obligatoria
+                  </p>
+                  <p
+                    id="allergens-help"
+                    className="mt-1 text-xs leading-5 text-[color:var(--muted-strong)]"
+                  >
+                    Marca los posibles alérgenos o trazas advertidos por el local. Esta información se mostrará en la ficha pública antes de realizar el pedido.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${
+                  selectedAllergens.length > 0
+                    ? "border-[color:var(--brand)]/30 bg-[color:var(--brand-soft)] text-[color:var(--foreground)]"
+                    : "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                }`}
+                role="status"
+                aria-live="polite"
+              >
+                {selectedAllergens.length > 0 ? (
+                  <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                ) : (
+                  <AlertTriangle aria-hidden="true" className="h-3.5 w-3.5" />
+                )}
+                {selectedAllergens.length > 0
+                  ? `${selectedAllergens.length} seleccionado${selectedAllergens.length === 1 ? "" : "s"}`
+                  : "Pendiente de revisar"}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {allergenOptions.map((option) => (
                 <label
                   key={option.value}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-medium text-[color:var(--muted-strong)] transition hover:border-[color:var(--brand)] hover:text-[color:var(--foreground)]"
+                  className={`group flex min-h-12 cursor-pointer items-center gap-3 rounded-[0.9rem] border px-3 py-2.5 text-sm font-medium transition ${
+                    selectedAllergens.includes(option.value)
+                      ? "border-[color:var(--brand)] bg-[color:var(--brand-soft)] text-[color:var(--foreground)]"
+                      : "border-white/10 bg-white/[0.04] text-[color:var(--muted-strong)] hover:border-white/20 hover:text-[color:var(--foreground)]"
+                  }`}
                 >
                   <input
                     name="allergens"
                     type="checkbox"
                     value={option.value}
-                    defaultChecked={values.allergens.includes(option.value)}
-                    className="h-3.5 w-3.5 accent-[color:var(--brand)]"
+                    checked={selectedAllergens.includes(option.value)}
+                    aria-describedby="allergens-help"
+                    className="peer sr-only"
+                    onChange={(event) => {
+                      setSelectedAllergens((current) =>
+                        event.target.checked
+                          ? [...current, option.value]
+                          : current.filter((allergen) => allergen !== option.value),
+                      );
+                    }}
                   />
+                  <span
+                    aria-hidden="true"
+                    className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[0.4rem] border transition ${
+                      selectedAllergens.includes(option.value)
+                        ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-white"
+                        : "border-white/20 bg-white/5 text-transparent group-hover:border-white/35"
+                    }`}
+                  >
+                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                  </span>
                   {option.label}
                 </label>
               ))}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <p className="max-w-2xl text-xs leading-5 text-[color:var(--muted-strong)]">
+                Si no se selecciona ninguno, Pickyalo mostrará “Alérgenos pendientes” para no confundir falta de información con ausencia de alérgenos o trazas.
+              </p>
+              {selectedAllergens.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedAllergens([])}
+                  className="text-xs font-semibold text-[color:var(--brand)] underline decoration-white/20 underline-offset-4 transition hover:decoration-[color:var(--brand)]"
+                >
+                  Limpiar selección
+                </button>
+              ) : null}
             </div>
           </fieldset>
 

@@ -1,4 +1,4 @@
-import { Logo } from "@/components/branding/logo";
+import { PickyaloVerifiedIcon } from "@/components/icons/pickyalo";
 
 type VerifiedVenueBadgeProps = {
   isVerified: boolean;
@@ -16,7 +16,7 @@ export function VerifiedVenueBadge({
   }
 
   const helpText =
-    "Local verificado por Pickyalo. Este local ha sido revisado por Pickyalo y cumple estándares de calidad para recogida.";
+    "Local verificado por Pickyalo. Este local ha aportado la documentación solicitada para una revisión documental.";
 
   return (
     <span
@@ -24,7 +24,7 @@ export function VerifiedVenueBadge({
       aria-label="Local verificado por Pickyalo"
       className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand)]/18 bg-[color:var(--brand)]/10 px-3 py-1.5 text-xs font-medium text-[color:var(--foreground)] shadow-[var(--card-shadow)]"
     >
-      <Logo mode="icon" iconClassName="h-4 w-auto" />
+      <PickyaloVerifiedIcon size={17} strokeWidth={2.35} animated />
       {withLabel ? <span>Verificado por Pickyalo</span> : null}
     </span>
   );

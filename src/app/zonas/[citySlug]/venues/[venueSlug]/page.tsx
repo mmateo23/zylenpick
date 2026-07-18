@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { ClockIcon } from "@/components/icons/clock-icon";
-import { LocationPinIcon } from "@/components/icons/location-pin-icon";
-import { MapIcon } from "@/components/icons/map-icon";
-import { PhoneIcon } from "@/components/icons/phone-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
 import { PlatoHashViewTracker } from "@/components/analytics/plato-hash-view-tracker";
 import { VenueViewTracker } from "@/components/analytics/venue-view-tracker";
@@ -13,7 +9,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
 import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
-import { VenueArrivalCard } from "@/components/venues/venue-arrival-card";
+import { VenueLocalInformation } from "@/components/venues/venue-local-information";
 import { VenueOpeningHours } from "@/components/venues/venue-opening-hours";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary";
@@ -101,17 +97,6 @@ export default async function VenuePage({ params }: VenuePageProps) {
     pickupEtaMin: venue.pickupEtaMin,
     pricesVisible: venue.pricesVisible,
   };
-  const mapsHref = venue.address
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        venue.address,
-      )}`
-    : null;
-  const websiteHref = venue.website
-    ? venue.website.startsWith("http")
-      ? venue.website
-      : `https://${venue.website}`
-    : null;
-
   return (
     <div className="public-light-theme min-h-screen bg-page text-text-primary">
       <SiteHeader />
@@ -209,6 +194,22 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
         <section className="bg-page text-text-primary">
           <div className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
+            <div className="mb-12">
+              <VenueLocalInformation
+                venueName={venue.name}
+                cityName={venue.city.name}
+                address={venue.address}
+                phone={venue.phone}
+                email={venue.email}
+                website={venue.website}
+                pickupNotes={venue.pickupNotes}
+                pickupEtaMin={venue.pickupEtaMin}
+                latitude={venue.latitude}
+                longitude={venue.longitude}
+                isOpenNow={venue.isOpenNow}
+              />
+            </div>
+
             <div className="space-y-12">
               {menuSections.map(([categoryName, items]) => (
                 <section key={categoryName}>
@@ -240,112 +241,12 @@ export default async function VenuePage({ params }: VenuePageProps) {
               ))}
             </div>
 
-            <div className="mt-12 grid gap-3 lg:grid-cols-4">
+            <div className="mt-12 grid gap-3 lg:grid-cols-2">
               <VenueCartSummary venueId={venue.id} />
-              <VenueArrivalCard
-                venueSlug={venue.slug}
-                venueName={venue.name}
-                address={venue.address}
-                latitude={venue.latitude}
-                longitude={venue.longitude}
-              />
               <VenueOpeningHours
                 openingHours={venue.openingHours}
                 isOpenNow={venue.isOpenNow}
               />
-
-              <aside className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
-                <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-                  Información del local
-                </p>
-                <dl className="mt-5 space-y-4">
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <MapIcon size={17} className="text-icon-highlight" />
-                      Dirección
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {mapsHref ? (
-                        <a
-                          href={mapsHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {venue.address}
-                        </a>
-                      ) : (
-                        "Dirección pendiente"
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <ClockIcon size={17} className="text-icon-highlight" />
-                      Recogida
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.pickupNotes ?? "Indicaciones pendientes"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <PhoneIcon size={17} className="text-icon-highlight" />
-                      Teléfono
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.phone ? (
-                        <a href={`tel:${venue.phone}`}>{venue.phone}</a>
-                      ) : (
-                        "Teléfono pendiente"
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <MapIcon size={17} className="text-icon-highlight" />
-                      Email
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.email ? (
-                        <a href={`mailto:${venue.email}`}>{venue.email}</a>
-                      ) : (
-                        "Email pendiente"
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <MapIcon size={17} className="text-icon-highlight" />
-                      Enlaces
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {websiteHref ? (
-                        <a
-                          href={websiteHref}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {venue.website}
-                        </a>
-                      ) : (
-                        "Enlaces pendientes"
-                      )}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] text-text-muted">
-                      <LocationPinIcon
-                        size={17}
-                        className="text-icon-highlight"
-                      />
-                      Zona
-                    </dt>
-                    <dd className="mt-2 text-sm leading-6 text-text-secondary">
-                      {venue.city.name}
-                    </dd>
-                  </div>
-                </dl>
-              </aside>
             </div>
           </div>
         </section>
