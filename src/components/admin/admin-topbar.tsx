@@ -1,3 +1,5 @@
+import { ShieldCheck } from "lucide-react";
+
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 
 type AdminTopbarProps = {
@@ -6,22 +8,20 @@ type AdminTopbarProps = {
 
 export function AdminTopbar({ email }: AdminTopbarProps) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-[1.8rem] border border-white/10 bg-[color:var(--surface)] px-5 py-4 shadow-[var(--soft-shadow)]">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-[0.26em] text-[color:var(--brand)]">
-          Panel admin
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold text-[color:var(--foreground)]">
-          Control centralizado del MVP
-        </h1>
+    <header className="flex flex-wrap items-center justify-between gap-4 rounded-[1.2rem] border border-[#741314]/12 bg-[#FFF7E8] px-4 py-3 shadow-[0_12px_36px_rgba(116,19,20,0.06)] sm:px-5">
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#741314] text-[#FFF7E8]">
+          <ShieldCheck aria-hidden="true" className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-[#741314]">Panel de gestión</p>
+          <p className="truncate text-xs text-[#741314]/55">
+            {email ?? "Sesión activa"}
+          </p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="rounded-full border border-white/10 bg-[color:var(--surface-strong)] px-4 py-2 text-sm text-[color:var(--muted-strong)]">
-          {email ?? "Sesión activa"}
-        </div>
-        <SignOutButton variant="danger" />
-      </div>
+      <SignOutButton variant="danger" />
     </header>
   );
 }

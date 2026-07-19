@@ -10,12 +10,12 @@ type AdminShellProps = {
 
 export function AdminShell({ children, email }: AdminShellProps) {
   return (
-    <div className="min-h-screen bg-[color:var(--background)] px-5 py-5 sm:px-6 lg:px-8">
-      <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
+    <div className="admin-shell public-light-theme min-h-screen bg-[#F6EFE6] px-3 py-3 text-[#24110E] sm:px-5 sm:py-5 lg:px-6">
+      <div className="mx-auto grid max-w-[90rem] gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-5">
         <AdminSidebar />
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-4">
           <AdminTopbar email={email} />
-          <main>{children}</main>
+          <main className="pb-8">{children}</main>
         </div>
       </div>
     </div>

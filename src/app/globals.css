@@ -369,6 +369,31 @@ video {
     transition: background-color 9999s ease-in-out 0s;
   }
 
+  .admin-shell .glass-panel {
+    border-color: rgba(116, 19, 20, 0.12);
+    background: #fff7e8;
+    box-shadow: 0 14px 40px rgba(116, 19, 20, 0.06);
+    backdrop-filter: none;
+  }
+
+  .admin-shell .dark-form-field {
+    color-scheme: light;
+    border-color: rgba(116, 19, 20, 0.16) !important;
+    background-color: #ffffff !important;
+    color: #24110e !important;
+  }
+
+  .admin-shell .dark-form-field::placeholder {
+    color: rgba(36, 17, 14, 0.42) !important;
+  }
+
+  .admin-shell .dark-form-field:-webkit-autofill,
+  .admin-shell .dark-form-field:-webkit-autofill:hover,
+  .admin-shell .dark-form-field:-webkit-autofill:focus {
+    -webkit-text-fill-color: #24110e;
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  }
+
   .project-light-ray {
     background: linear-gradient(
       180deg,

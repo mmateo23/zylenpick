@@ -9,11 +9,11 @@ type AdminStatusBadgeProps = {
 };
 
 const toneClassNames: Record<AdminStatusTone, string> = {
-  success: "border-emerald-400/25 bg-emerald-400/12 text-emerald-200",
-  warning: "border-amber-300/25 bg-amber-300/10 text-amber-100",
-  danger: "border-rose-400/25 bg-rose-400/10 text-rose-200",
-  neutral: "border-white/10 bg-white/[0.05] text-white/58",
-  info: "border-sky-400/25 bg-sky-400/10 text-sky-200",
+  success: "border-emerald-700/20 bg-emerald-100 text-emerald-800",
+  warning: "border-amber-700/20 bg-amber-100 text-amber-900",
+  danger: "border-rose-700/20 bg-rose-100 text-rose-800",
+  neutral: "border-[#741314]/12 bg-[#741314]/[0.05] text-[#741314]/65",
+  info: "border-sky-700/20 bg-sky-100 text-sky-800",
 };
 
 export function AdminStatusBadge({
@@ -30,4 +30,3 @@ export function AdminStatusBadge({
     </span>
   );
 }
-

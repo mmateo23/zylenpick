@@ -2285,17 +2285,17 @@ export function DemoDishesCarousel({
                         className={
                           isEventFilter
                             ? isActive
-                              ? "rounded-full border border-[#ffd766]/50 bg-[linear-gradient(135deg,rgba(14,88,255,0.24),rgba(116,19,20,0.16),rgba(116,19,20,0.26))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#fff3c4] shadow-[0_10px_30px_rgba(0,86,255,0.18)] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                              ? "rounded-full border border-[#741314]/55 bg-[linear-gradient(135deg,rgba(14,88,255,0.24),rgba(116,19,20,0.16),rgba(116,19,20,0.26))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#fff3c4] shadow-[0_10px_30px_rgba(0,86,255,0.18)] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
-                                ? "rounded-full border border-[#0f4fff]/18 bg-[linear-gradient(135deg,rgba(34,93,255,0.08),rgba(116,19,20,0.1))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#1742b0] transition hover:border-[#0f4fff]/28 hover:bg-[linear-gradient(135deg,rgba(34,93,255,0.12),rgba(116,19,20,0.14))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#4f86ff]/28 bg-[linear-gradient(135deg,rgba(33,74,196,0.22),rgba(116,19,20,0.12))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#dce6ff] transition hover:border-[#74a2ff]/36 hover:bg-[linear-gradient(135deg,rgba(33,74,196,0.28),rgba(116,19,20,0.18))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#741314]/28 bg-[linear-gradient(135deg,rgba(34,93,255,0.08),rgba(116,19,20,0.1))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#1742b0] transition hover:border-[#741314]/45 hover:bg-[linear-gradient(135deg,rgba(34,93,255,0.12),rgba(116,19,20,0.14))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#741314]/32 bg-[linear-gradient(135deg,rgba(33,74,196,0.22),rgba(116,19,20,0.12))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#dce6ff] transition hover:border-[#741314]/48 hover:bg-[linear-gradient(135deg,rgba(33,74,196,0.28),rgba(116,19,20,0.18))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                             : isActive
                               ? isLightTheme
                                 ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                                 : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
-                                ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                         }
                       >
                         {filterOption.label}
@@ -2347,11 +2347,11 @@ export function DemoDishesCarousel({
                       className={
                         activeChipSlug === null
                           ? isLightTheme
-                            ? "rounded-full border border-black/10 bg-[#141414] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-white transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                            : "rounded-full border border-white/12 bg-white px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#07100d] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            ? "rounded-full border border-[#741314]/42 bg-[#141414] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-white transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            : "rounded-full border border-[#741314]/42 bg-white px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#07100d] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                           : isLightTheme
-                            ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                            : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                            : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                       }
                     >
                       Todos los platos
@@ -2374,8 +2374,8 @@ export function DemoDishesCarousel({
                                 ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                                 : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                               : isLightTheme
-                                ? "rounded-full border border-black/8 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
+                                : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
                           }
                         >
                           {chip.name}
@@ -2391,13 +2391,13 @@ export function DemoDishesCarousel({
                     Busca por antojo
                   </p>
                   <div className="flex flex-wrap gap-2 pb-1">
-                  <button type="button" onClick={() => setCategoryFilter("all")} className={categoryFilter === "all" ? (isLightTheme ? "rounded-full border border-black/10 bg-[#141414] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/12 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#07100d] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-black/8 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
+                  <button type="button" onClick={() => setCategoryFilter("all")} className={categoryFilter === "all" ? (isLightTheme ? "rounded-full border border-[#741314]/42 bg-[#141414] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/42 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#07100d] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-[#741314]/22 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
                     Todas
                   </button>
                   {categoryOptions.map((category) => {
                     const isActive = categoryFilter === category;
                     return (
-                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} className={isActive ? (isLightTheme ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A9402A] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#741314] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-black/8 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
+                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} className={isActive ? (isLightTheme ? "rounded-full border border-[#741314]/40 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A9402A] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/40 bg-[#741314]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#741314] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-[#741314]/22 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
                         {category}
                       </button>
                     );

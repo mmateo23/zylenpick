@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const defaultSiteUrl = "https://zylenpick.com";
+const defaultSiteUrl = "https://www.pickyalo.com";
 
 export function getSiteUrl() {
   return process.env.NEXT_PUBLIC_SITE_URL ?? defaultSiteUrl;
@@ -10,7 +10,7 @@ export function getBaseMetadata({
   title,
   description,
   path = "/",
-  image = "/logo/Pickyalo_Logo_Coral.svg?v=1",
+  image = "/opengraph-image",
 }: {
   title: string;
   description: string;

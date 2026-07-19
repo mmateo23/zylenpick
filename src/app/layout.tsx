@@ -40,11 +40,11 @@ export const metadata: Metadata = {
   applicationName: "Pickyalo",
   manifest: "/manifest.webmanifest",
   title: {
-    default: "Pickyalo | Productos y platos para recoger",
+    default: "Pickyalo | Descubre cerca. Recoge fácil.",
     template: "%s | Pickyalo",
   },
   description:
-    "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
+    "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
   icons: {
     icon: [
       { url: "/icons/pickyalo-app.svg", type: "image/svg+xml" },
@@ -66,28 +66,28 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: "Pickyalo | Productos y platos para recoger",
+    title: "Pickyalo | Descubre cerca. Recoge fácil.",
     description:
-      "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
+      "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
     url: "/",
     siteName: "Pickyalo",
     locale: "es_ES",
     type: "website",
     images: [
       {
-        url: "/icons/pickyalo-icon-512.png",
-        width: 512,
-        height: 512,
-        alt: "Logo de la app Pickyalo",
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Pickyalo: descubre productos y platos de locales cercanos",
       },
     ],
   },
   twitter: {
-    card: "summary",
-    title: "Pickyalo | Productos y platos para recoger",
+    card: "summary_large_image",
+    title: "Pickyalo | Descubre cerca. Recoge fácil.",
     description:
-      "Descubre productos y platos destacados de locales cercanos y recógelos de forma simple, visual y rápida.",
-    images: ["/icons/pickyalo-icon-512.png"],
+      "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
+    images: ["/opengraph-image"],
   },
 };
 

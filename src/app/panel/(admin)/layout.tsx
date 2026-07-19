@@ -8,7 +8,7 @@ import { getNoIndexMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = getNoIndexMetadata({
   title: "Panel admin",
-  description: "Área privada de gestión interna del panel admin.",
+  description: "Área privada de gestión de Pickyalo.",
 });
 
 export default async function AdminProtectedLayout({
@@ -26,7 +26,7 @@ export default async function AdminProtectedLayout({
             Supabase no está configurado.
           </p>
           <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-            El panel admin necesita autenticación y acceso a Supabase para
+            El panel necesita autenticación y acceso a Supabase para
             funcionar.
           </p>
         </section>
