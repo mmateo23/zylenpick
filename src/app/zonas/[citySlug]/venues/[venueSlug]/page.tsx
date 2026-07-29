@@ -8,6 +8,7 @@ import { VenueViewTracker } from "@/components/analytics/venue-view-tracker";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
+import { VenueLocalStructuredData } from "@/components/seo/local-seo-structured-data";
 import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
 import { VenueLocalInformation } from "@/components/venues/venue-local-information";
 import { VenueOpeningHours } from "@/components/venues/venue-opening-hours";
@@ -40,8 +41,8 @@ export async function generateMetadata({
   }
 
   return getBaseMetadata({
-    title: `Selección de ${venue.name}`,
-    description: `Descubre la selección visual de ${venue.name}, ${venue.city.name}. Consulta productos, platos, precios y opciones de recogida rápida.`,
+    title: `${venue.name} en ${venue.city.name}: selección y recogida`,
+    description: `Descubre la selección de comida, productos y platos de ${venue.name} en ${venue.city.name}. Consulta opciones y recoge en el local.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
     image: venue.coverUrl ?? venue.logoUrl ?? "/logo/LogoNuevo.svg?v=1",
   });
@@ -103,6 +104,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
       <CityPreferenceSync
         city={{ slug: venue.city.slug, name: venue.city.name }}
       />
+      <VenueLocalStructuredData venue={venue} />
       <VenueViewTracker
         citySlug={venue.city.slug}
         cityName={venue.city.name}

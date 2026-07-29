@@ -103,7 +103,7 @@ export function DemoBentoGallery({
   const isZoneMode = mode === "zonas";
   const primaryCitySlug = items[0]?.venue.citySlug ?? null;
   const heroTitle = isZoneMode
-    ? `Productos y platos en ${zoneName ?? "tu zona"}`
+    ? `Comida local para recoger en ${zoneName ?? "tu zona"}`
     : "\u00bfQu\u00e9 local nos apetece hoy?";
   const zoneDisplayName = zoneName ?? "tu zona";
   const heroDescription =
@@ -251,14 +251,14 @@ export function DemoBentoGallery({
                 <h1 className={isLightTheme ? "max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#FDE3AD] drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)]" : "max-w-[11ch] text-[clamp(2.35rem,8.6vw,5.4rem)] font-semibold leading-[0.92] tracking-[-0.07em] text-white"}>
                   {heroTitle}
                 </h1>
-                <p className={isZoneMode ? "hidden" : isLightTheme ? "inline-flex max-w-[34rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-base font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-lg sm:leading-8" : "max-w-[34rem] text-[0.95rem] leading-6 text-white/56 sm:max-w-[36rem] sm:text-base sm:leading-7"}>
+                <p className={isZoneMode && isLightTheme ? "max-w-[38rem] text-base font-medium leading-7 text-[#FFF7E8] drop-shadow-[0_4px_18px_rgba(0,0,0,0.48)] sm:text-lg sm:leading-8" : isLightTheme ? "inline-flex max-w-[34rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-base font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-lg sm:leading-8" : "max-w-[34rem] text-[0.95rem] leading-6 text-white/56 sm:max-w-[36rem] sm:text-base sm:leading-7"}>
                   {isZoneMode ? (
                     <>
-                      Mira locales de{" "}
+                      Descubre comida local y platos destacados en{" "}
                       <strong className={isLightTheme ? "font-semibold text-[#741314]" : "font-semibold text-white"}>
                         {zoneDisplayName}
                       </strong>
-                      , abre su selección visual y elige qu\u00e9 recoger sin complicarte.
+                      . Compara locales cercanos y elige qué recoger sin complicarte.
                     </>
                   ) : (
                     heroDescription
@@ -316,14 +316,14 @@ export function DemoBentoGallery({
                   isLightTheme ? "text-[#181816]/42" : "text-white/42"
                 }`}
               >
-                Selecci\u00f3n visual
+                Selección visual
               </p>
               <h2
                 className={`mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] ${
                   isLightTheme ? "text-[#181816]" : "text-white"
                 }`}
               >
-                Elige un local y entra en su selección.
+                Locales con comida para recoger en {zoneDisplayName}.
               </h2>
             </div>
             <Link

@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 
 import { DemoBentoGallery } from "@/components/demo/demo-bento-gallery";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
+import { CityLocalStructuredData } from "@/components/seo/local-seo-structured-data";
 import {
   getCityBySlug,
   getHomeShowcase,
+  getVenuesByCitySlug,
 } from "@/features/venues/services/venues-service";
 import { getMenuItemDisplayImage } from "@/features/venues/menu-item-media";
 import type { HomeShowcaseItem } from "@/features/venues/types";
@@ -55,8 +57,8 @@ export async function generateMetadata({
   }
 
   return getBaseMetadata({
-    title: `Productos y platos en ${city.name}`,
-    description: `Descubre productos y platos destacados de locales cercanos en ${city.name}. Elige rápido y recoge sin complicaciones.`,
+    title: `Comida para recoger en ${city.name}`,
+    description: `Descubre comida local, productos y platos destacados de locales cercanos en ${city.name}. Compara opciones y recoge cerca de ti.`,
     path: `/zonas/${city.slug}`,
     image: city.heroImageUrl ?? "/logo/LogoNuevo.svg?v=1",
   });
@@ -71,9 +73,10 @@ export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
     notFound();
   }
 
-  const showcase = isSupabaseConfigured()
-    ? await getHomeShowcase()
-    : { featuredItems: [], latestItems: [] };
+  const [showcase, venues] = await Promise.all([
+    getHomeShowcase(),
+    getVenuesByCitySlug(city.slug),
+  ]);
 
   const items = dedupeItems([
     ...showcase.featuredItems,
@@ -84,6 +87,7 @@ export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
   return (
     <>
       <CityPreferenceSync city={{ slug: city.slug, name: city.name }} />
+      <CityLocalStructuredData city={city} venues={venues} />
       <DemoBentoGallery
         items={items}
         mode="zonas"
