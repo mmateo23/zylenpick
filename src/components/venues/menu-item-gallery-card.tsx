@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Info, Store } from "lucide-react";
+import { AlertCircle, Clock3, Info, MapPin, Store } from "lucide-react";
 
 import { CloseIcon } from "@/components/icons/close-icon";
 import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
@@ -143,21 +143,41 @@ export function MenuItemGalleryCard({
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from),var(--overlay-card-mid)_42%,var(--overlay-card-to)_100%)]" />
 
-          <div className="absolute inset-x-0 top-0 flex flex-wrap gap-2 p-3 sm:p-4">
-            {item.isFeatured ? (
-              <span
-                title="Destacado"
-                aria-label="Destacado"
-                className="featured-badge-animated inline-flex h-9 w-9 items-center justify-center rounded-full border border-warning/40 bg-[color-mix(in_srgb,var(--overlay-card-to)_22%,transparent)] text-warning backdrop-blur-xl"
-              >
-                <FeaturedBadgeIcon size={22} />
+          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
+            <div className="min-w-0 space-y-2">
+              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-black/[0.45] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+                <Store aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{venue.name}</span>
               </span>
-            ) : null}
-            {item.isPickupMonthHighlight ? (
-              <span className="inline-flex rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
-                Más recogido del mes
-              </span>
-            ) : null}
+              <div className="flex flex-wrap gap-1.5">
+                {item.categoryName ? (
+                  <span className="rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-xl">
+                    {item.categoryName}
+                  </span>
+                ) : null}
+                <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-xl">
+                  <MapPin aria-hidden="true" className="h-3 w-3" />
+                  {venue.cityName}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-end gap-2">
+              {item.isFeatured ? (
+                <span
+                  title="Destacado"
+                  aria-label="Destacado"
+                  className="featured-badge-animated inline-flex h-9 w-9 items-center justify-center rounded-full border border-warning/40 bg-black/[0.45] text-warning backdrop-blur-xl"
+                >
+                  <FeaturedBadgeIcon size={22} />
+                </span>
+              ) : null}
+              {item.isPickupMonthHighlight ? (
+                <span className="inline-flex rounded-full border border-white/25 bg-black/[0.45] px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+                  Más recogido
+                </span>
+              ) : null}
+            </div>
           </div>
 
           <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
@@ -165,17 +185,27 @@ export function MenuItemGalleryCard({
               {item.name}
             </h3>
             {item.description ? (
-              <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/85 drop-shadow-[0_3px_10px_rgba(0,0,0,0.72)]">
+              <p className="mt-2 line-clamp-1 text-sm leading-6 text-white/85 drop-shadow-[0_3px_10px_rgba(0,0,0,0.72)]">
                 {item.description}
               </p>
             ) : null}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <span className="rounded-full border border-white/25 bg-black/35 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white/90 shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-white/30 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-bold text-[#381932] shadow-[0_6px_18px_rgba(0,0,0,0.2)]">
                 {venue.pricesVisible
                   ? formatPrice(item.priceAmount, item.currency)
-                  : "Precio pendiente"}
+                  : "Precio por confirmar"}
               </span>
-              <span className="rounded-full border border-white/25 bg-black/40 px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
+                <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+                {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
+                <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
+                {item.allergens.length > 0
+                  ? `${item.allergens.length} ${item.allergens.length === 1 ? "traza" : "trazas"}`
+                  : "Consultar trazas"}
+              </span>
+              <span className="ml-auto rounded-full border border-white/25 bg-black/[0.45] px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
                 {labels?.viewDetail ?? "Ver detalle"}
               </span>
             </div>
@@ -224,7 +254,7 @@ export function MenuItemGalleryCard({
 
       {isViewerOpen ? (
         <div
-          className="fixed inset-0 z-50 bg-[#381932]/55 p-2 backdrop-blur-[2px] sm:p-6"
+          className="fixed inset-0 z-[70] bg-[#381932]/55 p-2 backdrop-blur-[2px] sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-labelledby={`product-dialog-title-${item.id}`}
@@ -233,7 +263,7 @@ export function MenuItemGalleryCard({
           }}
         >
           <div className="flex h-full min-h-0 items-center justify-center">
-            <section className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(12rem,32svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-[#381932]/10 bg-[#FFF9F1] text-[#381932] shadow-[0_28px_90px_rgba(56,25,50,0.28)] sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(17rem,44svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-[min(48rem,calc(100svh-3rem))] lg:grid-cols-[minmax(0,1.2fr)_minmax(22rem,0.8fr)] lg:grid-rows-none">
+            <section className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(10.5rem,28svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-[#381932]/10 bg-[#FFF9F1] text-[#381932] shadow-[0_28px_90px_rgba(56,25,50,0.28)] sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(14rem,38svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-[min(44rem,calc(100svh-3rem))] lg:grid-cols-[minmax(0,1.18fr)_minmax(23rem,0.82fr)] lg:grid-rows-none">
               <div className="relative min-h-0 overflow-hidden">
                 <div
                   role="img"
@@ -255,7 +285,7 @@ export function MenuItemGalleryCard({
                   <CloseIcon size={26} />
                 </button>
                 {images.length > 1 ? (
-                  <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto p-3 sm:p-4 lg:hidden">
+                  <div className="absolute inset-x-0 bottom-0 flex gap-2 overflow-x-auto p-3 sm:p-4">
                     {images.map((image, index) => {
                       const isActive = index === selectedImageIndex;
 
@@ -282,8 +312,8 @@ export function MenuItemGalleryCard({
                 ) : null}
               </div>
 
-              <aside className="flex min-h-0 flex-col overflow-y-auto overscroll-contain bg-[#FFF9F1]">
-                <div className="space-y-5 p-5 pb-24 sm:p-7 sm:pb-28">
+              <aside className="flex min-h-0 flex-col overflow-hidden bg-[#FFF9F1]">
+                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4 sm:gap-4 sm:p-6 lg:p-7">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#381932]/72">
@@ -298,28 +328,34 @@ export function MenuItemGalleryCard({
                     </div>
                     <h4
                       id={`product-dialog-title-${item.id}`}
-                      className="mt-4 text-[clamp(2rem,8vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.055em] text-[#381932] lg:text-4xl"
+                      className="mt-2 line-clamp-2 text-[clamp(1.75rem,7vw,3.2rem)] font-semibold leading-[0.92] tracking-[-0.05em] text-[#381932] lg:text-[2.65rem]"
                     >
                       {item.name}
                     </h4>
-                    <p className="mt-4 text-2xl font-bold text-[#C26157]">
-                      {venue.pricesVisible
-                        ? formatPrice(item.priceAmount, item.currency)
-                        : "Precio pendiente"}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-[#381932]/62">
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <p className="text-xl font-bold text-[#C26157] sm:text-2xl">
+                        {venue.pricesVisible
+                          ? formatPrice(item.priceAmount, item.currency)
+                          : "Precio pendiente"}
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[11px] font-bold text-[#381932]/72">
+                        <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-[#C26157]" />
+                        {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida local"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-[#381932]/62 sm:text-sm">
                       Para recoger en {venue.cityName}.
                     </p>
                   </div>
 
                   {item.description ? (
-                    <p className="text-base leading-7 text-[#381932]/78">
+                    <p className="line-clamp-2 text-sm leading-5 text-[#381932]/78 sm:text-base sm:leading-6">
                       {item.description}
                     </p>
                   ) : null}
 
                   <section
-                    className={`rounded-[1rem] border p-4 ${
+                    className={`rounded-[1rem] border p-3 sm:p-4 ${
                       item.allergens.length > 0
                         ? "border-[#C26157]/22 bg-[#FFE9EC]/65"
                         : "border-[#381932]/12 bg-white"
@@ -327,7 +363,7 @@ export function MenuItemGalleryCard({
                     aria-labelledby={`allergens-title-${item.id}`}
                   >
                     <div className="flex items-start gap-3">
-                      <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#381932] text-[#FED47D]">
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#381932] text-[#FED47D]">
                         {item.allergens.length > 0 ? (
                           <AlertCircle aria-hidden="true" className="h-4 w-4" />
                         ) : (
@@ -339,74 +375,43 @@ export function MenuItemGalleryCard({
                           id={`allergens-title-${item.id}`}
                           className="text-sm font-bold text-[#381932]"
                         >
-                          Información sobre alérgenos
+                          Alérgenos
                         </h5>
-                        <p className="mt-1 text-xs leading-5 text-[#381932]/64">
+                        <p className="mt-0.5 text-[11px] leading-4 text-[#381932]/64">
                           {item.allergens.length > 0
-                            ? "Aviso preventivo declarado por el establecimiento."
-                            : "El establecimiento aún no ha confirmado esta información."}
+                            ? "Información declarada por el establecimiento."
+                            : "Información pendiente de confirmar."}
                         </p>
                       </div>
                     </div>
 
                     {item.allergens.length > 0 ? (
                       <>
-                        <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#381932]/62">
-                          Puede contener o presentar trazas de
-                        </p>
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="mt-2.5 flex flex-wrap gap-1.5">
                           {item.allergens.map((allergen) => (
-                            <AllergenPictogram key={allergen} allergen={allergen} />
+                            <AllergenPictogram key={allergen} allergen={allergen} compact />
                           ))}
                         </div>
+                        <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-4 text-[#381932]/72">
+                          Puede contener trazas de{" "}
+                          {item.allergens
+                            .map((allergen) => allergenLabels[allergen].toLocaleLowerCase("es"))
+                            .join(", ")}.
+                        </p>
                       </>
                     ) : (
-                      <p className="mt-3 rounded-[0.75rem] bg-[#FFE9EC] px-3 py-2.5 text-xs font-semibold leading-5 text-[#381932]">
-                        No interpretes la ausencia de datos como ausencia de alérgenos. Consulta al local antes de pedir.
+                      <p className="mt-2.5 rounded-[0.75rem] bg-[#FFE9EC] px-3 py-2 text-[11px] font-semibold leading-4 text-[#381932]">
+                        Consulta al local antes de pedir.
                       </p>
                     )}
 
-                    <p className="mt-3 text-[11px] leading-5 text-[#381932]/58">
-                      Si tienes una alergia o intolerancia, confirma la información con el establecimiento antes de completar el pedido.
+                    <p className="mt-2 text-[10px] leading-4 text-[#381932]/58">
+                      Si tienes una alergia o intolerancia, confirma siempre la información con el local.
                     </p>
                   </section>
-
-                  {images.length > 1 ? (
-                    <div className="hidden gap-3 overflow-x-auto pb-1 lg:flex">
-                      {images.map((image, index) => {
-                        const isActive = index === selectedImageIndex;
-
-                        return (
-                          <button
-                            key={`${item.id}-${index}`}
-                            type="button"
-                            onClick={() => setSelectedImageIndex(index)}
-                            className={`h-20 w-20 shrink-0 overflow-hidden rounded-[1rem] border transition ${
-                              isActive
-                                ? "border-[#C26157] shadow-[0_6px_20px_rgba(56,25,50,0.12)]"
-                                : "border-[#381932]/12"
-                            }`}
-                            aria-label={`Ver imagen ${index + 1} de ${item.name}`}
-                          >
-                            <span
-                              className="block h-full w-full bg-cover bg-center"
-                              style={{ backgroundImage: `url(${image})` }}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  ) : null}
                 </div>
 
-                <div className="sticky bottom-0 mt-auto border-t border-[#381932]/10 bg-[#FFF9F1]/96 p-4 backdrop-blur-md sm:p-5">
-                  <p className="mb-3 text-center text-xs font-semibold text-[#381932]/72">
-                    {item.allergens.length > 0
-                      ? `Puede contener o presentar trazas de: ${item.allergens
-                          .map((allergen) => allergenLabels[allergen])
-                          .join(", ")}.`
-                      : "Alérgenos sin confirmar · Consulta al local"}
-                  </p>
+                <div className="mt-auto shrink-0 border-t border-[#381932]/10 bg-[#FFF9F1] p-3 sm:p-4">
                   <AddToCartButton
                     venue={venue}
                     item={{
@@ -420,7 +425,7 @@ export function MenuItemGalleryCard({
                     className="mt-0"
                     source="dish_detail"
                     label={labels?.addForPickup ?? "Añadir para recoger"}
-                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-[#C26157] bg-[#C26157] px-5 py-3.5 text-sm font-bold text-white shadow-[0_10px_24px_rgba(194,97,87,0.2)] transition hover:bg-[#A94F47]"
+                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-[#C26157] bg-[#C26157] px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(194,97,87,0.2)] transition hover:bg-[#A94F47]"
                     feedbackClassName="mt-3 text-sm leading-6 text-[#381932]/70"
                     disabled={!venue.pricesVisible}
                     disabledLabel="Disponible pronto"
