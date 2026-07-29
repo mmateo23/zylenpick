@@ -14,13 +14,16 @@ import {
 
 import {
   getDistanceInKm,
+  getUserLocationErrorMessage,
   readUserLocation,
-  saveUserLocation,
+  requestUserLocation,
   USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 
 type VenueLocalInformationProps = {
+  venueSlug: string;
   venueName: string;
   cityName: string;
   address: string | null;
@@ -44,7 +47,18 @@ function formatDistance(distanceKm: number) {
   }).format(distanceKm)} km`;
 }
 
+function formatAccuracy(accuracy: number) {
+  if (accuracy < 1000) {
+    return `${Math.max(10, Math.round(accuracy / 10) * 10)} m`;
+  }
+
+  return `${new Intl.NumberFormat("es-ES", {
+    maximumFractionDigits: 1,
+  }).format(accuracy / 1000)} km`;
+}
+
 export function VenueLocalInformation({
+  venueSlug,
   venueName,
   cityName,
   address,
@@ -60,7 +74,16 @@ export function VenueLocalInformation({
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const hasCoordinates = latitude !== null && longitude !== null;
+  const venueCoordinates = useMemo(
+    () =>
+      resolveVenueCoordinates({
+        slug: venueSlug,
+        latitude,
+        longitude,
+      }),
+    [latitude, longitude, venueSlug],
+  );
+  const hasCoordinates = venueCoordinates !== null;
 
   useEffect(() => {
     setUserLocation(readUserLocation());
@@ -76,13 +99,13 @@ export function VenueLocalInformation({
   }, []);
 
   const journey = useMemo(() => {
-    if (!userLocation || !hasCoordinates) return null;
+    if (!userLocation || !venueCoordinates) return null;
 
     const distanceKm = getDistanceInKm(
       userLocation.latitude,
       userLocation.longitude,
-      latitude,
-      longitude,
+      venueCoordinates.latitude,
+      venueCoordinates.longitude,
     );
 
     return {
@@ -90,7 +113,7 @@ export function VenueLocalInformation({
       distanceLabel: formatDistance(distanceKm),
       walkingMinutes: Math.max(1, Math.round((distanceKm / 4.8) * 60)),
     };
-  }, [hasCoordinates, latitude, longitude, userLocation]);
+  }, [userLocation, venueCoordinates]);
 
   const destination = address?.trim() ? `${venueName}, ${address}` : venueName;
   const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
@@ -100,36 +123,23 @@ export function VenueLocalInformation({
       : `https://${website}`
     : null;
 
-  const handleUseLocation = () => {
+  const handleUseLocation = async () => {
     if (!hasCoordinates) {
       setFeedback("La ubicación exacta del local todavía no está disponible.");
       return;
     }
 
-    if (!navigator.geolocation) {
-      setFeedback("Tu navegador no permite calcular la distancia.");
-      return;
-    }
-
     setIsLocating(true);
     setFeedback(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
 
-        saveUserLocation(nextLocation);
-        setUserLocation(nextLocation);
-        setIsLocating(false);
-      },
-      () => {
-        setIsLocating(false);
-        setFeedback("No hemos podido acceder a tu ubicación. Puedes abrir la ruta igualmente.");
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+    try {
+      setUserLocation(await requestUserLocation());
+      setFeedback("Distancia actualizada con tu ubicación actual.");
+    } catch (error) {
+      setFeedback(getUserLocationErrorMessage(error));
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   return (
@@ -177,6 +187,11 @@ export function VenueLocalInformation({
                 <p className="mt-3 text-sm leading-6 text-[#FFF7E8]/72">
                   Aproximadamente {journey.walkingMinutes} min andando. Distancia orientativa en línea recta.
                 </p>
+                {userLocation?.accuracy && userLocation.accuracy > 250 ? (
+                  <p className="mt-2 text-xs leading-5 text-[#FFF7E8]/62">
+                    Ubicación aproximada con una precisión de ±{formatAccuracy(userLocation.accuracy)}.
+                  </p>
+                ) : null}
               </>
             ) : (
               <>

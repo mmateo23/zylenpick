@@ -3,6 +3,12 @@ type VenueCoordinates = {
   longitude: number;
 };
 
+type VenueCoordinatesInput = {
+  slug: string;
+  latitude?: number | null;
+  longitude?: number | null;
+};
+
 const venueCategoryBySlug: Record<string, string> = {
   "la-comida-de-los-dados": "Comida casera",
   "bendita-burger": "Burgers",
@@ -15,39 +21,44 @@ const venueCategoryBySlug: Record<string, string> = {
 
 const venueCoordinatesBySlug: Record<string, VenueCoordinates> = {
   "la-comida-de-los-dados": {
-    latitude: 39.9636,
-    longitude: -4.8304,
+    latitude: 39.9594723,
+    longitude: -4.8367632,
   },
-  "bendita-burger": {
-    latitude: 39.9627,
-    longitude: -4.8292,
+  "casco-viejo-bar-kitchen": {
+    latitude: 39.9594252,
+    longitude: -4.831565,
   },
-  "burger-mc-queens": {
-    latitude: 39.9641,
-    longitude: -4.8286,
-  },
-  "godzilla-smash-burger": {
-    latitude: 39.9651,
-    longitude: -4.8322,
-  },
-  "manhattan-burger": {
-    latitude: 39.9617,
-    longitude: -4.8275,
-  },
-  "pizzeria-carlos-talavera": {
-    latitude: 39.9609,
-    longitude: -4.8331,
-  },
-  "sushi-talavera": {
-    latitude: 39.9648,
-    longitude: -4.8269,
+  "taberna-plaza-mayor": {
+    latitude: 39.9586912,
+    longitude: -4.8327514,
   },
 };
 
 const featuredVenueSlugs = new Set(["la-comida-de-los-dados"]);
 
 export function getVenueCoordinates(venueSlug: string) {
-  return venueCoordinatesBySlug[venueSlug] ?? null;
+  return venueCoordinatesBySlug[venueSlug.toLocaleLowerCase("es")] ?? null;
+}
+
+export function resolveVenueCoordinates({
+  slug,
+  latitude,
+  longitude,
+}: VenueCoordinatesInput) {
+  if (
+    typeof latitude === "number" &&
+    Number.isFinite(latitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    typeof longitude === "number" &&
+    Number.isFinite(longitude) &&
+    longitude >= -180 &&
+    longitude <= 180
+  ) {
+    return { latitude, longitude };
+  }
+
+  return getVenueCoordinates(slug);
 }
 
 export function isFeaturedVenue(venueSlug: string) {

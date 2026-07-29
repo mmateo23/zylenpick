@@ -196,6 +196,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
           <div className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
             <div className="mb-12">
               <VenueLocalInformation
+                venueSlug={venue.slug}
                 venueName={venue.name}
                 cityName={venue.city.name}
                 address={venue.address}

@@ -5,11 +5,13 @@ import { LocateFixed, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import {
+  getUserLocationErrorMessage,
   readUserLocation,
-  saveUserLocation,
+  requestUserLocation,
 } from "@/features/location/browser-location";
 
-const PROMPT_DISMISSED_KEY = "pickyalo.location-prompt-dismissed";
+const PROMPT_DISMISSED_AT_KEY = "pickyalo.location-prompt-dismissed-at";
+const PROMPT_DISMISSED_FOR_MS = 24 * 60 * 60 * 1000;
 
 function isDiscoveryPath(pathname: string) {
   return (
@@ -28,41 +30,40 @@ export function LocationDiscoveryPrompt() {
 
   useEffect(() => {
     if (!isDiscoveryPath(pathname) || readUserLocation()) return;
-    if (window.localStorage.getItem(PROMPT_DISMISSED_KEY) === "true") return;
+
+    const dismissedAt = Number(
+      window.localStorage.getItem(PROMPT_DISMISSED_AT_KEY),
+    );
+
+    if (
+      Number.isFinite(dismissedAt) &&
+      Date.now() - dismissedAt < PROMPT_DISMISSED_FOR_MS
+    ) {
+      return;
+    }
 
     const timeoutId = window.setTimeout(() => setIsVisible(true), 1800);
     return () => window.clearTimeout(timeoutId);
   }, [pathname]);
 
   const dismiss = () => {
-    window.localStorage.setItem(PROMPT_DISMISSED_KEY, "true");
+    window.localStorage.setItem(PROMPT_DISMISSED_AT_KEY, String(Date.now()));
     setIsVisible(false);
   };
 
-  const handleUseLocation = () => {
-    if (!navigator.geolocation) {
-      setFeedback("Tu navegador no permite usar la ubicación.");
-      return;
-    }
-
+  const handleUseLocation = async () => {
     setIsLocating(true);
     setFeedback(null);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        saveUserLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-        window.localStorage.setItem(PROMPT_DISMISSED_KEY, "true");
-        setIsLocating(false);
-        setIsVisible(false);
-      },
-      () => {
-        setIsLocating(false);
-        setFeedback("No hemos podido acceder. Puedes seguir explorando por zona.");
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+
+    try {
+      await requestUserLocation();
+      window.localStorage.removeItem(PROMPT_DISMISSED_AT_KEY);
+      setIsVisible(false);
+    } catch (error) {
+      setFeedback(getUserLocationErrorMessage(error));
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   if (!isVisible) return null;
