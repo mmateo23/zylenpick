@@ -1,4 +1,7 @@
+/* eslint-disable @next/next/no-img-element -- ImageResponse requires a plain image element. */
 import { ImageResponse } from "next/og";
+
+import { getSiteUrl } from "@/lib/seo";
 
 export const runtime = "edge";
 export const alt = "Pickyalo: descubre productos y platos de locales cercanos";
@@ -6,6 +9,11 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpenGraphImage() {
+  const logoUrl = new URL(
+    "/icons/pickyalo-icon-512.png",
+    getSiteUrl(),
+  ).toString();
+
   return new ImageResponse(
     (
       <div
@@ -17,19 +25,30 @@ export default function OpenGraphImage() {
           overflow: "hidden",
           background: "#FDE3AD",
           color: "#741314",
-          padding: "68px 74px",
+          padding: "64px 70px",
           fontFamily: "Arial, sans-serif",
         }}
       >
         <div
           style={{
             position: "absolute",
-            width: 430,
-            height: 430,
-            right: -80,
-            top: -95,
+            width: 520,
+            height: 520,
+            right: -90,
+            top: -180,
             borderRadius: 999,
-            background: "rgba(116,19,20,0.08)",
+            background: "rgba(116,19,20,0.07)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            width: 390,
+            height: 390,
+            left: -180,
+            bottom: -245,
+            borderRadius: 999,
+            background: "rgba(227,89,55,0.12)",
           }}
         />
         <div
@@ -38,11 +57,26 @@ export default function OpenGraphImage() {
             width: "100%",
             flexDirection: "column",
             justifyContent: "space-between",
-            zIndex: 1,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ fontSize: 54, fontWeight: 800, letterSpacing: "-3px" }}>Pickyalo</div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                fontSize: 24,
+                fontWeight: 800,
+                letterSpacing: "5px",
+                textTransform: "uppercase",
+              }}
+            >
+              Pickyalo
+            </div>
             <div
               style={{
                 display: "flex",
@@ -53,36 +87,75 @@ export default function OpenGraphImage() {
                 fontWeight: 700,
               }}
             >
-              Local · Visual · Para recoger
+              Descubre · Elige · Recoge
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", maxWidth: 780, flexDirection: "column" }}>
-              <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 0.95, letterSpacing: "-5px" }}>
-                Descubre cerca.<br />Recoge fácil.
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 50,
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                maxWidth: 735,
+                flexDirection: "column",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  fontSize: 74,
+                  fontWeight: 800,
+                  lineHeight: 0.96,
+                  letterSpacing: "-4px",
+                }}
+              >
+                <div style={{ display: "flex" }}>Lo bueno de cerca,</div>
+                <div style={{ display: "flex" }}>listo para recoger.</div>
               </div>
-              <div style={{ marginTop: 28, maxWidth: 720, fontSize: 26, lineHeight: 1.3, color: "rgba(36,17,14,0.72)" }}>
-                Productos y platos de locales cercanos, elegidos de un vistazo.
+              <div
+                style={{
+                  marginTop: 26,
+                  maxWidth: 690,
+                  fontSize: 25,
+                  lineHeight: 1.3,
+                  color: "rgba(56,25,50,0.76)",
+                }}
+              >
+                Una selección visual de productos y platos de locales cercanos.
               </div>
             </div>
 
             <div
               style={{
                 display: "flex",
-                width: 188,
-                height: 210,
+                width: 270,
+                height: 270,
                 alignItems: "center",
                 justifyContent: "center",
-                borderRadius: 38,
-                background: "#741314",
-                color: "#FFF7E8",
-                fontSize: 92,
-                fontWeight: 800,
-                transform: "rotate(3deg)",
+                borderRadius: 58,
+                overflow: "hidden",
+                boxShadow: "0 28px 68px rgba(116,19,20,0.24)",
+                transform: "rotate(2deg)",
               }}
             >
-              P
+              <img
+                alt="Pickyalo"
+                src={logoUrl}
+                width="270"
+                height="270"
+                style={{
+                  display: "flex",
+                  width: "270px",
+                  height: "270px",
+                }}
+              />
             </div>
           </div>
         </div>

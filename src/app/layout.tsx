@@ -7,6 +7,7 @@ import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
 import { LocationDiscoveryPrompt } from "@/components/location/location-discovery-prompt";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { PickyaloStructuredData } from "@/components/seo/pickyalo-structured-data";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
 import { PickyaloToaster } from "@/components/ui/pickyalo-toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -45,16 +46,19 @@ export const metadata: Metadata = {
   },
   description:
     "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
+  authors: [{ name: "Pickyalo", url: "/" }],
+  creator: "Pickyalo",
+  publisher: "Pickyalo",
   icons: {
     icon: [
-      { url: "/icons/pickyalo-app.svg", type: "image/svg+xml" },
       {
-        url: "/icons/pickyalo-favicon-32.png",
+        url: "/icons/pickyalo-icon-192.png",
         type: "image/png",
-        sizes: "32x32",
+        sizes: "192x192",
       },
+      { url: "/icons/pickyalo-app.svg", type: "image/svg+xml" },
     ],
-    shortcut: "/icons/pickyalo-favicon-32.png",
+    shortcut: "/icons/pickyalo-icon-192.png",
     apple: "/icons/apple-touch-icon.png",
   },
   appleWebApp: {
@@ -89,6 +93,17 @@ export const metadata: Metadata = {
       "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
     images: ["/opengraph-image"],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export const viewport: Viewport = {
@@ -108,6 +123,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${clashGroteskBold.variable} antialiased`}
       >
+        <PickyaloStructuredData />
         <ThemeProvider>
           <ServiceWorkerRegister />
           <GoogleAnalyticsConsent />
