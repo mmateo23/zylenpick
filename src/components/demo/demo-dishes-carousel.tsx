@@ -2670,7 +2670,7 @@ export function DemoDishesCarousel({
                       />
                       <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.34))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.28))]"} />
                       <div className={getHoverGlassClassName(item)} />
-                      <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full bg-black/32 px-2 py-1 text-[0.6rem] font-bold leading-none text-white/82 shadow-[0_8px_20px_rgba(0,0,0,0.28)] backdrop-blur-md sm:hidden">
+                      <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-2 py-1 text-[0.6rem] font-bold leading-none text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.28)] sm:hidden">
                         {getPickupDistanceBadgeLabel(item, userLocation)}
                       </div>
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
@@ -3414,7 +3414,7 @@ export function DemoDishesCarousel({
                         {activeItem.pickupEtaMin} min
                       </span>
                     ) : null}
-                    <span className={isLightTheme ? "inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-2" : "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2"}>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-3.5 py-2 text-[#FDE3AD]">
                       <MapPin className="h-4 w-4" />
                       {activeItem.venue.name} · {getVenueDistanceLabel(activeItem, userLocation)}
                     </span>
