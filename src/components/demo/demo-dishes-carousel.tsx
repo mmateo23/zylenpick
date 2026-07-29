@@ -14,6 +14,7 @@ import {
   ChevronUp,
   Clock3,
   Info,
+  LocateFixed,
   Maximize2,
   MapPin,
   MoreHorizontal,
@@ -37,7 +38,9 @@ import {
 } from "@/features/funnel/site-funnel-settings";
 import {
   getDistanceInKm,
+  getUserLocationErrorMessage,
   readUserLocation,
+  requestUserLocation,
   USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
@@ -47,6 +50,7 @@ import {
 } from "@/features/location/city-preference";
 import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 import {
   captureAddToCart,
   capturePlatoVisto,
@@ -276,19 +280,21 @@ function getVenueDistanceLabel(
   item: HomeShowcaseItem,
   userLocation: UserLocation | null,
 ) {
-  if (
-    !userLocation ||
-    typeof item.venue.latitude !== "number" ||
-    typeof item.venue.longitude !== "number"
-  ) {
+  const venueCoordinates = resolveVenueCoordinates({
+    slug: item.venue.slug,
+    latitude: item.venue.latitude,
+    longitude: item.venue.longitude,
+  });
+
+  if (!userLocation || !venueCoordinates) {
     return item.venue.cityName;
   }
 
   const distanceKm = getDistanceInKm(
     userLocation.latitude,
     userLocation.longitude,
-    item.venue.latitude,
-    item.venue.longitude,
+    venueCoordinates.latitude,
+    venueCoordinates.longitude,
   );
 
   if (distanceKm < 1) {
@@ -300,16 +306,44 @@ function getVenueDistanceLabel(
   })} km`;
 }
 
+function getVenueDistanceInKm(
+  item: HomeShowcaseItem,
+  userLocation: UserLocation | null,
+) {
+  if (!userLocation) {
+    return null;
+  }
+
+  const venueCoordinates = resolveVenueCoordinates({
+    slug: item.venue.slug,
+    latitude: item.venue.latitude,
+    longitude: item.venue.longitude,
+  });
+
+  if (!venueCoordinates) {
+    return null;
+  }
+
+  return getDistanceInKm(
+    userLocation.latitude,
+    userLocation.longitude,
+    venueCoordinates.latitude,
+    venueCoordinates.longitude,
+  );
+}
+
 function getPickupDistanceBadgeLabel(
   item: HomeShowcaseItem,
   userLocation: UserLocation | null,
 ) {
-  if (
-    !userLocation ||
-    typeof item.venue.latitude !== "number" ||
-    typeof item.venue.longitude !== "number"
-  ) {
-    return "Activa ubicaci\u00f3n";
+  const venueCoordinates = resolveVenueCoordinates({
+    slug: item.venue.slug,
+    latitude: item.venue.latitude,
+    longitude: item.venue.longitude,
+  });
+
+  if (!userLocation || !venueCoordinates) {
+    return "Distancia no disponible";
   }
 
   return `A ${getVenueDistanceLabel(item, userLocation)}`;
@@ -1155,6 +1189,8 @@ export function DemoDishesCarousel({
   const [shotFeedback, setShotFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationFeedback, setLocationFeedback] = useState<string | null>(null);
   const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
 
   const cityScopedItems = useMemo(() => {
@@ -1223,13 +1259,28 @@ export function DemoDishesCarousel({
     [activeChipSlug, visibleChips],
   );
   const filteredItems = useMemo(() => {
-    if (!activeChip) {
-      return baseFilteredItems;
+    let nextItems = baseFilteredItems;
+
+    if (activeChip) {
+      const chipItemIds = new Set(activeChip.itemIds);
+      nextItems = baseFilteredItems.filter((item) => chipItemIds.has(item.id));
     }
 
-    const chipItemIds = new Set(activeChip.itemIds);
-    return baseFilteredItems.filter((item) => chipItemIds.has(item.id));
-  }, [activeChip, baseFilteredItems]);
+    if (!userLocation) {
+      return nextItems;
+    }
+
+    return [...nextItems].sort((left, right) => {
+      const leftDistance = getVenueDistanceInKm(left, userLocation);
+      const rightDistance = getVenueDistanceInKm(right, userLocation);
+
+      if (leftDistance === null && rightDistance === null) return 0;
+      if (leftDistance === null) return 1;
+      if (rightDistance === null) return -1;
+
+      return leftDistance - rightDistance;
+    });
+  }, [activeChip, baseFilteredItems, userLocation]);
   const feedEntries = useMemo<FeedEntry[]>(() => {
     const featuredConfig = funnelSettings.platos.featuredFeed;
     const featuredItem =
@@ -1392,7 +1443,12 @@ export function DemoDishesCarousel({
 
     const syncLocation = () => setUserLocation(readUserLocation());
     const handleStorage = (event: StorageEvent) => {
-      if (event.key === "zylenpick.user-location") syncLocation();
+      if (
+        event.key === "pickyalo.user-location" ||
+        event.key === "zylenpick.user-location"
+      ) {
+        syncLocation();
+      }
     };
 
     window.addEventListener("storage", handleStorage);
@@ -1403,6 +1459,25 @@ export function DemoDishesCarousel({
       window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
     };
   }, []);
+
+  const handleLocationRequest = async () => {
+    setIsLocating(true);
+    setLocationFeedback("Solicitando permiso de ubicación…");
+
+    try {
+      const nextLocation = await requestUserLocation();
+      setUserLocation(nextLocation);
+      setLocationFeedback(
+        userLocation
+          ? "Distancias actualizadas."
+          : "Ubicación activa. Ya puedes ver la distancia a cada local.",
+      );
+    } catch (error) {
+      setLocationFeedback(getUserLocationErrorMessage(error));
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
   useEffect(() => {
     const syncSelectedCity = () => {
@@ -2214,8 +2289,8 @@ export function DemoDishesCarousel({
                   ) : null}
                 </div>
                 </div>
-                <div className="relative z-10 mt-8 flex flex-wrap gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6">
-                  {["R\u00e1pido", "Selección visual", "Para recoger", "Cerca de ti", "Locales reales"].map((label) => (
+                <div className="relative z-10 mt-8 flex flex-wrap items-center gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6">
+                  {["R\u00e1pido", "Selección visual", "Para recoger", "Locales reales"].map((label) => (
                     <span
                       key={label}
                       className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/92 px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md transition hover:border-[#741314]/30 hover:bg-[#741314]/10 hover:text-[#FDE3AD] sm:px-3 sm:py-2 sm:text-xs"}
@@ -2223,6 +2298,40 @@ export function DemoDishesCarousel({
                       {label}
                     </span>
                   ))}
+                  <button
+                    type="button"
+                    onClick={handleLocationRequest}
+                    disabled={isLocating}
+                    aria-pressed={Boolean(userLocation)}
+                    aria-describedby={locationFeedback ? "location-status" : undefined}
+                    className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDE3AD] focus-visible:ring-offset-2 focus-visible:ring-offset-[#741314] disabled:cursor-wait disabled:opacity-70 sm:min-h-10 sm:px-4 sm:py-2 sm:text-xs ${
+                      userLocation
+                        ? "border-[#B9DFC5] bg-[#E7F4EA] text-[#245C38] hover:bg-[#DDF0E3]"
+                        : "border-[#FDE3AD] bg-[#FFF7E8] text-[#741314] hover:bg-white"
+                    }`}
+                  >
+                    <LocateFixed aria-hidden="true" className="h-4 w-4 shrink-0" />
+                    {isLocating
+                      ? "Calculando distancia…"
+                      : userLocation
+                        ? "Más cerca primero"
+                        : "Ordenar por cercanía"}
+                    {userLocation && !isLocating ? (
+                      <span className="sr-only">
+                        . Pulsa para actualizar tu ubicación
+                      </span>
+                    ) : null}
+                  </button>
+                  {locationFeedback ? (
+                    <p
+                      id="location-status"
+                      className="basis-full text-xs font-semibold leading-5 text-white/85"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {locationFeedback}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
