@@ -9,6 +9,7 @@ import type {
   AddCartItemResult,
   CartState,
 } from "@/features/cart/types";
+import { getPriceSummary } from "@/features/pricing/price-display";
 
 function createEmptyCart(): CartState {
   return {
@@ -117,13 +118,12 @@ export function getCartTotals(cart: CartState) {
     0,
   );
 
-  const totalAmount = cart.items.reduce(
-    (accumulator, item) => accumulator + item.priceAmount * item.quantity,
-    0,
-  );
+  const priceSummary = getPriceSummary(cart.items);
 
   return {
     totalItems,
-    totalAmount,
+    totalAmount: priceSummary.totalAmount,
+    hasDefinitiveTotal: priceSummary.isDefinitive,
+    requiresPriceConfirmation: priceSummary.requiresConfirmation,
   };
 }

@@ -15,8 +15,8 @@ import {
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import type { VenueListItem } from "@/features/venues/types";
 import {
-  getVenueCoordinates,
   resolveVenueCategory,
+  resolveVenueCoordinates,
 } from "@/features/venues/venue-meta";
 
 type ZoneVenueExplorerProps = {
@@ -49,14 +49,18 @@ function formatDistanceLabel(distanceKm: number) {
 }
 
 function getVenueJourney(
-  venueSlug: string,
+  venue: VenueListItem,
   userLocation: UserLocation | null,
 ): VenueJourney | null {
   if (!userLocation) {
     return null;
   }
 
-  const venueCoordinates = getVenueCoordinates(venueSlug);
+  const venueCoordinates = resolveVenueCoordinates({
+    slug: venue.slug,
+    latitude: venue.latitude,
+    longitude: venue.longitude,
+  });
 
   if (!venueCoordinates) {
     return null;
@@ -132,8 +136,8 @@ export function ZoneVenueExplorer({
     }
 
     return [...matchingVenues].sort((venueA, venueB) => {
-      const journeyA = getVenueJourney(venueA.slug, userLocation);
-      const journeyB = getVenueJourney(venueB.slug, userLocation);
+      const journeyA = getVenueJourney(venueA, userLocation);
+      const journeyB = getVenueJourney(venueB, userLocation);
 
       if (!journeyA && !journeyB) {
         return 0;
@@ -153,7 +157,7 @@ export function ZoneVenueExplorer({
 
   const featuredJourney = useMemo(
     () =>
-      featuredVenue ? getVenueJourney(featuredVenue.slug, userLocation) : null,
+      featuredVenue ? getVenueJourney(featuredVenue, userLocation) : null,
     [featuredVenue, userLocation],
   );
 
@@ -260,7 +264,7 @@ export function ZoneVenueExplorer({
       {filteredVenues.length > 0 ? (
         <section className="mt-8 grid gap-8 lg:grid-cols-2">
           {filteredVenues.map((venue) => {
-            const journey = getVenueJourney(venue.slug, userLocation);
+            const journey = getVenueJourney(venue, userLocation);
 
             return (
               <Link

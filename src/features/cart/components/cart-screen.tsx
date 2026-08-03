@@ -22,7 +22,9 @@ import {
   removeCartItem,
   updateCartItemQuantity,
 } from "@/features/cart/services/cart-storage";
+import type { CartItem } from "@/features/cart/types";
 import { createOrderFromCart } from "@/features/orders/services/order-storage";
+import { getPricePresentation } from "@/features/pricing/price-display";
 import { capturePedidoConfirmado } from "@/lib/analytics/posthog-events";
 import { showErrorToast, showOrderToast } from "@/lib/ui/toast";
 import { formatPrice } from "@/lib/utils/currency";
@@ -81,6 +83,18 @@ const cartTicketHeroImageUrl =
 
 function keepOnlyDigits(value: string) {
   return value.replace(/\D/g, "");
+}
+
+function getCartItemPriceLabel(item: CartItem, quantity = item.quantity) {
+  return getPricePresentation(
+    {
+      priceAmount: item.priceAmount,
+      currency: item.currency,
+      priceDisplayMode: item.priceDisplayMode,
+      priceDisplayText: item.priceDisplayText,
+    },
+    { quantity },
+  ).label;
 }
 
 function CartAccordion({
@@ -329,6 +343,9 @@ export function CartScreen({ design }: CartScreenProps) {
   const itemCountLabel = `${totals.totalItems} producto${
     totals.totalItems === 1 ? "" : "s"
   }`;
+  const totalLabel = totals.hasDefinitiveTotal
+    ? formatPrice(totals.totalAmount, currency)
+    : "Por confirmar";
   const ticketItems = cart.items.slice(0, 2);
   const hiddenTicketItemsCount = Math.max(cart.items.length - ticketItems.length, 0);
   const desktopTicketItems = cart.items.slice(0, 3);
@@ -376,7 +393,9 @@ export function CartScreen({ design }: CartScreenProps) {
       venue_slug: order.venue.slug,
       venue_name: order.venue.name,
       order_id: order.id,
-      total_amount: order.totalAmount / 100,
+      total_amount: totals.hasDefinitiveTotal
+        ? order.totalAmount / 100
+        : undefined,
       currency: order.currency,
       total_items: order.items.reduce(
         (totalQuantity, item) => totalQuantity + item.quantity,
@@ -449,7 +468,7 @@ export function CartScreen({ design }: CartScreenProps) {
               </p>
             </div>
             <span className="shrink-0 rounded-full border border-[#741314] bg-[#741314] px-3 py-1.5 font-mono text-sm font-black text-white">
-              {formatPrice(totals.totalAmount, currency)}
+              {totalLabel}
             </span>
           </div>
 
@@ -473,7 +492,7 @@ export function CartScreen({ design }: CartScreenProps) {
                 Total
               </p>
               <p className="mt-1 font-mono text-lg font-black">
-                {formatPrice(totals.totalAmount, currency)}
+                {totalLabel}
               </p>
             </div>
           </div>
@@ -509,7 +528,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     {item.name}
                   </span>
                   <span className="font-black text-black">
-                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                    {getCartItemPriceLabel(item)}
                   </span>
                 </div>
               ))}
@@ -589,6 +608,23 @@ export function CartScreen({ design }: CartScreenProps) {
               "El local prepara tu pedido para recoger a la hora elegida."}
           </p>
 
+          {totals.requiresPriceConfirmation ? (
+            <div className="mt-4 border-y border-dashed border-black/35 py-3 font-mono text-[11px] leading-5 text-black/72">
+              <p>
+                El precio final será confirmado por el establecimiento durante
+                la llamada.
+              </p>
+              {cart.venue.phone ? (
+                <a
+                  href={`tel:${cart.venue.phone}`}
+                  className="mt-2 inline-flex font-black uppercase underline underline-offset-4"
+                >
+                  Llamar al local
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+
           <button
             type="submit"
             disabled={isSubmitting}
@@ -626,7 +662,7 @@ export function CartScreen({ design }: CartScreenProps) {
                         {item.name}
                       </h3>
                       <p className="mt-1 text-xs font-semibold text-text-muted">
-                        {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                        {getCartItemPriceLabel(item)}
                       </p>
                     </div>
                     <button
@@ -764,7 +800,7 @@ export function CartScreen({ design }: CartScreenProps) {
             <p className="text-right text-sm font-semibold text-[#24110E]/55">
               {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               <span className="mt-1 block text-xl font-black text-[#741314]">
-                {formatPrice(totals.totalAmount, currency)}
+                {totalLabel}
               </span>
             </p>
           </div>
@@ -796,7 +832,7 @@ export function CartScreen({ design }: CartScreenProps) {
                   </div>
                 </div>
                 <span className="shrink-0 rounded-full border border-[#741314]/16 bg-white/72 px-3 py-2 text-sm font-black text-[#741314]">
-                  {formatPrice(totals.totalAmount, currency)}
+                  {totalLabel}
                 </span>
               </div>
 
@@ -833,16 +869,13 @@ export function CartScreen({ design }: CartScreenProps) {
                         </p>
                       ) : null}
                       <p className="mt-1.5 text-xs font-bold text-[#741314]">
-                        {formatPrice(item.priceAmount, item.currency)} / unidad
+                        {getCartItemPriceLabel(item, 1)} / unidad
                       </p>
                     </div>
 
                     <div className="flex min-w-[7.4rem] shrink-0 flex-col items-end gap-2">
                       <p className="text-sm font-black text-[#24110E]">
-                        {formatPrice(
-                          item.priceAmount * item.quantity,
-                          item.currency,
-                        )}
+                        {getCartItemPriceLabel(item)}
                       </p>
                       <div className="inline-flex items-center rounded-full border border-[#741314]/14 bg-[#FFF7E8] shadow-sm">
                         <button
@@ -952,7 +985,7 @@ export function CartScreen({ design }: CartScreenProps) {
                     {item.name}
                   </span>
                   <span className="text-right">
-                    {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                    {getCartItemPriceLabel(item)}
                   </span>
                 </div>
               ))}
@@ -963,7 +996,7 @@ export function CartScreen({ design }: CartScreenProps) {
 
           <div className="flex items-center justify-between text-[1.35rem] font-black uppercase tracking-[-0.06em]">
             <span>Total:</span>
-            <span>{formatPrice(totals.totalAmount, currency)}</span>
+            <span>{totalLabel}</span>
           </div>
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4 border-t border-dashed border-black/25 pt-4">
@@ -1059,6 +1092,22 @@ export function CartScreen({ design }: CartScreenProps) {
                 {design?.texts.cart.ctaMicrocopy ??
                   "El local prepara tu pedido para recoger a la hora elegida."}
               </p>
+              {totals.requiresPriceConfirmation ? (
+                <div className="border-y border-dashed border-black/45 py-3 text-[10px] leading-4 text-black/72">
+                  <p>
+                    El precio final será confirmado por el establecimiento
+                    durante la llamada.
+                  </p>
+                  {cart.venue.phone ? (
+                    <a
+                      href={`tel:${cart.venue.phone}`}
+                      className="mt-2 inline-flex font-black uppercase underline underline-offset-4"
+                    >
+                      Llamar al local
+                    </a>
+                  ) : null}
+                </div>
+              ) : null}
               <button
                 type="submit"
                 disabled={isSubmitting}

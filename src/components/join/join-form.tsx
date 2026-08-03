@@ -4,6 +4,11 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 import { Logo } from "@/components/branding/logo";
+import {
+  isJoinInterest,
+  JOIN_INTEREST_OPTIONS,
+  type JoinInterest,
+} from "@/features/join/join-interest";
 
 const businessTypes = [
   "Restaurante",
@@ -23,7 +28,12 @@ function keepOnlyDigits(value: string) {
   return value.replace(/\D/g, "");
 }
 
-export function JoinForm() {
+type JoinFormProps = {
+  interest: JoinInterest | "";
+  onInterestChange: (interest: JoinInterest | "") => void;
+};
+
+export function JoinForm({ interest, onInterestChange }: JoinFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [feedbackType, setFeedbackType] = useState<"success" | "error" | null>(
@@ -53,6 +63,7 @@ export function JoinForm() {
       contactPhone,
       contactEmail,
       serviceType: "pickup",
+      interest,
       message: String(formData.get("message") ?? "").trim(),
       privacyAccepted: formData.get("privacyAccepted") === "on",
     };
@@ -76,6 +87,7 @@ export function JoinForm() {
       }
 
       formElement.reset();
+      onInterestChange("");
       setFeedbackType("success");
       setFeedback(
         "Solicitud enviada. La revisaremos y te contactaremos para el siguiente paso.",
@@ -125,14 +137,46 @@ export function JoinForm() {
       </div>
 
       <div className="relative z-[1] mt-6">
-        <h2 className="max-w-[13ch] text-balance text-4xl font-black leading-[0.88] tracking-[-0.055em] sm:text-5xl">
-          Cuéntanos lo básico.
+        <h2 className="max-w-[15ch] text-balance text-4xl font-black leading-[0.92] sm:text-5xl">
+          Cuéntanos qué local tienes.
         </h2>
         <p className="mt-4 max-w-[38rem] text-sm font-semibold leading-7 text-[#24110E]/70">
-          No necesitas tener una carta perfecta. Solo necesitamos saber quién
-          eres, dónde estás y cómo contactarte.
+          No tienes que elegir ninguna opción ahora. Déjanos tus datos, vemos tu
+          caso y te explicamos qué podemos hacer contigo.
         </p>
       </div>
+
+      <label className="relative z-[1] mt-7 grid gap-2 rounded-[1rem] border border-[#741314]/16 bg-[#FDE3AD]/58 px-4 py-4">
+        <span className="font-mono text-[10px] font-black uppercase tracking-[0.18em] text-[#741314]">
+          Cómo quieres empezar
+        </span>
+        <select
+          id="join-interest"
+          name="interest"
+          value={interest}
+          onChange={(event) => {
+            const nextInterest = event.currentTarget.value;
+            onInterestChange(
+              isJoinInterest(nextInterest) ? nextInterest : "",
+            );
+          }}
+          className="w-full border-0 border-b border-[#24110E]/32 bg-transparent px-0 py-2 text-base font-black text-[#24110E] outline-none focus:border-[#741314]"
+          required
+        >
+          <option value="" disabled>
+            Elige una opción
+          </option>
+          {JOIN_INTEREST_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.title}
+            </option>
+          ))}
+        </select>
+        <span className="text-xs font-semibold leading-5 text-[#24110E]/58">
+          Esta elección nos ayuda a preparar la conversación; no activa ningún
+          pago ni plan automáticamente.
+        </span>
+      </label>
 
       <div className="relative z-[1] mt-7 grid gap-5 sm:grid-cols-2">
         <label className="grid gap-1.5 sm:col-span-2">
@@ -274,9 +318,8 @@ export function JoinForm() {
       </div>
 
       <div className="relative z-[1] mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="max-w-[25rem] font-mono text-[10px] font-bold uppercase leading-5 tracking-[0.12em] text-[#24110E]/52">
-          Sin compromiso. Revisamos la solicitud antes de activar cualquier
-          ficha.
+        <p className="max-w-[27rem] text-xs font-semibold leading-5 text-[#24110E]/60">
+          Sin compromiso y hablando con una persona, no con un proceso automático.
         </p>
 
         <button

@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
+import {
+  isDefinitivePrice,
+  type PriceDisplayMode,
+} from "@/features/pricing/price-display";
 import { capturePlatoVisto } from "@/lib/analytics/posthog-events";
 
 type PlatoHashViewItem = {
@@ -9,6 +13,8 @@ type PlatoHashViewItem = {
   name: string;
   priceAmount: number;
   currency: string;
+  priceDisplayMode?: PriceDisplayMode | null;
+  priceDisplayText?: string | null;
   categoryName?: string | null;
 };
 
@@ -17,6 +23,7 @@ type PlatoHashViewTrackerProps = {
   venueId: string;
   venueSlug: string;
   venueName: string;
+  pricesVisible: boolean;
   items: PlatoHashViewItem[];
 };
 
@@ -25,6 +32,7 @@ export function PlatoHashViewTracker({
   venueId,
   venueSlug,
   venueName,
+  pricesVisible,
   items,
 }: PlatoHashViewTrackerProps) {
   const capturedItemIdsRef = useRef<Set<string>>(new Set());
@@ -51,7 +59,15 @@ export function PlatoHashViewTracker({
         venue_name: venueName,
         item_id: item.id,
         item_name: item.name,
-        item_price: item.priceAmount / 100,
+        item_price: isDefinitivePrice({
+          priceAmount: item.priceAmount,
+          currency: item.currency,
+          priceDisplayMode: item.priceDisplayMode,
+          priceDisplayText: item.priceDisplayText,
+          pricesVisible,
+        })
+          ? item.priceAmount / 100
+          : undefined,
         item_category: item.categoryName,
         currency: item.currency,
         source: "hash",
@@ -64,7 +80,7 @@ export function PlatoHashViewTracker({
     return () => {
       window.removeEventListener("hashchange", captureCurrentHashItem);
     };
-  }, [citySlug, items, venueId, venueName, venueSlug]);
+  }, [citySlug, items, pricesVisible, venueId, venueName, venueSlug]);
 
   return null;
 }

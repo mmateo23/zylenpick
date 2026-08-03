@@ -225,6 +225,8 @@ export type Database = {
           name: string;
           description: string | null;
           price_amount: number;
+          price_display_mode: "fixed" | "from" | "variable" | "hidden";
+          price_display_text: string | null;
           currency: string;
           image_url: string | null;
           allergens: string[];
@@ -243,6 +245,8 @@ export type Database = {
           name: string;
           description?: string | null;
           price_amount: number;
+          price_display_mode?: "fixed" | "from" | "variable" | "hidden";
+          price_display_text?: string | null;
           currency?: string;
           image_url?: string | null;
           allergens?: string[];
@@ -261,6 +265,8 @@ export type Database = {
           name?: string;
           description?: string | null;
           price_amount?: number;
+          price_display_mode?: "fixed" | "from" | "variable" | "hidden";
+          price_display_text?: string | null;
           currency?: string;
           image_url?: string | null;
           allergens?: string[];
@@ -297,6 +303,12 @@ export type Database = {
           contact_phone: string | null;
           contact_email: string | null;
           service_type: string | null;
+          interest:
+            | "free_presence"
+            | "improve_presence"
+            | "more_visibility"
+            | "guided_growth"
+            | null;
           message: string | null;
           privacy_accepted: boolean;
           status: "pending" | "approved" | "rejected";
@@ -317,6 +329,12 @@ export type Database = {
           contact_phone?: string | null;
           contact_email?: string | null;
           service_type?: string | null;
+          interest?:
+            | "free_presence"
+            | "improve_presence"
+            | "more_visibility"
+            | "guided_growth"
+            | null;
           message?: string | null;
           privacy_accepted?: boolean;
           status?: "pending" | "approved" | "rejected";
@@ -337,6 +355,12 @@ export type Database = {
           contact_phone?: string | null;
           contact_email?: string | null;
           service_type?: string | null;
+          interest?:
+            | "free_presence"
+            | "improve_presence"
+            | "more_visibility"
+            | "guided_growth"
+            | null;
           message?: string | null;
           privacy_accepted?: boolean;
           status?: "pending" | "approved" | "rejected";

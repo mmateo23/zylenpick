@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { getAdminJoinRequests } from "@/features/admin/services/join-requests-admin-service";
+import { getJoinInterestLabel } from "@/features/join/join-interest";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("es-ES", {
@@ -55,6 +56,7 @@ export default async function AdminJoinRequestsPage() {
                   <th className="px-5 py-4 font-medium">Contacto</th>
                   <th className="px-5 py-4 font-medium">Email</th>
                   <th className="px-5 py-4 font-medium">Teléfono</th>
+                  <th className="px-5 py-4 font-medium">Interés</th>
                   <th className="px-5 py-4 font-medium">Estado</th>
                   <th className="px-5 py-4 font-medium">Conversión</th>
                   <th className="px-5 py-4 font-medium">Creada</th>
@@ -76,6 +78,11 @@ export default async function AdminJoinRequestsPage() {
                     </td>
                     <td className="px-5 py-4 text-[color:var(--muted-strong)]">
                       {request.contactPhone ?? "Sin teléfono"}
+                    </td>
+                    <td className="px-5 py-4">
+                      <AdminStatusBadge tone="neutral">
+                        {getJoinInterestLabel(request.interest)}
+                      </AdminStatusBadge>
                     </td>
                     <td className="px-5 py-4">
                       <AdminStatusBadge

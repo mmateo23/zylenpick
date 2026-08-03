@@ -8,10 +8,12 @@ import { StepsIcon } from "@/components/icons/steps-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
 import {
   getDistanceInKm,
+  getUserLocationErrorMessage,
   readUserLocation,
-  saveUserLocation,
+  requestUserLocation,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 
 type VenueArrivalCardProps = {
   venueSlug: string;
@@ -36,6 +38,7 @@ function buildGoogleMapsUrl(venueName: string, address: string | null) {
 }
 
 export function VenueArrivalCard({
+  venueSlug,
   venueName,
   address,
   latitude,
@@ -45,22 +48,31 @@ export function VenueArrivalCard({
   const [isLocating, setIsLocating] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const mapsUrl = buildGoogleMapsUrl(venueName, address);
-  const hasVenueCoordinates = latitude !== null && longitude !== null;
+  const venueCoordinates = useMemo(
+    () =>
+      resolveVenueCoordinates({
+        slug: venueSlug,
+        latitude,
+        longitude,
+      }),
+    [latitude, longitude, venueSlug],
+  );
+  const hasVenueCoordinates = venueCoordinates !== null;
 
   useEffect(() => {
     setUserLocation(readUserLocation());
   }, []);
 
   const arrivalMetrics = useMemo<ArrivalMetrics | null>(() => {
-    if (!hasVenueCoordinates || !userLocation) {
+    if (!venueCoordinates || !userLocation) {
       return null;
     }
 
     const distanceKm = getDistanceInKm(
       userLocation.latitude,
       userLocation.longitude,
-      latitude,
-      longitude,
+      venueCoordinates.latitude,
+      venueCoordinates.longitude,
     );
 
     return {
@@ -68,44 +80,25 @@ export function VenueArrivalCard({
       walkingMinutes: Math.max(1, Math.round((distanceKm / 4.8) * 60)),
       steps: Math.max(60, Math.round(distanceKm * 1300)),
     };
-  }, [hasVenueCoordinates, latitude, longitude, userLocation]);
+  }, [userLocation, venueCoordinates]);
 
-  const handleUseLocation = () => {
+  const handleUseLocation = async () => {
     if (!hasVenueCoordinates) {
       setFeedback("La ubicación exacta del local todavía no está validada.");
-      return;
-    }
-
-    if (!navigator.geolocation) {
-      setFeedback("Tu navegador no permite usar la ubicación.");
       return;
     }
 
     setIsLocating(true);
     setFeedback(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-
-        saveUserLocation(nextLocation);
-        setUserLocation(nextLocation);
-        setIsLocating(false);
-      },
-      () => {
-        setIsLocating(false);
-        setFeedback(
-          "No hemos podido acceder a tu ubicación. Puedes abrir la ruta igualmente.",
-        );
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-      },
-    );
+    try {
+      setUserLocation(await requestUserLocation());
+      setFeedback("Distancia actualizada.");
+    } catch (error) {
+      setFeedback(getUserLocationErrorMessage(error));
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import {
   requireAdminJoinRequest,
   updateJoinRequestStatusAction,
 } from "@/features/admin/services/join-requests-admin-service";
+import { getJoinInterestLabel } from "@/features/join/join-interest";
 
 type AdminJoinRequestDetailPageProps = {
   params: {
@@ -159,6 +160,10 @@ export default async function AdminJoinRequestDetailPage({
           <DetailRow
             label="Tipo de servicio"
             value={formatServiceType(joinRequest.serviceType)}
+          />
+          <DetailRow
+            label="Interés comercial"
+            value={getJoinInterestLabel(joinRequest.interest)}
           />
           <DetailRow
             label="Fecha de creación"

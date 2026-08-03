@@ -3,6 +3,7 @@ import {
   type OpeningHoursDayKey,
   type OpeningHoursValue,
 } from "@/features/venues/opening-hours";
+import { isDefinitivePrice } from "@/features/pricing/price-display";
 import type {
   VenueDetails,
   VenueListItem,
@@ -83,10 +84,15 @@ function buildMenuSections(
       name: item.name,
       description: item.description ?? undefined,
       image: absoluteUrl(item.imageUrl, venueUrl),
-      offers: pricesVisible
+      offers: isDefinitivePrice({
+        priceAmount: item.priceAmount,
+        currency: item.currency,
+        priceDisplayMode: item.priceDisplayMode,
+        pricesVisible,
+      })
         ? {
             "@type": "Offer",
-            price: item.priceAmount.toFixed(2),
+            price: (item.priceAmount / 100).toFixed(2),
             priceCurrency: item.currency,
             availability: "https://schema.org/InStock",
             url: `${venueUrl}#plato-${item.id}`,

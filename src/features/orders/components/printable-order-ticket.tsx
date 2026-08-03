@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { getOrderById } from "@/features/orders/services/order-storage";
+import {
+  getPricePresentation,
+  getPriceSummary,
+} from "@/features/pricing/price-display";
 import { formatPrice } from "@/lib/utils/currency";
 
 type PrintableOrderTicketProps = {
@@ -59,6 +63,11 @@ export function PrintableOrderTicket({
     );
   }
 
+  const priceSummary = getPriceSummary(order.items);
+  const totalLabel = priceSummary.isDefinitive
+    ? formatPrice(order.totalAmount, order.currency)
+    : "Por confirmar";
+
   return (
     <main className="min-h-screen bg-white px-6 py-10 text-black print:px-0 print:py-0">
       <section className="mx-auto max-w-xl border border-black/12 bg-white p-8 shadow-sm print:max-w-none print:border-0 print:p-8 print:shadow-none">
@@ -105,11 +114,29 @@ export function PrintableOrderTicket({
                 <div>
                   <p className="font-semibold">{item.name}</p>
                   <p className="text-sm text-black/70">
-                    {item.quantity} x {formatPrice(item.priceAmount, item.currency)}
+                    {item.quantity} x{" "}
+                    {
+                      getPricePresentation({
+                        priceAmount: item.priceAmount,
+                        currency: item.currency,
+                        priceDisplayMode: item.priceDisplayMode,
+                        priceDisplayText: item.priceDisplayText,
+                      }).label
+                    }
                   </p>
                 </div>
                 <p className="font-semibold">
-                  {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  {
+                    getPricePresentation(
+                      {
+                        priceAmount: item.priceAmount,
+                        currency: item.currency,
+                        priceDisplayMode: item.priceDisplayMode,
+                        priceDisplayText: item.priceDisplayText,
+                      },
+                      { quantity: item.quantity },
+                    ).label
+                  }
                 </p>
               </div>
             ))}
@@ -119,8 +146,14 @@ export function PrintableOrderTicket({
         <div className="mt-8 border-t border-dashed border-black/20 pt-6">
           <div className="flex items-center justify-between text-lg font-semibold">
             <span>Total</span>
-            <span>{formatPrice(order.totalAmount, order.currency)}</span>
+            <span>{totalLabel}</span>
           </div>
+          {priceSummary.requiresConfirmation ? (
+            <p className="mt-4 text-xs leading-5 text-black/70">
+              El precio final será confirmado por el establecimiento durante la
+              llamada.
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-8 flex gap-3 print:hidden">

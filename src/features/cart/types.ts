@@ -1,3 +1,5 @@
+import type { PriceDisplayMode } from "@/features/pricing/price-display";
+
 export type CartVenue = {
   id: string;
   slug: string;
@@ -18,6 +20,8 @@ export type CartItem = {
   description: string | null;
   priceAmount: number;
   currency: string;
+  priceDisplayMode?: PriceDisplayMode;
+  priceDisplayText?: string | null;
   imageUrl: string | null;
   quantity: number;
 };

@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
+import {
+  getJoinInterestLabel,
+  isJoinInterest,
+  type JoinInterest,
+} from "@/features/join/join-interest";
 import type { Database } from "@/types/database";
 
 type JoinRequestPayload = {
@@ -15,6 +20,7 @@ type JoinRequestPayload = {
   contactPhone: string;
   contactEmail: string;
   serviceType: string;
+  interest: JoinInterest | null;
   message: string;
   privacyAccepted: boolean;
 };
@@ -45,6 +51,7 @@ function normalizePayload(payload: JoinRequestPayload): JoinRequestPayload {
     contactPhone: String(payload.contactPhone ?? "").trim(),
     contactEmail: String(payload.contactEmail ?? "").trim(),
     serviceType: String(payload.serviceType ?? "").trim(),
+    interest: isJoinInterest(payload.interest) ? payload.interest : null,
     message: String(payload.message ?? "").trim(),
     privacyAccepted: Boolean(payload.privacyAccepted),
   };
@@ -75,6 +82,9 @@ function validatePayload(payload: JoinRequestPayload) {
   if (!payload.serviceType) {
     return "El tipo de servicio es obligatorio.";
   }
+  if (!payload.interest) {
+    return "Elige cómo quieres que Pickyalo ayude a tu local.";
+  }
   if (!payload.privacyAccepted) {
     return "Debes aceptar la política de privacidad para enviar la solicitud.";
   }
@@ -95,6 +105,7 @@ function buildEmailHtml(payload: JoinRequestPayload) {
     ["Teléfono de contacto", payload.contactPhone],
     ["Email de contacto", payload.contactEmail],
     ["Tipo de servicio", getServiceLabel(payload.serviceType)],
+    ["Interés", getJoinInterestLabel(payload.interest)],
     ["Mensaje adicional", payload.message || "Sin mensaje adicional"],
     ["Privacidad aceptada", payload.privacyAccepted ? "Sí" : "No"],
   ];
@@ -135,6 +146,7 @@ function buildEmailText(payload: JoinRequestPayload) {
     `Teléfono de contacto: ${payload.contactPhone}`,
     `Email de contacto: ${payload.contactEmail}`,
     `Tipo de servicio: ${getServiceLabel(payload.serviceType)}`,
+    `Interés: ${getJoinInterestLabel(payload.interest)}`,
     `Mensaje adicional: ${payload.message || "Sin mensaje adicional"}`,
     `Privacidad aceptada: ${payload.privacyAccepted ? "Sí" : "No"}`,
   ].join("\n");
@@ -184,6 +196,7 @@ export async function POST(request: Request) {
     contact_phone: payload.contactPhone,
     contact_email: payload.contactEmail,
     service_type: payload.serviceType,
+    interest: payload.interest,
     message: payload.message || null,
     privacy_accepted: payload.privacyAccepted,
     status: "pending",

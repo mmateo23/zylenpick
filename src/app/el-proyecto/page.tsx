@@ -5,7 +5,7 @@ import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { ProjectPage } from "@/components/project/project-page";
 
 export const metadata: Metadata = {
-  title: "El proyecto | Pickyalo",
+  title: "El proyecto",
   description:
     "Por que existe Pickyalo: una forma simple y visual de descubrir productos y platos destacados, decidir rapido y recoger en locales cercanos.",
 };

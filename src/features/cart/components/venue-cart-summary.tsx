@@ -61,7 +61,9 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
         {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
       </p>
       <p className="mt-3 text-sm leading-6 text-text-secondary">
-        Total {formatPrice(totals.totalAmount, currency)} para recoger.
+        {totals.hasDefinitiveTotal
+          ? `Total ${formatPrice(totals.totalAmount, currency)} para recoger.`
+          : "El precio final se confirmará con el establecimiento."}
       </p>
       <Link
         href="/cart"

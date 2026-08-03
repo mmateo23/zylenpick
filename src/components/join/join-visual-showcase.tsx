@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { getPricePresentation } from "@/features/pricing/price-display";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 
 type JoinVisualShowcaseProps = {
@@ -16,20 +17,13 @@ const showcaseSlots = [
 ];
 
 function formatPrice(item: HomeShowcaseItem) {
-  if (!item.venue.pricesVisible) {
-    return "Precio pendiente";
-  }
-
-  const normalizedAmount =
-    Number.isInteger(item.priceAmount) && item.priceAmount >= 100
-      ? item.priceAmount / 100
-      : item.priceAmount;
-
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
+  return getPricePresentation({
+    priceAmount: item.priceAmount,
     currency: item.currency || "EUR",
-    minimumFractionDigits: 2,
-  }).format(normalizedAmount);
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
+    pricesVisible: item.venue.pricesVisible,
+  }).label;
 }
 
 function getUniqueItems(items: HomeShowcaseItem[]) {

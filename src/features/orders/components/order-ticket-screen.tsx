@@ -13,7 +13,7 @@ import type { SiteDesignConfig } from "@/features/design/site-design-config";
 import {
   getDistanceInKm,
   readUserLocation,
-  saveUserLocation,
+  requestUserLocation,
   type UserLocation,
 } from "@/features/location/browser-location";
 import {
@@ -21,6 +21,10 @@ import {
   completeOrder,
   getOrderById,
 } from "@/features/orders/services/order-storage";
+import {
+  getPricePresentation,
+  getPriceSummary,
+} from "@/features/pricing/price-display";
 import { getVenueCoordinates } from "@/features/venues/venue-meta";
 import { trackEvent } from "@/lib/analytics/track-event";
 import { formatPrice } from "@/lib/utils/currency";
@@ -220,32 +224,14 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
     };
   }, [order, userLocation]);
 
-  const handleUseLocation = () => {
-    if (!navigator.geolocation) {
-      return;
-    }
-
+  const handleUseLocation = async () => {
     setIsLocating(true);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-
-        saveUserLocation(nextLocation);
-        setUserLocation(nextLocation);
-        setIsLocating(false);
-      },
-      () => {
-        setIsLocating(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-      },
-    );
+    try {
+      setUserLocation(await requestUserLocation());
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   if (!order) {
@@ -274,6 +260,10 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
   const orderStatus = getOrderStatus(order.createdAt, order.pickupAt);
   const statusCopy = getStatusCopy(order.createdAt, order.pickupAt);
   const directionsUrl = getDirectionsUrl(order.venue);
+  const priceSummary = getPriceSummary(order.items);
+  const totalLabel = priceSummary.isDefinitive
+    ? formatPrice(order.totalAmount, order.currency)
+    : "Por confirmar";
   const canCancel = order.resolutionStatus === "active" && orderStatus === "received";
   const canComplete = order.resolutionStatus === "active";
 
@@ -421,7 +411,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
               </div>
             </div>
             <span className="rounded-full border border-border-subtle bg-surface-strong px-4 py-2 text-sm font-semibold text-text-primary shadow-[var(--card-shadow)]">
-              {formatPrice(order.totalAmount, order.currency)}
+              {totalLabel}
             </span>
           </div>
 
@@ -437,15 +427,38 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
                   </p>
                   <p className="mt-1 text-sm text-text-muted">
                     {item.quantity} x{" "}
-                    {formatPrice(item.priceAmount, item.currency)}
+                    {
+                      getPricePresentation({
+                        priceAmount: item.priceAmount,
+                        currency: item.currency,
+                        priceDisplayMode: item.priceDisplayMode,
+                        priceDisplayText: item.priceDisplayText,
+                      }).label
+                    }
                   </p>
                 </div>
                 <p className="text-sm font-semibold text-text-primary">
-                  {formatPrice(item.priceAmount * item.quantity, item.currency)}
+                  {
+                    getPricePresentation(
+                      {
+                        priceAmount: item.priceAmount,
+                        currency: item.currency,
+                        priceDisplayMode: item.priceDisplayMode,
+                        priceDisplayText: item.priceDisplayText,
+                      },
+                      { quantity: item.quantity },
+                    ).label
+                  }
                 </p>
               </div>
             ))}
           </div>
+          {priceSummary.requiresConfirmation ? (
+            <p className="mt-4 rounded-xl border border-dashed border-border-subtle bg-surface-strong px-4 py-3 text-sm leading-6 text-text-secondary">
+              El precio final será confirmado por el establecimiento durante la
+              llamada.
+            </p>
+          ) : null}
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div>

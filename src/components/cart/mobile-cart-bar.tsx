@@ -39,7 +39,9 @@ export function MobileCartBar() {
         </div>
 
         <span className="text-base font-semibold">
-          {formatPrice(totals.totalAmount, currency)}
+          {totals.hasDefinitiveTotal
+            ? formatPrice(totals.totalAmount, currency)
+            : "Por confirmar"}
         </span>
       </Link>
     </div>

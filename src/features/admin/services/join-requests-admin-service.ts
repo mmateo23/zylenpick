@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import type { JoinInterest } from "@/features/join/join-interest";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminJoinRequestStatus = "pending" | "approved" | "rejected";
@@ -12,6 +13,7 @@ export type AdminJoinRequestListItem = {
   contactName: string | null;
   contactEmail: string | null;
   contactPhone: string | null;
+  interest: JoinInterest | null;
   status: AdminJoinRequestStatus;
   linkedVenueId: string | null;
   createdAt: string;
@@ -30,6 +32,7 @@ export type AdminJoinRequestDetail = {
   contactPhone: string | null;
   contactEmail: string | null;
   serviceType: string | null;
+  interest: JoinInterest | null;
   message: string | null;
   privacyAccepted: boolean;
   status: AdminJoinRequestStatus;
@@ -42,7 +45,7 @@ export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]
   const { data, error } = await supabase
     .from("join_requests")
     .select(
-      "id, venue_name, area, contact_name, contact_email, contact_phone, status, linked_venue_id, created_at",
+      "id, venue_name, area, contact_name, contact_email, contact_phone, interest, status, linked_venue_id, created_at",
     )
     .order("created_at", { ascending: false });
 
@@ -57,6 +60,7 @@ export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]
     contactName: item.contact_name,
     contactEmail: item.contact_email,
     contactPhone: item.contact_phone,
+    interest: item.interest,
     status: item.status,
     linkedVenueId: item.linked_venue_id,
     createdAt: item.created_at,
@@ -70,7 +74,7 @@ export async function getAdminJoinRequestById(
   const { data, error } = await supabase
     .from("join_requests")
     .select(
-      "id, venue_name, business_type, area, address, venue_phone, venue_email, website, contact_name, contact_phone, contact_email, service_type, message, privacy_accepted, status, linked_venue_id, created_at",
+      "id, venue_name, business_type, area, address, venue_phone, venue_email, website, contact_name, contact_phone, contact_email, service_type, interest, message, privacy_accepted, status, linked_venue_id, created_at",
     )
     .eq("id", requestId)
     .maybeSingle();
@@ -96,6 +100,7 @@ export async function getAdminJoinRequestById(
     contactPhone: data.contact_phone,
     contactEmail: data.contact_email,
     serviceType: data.service_type,
+    interest: data.interest,
     message: data.message,
     privacyAccepted: data.privacy_accepted,
     status: data.status,

@@ -12,13 +12,14 @@ import { BorderBeam } from "@/components/magicui/border-beam";
 import type { City } from "@/features/cities/types";
 import {
   getDistanceInKm,
+  getUserLocationErrorMessage,
   readUserLocation,
-  saveUserLocation,
+  requestUserLocation,
   USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
 import { saveSelectedCity } from "@/features/location/city-preference";
-import { getVenueCoordinates } from "@/features/venues/venue-meta";
+import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { trackEvent } from "@/lib/analytics/track-event";
 
@@ -68,7 +69,11 @@ function getItemJourney(
     return null;
   }
 
-  const venueCoordinates = getVenueCoordinates(item.venue.slug);
+  const venueCoordinates = resolveVenueCoordinates({
+    slug: item.venue.slug,
+    latitude: item.venue.latitude,
+    longitude: item.venue.longitude,
+  });
 
   if (!venueCoordinates) {
     return null;
@@ -260,73 +265,54 @@ export function HomeLanding({
     router.push(`/zonas/${selectedCity}`);
   };
 
-  const handleUseLocation = () => {
-    if (!navigator.geolocation) {
-      setFeedback("Tu navegador no permite usar la ubicación.");
-      return;
-    }
-
+  const handleUseLocation = async () => {
     setIsLocating(true);
     setFeedback(null);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
+    try {
+      const nextLocation = await requestUserLocation();
+      setUserLocation(nextLocation);
 
-        saveUserLocation(nextLocation);
-        setUserLocation(nextLocation);
+      const nearestCity = supportedCityLocations
+        .map((city) => ({
+          slug: city.slug,
+          distanceKm: getDistanceInKm(
+            nextLocation.latitude,
+            nextLocation.longitude,
+            city.latitude,
+            city.longitude,
+          ),
+          radiusKm: city.radiusKm,
+        }))
+        .sort((cityA, cityB) => cityA.distanceKm - cityB.distanceKm)[0];
 
-        const nearestCity = supportedCityLocations
-          .map((city) => ({
-            slug: city.slug,
-            distanceKm: getDistanceInKm(
-              position.coords.latitude,
-              position.coords.longitude,
-              city.latitude,
-              city.longitude,
-            ),
-            radiusKm: city.radiusKm,
-          }))
-          .sort((cityA, cityB) => cityA.distanceKm - cityB.distanceKm)[0];
+      const matchedCity =
+        nearestCity && nearestCity.distanceKm <= nearestCity.radiusKm
+          ? cities.find((city) => city.slug === nearestCity.slug)
+          : null;
 
-        const matchedCity =
-          nearestCity && nearestCity.distanceKm <= nearestCity.radiusKm
-            ? cities.find((city) => city.slug === nearestCity.slug)
-            : null;
-
-        if (!matchedCity) {
-          setIsLocating(false);
-          setFeedback(
-            "Todavía no hemos podido identificar tu zona automáticamente. Elígela manualmente.",
-          );
-          return;
-        }
-
-        saveSelectedCity({
-          slug: matchedCity.slug,
-          name: matchedCity.name,
-        });
-        trackEvent("select_city", {
-          city_slug: matchedCity.slug,
-          city_name: matchedCity.name,
-          source: "geolocation",
-        });
-      router.push(`/zonas/${matchedCity.slug}`);
-      },
-      () => {
-        setIsLocating(false);
+      if (!matchedCity) {
         setFeedback(
-          "No hemos podido acceder a tu ubicación. Elige tu zona manualmente.",
+          "Todavía no hemos podido identificar tu zona automáticamente. Elígela manualmente.",
         );
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-      },
-    );
+        return;
+      }
+
+      saveSelectedCity({
+        slug: matchedCity.slug,
+        name: matchedCity.name,
+      });
+      trackEvent("select_city", {
+        city_slug: matchedCity.slug,
+        city_name: matchedCity.name,
+        source: "geolocation",
+      });
+      router.push(`/zonas/${matchedCity.slug}`);
+    } catch (error) {
+      setFeedback(getUserLocationErrorMessage(error));
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   return (

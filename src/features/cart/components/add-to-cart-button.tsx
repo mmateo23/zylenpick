@@ -5,6 +5,10 @@ import { useState } from "react";
 import { PaperBagIcon } from "@/components/icons/pickyalo";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { CartVenue } from "@/features/cart/types";
+import {
+  isDefinitivePrice,
+  type PriceDisplayMode,
+} from "@/features/pricing/price-display";
 import { captureAddToCart } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
 import { showCartToast, showErrorToast } from "@/lib/ui/toast";
@@ -17,6 +21,8 @@ type AddToCartButtonProps = {
     description: string | null;
     priceAmount: number;
     currency: string;
+    priceDisplayMode?: PriceDisplayMode;
+    priceDisplayText?: string | null;
     imageUrl: string | null;
   };
   className?: string;
@@ -61,6 +67,10 @@ export function AddToCartButton({
       return;
     }
 
+    const itemPrice = isDefinitivePrice(item)
+      ? item.priceAmount / 100
+      : undefined;
+
     captureAddToCart({
       city_slug: venue.citySlug,
       venue_id: venue.id,
@@ -68,7 +78,7 @@ export function AddToCartButton({
       venue_name: venue.name,
       item_id: item.id,
       item_name: item.name,
-      item_price: item.priceAmount / 100,
+      item_price: itemPrice,
       currency: item.currency,
       quantity: 1,
       cart_total_items: result.cart.items.reduce(
@@ -87,7 +97,7 @@ export function AddToCartButton({
       item_id: item.id,
       item_name: item.name,
       source,
-      item_price: item.priceAmount / 100,
+      item_price: itemPrice,
       currency: item.currency,
     });
 

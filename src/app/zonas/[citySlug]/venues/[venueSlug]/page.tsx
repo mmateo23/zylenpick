@@ -117,11 +117,14 @@ export default async function VenuePage({ params }: VenuePageProps) {
         venueId={venue.id}
         venueSlug={venue.slug}
         venueName={venue.name}
+        pricesVisible={venue.pricesVisible}
         items={venue.menuItems.map((item) => ({
           id: item.id,
           name: item.name,
           priceAmount: item.priceAmount,
           currency: item.currency,
+          priceDisplayMode: item.priceDisplayMode,
+          priceDisplayText: item.priceDisplayText,
           categoryName: item.categoryName,
         }))}
       />

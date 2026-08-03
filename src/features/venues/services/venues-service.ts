@@ -1,4 +1,5 @@
 import { getOpeningStatus, normalizeOpeningHours } from "@/features/venues/opening-hours";
+import { normalizePriceDisplayMode } from "@/features/pricing/price-display";
 import type {
   HomeShowcaseItem,
   MenuItemAllergen,
@@ -27,6 +28,15 @@ function isMissingSubscriptionTierColumnError(message: string) {
 
 function isMissingPricesVisibleColumnError(message: string) {
   return message.toLowerCase().includes("prices_visible");
+}
+
+function isMissingPriceDisplayColumnError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  return (
+    normalizedMessage.includes("price_display_mode") ||
+    normalizedMessage.includes("price_display_text")
+  );
 }
 
 function isMissingCityHeroVideoColumnError(message: string) {
@@ -111,6 +121,8 @@ function mapVenueMenuItem(row: {
   description: string | null;
   price_amount: number;
   currency: string;
+  price_display_mode?: string | null;
+  price_display_text?: string | null;
   image_url: string | null;
   allergens?: string[] | null;
   category_name: string | null;
@@ -124,6 +136,8 @@ function mapVenueMenuItem(row: {
     description: row.description,
     priceAmount: row.price_amount,
     currency: row.currency,
+    priceDisplayMode: normalizePriceDisplayMode(row.price_display_mode),
+    priceDisplayText: row.price_display_text?.trim() || null,
     imageUrl: row.image_url,
     categoryName: row.category_name,
     allergens: mapMenuItemAllergens(row.allergens),
@@ -139,6 +153,8 @@ function mapHomeShowcaseItem(row: {
   description: string | null;
   price_amount: number;
   currency: string;
+  price_display_mode?: string | null;
+  price_display_text?: string | null;
   image_url: string | null;
   allergens?: string[] | null;
   category_name: string | null;
@@ -170,6 +186,8 @@ function mapHomeShowcaseItem(row: {
     description: row.description,
     priceAmount: row.price_amount,
     currency: row.currency,
+    priceDisplayMode: normalizePriceDisplayMode(row.price_display_mode),
+    priceDisplayText: row.price_display_text?.trim() || null,
     imageUrl: row.image_url,
     categoryName: row.category_name,
     allergens: mapMenuItemAllergens(row.allergens),
@@ -358,7 +376,7 @@ export async function getVenueDetails(
     const { data: menuItems, error: menuError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+        "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
       )
       .eq("venue_id", fallbackVenue.id)
       .eq("is_available", true)
@@ -368,7 +386,8 @@ export async function getVenueDetails(
     if (
       menuError &&
       (isMissingHomeFeaturedColumnError(menuError.message) ||
-        isMissingMenuItemAllergensColumnError(menuError.message))
+        isMissingMenuItemAllergensColumnError(menuError.message) ||
+        isMissingPriceDisplayColumnError(menuError.message))
     ) {
       const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
         .from("menu_items")
@@ -469,7 +488,7 @@ export async function getVenueDetails(
   const { data: menuItems, error: menuError } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
     )
     .eq("venue_id", venue.id)
     .eq("is_available", true)
@@ -479,7 +498,8 @@ export async function getVenueDetails(
   if (
     menuError &&
     (isMissingHomeFeaturedColumnError(menuError.message) ||
-      isMissingMenuItemAllergensColumnError(menuError.message))
+      isMissingMenuItemAllergensColumnError(menuError.message) ||
+      isMissingPriceDisplayColumnError(menuError.message))
   ) {
     const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
       .from("menu_items")
@@ -584,7 +604,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -601,7 +621,8 @@ export async function getHomeShowcase(): Promise<{
     (isMissingHomeFeaturedColumnError(error.message) ||
       isMissingMenuItemAllergensColumnError(error.message) ||
       isMissingSubscriptionTierColumnError(error.message) ||
-      isMissingPricesVisibleColumnError(error.message))
+      isMissingPricesVisibleColumnError(error.message) ||
+      isMissingPriceDisplayColumnError(error.message))
   ) {
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")

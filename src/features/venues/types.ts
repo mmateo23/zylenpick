@@ -1,4 +1,5 @@
 import type { OpeningHoursValue } from "@/features/venues/opening-hours";
+import type { PriceDisplayMode } from "@/features/pricing/price-display";
 
 export type MenuItemAllergen =
   | "gluten"
@@ -40,6 +41,8 @@ export type VenueMenuItem = {
   description: string | null;
   priceAmount: number;
   currency: string;
+  priceDisplayMode: PriceDisplayMode;
+  priceDisplayText: string | null;
   imageUrl: string | null;
   secondaryImageUrl?: string | null;
   categoryName: string | null;
@@ -83,6 +86,8 @@ export type HomeShowcaseItem = {
   description: string | null;
   priceAmount: number;
   currency: string;
+  priceDisplayMode: PriceDisplayMode;
+  priceDisplayText: string | null;
   imageUrl: string | null;
   categoryName: string | null;
   allergens: MenuItemAllergen[];

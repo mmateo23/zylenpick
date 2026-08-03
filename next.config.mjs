@@ -1,6 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  allowedDevOrigins: ["192.168.68.104", "192.168.68.105"],
+  // Keep development output isolated so `next build` cannot invalidate a
+  // running dev server's CSS and manifests.
+  distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
+  onDemandEntries: {
+    maxInactiveAge: 60 * 60 * 1000,
+    pagesBufferLength: 20,
+  },
+  allowedDevOrigins: [
+    "192.168.68.104",
+    "192.168.68.105",
+    "192.168.68.106",
+  ],
   async headers() {
     const noIndexImageHeaders = [
       {

@@ -25,6 +25,7 @@ import {
   SELECTED_CITY_UPDATED_EVENT,
   type StoredCity,
 } from "@/features/location/city-preference";
+import { getPricePresentation } from "@/features/pricing/price-display";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 
@@ -67,14 +68,13 @@ function getZonesHref(selectedCity: StoredCity | null) {
 }
 
 function formatHomePrice(item: HomeShowcaseItem) {
-  if (!item.venue.pricesVisible) {
-    return "Precio pendiente";
-  }
-
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
+  return getPricePresentation({
+    priceAmount: item.priceAmount,
     currency: item.currency,
-  }).format(item.priceAmount / 100);
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
+    pricesVisible: item.venue.pricesVisible,
+  }).label;
 }
 
 function getPreviewItemHref(item: HomeShowcaseItem) {

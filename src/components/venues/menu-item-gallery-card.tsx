@@ -6,12 +6,14 @@ import { AlertCircle, Clock3, Info, MapPin, Store } from "lucide-react";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
 import { BorderBeam } from "@/components/magicui/border-beam";
+import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
 import {
   AllergenPictogram,
   allergenLabels,
 } from "@/components/venues/allergen-pictogram";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import type { CartVenue } from "@/features/cart/types";
+import { isDefinitivePrice } from "@/features/pricing/price-display";
 import {
   getMenuItemDisplayImage,
   getMenuItemSecondaryImage,
@@ -19,7 +21,6 @@ import {
 import type { VenueMenuItem } from "@/features/venues/types";
 import { capturePlatoVisto } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
-import { formatPrice } from "@/lib/utils/currency";
 
 type MenuItemGalleryCardProps = {
   item: VenueMenuItem;
@@ -52,6 +53,15 @@ export function MenuItemGalleryCard({
 
   const primaryImage = images[0] ?? null;
   const selectedImage = images[selectedImageIndex] ?? primaryImage;
+  const trackedItemPrice = isDefinitivePrice({
+    priceAmount: item.priceAmount,
+    currency: item.currency,
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
+    pricesVisible: venue.pricesVisible,
+  })
+    ? item.priceAmount / 100
+    : undefined;
 
   useEffect(() => {
     if (!isViewerOpen) return;
@@ -82,7 +92,7 @@ export function MenuItemGalleryCard({
         venue_name: venue.name,
         item_id: item.id,
         item_name: item.name,
-        item_price: item.priceAmount / 100,
+        item_price: trackedItemPrice,
         item_category: item.categoryName,
         currency: item.currency,
         source: "venue",
@@ -98,7 +108,7 @@ export function MenuItemGalleryCard({
       venue_name: venue.name,
       item_id: item.id,
       item_name: item.name,
-      item_price: item.priceAmount / 100,
+      item_price: trackedItemPrice,
       currency: item.currency,
       source: "dish_card",
     });
@@ -190,11 +200,14 @@ export function MenuItemGalleryCard({
               </p>
             ) : null}
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-white/30 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-bold text-[#381932] shadow-[0_6px_18px_rgba(0,0,0,0.2)]">
-                {venue.pricesVisible
-                  ? formatPrice(item.priceAmount, item.currency)
-                  : "Precio por confirmar"}
-              </span>
+              <ProductPriceBadge
+                priceAmount={item.priceAmount}
+                currency={item.currency}
+                priceDisplayMode={item.priceDisplayMode}
+                priceDisplayText={item.priceDisplayText}
+                pricesVisible={venue.pricesVisible}
+                compact
+              />
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
                 <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
                 {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
@@ -239,6 +252,8 @@ export function MenuItemGalleryCard({
               description: item.description,
               priceAmount: item.priceAmount,
               currency: item.currency,
+              priceDisplayMode: item.priceDisplayMode,
+              priceDisplayText: item.priceDisplayText,
               imageUrl: primaryImage,
             }}
             className="mt-0"
@@ -333,11 +348,14 @@ export function MenuItemGalleryCard({
                       {item.name}
                     </h4>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <p className="text-xl font-bold text-[#C26157] sm:text-2xl">
-                        {venue.pricesVisible
-                          ? formatPrice(item.priceAmount, item.currency)
-                          : "Precio pendiente"}
-                      </p>
+                      <ProductPriceBadge
+                        priceAmount={item.priceAmount}
+                        currency={item.currency}
+                        priceDisplayMode={item.priceDisplayMode}
+                        priceDisplayText={item.priceDisplayText}
+                        pricesVisible={venue.pricesVisible}
+                        className="px-3.5 py-2 text-sm sm:text-base"
+                      />
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[11px] font-bold text-[#381932]/72">
                         <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-[#C26157]" />
                         {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida local"}
@@ -420,6 +438,8 @@ export function MenuItemGalleryCard({
                       description: item.description,
                       priceAmount: item.priceAmount,
                       currency: item.currency,
+                      priceDisplayMode: item.priceDisplayMode,
+                      priceDisplayText: item.priceDisplayText,
                       imageUrl: primaryImage,
                     }}
                     className="mt-0"

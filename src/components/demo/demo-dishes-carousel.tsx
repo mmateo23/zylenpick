@@ -48,6 +48,10 @@ import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
 } from "@/features/location/city-preference";
+import {
+  getPricePresentation,
+  isDefinitivePrice,
+} from "@/features/pricing/price-display";
 import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
@@ -174,20 +178,25 @@ type CurationFilter =
   | "cityStars";
 
 function formatPrice(item: HomeShowcaseItem) {
-  if (!item.venue.pricesVisible) {
-    return "Precio pendiente";
-  }
-
-  const normalizedAmount =
-    Number.isInteger(item.priceAmount) && item.priceAmount >= 100
-      ? item.priceAmount / 100
-      : item.priceAmount;
-
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
+  return getPricePresentation({
+    priceAmount: item.priceAmount,
     currency: item.currency,
-    minimumFractionDigits: 2,
-  }).format(normalizedAmount);
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
+    pricesVisible: item.venue.pricesVisible,
+  }).label;
+}
+
+function getTrackedItemPrice(item: HomeShowcaseItem) {
+  return isDefinitivePrice({
+    priceAmount: item.priceAmount,
+    currency: item.currency,
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
+    pricesVisible: item.venue.pricesVisible,
+  })
+    ? item.priceAmount / 100
+    : undefined;
 }
 
 function getDishDisplayName(item: HomeShowcaseItem) {
@@ -272,6 +281,8 @@ function getCartItemFromShowcaseItem(item: HomeShowcaseItem) {
     description: item.description,
     priceAmount: item.priceAmount,
     currency: item.currency,
+    priceDisplayMode: item.priceDisplayMode,
+    priceDisplayText: item.priceDisplayText,
     imageUrl: item.imageUrl,
   };
 }
@@ -1425,7 +1436,7 @@ export function DemoDishesCarousel({
       venue_name: activeItem.venue.name,
       item_id: activeItem.id,
       item_name: getDishDisplayName(activeItem),
-      item_price: activeItem.priceAmount / 100,
+      item_price: getTrackedItemPrice(activeItem),
       item_category: activeItem.categoryName,
       currency: activeItem.currency,
       source: "feed",
@@ -1592,6 +1603,7 @@ export function DemoDishesCarousel({
 
     const venue = getCartVenueFromShowcaseItem(item);
     const cartItem = getCartItemFromShowcaseItem(item);
+    const trackedItemPrice = getTrackedItemPrice(item);
     const result = addItemToCart({
       venue,
       item: cartItem,
@@ -1613,7 +1625,7 @@ export function DemoDishesCarousel({
       venue_name: venue.name,
       item_id: cartItem.id,
       item_name: cartItem.name,
-      item_price: cartItem.priceAmount / 100,
+      item_price: trackedItemPrice,
       item_category: item.categoryName,
       currency: cartItem.currency,
       quantity: 1,
@@ -1633,7 +1645,7 @@ export function DemoDishesCarousel({
       item_id: cartItem.id,
       item_name: cartItem.name,
       source: "platos_post_modal",
-      item_price: cartItem.priceAmount / 100,
+      item_price: trackedItemPrice,
       currency: cartItem.currency,
     });
 
