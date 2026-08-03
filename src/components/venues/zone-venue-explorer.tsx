@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import {
+  formatDistanceLabel,
   getDistanceInKm,
-  readUserLocation,
-  USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { useNearMode } from "@/features/location/use-near-mode";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import type { VenueListItem } from "@/features/venues/types";
 import {
@@ -28,7 +28,6 @@ type ZoneVenueExplorerProps = {
 type VenueJourney = {
   distanceKm: number;
   distanceLabel: string;
-  walkingMinutes: number;
 };
 
 const preferredCategoryOrder = [
@@ -39,14 +38,6 @@ const preferredCategoryOrder = [
   "Postres",
   "Otros",
 ];
-
-function formatDistanceLabel(distanceKm: number) {
-  if (distanceKm < 1) {
-    return `${Math.max(50, Math.round(distanceKm * 1000))} m`;
-  }
-
-  return `${distanceKm.toFixed(1).replace(".", ",")} km`;
-}
 
 function getVenueJourney(
   venue: VenueListItem,
@@ -76,7 +67,6 @@ function getVenueJourney(
   return {
     distanceKm,
     distanceLabel: formatDistanceLabel(distanceKm),
-    walkingMinutes: Math.max(1, Math.round((distanceKm / 4.8) * 60)),
   };
 }
 
@@ -86,23 +76,7 @@ export function ZoneVenueExplorer({
   venues,
 }: ZoneVenueExplorerProps) {
   const [selectedCategory, setSelectedCategory] = useState("Todas");
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-
-  useEffect(() => {
-    setUserLocation(readUserLocation());
-
-    const syncLocation = () => {
-      setUserLocation(readUserLocation());
-    };
-
-    window.addEventListener("storage", syncLocation);
-    window.addEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
-
-    return () => {
-      window.removeEventListener("storage", syncLocation);
-      window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
-    };
-  }, []);
+  const { location: userLocation } = useNearMode();
 
   const categories = useMemo(() => {
     const availableCategories = Array.from(
@@ -212,8 +186,7 @@ export function ZoneVenueExplorer({
                       size={18}
                       className="text-[color:var(--accent)]"
                     />
-                    A {featuredJourney.walkingMinutes} min andando ?{" "}
-                    {featuredJourney.distanceLabel}
+                    {featuredJourney.distanceLabel} de ti
                   </p>
                   <p className="inline-flex items-center gap-2">
                     <ClockIcon size={18} className="text-[color:var(--accent)]" />
@@ -328,8 +301,7 @@ export function ZoneVenueExplorer({
 
                       {journey ? (
                         <p className="text-sm text-[color:var(--muted-strong)]">
-                          A {journey.walkingMinutes} min andando ?{" "}
-                          {journey.distanceLabel}
+                          {journey.distanceLabel} de ti
                         </p>
                       ) : null}
                     </div>

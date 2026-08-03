@@ -9,7 +9,7 @@ export type UserLocation = {
 
 const USER_LOCATION_STORAGE_KEY = "pickyalo.user-location";
 const LEGACY_USER_LOCATION_STORAGE_KEY = "zylenpick.user-location";
-const USER_LOCATION_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+const USER_LOCATION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 export const USER_LOCATION_UPDATED_EVENT = "pickyalo:user-location-updated";
 
 export type UserLocationRequestError =
@@ -81,6 +81,20 @@ export function saveUserLocation(location: UserLocation) {
   );
 
   return normalizedLocation;
+}
+
+export function clearUserLocation() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(USER_LOCATION_STORAGE_KEY);
+  window.localStorage.removeItem(LEGACY_USER_LOCATION_STORAGE_KEY);
+  window.dispatchEvent(
+    new CustomEvent<UserLocation | null>(USER_LOCATION_UPDATED_EVENT, {
+      detail: null,
+    }),
+  );
 }
 
 export function readUserLocation(): UserLocation | null {
@@ -169,4 +183,14 @@ export function getUserLocationErrorMessage(error: unknown) {
     default:
       return "Tu navegador no permite usar la ubicación.";
   }
+}
+
+export function formatDistanceLabel(distanceKm: number) {
+  if (distanceKm < 1) {
+    return `${Math.max(50, Math.round(distanceKm * 1000))} m`;
+  }
+
+  return `${new Intl.NumberFormat("es-ES", {
+    maximumFractionDigits: distanceKm < 10 ? 1 : 0,
+  }).format(distanceKm)} km`;
 }

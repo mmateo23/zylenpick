@@ -6,6 +6,7 @@ import {
   FileImage,
   Inbox,
   LayoutDashboard,
+  MapPinned,
   Palette,
   PanelTop,
   Sparkles,
@@ -20,6 +21,7 @@ const navigationGroups = [
     items: [
       { label: "Resumen", href: "/panel", icon: LayoutDashboard },
       { label: "Locales", href: "/panel/locales", icon: Building2 },
+      { label: "Lugares", href: "/panel/lugares", icon: MapPinned },
       { label: "Solicitudes", href: "/panel/solicitudes", icon: Inbox },
     ],
   },

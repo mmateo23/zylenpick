@@ -45,6 +45,135 @@ export type Database = {
         };
         Relationships: [];
       };
+      map_places: {
+        Row: {
+          id: string;
+          city_id: string;
+          parent_place_id: string | null;
+          slug: string;
+          name: string;
+          description: string | null;
+          category:
+            | "tables"
+            | "playground"
+            | "park"
+            | "fountain"
+            | "toilets"
+            | "monument"
+            | "viewpoint"
+            | "parking"
+            | "accessible"
+            | "sports"
+            | "event";
+          icon_name: string;
+          geometry_type: "point" | "polygon" | "line";
+          latitude: number;
+          longitude: number;
+          geometry: Json | null;
+          location_accuracy_m: number | null;
+          amenities: string[];
+          is_accessible: boolean;
+          source: "field" | "municipal" | "openstreetmap" | "manual";
+          source_note: string | null;
+          status: "draft" | "review" | "published";
+          is_active: boolean;
+          verified_at: string | null;
+          verified_by: string | null;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          city_id: string;
+          parent_place_id?: string | null;
+          slug: string;
+          name: string;
+          description?: string | null;
+          category:
+            | "tables"
+            | "playground"
+            | "park"
+            | "fountain"
+            | "toilets"
+            | "monument"
+            | "viewpoint"
+            | "parking"
+            | "accessible"
+            | "sports"
+            | "event";
+          icon_name: string;
+          geometry_type?: "point" | "polygon" | "line";
+          latitude: number;
+          longitude: number;
+          geometry?: Json | null;
+          location_accuracy_m?: number | null;
+          amenities?: string[];
+          is_accessible?: boolean;
+          source?: "field" | "municipal" | "openstreetmap" | "manual";
+          source_note?: string | null;
+          status?: "draft" | "review" | "published";
+          is_active?: boolean;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          city_id?: string;
+          parent_place_id?: string | null;
+          slug?: string;
+          name?: string;
+          description?: string | null;
+          category?:
+            | "tables"
+            | "playground"
+            | "park"
+            | "fountain"
+            | "toilets"
+            | "monument"
+            | "viewpoint"
+            | "parking"
+            | "accessible"
+            | "sports"
+            | "event";
+          icon_name?: string;
+          geometry_type?: "point" | "polygon" | "line";
+          latitude?: number;
+          longitude?: number;
+          geometry?: Json | null;
+          location_accuracy_m?: number | null;
+          amenities?: string[];
+          is_accessible?: boolean;
+          source?: "field" | "municipal" | "openstreetmap" | "manual";
+          source_note?: string | null;
+          status?: "draft" | "review" | "published";
+          is_active?: boolean;
+          verified_at?: string | null;
+          verified_by?: string | null;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "map_places_city_id_fkey";
+            columns: ["city_id"];
+            isOneToOne: false;
+            referencedRelation: "cities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "map_places_parent_place_id_fkey";
+            columns: ["parent_place_id"];
+            isOneToOne: false;
+            referencedRelation: "map_places";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       venues: {
         Row: {
           id: string;

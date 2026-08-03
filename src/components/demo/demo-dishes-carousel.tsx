@@ -38,12 +38,9 @@ import {
 } from "@/features/funnel/site-funnel-settings";
 import {
   getDistanceInKm,
-  getUserLocationErrorMessage,
-  readUserLocation,
-  requestUserLocation,
-  USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { useNearMode } from "@/features/location/use-near-mode";
 import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
@@ -1199,9 +1196,12 @@ export function DemoDishesCarousel({
   const [isShotFullscreen, setIsShotFullscreen] = useState(false);
   const [shotFeedback, setShotFeedback] = useState<string | null>(null);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
-  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
-  const [isLocating, setIsLocating] = useState(false);
-  const [locationFeedback, setLocationFeedback] = useState<string | null>(null);
+  const {
+    location: userLocation,
+    isLocating,
+    feedback: locationFeedback,
+    activate: activateNearMode,
+  } = useNearMode();
   const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
 
   const cityScopedItems = useMemo(() => {
@@ -1449,45 +1449,8 @@ export function DemoDishesCarousel({
     }
   }, [activeChip, activeChipSlug]);
 
-  useEffect(() => {
-    setUserLocation(readUserLocation());
-
-    const syncLocation = () => setUserLocation(readUserLocation());
-    const handleStorage = (event: StorageEvent) => {
-      if (
-        event.key === "pickyalo.user-location" ||
-        event.key === "zylenpick.user-location"
-      ) {
-        syncLocation();
-      }
-    };
-
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
-
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener(USER_LOCATION_UPDATED_EVENT, syncLocation);
-    };
-  }, []);
-
   const handleLocationRequest = async () => {
-    setIsLocating(true);
-    setLocationFeedback("Solicitando permiso de ubicación…");
-
-    try {
-      const nextLocation = await requestUserLocation();
-      setUserLocation(nextLocation);
-      setLocationFeedback(
-        userLocation
-          ? "Distancias actualizadas."
-          : "Ubicación activa. Ya puedes ver la distancia a cada local.",
-      );
-    } catch (error) {
-      setLocationFeedback(getUserLocationErrorMessage(error));
-    } finally {
-      setIsLocating(false);
-    }
+    await activateNearMode();
   };
 
   useEffect(() => {

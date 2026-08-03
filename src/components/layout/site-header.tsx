@@ -10,6 +10,7 @@ import { CartIcon } from "@/components/icons/cart-icon";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { MenuIcon } from "@/components/icons/menu-icon";
+import { NearModeControl } from "@/components/location/near-mode-control";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import {
   readSelectedCity,
@@ -219,17 +220,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             </Link>
 
             {showNavigation ? (
-              <Link
-                href={zoneHref}
-                aria-label={selectedCity?.name ? `Ver ${selectedCity.name}` : "Ver zonas"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                  isItemActive("/zonas")
-                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
-                    : dockButtonClassName
-                }`}
-              >
-                <MapPinned size={22} strokeWidth={2.05} />
-              </Link>
+              <NearModeControl zoneHref={zoneHref} compact />
             ) : null}
 
             <Link
@@ -258,12 +249,13 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             >
               {showNavigation
                 ? desktopLeftDockItems.map((item) => {
+                    if (item.href === "/zonas") {
+                      return <NearModeControl key={item.href} zoneHref={zoneHref} />;
+                    }
+
                     const Icon = item.Icon;
-                    const href = item.href === "/zonas" ? zoneHref : item.href;
-                    const label =
-                      item.href === "/zonas" && selectedCity?.name
-                        ? selectedCity.name
-                        : item.label;
+                    const href = item.href;
+                    const label = item.label;
 
                     return (
                       <Link

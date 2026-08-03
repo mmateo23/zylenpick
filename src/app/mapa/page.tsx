@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { VenuesMap } from "@/components/venues-map/venues-map";
+import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
 import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
 import { getNoIndexMetadata } from "@/lib/seo";
 
@@ -12,12 +13,16 @@ export const metadata: Metadata = getNoIndexMetadata({
 });
 
 export default async function MapaPage() {
-  const venues = await getVenuesForMap();
+  const [venues, places] = await Promise.all([
+    getVenuesForMap(),
+    getPublishedMapPlaces(),
+  ]);
 
   return (
     <VenuesMap
       accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
       venues={venues}
+      places={places}
     />
   );
 }

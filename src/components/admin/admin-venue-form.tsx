@@ -286,19 +286,35 @@ export function AdminVenueForm({
             />
           </label>
 
-          <label className="block md:col-span-2">
-            <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Dirección
-            </span>
-            <input
-              name="address"
-              defaultValue={values.address}
-              className={fieldClassName()}
-              required
-            />
-          </label>
+          <section className="md:col-span-2 rounded-[1.35rem] border border-emerald-400/18 bg-emerald-400/[0.035] p-4 sm:p-5">
+            <div className="flex flex-col gap-2 border-b border-white/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                  Ubicación y recogida
+                </p>
+                <h2 className="mt-2 text-lg font-semibold text-[color:var(--foreground)]">
+                  Lo que necesita el cliente para llegar sin dudas
+                </h2>
+              </div>
+              <p className="max-w-md text-xs leading-5 text-[color:var(--muted-strong)]">
+                Dirección y coordenadas alimentan las distancias. El tiempo y las notas aparecen antes de confirmar la recogida.
+              </p>
+            </div>
 
-          <label className="block">
+            <div className="mt-4 grid gap-5 md:grid-cols-2">
+              <label className="block md:col-span-2">
+                <span className="text-sm font-medium text-[color:var(--foreground)]">
+                  Dirección pública
+                </span>
+                <input
+                  name="address"
+                  defaultValue={values.address}
+                  className={fieldClassName()}
+                  required
+                />
+              </label>
+
+              <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Latitud
             </span>
@@ -313,9 +329,9 @@ export function AdminVenueForm({
               className={fieldClassName()}
               placeholder="Opcional"
             />
-          </label>
+              </label>
 
-          <label className="block">
+              <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Longitud
             </span>
@@ -330,9 +346,13 @@ export function AdminVenueForm({
               className={fieldClassName()}
               placeholder="Opcional"
             />
-          </label>
+              </label>
 
-          <label className="block">
+              <p className="-mt-2 text-xs leading-5 text-[color:var(--muted-strong)] md:col-span-2">
+                Las coordenadas son internas: permiten ordenar por cercanía y calcular la distancia sin mostrar la ubicación del usuario en el panel.
+              </p>
+
+              <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Email
             </span>
@@ -343,9 +363,9 @@ export function AdminVenueForm({
               className={fieldClassName()}
               placeholder="Opcional"
             />
-          </label>
+              </label>
 
-          <label className="block">
+              <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Teléfono
             </span>
@@ -356,9 +376,9 @@ export function AdminVenueForm({
               className={fieldClassName()}
               required
             />
-          </label>
+              </label>
 
-          <label className="block md:col-span-2">
+              <label className="block md:col-span-2">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Notas de recogida
             </span>
@@ -369,9 +389,9 @@ export function AdminVenueForm({
               className={`${fieldClassName()} resize-y`}
               placeholder="Recoge tu pedido en barra, pide por tu nombre..."
             />
-          </label>
+              </label>
 
-          <label className="block">
+              <label className="block md:col-span-2 md:max-w-sm">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Tiempo estimado de recogida
             </span>
@@ -382,7 +402,9 @@ export function AdminVenueForm({
               defaultValue={values.pickupEtaMin}
               className={fieldClassName()}
             />
-          </label>
+              </label>
+            </div>
+          </section>
 
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
