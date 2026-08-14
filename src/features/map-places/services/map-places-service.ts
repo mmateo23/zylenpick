@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDefaultMapPlacePlanRole } from "@/features/map-places/categories";
+import { parsePolygonGeometry } from "@/features/map-places/geometry";
 import type { PublicMapPlace } from "@/features/map-places/types";
 
 function isMissingMapPlacesTable(message: string) {
@@ -26,7 +27,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, slug, name, description, category, icon_name, latitude, longitude, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, cities!inner(slug, name)",
+      "id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, cities!inner(slug, name)",
     )
     .eq("status", "published")
     .eq("is_active", true)
@@ -37,7 +38,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
     const prePlanResult = await supabase
       .from("map_places")
       .select(
-        "id, slug, name, description, category, icon_name, latitude, longitude, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, cities!inner(slug, name)",
+        "id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, cities!inner(slug, name)",
       )
       .eq("status", "published")
       .eq("is_active", true)
@@ -54,6 +55,8 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
         iconName: place.icon_name,
         latitude: place.latitude,
         longitude: place.longitude,
+        geometryType: place.geometry_type,
+        geometry: parsePolygonGeometry(place.geometry),
         amenities: place.amenities ?? [],
         isAccessible: place.is_accessible,
         coverImageUrl: place.cover_image_url,
@@ -78,7 +81,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
     const legacyResult = await supabase
       .from("map_places")
       .select(
-        "id, slug, name, description, category, icon_name, latitude, longitude, amenities, is_accessible, cities!inner(slug, name)",
+        "id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, amenities, is_accessible, cities!inner(slug, name)",
       )
       .eq("status", "published")
       .eq("is_active", true)
@@ -99,6 +102,8 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
       iconName: place.icon_name,
       latitude: place.latitude,
       longitude: place.longitude,
+      geometryType: place.geometry_type,
+      geometry: parsePolygonGeometry(place.geometry),
       amenities: place.amenities ?? [],
       isAccessible: place.is_accessible,
       coverImageUrl: null,
@@ -133,6 +138,8 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
     iconName: place.icon_name,
     latitude: place.latitude,
     longitude: place.longitude,
+    geometryType: place.geometry_type,
+    geometry: parsePolygonGeometry(place.geometry),
     amenities: place.amenities ?? [],
     isAccessible: place.is_accessible,
     coverImageUrl: place.cover_image_url,

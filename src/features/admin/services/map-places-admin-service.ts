@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { mapPlaceCategories } from "@/features/map-places/categories";
+import {
+  getPolygonCenter,
+  parsePolygonGeometry,
+} from "@/features/map-places/geometry";
 import type {
   AdminMapPlace,
   MapPlaceCategory,
@@ -39,6 +43,8 @@ export type AdminMapPlaceFormValues = {
   category: MapPlaceCategory;
   latitude: string;
   longitude: string;
+  geometryType: "point" | "polygon";
+  geometry: string;
   locationAccuracyM: string;
   amenities: string;
   isAccessible: boolean;
@@ -58,6 +64,7 @@ const validSources = new Set<MapPlaceSource>([
 ]);
 const validStatuses = new Set<MapPlaceStatus>(["draft", "review", "published"]);
 const validPlanRoles = new Set<MapPlacePlanRole>(["discover", "enjoy", "support"]);
+const validGeometryTypes = new Set(["point", "polygon"]);
 
 function isMissingTableError(message: string) {
   const normalized = message.toLowerCase();
@@ -121,6 +128,10 @@ function normalizeFormData(formData: FormData): AdminMapPlaceFormValues {
     category,
     latitude: String(formData.get("latitude") ?? "").trim(),
     longitude: String(formData.get("longitude") ?? "").trim(),
+    geometryType: String(formData.get("geometryType") ?? "point") as
+      | "point"
+      | "polygon",
+    geometry: String(formData.get("geometry") ?? "").trim(),
     locationAccuracyM: String(formData.get("locationAccuracyM") ?? "").trim(),
     amenities: String(formData.get("amenities") ?? "").trim(),
     isAccessible: formData.get("isAccessible") === "on",
@@ -139,6 +150,9 @@ function validateValues(values: AdminMapPlaceFormValues) {
   if (!validCategories.has(values.category)) throw new Error("Categoría no válida.");
   if (!validSources.has(values.source)) throw new Error("Fuente no válida.");
   if (!validStatuses.has(values.status)) throw new Error("Estado no válido.");
+  if (!validGeometryTypes.has(values.geometryType)) {
+    throw new Error("El tipo de geometría no es válido.");
+  }
 
   if (!validPlanRoles.has(values.planRole)) {
     throw new Error("La función del lugar en el plan no es válida.");
@@ -149,6 +163,18 @@ function validateValues(values: AdminMapPlaceFormValues) {
 
   parseNumber(values.latitude, "La latitud", -90, 90);
   parseNumber(values.longitude, "La longitud", -180, 180);
+
+  if (values.geometryType === "polygon") {
+    let rawGeometry: unknown;
+    try {
+      rawGeometry = JSON.parse(values.geometry);
+    } catch {
+      throw new Error("El área dibujada no tiene un formato válido.");
+    }
+    if (!parsePolygonGeometry(rawGeometry)) {
+      throw new Error("Marca al menos tres puntos válidos para delimitar el área.");
+    }
+  }
 
   if (values.status === "published" && values.source === "manual" && !values.sourceNote) {
     throw new Error("Indica cómo se comprobó el punto antes de publicarlo.");
@@ -161,6 +187,17 @@ function toPayload(values: AdminMapPlaceFormValues) {
     .split(",")
     .map((amenity) => amenity.trim())
     .filter(Boolean);
+
+  const polygon =
+    values.geometryType === "polygon"
+      ? parsePolygonGeometry(JSON.parse(values.geometry))
+      : null;
+  const [longitude, latitude] = polygon
+    ? getPolygonCenter(polygon)
+    : [
+        parseNumber(values.longitude, "La longitud", -180, 180),
+        parseNumber(values.latitude, "La latitud", -90, 90),
+      ];
 
   return {
     city_id: values.cityId,
@@ -177,9 +214,10 @@ function toPayload(values: AdminMapPlaceFormValues) {
     is_plan_candidate: values.isPlanCandidate,
     category: values.category,
     icon_name: category.iconName,
-    geometry_type: "point" as const,
-    latitude: parseNumber(values.latitude, "La latitud", -90, 90),
-    longitude: parseNumber(values.longitude, "La longitud", -180, 180),
+    geometry_type: values.geometryType,
+    geometry: polygon,
+    latitude,
+    longitude,
     location_accuracy_m: parseOptionalPositiveNumber(values.locationAccuracyM),
     amenities,
     is_accessible: values.isAccessible,
@@ -224,7 +262,7 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, icon_name, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
+      "id, city_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
     )
     .order("sort_order")
     .order("name");
@@ -244,6 +282,8 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
     iconName: place.icon_name,
     latitude: place.latitude,
     longitude: place.longitude,
+    geometryType: place.geometry_type,
+    geometry: parsePolygonGeometry(place.geometry),
     locationAccuracyM: place.location_accuracy_m,
     amenities: place.amenities ?? [],
     isAccessible: place.is_accessible,
@@ -270,7 +310,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
+      "id, city_id, slug, name, description, category, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
     )
     .eq("id", id)
     .maybeSingle();
@@ -297,6 +337,12 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     category: data.category,
     latitude: String(data.latitude),
     longitude: String(data.longitude),
+    geometryType:
+      data.geometry_type === "polygon" ? "polygon" : "point",
+    geometry:
+      data.geometry_type === "polygon" && data.geometry
+        ? JSON.stringify(data.geometry)
+        : "",
     locationAccuracyM: data.location_accuracy_m?.toString() ?? "",
     amenities: (data.amenities ?? []).join(", "),
     isAccessible: data.is_accessible,

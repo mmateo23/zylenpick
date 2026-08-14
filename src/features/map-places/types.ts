@@ -1,4 +1,5 @@
 import type { Database } from "@/types/database";
+import type { MapPolygonGeometry } from "@/features/map-places/geometry";
 
 export type MapPlaceCategory =
   Database["public"]["Tables"]["map_places"]["Row"]["category"];
@@ -18,6 +19,8 @@ export type PublicMapPlace = {
   iconName: string;
   latitude: number;
   longitude: number;
+  geometryType: "point" | "polygon" | "line";
+  geometry: MapPolygonGeometry | null;
   amenities: string[];
   isAccessible: boolean;
   coverImageUrl: string | null;

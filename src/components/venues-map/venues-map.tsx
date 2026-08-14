@@ -63,6 +63,9 @@ type ViewTransitionDocument = Document & {
 
 const defaultCenter: [number, number] = [-4.8308, 39.9579];
 const nearbyResultLimit = 3;
+const placeAreasSourceId = "pickyalo-place-areas";
+const placeAreasFillLayerId = `${placeAreasSourceId}-fill`;
+const placeAreasLineLayerId = `${placeAreasSourceId}-line`;
 
 function ensureMapboxStylesheet() {
   if (document.getElementById("mapbox-gl-stylesheet")) return;
@@ -105,6 +108,29 @@ function getStaticMapUrl(
   const zoom = Math.max(5, Math.min(15, Math.floor(Math.log2(360 / largestRange)) - 1));
   const viewport = `${center[0].toFixed(5)},${center[1].toFixed(5)},${zoom},0`;
   return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${viewport}/1200x800?access_token=${encodeURIComponent(accessToken)}`;
+}
+
+function createPlaceAreasData(
+  places: PublicMapPlace[],
+  selectedPlaceId?: string,
+) {
+  return {
+    type: "FeatureCollection" as const,
+    features: places.flatMap((place) =>
+      place.geometryType === "polygon" && place.geometry
+        ? [
+            {
+              type: "Feature" as const,
+              properties: {
+                id: place.id,
+                active: place.id === selectedPlaceId,
+              },
+              geometry: place.geometry,
+            },
+          ]
+        : [],
+    ),
+  };
 }
 
 function applyPickyaloMapStyle(map: MapboxMap) {
@@ -495,6 +521,58 @@ export function VenuesMap({
         map.once("load", () => {
           if (cancelled) return;
           applyPickyaloMapStyle(map);
+          map.addSource(placeAreasSourceId, {
+            type: "geojson",
+            data: createPlaceAreasData(places),
+          });
+          map.addLayer({
+            id: placeAreasFillLayerId,
+            type: "fill",
+            source: placeAreasSourceId,
+            paint: {
+              "fill-color": "#741314",
+              "fill-opacity": [
+                "case",
+                ["==", ["get", "active"], true],
+                0.3,
+                0.14,
+              ],
+            },
+          });
+          map.addLayer({
+            id: placeAreasLineLayerId,
+            type: "line",
+            source: placeAreasSourceId,
+            paint: {
+              "line-color": "#741314",
+              "line-opacity": 0.88,
+              "line-width": [
+                "case",
+                ["==", ["get", "active"], true],
+                4,
+                2,
+              ],
+            },
+          });
+          map.on("mouseenter", placeAreasFillLayerId, () => {
+            map.getCanvas().style.cursor = "pointer";
+          });
+          map.on("mouseleave", placeAreasFillLayerId, () => {
+            map.getCanvas().style.cursor = "";
+          });
+          map.on("click", placeAreasFillLayerId, (event) => {
+            const placeId = event.features?.[0]?.properties?.id;
+            const place = places.find((candidate) => candidate.id === placeId);
+            if (!place) return;
+            setQuickPlanOpen(false);
+            setSelection({ type: "place", item: place });
+            setMobileSelectionOpen(true);
+            map.flyTo({
+              center: [place.longitude, place.latitude],
+              zoom: Math.max(map.getZoom(), 16),
+              essential: true,
+            });
+          });
           const points = [
             ...venues.map((venue) => [venue.longitude, venue.latitude] as [number, number]),
             ...places.map((place) => [place.longitude, place.latitude] as [number, number]),
@@ -522,6 +600,19 @@ export function VenuesMap({
       setMapReady(false);
     };
   }, [accessToken, initialCenter, places, venues]);
+
+  useEffect(() => {
+    if (!mapReady || !mapRef.current) return;
+    const source = mapRef.current.getSource(placeAreasSourceId) as
+      | { setData: (data: ReturnType<typeof createPlaceAreasData>) => void }
+      | undefined;
+    source?.setData(
+      createPlaceAreasData(
+        visiblePlaces,
+        selection?.type === "place" ? selection.item.id : undefined,
+      ),
+    );
+  }, [mapReady, selection, visiblePlaces]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;

@@ -3,11 +3,27 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { Copy, LocateFixed, MapPin, Route, SlidersHorizontal } from "lucide-react";
+import {
+  Copy,
+  LocateFixed,
+  MapPin,
+  Pentagon,
+  Route,
+  SlidersHorizontal,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 
 import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
 import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import { mapPlaceCategories } from "@/features/map-places/categories";
+import {
+  createPolygonGeometry,
+  getPolygonCenter,
+  getPolygonPoints,
+  parsePolygonGeometry,
+  type MapCoordinate,
+} from "@/features/map-places/geometry";
 import type {
   AdminMapPlaceFormValues,
   MapPlaceCityOption,
@@ -26,6 +42,7 @@ type AdminMapPlaceFormProps = {
 };
 
 const defaultCenter: [number, number] = [-4.8308, 39.9579];
+const areaSourceId = "admin-place-area";
 const fieldClassName =
   "mt-2 w-full rounded-xl border border-[#741314]/16 bg-white px-3.5 py-3 text-sm text-[#381932] outline-none transition placeholder:text-[#381932]/38 focus:border-[#741314] focus:ring-2 focus:ring-[#741314]/10";
 
@@ -45,6 +62,55 @@ function ensureMapboxStylesheet() {
   stylesheet.rel = "stylesheet";
   stylesheet.href = "https://api.mapbox.com/mapbox-gl-js/v3.22.0/mapbox-gl.css";
   document.head.append(stylesheet);
+}
+
+function readInitialPolygonPoints(initialValues?: AdminMapPlaceFormValues | null) {
+  if (initialValues?.geometryType !== "polygon" || !initialValues.geometry) {
+    return [];
+  }
+
+  try {
+    return getPolygonPoints(parsePolygonGeometry(JSON.parse(initialValues.geometry)));
+  } catch {
+    return [];
+  }
+}
+
+function createAreaPreviewData(points: MapCoordinate[]) {
+  const polygon = createPolygonGeometry(points);
+  return {
+    type: "FeatureCollection" as const,
+    features: [
+      ...(polygon
+        ? [
+            {
+              type: "Feature" as const,
+              properties: { kind: "area" },
+              geometry: polygon,
+            },
+          ]
+        : []),
+      ...(points.length > 0
+        ? [
+            {
+              type: "Feature" as const,
+              properties: { kind: "vertices" },
+              geometry: {
+                type: "MultiPoint" as const,
+                coordinates: points,
+              },
+            },
+          ]
+        : []),
+    ],
+  };
+}
+
+function updateAreaPreview(map: MapboxMap, points: MapCoordinate[]) {
+  const source = map.getSource(areaSourceId) as
+    | { setData: (data: ReturnType<typeof createAreaPreviewData>) => void }
+    | undefined;
+  source?.setData(createAreaPreviewData(points));
 }
 
 function CategoryIcon({ path }: { path: string }) {
@@ -74,12 +140,24 @@ export function AdminMapPlaceForm({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
+  const geometryTypeRef = useRef<"point" | "polygon">(
+    initialValues?.geometryType ?? "point",
+  );
+  const polygonPointsRef = useRef<MapCoordinate[]>(
+    readInitialPolygonPoints(initialValues),
+  );
   const [name, setName] = useState(initialValues?.name ?? "");
   const [slug, setSlug] = useState(initialValues?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(Boolean(initialValues?.slug));
   const [latitude, setLatitude] = useState(initialValues?.latitude ?? "");
   const [longitude, setLongitude] = useState(initialValues?.longitude ?? "");
   const [accuracy, setAccuracy] = useState(initialValues?.locationAccuracyM ?? "");
+  const [geometryType, setGeometryType] = useState<"point" | "polygon">(
+    initialValues?.geometryType ?? "point",
+  );
+  const [polygonPoints, setPolygonPoints] = useState<MapCoordinate[]>(
+    polygonPointsRef.current,
+  );
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -135,7 +213,61 @@ export function AdminMapPlaceForm({
         setLocationMessage("Punto ajustado manualmente en el mapa.");
       };
       marker.on("dragend", updateFromMarker);
+      map.on("load", () => {
+        map.addSource(areaSourceId, {
+          type: "geojson",
+          data: createAreaPreviewData(polygonPointsRef.current),
+        });
+        map.addLayer({
+          id: `${areaSourceId}-fill`,
+          type: "fill",
+          source: areaSourceId,
+          filter: ["==", ["get", "kind"], "area"],
+          paint: {
+            "fill-color": "#741314",
+            "fill-opacity": 0.2,
+          },
+        });
+        map.addLayer({
+          id: `${areaSourceId}-line`,
+          type: "line",
+          source: areaSourceId,
+          filter: ["==", ["get", "kind"], "area"],
+          paint: {
+            "line-color": "#741314",
+            "line-width": 3,
+          },
+        });
+        map.addLayer({
+          id: `${areaSourceId}-vertices`,
+          type: "circle",
+          source: areaSourceId,
+          filter: ["==", ["get", "kind"], "vertices"],
+          paint: {
+            "circle-color": "#FFF7E8",
+            "circle-radius": 6,
+            "circle-stroke-color": "#741314",
+            "circle-stroke-width": 3,
+          },
+        });
+      });
       map.on("click", (event) => {
+        if (geometryTypeRef.current === "polygon") {
+          const nextPoints = [
+            ...polygonPointsRef.current,
+            [event.lngLat.lng, event.lngLat.lat] as MapCoordinate,
+          ];
+          polygonPointsRef.current = nextPoints;
+          setPolygonPoints(nextPoints);
+          updateAreaPreview(map, nextPoints);
+          setLocationMessage(
+            nextPoints.length < 3
+              ? `Punto ${nextPoints.length} añadido. Marca al menos ${3 - nextPoints.length} más.`
+              : `Área delimitada con ${nextPoints.length} puntos. Puedes seguir añadiendo o guardar.`,
+          );
+          return;
+        }
+
         marker.setLngLat(event.lngLat);
         if (!marker.getElement().isConnected) marker.addTo(map);
         updateFromMarker();
@@ -155,12 +287,48 @@ export function AdminMapPlaceForm({
   }, [accessToken]);
 
   useEffect(() => {
+    geometryTypeRef.current = geometryType;
+    polygonPointsRef.current = polygonPoints;
+
+    const map = mapRef.current;
+    const marker = markerRef.current;
+    if (!map || !marker) return;
+
+    if (geometryType === "polygon") {
+      marker.remove();
+      updateAreaPreview(map, polygonPoints);
+      const polygon = createPolygonGeometry(polygonPoints);
+      if (polygon) {
+        const [nextLongitude, nextLatitude] = getPolygonCenter(polygon);
+        setLatitude(nextLatitude.toFixed(7));
+        setLongitude(nextLongitude.toFixed(7));
+      }
+      return;
+    }
+
+    updateAreaPreview(map, []);
     const lat = Number(latitude);
     const lng = Number(longitude);
-    if (!mapRef.current || !markerRef.current || !Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    if (Number.isFinite(lat) && Number.isFinite(lng) && latitude && longitude) {
+      marker.setLngLat([lng, lat]).addTo(map);
+    }
+  }, [geometryType, latitude, longitude, polygonPoints]);
+
+  useEffect(() => {
+    const lat = Number(latitude);
+    const lng = Number(longitude);
+    if (
+      geometryType !== "point" ||
+      !mapRef.current ||
+      !markerRef.current ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng)
+    ) {
+      return;
+    }
     markerRef.current.setLngLat([lng, lat]);
     if (!markerRef.current.getElement().isConnected) markerRef.current.addTo(mapRef.current);
-  }, [latitude, longitude]);
+  }, [geometryType, latitude, longitude]);
 
   async function useCurrentLocation() {
     setLocating(true);
@@ -187,6 +355,25 @@ export function AdminMapPlaceForm({
     } finally {
       setLocating(false);
     }
+  }
+
+  function undoPolygonPoint() {
+    const nextPoints = polygonPoints.slice(0, -1);
+    polygonPointsRef.current = nextPoints;
+    setPolygonPoints(nextPoints);
+    if (mapRef.current) updateAreaPreview(mapRef.current, nextPoints);
+    setLocationMessage(
+      nextPoints.length === 0
+        ? "Área vacía. Pulsa sobre el mapa para comenzar."
+        : `Último punto eliminado. Quedan ${nextPoints.length}.`,
+    );
+  }
+
+  function clearPolygon() {
+    polygonPointsRef.current = [];
+    setPolygonPoints([]);
+    if (mapRef.current) updateAreaPreview(mapRef.current, []);
+    setLocationMessage("Área eliminada. Pulsa sobre el mapa para dibujarla de nuevo.");
   }
 
   return (
@@ -455,19 +642,67 @@ export function AdminMapPlaceForm({
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-[#381932]">Posición exacta</h2>
-            <p className="mt-2 text-sm leading-6 text-[#381932]/62">Pulsa en el mapa, arrastra el marcador o guarda tu posición cuando estés en el lugar.</p>
+            <h2 className="text-xl font-semibold text-[#381932]">
+              {geometryType === "polygon" ? "Delimitar el área" : "Posición exacta"}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#381932]/62">
+              {geometryType === "polygon"
+                ? "Pulsa alrededor del perímetro. Tú decides cada vértice y el sistema calculará el centro."
+                : "Pulsa en el mapa, arrastra el marcador o guarda tu posición cuando estés en el lugar."}
+            </p>
           </div>
+          {geometryType === "point" ? (
+            <button
+              type="button"
+              onClick={useCurrentLocation}
+              disabled={locating}
+              className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-semibold text-[#FFF7E8] disabled:opacity-55"
+            >
+              <LocateFixed className="h-4 w-4" aria-hidden="true" />
+              {locating ? "Localizando..." : "Usar mi ubicación"}
+            </button>
+          ) : null}
+        </div>
+
+        <div className="mt-5 grid gap-2 rounded-2xl border border-[#741314]/12 bg-white p-2 sm:grid-cols-2">
           <button
             type="button"
-            onClick={useCurrentLocation}
-            disabled={locating}
-            className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-semibold text-[#FFF7E8] disabled:opacity-55"
+            aria-pressed={geometryType === "point"}
+            onClick={() => setGeometryType("point")}
+            className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition ${
+              geometryType === "point"
+                ? "bg-[#741314] text-[#FFF7E8]"
+                : "text-[#741314] hover:bg-[#741314]/[0.05]"
+            }`}
           >
-            <LocateFixed className="h-4 w-4" aria-hidden="true" />
-            {locating ? "Localizando..." : "Usar mi ubicación"}
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            Marcar un punto
+          </button>
+          <button
+            type="button"
+            aria-pressed={geometryType === "polygon"}
+            onClick={() => setGeometryType("polygon")}
+            className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition ${
+              geometryType === "polygon"
+                ? "bg-[#741314] text-[#FFF7E8]"
+                : "text-[#741314] hover:bg-[#741314]/[0.05]"
+            }`}
+          >
+            <Pentagon className="h-4 w-4" aria-hidden="true" />
+            Delimitar un área
           </button>
         </div>
+
+        <input type="hidden" name="geometryType" value={geometryType} />
+        <input
+          type="hidden"
+          name="geometry"
+          value={
+            geometryType === "polygon"
+              ? JSON.stringify(createPolygonGeometry(polygonPoints))
+              : ""
+          }
+        />
 
         {accessToken ? (
           <div ref={mapContainerRef} className="mt-5 h-[420px] overflow-hidden rounded-xl border border-[#741314]/14 bg-[#eadfca]" />
@@ -476,6 +711,36 @@ export function AdminMapPlaceForm({
             Configura `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` para usar el selector visual. Puedes introducir las coordenadas manualmente.
           </div>
         )}
+
+        {geometryType === "polygon" ? (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#741314]/12 bg-white px-4 py-3">
+            <p className="text-sm font-semibold text-[#381932]" aria-live="polite">
+              {polygonPoints.length < 3
+                ? `${polygonPoints.length}/3 puntos mínimos`
+                : `${polygonPoints.length} puntos · área lista para guardar`}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={undoPolygonPoint}
+                disabled={polygonPoints.length === 0}
+                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#741314]/18 px-3.5 text-sm font-semibold text-[#741314] disabled:opacity-40"
+              >
+                <Undo2 className="h-4 w-4" aria-hidden="true" />
+                Deshacer
+              </button>
+              <button
+                type="button"
+                onClick={clearPolygon}
+                disabled={polygonPoints.length === 0}
+                className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[#741314]/18 px-3.5 text-sm font-semibold text-[#741314] disabled:opacity-40"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                Limpiar
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         {showAdvanced || !accessToken ? (
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -498,9 +763,13 @@ export function AdminMapPlaceForm({
             <input type="hidden" name="longitude" value={longitude} />
             <input type="hidden" name="locationAccuracyM" value={accuracy} />
             <p className="mt-4 text-sm font-medium text-[#381932]/65">
-              {latitude && longitude
-                ? "Posición marcada. Puedes ajustarla directamente sobre el mapa."
-                : "Pulsa sobre el mapa para marcar la posición exacta."}
+              {geometryType === "polygon"
+                ? polygonPoints.length >= 3
+                  ? "El punto central se calcula automáticamente a partir del área."
+                  : "Pulsa alrededor del perímetro para completar el área."
+                : latitude && longitude
+                  ? "Posición marcada. Puedes ajustarla directamente sobre el mapa."
+                  : "Pulsa sobre el mapa para marcar la posición exacta."}
             </p>
           </>
         )}

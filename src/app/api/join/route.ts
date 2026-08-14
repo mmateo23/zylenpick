@@ -24,6 +24,26 @@ type JoinRequestPayload = {
   privacyAccepted: boolean;
 };
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ALLOWED_SERVICE_TYPES = new Set(["pickup", "delivery", "both"]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function normalizeString(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function getServiceLabel(serviceType: string) {
   switch (serviceType) {
     case "pickup":
@@ -37,21 +57,23 @@ function getServiceLabel(serviceType: string) {
   }
 }
 
-function normalizePayload(payload: JoinRequestPayload): JoinRequestPayload {
+function normalizePayload(value: unknown): JoinRequestPayload {
+  const payload = isRecord(value) ? value : {};
+
   return {
-    venueName: String(payload.venueName ?? "").trim(),
-    businessType: String(payload.businessType ?? "").trim(),
-    area: String(payload.area ?? "").trim(),
-    address: String(payload.address ?? "").trim(),
-    venuePhone: String(payload.venuePhone ?? "").trim(),
-    venueEmail: String(payload.venueEmail ?? "").trim(),
-    website: String(payload.website ?? "").trim(),
-    contactName: String(payload.contactName ?? "").trim(),
-    contactPhone: String(payload.contactPhone ?? "").trim(),
-    contactEmail: String(payload.contactEmail ?? "").trim(),
-    serviceType: String(payload.serviceType ?? "").trim(),
+    venueName: normalizeString(payload.venueName),
+    businessType: normalizeString(payload.businessType),
+    area: normalizeString(payload.area),
+    address: normalizeString(payload.address),
+    venuePhone: normalizeString(payload.venuePhone),
+    venueEmail: normalizeString(payload.venueEmail),
+    website: normalizeString(payload.website),
+    contactName: normalizeString(payload.contactName),
+    contactPhone: normalizeString(payload.contactPhone),
+    contactEmail: normalizeString(payload.contactEmail),
+    serviceType: normalizeString(payload.serviceType),
     interest: isJoinInterest(payload.interest) ? payload.interest : null,
-    message: String(payload.message ?? "").trim(),
+    message: normalizeString(payload.message),
     privacyAccepted: Boolean(payload.privacyAccepted),
   };
 }
@@ -78,7 +100,13 @@ function validatePayload(payload: JoinRequestPayload) {
   if (!payload.contactEmail) {
     return "El email de contacto es obligatorio.";
   }
-  if (!payload.serviceType) {
+  if (!EMAIL_PATTERN.test(payload.contactEmail)) {
+    return "Introduce un email de contacto válido.";
+  }
+  if (payload.venueEmail && !EMAIL_PATTERN.test(payload.venueEmail)) {
+    return "Introduce un email válido para el local.";
+  }
+  if (!ALLOWED_SERVICE_TYPES.has(payload.serviceType)) {
     return "El tipo de servicio es obligatorio.";
   }
   if (!payload.interest) {
@@ -118,8 +146,8 @@ function buildEmailHtml(payload: JoinRequestPayload) {
             .map(
               ([label, value]) => `
                 <tr>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; width: 220px;">${label}</td>
-                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${value}</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb; font-weight: 600; width: 220px;">${escapeHtml(label)}</td>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">${escapeHtml(value)}</td>
                 </tr>
               `,
             )
@@ -158,21 +186,30 @@ export async function POST(request: Request) {
     process.env.JOIN_REQUEST_FROM_EMAIL ?? "Pickyalo <onboarding@resend.dev>";
 
   if (
-    !resendApiKey ||
-    !joinRequestToEmail ||
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
     return NextResponse.json(
       {
         message:
-          "Falta configurar el envío de solicitudes en el servidor. Revisa las variables de entorno.",
+          "Falta configurar el almacenamiento de solicitudes en el servidor.",
       },
       { status: 500 },
     );
   }
 
-  const payload = normalizePayload((await request.json()) as JoinRequestPayload);
+  let requestBody: unknown;
+
+  try {
+    requestBody = await request.json();
+  } catch {
+    return NextResponse.json(
+      { message: "La solicitud enviada no tiene un formato válido." },
+      { status: 400 },
+    );
+  }
+
+  const payload = normalizePayload(requestBody);
   const validationError = validatePayload(payload);
 
   if (validationError) {
@@ -181,23 +218,27 @@ export async function POST(request: Request) {
 
   const supabase = createSupabaseAdminClient();
 
-  const { error: insertError } = await supabase.from("join_requests").insert({
-    venue_name: payload.venueName,
-    business_type: payload.businessType,
-    area: payload.area,
-    address: payload.address,
-    venue_phone: payload.venuePhone || null,
-    venue_email: payload.venueEmail || null,
-    website: payload.website || null,
-    contact_name: payload.contactName,
-    contact_phone: payload.contactPhone,
-    contact_email: payload.contactEmail,
-    service_type: payload.serviceType,
-    interest: payload.interest,
-    message: payload.message || null,
-    privacy_accepted: payload.privacyAccepted,
-    status: "pending",
-  });
+  const { data: savedRequest, error: insertError } = await supabase
+    .from("join_requests")
+    .insert({
+      venue_name: payload.venueName,
+      business_type: payload.businessType,
+      area: payload.area,
+      address: payload.address,
+      venue_phone: payload.venuePhone || null,
+      venue_email: payload.venueEmail || null,
+      website: payload.website || null,
+      contact_name: payload.contactName,
+      contact_phone: payload.contactPhone,
+      contact_email: payload.contactEmail,
+      service_type: payload.serviceType,
+      interest: payload.interest,
+      message: payload.message || null,
+      privacy_accepted: payload.privacyAccepted,
+      status: "pending",
+    })
+    .select("id")
+    .single();
 
   if (insertError) {
     return NextResponse.json(
@@ -210,38 +251,49 @@ export async function POST(request: Request) {
     );
   }
 
-  const resendResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: joinRequestFromEmail,
-      to: [joinRequestToEmail],
-      subject: `Nueva solicitud de local: ${payload.venueName}`,
-      html: buildEmailHtml(payload),
-      text: buildEmailText(payload),
-      reply_to: payload.contactEmail,
-    }),
-  });
+  if (resendApiKey && joinRequestToEmail) {
+    try {
+      const resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: joinRequestFromEmail,
+          to: [joinRequestToEmail],
+          subject: `Nueva solicitud de local: ${payload.venueName}`,
+          html: buildEmailHtml(payload),
+          text: buildEmailText(payload),
+          reply_to: payload.contactEmail,
+        }),
+        signal: AbortSignal.timeout(8_000),
+      });
 
-  if (!resendResponse.ok) {
-    const resendError = await resendResponse.text();
-
-    return NextResponse.json(
-      {
-        message:
-          "No hemos podido enviar la solicitud por correo. Revisa la configuración del servicio de email.",
-        detail: resendError,
-      },
-      { status: 502 },
-    );
+      if (!resendResponse.ok) {
+        console.error("Join request notification failed", {
+          requestId: savedRequest.id,
+          status: resendResponse.status,
+        });
+      }
+    } catch (error) {
+      console.error("Join request notification failed", {
+        requestId: savedRequest.id,
+        reason: error instanceof Error ? error.name : "unknown",
+      });
+    }
+  } else {
+    console.warn("Join request notification is not configured", {
+      requestId: savedRequest.id,
+    });
   }
 
-  return NextResponse.json({
-    ok: true,
-    message:
-      "Solicitud enviada correctamente. Revisaremos tus datos y te contactaremos pronto.",
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      message:
+        "Solicitud enviada correctamente. Revisaremos tus datos y te contactaremos pronto.",
+    },
+    { status: 201 },
+  );
 }
