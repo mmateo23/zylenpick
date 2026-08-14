@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -78,6 +79,13 @@ export function AdminAuthForm() {
       >
         {isSubmitting ? "Entrando..." : "Entrar al panel"}
       </button>
+
+      <Link
+        href="/panel/recuperar-contrasena"
+        className="block text-center text-sm font-semibold text-[color:var(--brand)] underline decoration-[color:var(--brand)]/30 underline-offset-4 transition hover:decoration-[color:var(--brand)]"
+      >
+        He olvidado mi contraseña
+      </Link>
     </form>
   );
 }

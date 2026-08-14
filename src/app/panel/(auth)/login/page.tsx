@@ -11,8 +11,13 @@ export const metadata: Metadata = getNoIndexMetadata({
   description: "Área privada para acceder al panel de administración.",
 });
 
-export default async function AdminLoginPage() {
+type AdminLoginPageProps = {
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
   const sessionState = await getAdminSessionState();
+  const recoveryError = searchParams?.error === "recovery";
 
   if (!sessionState.configured) {
     return (
@@ -55,6 +60,14 @@ export default async function AdminLoginPage() {
         </p>
 
         <div className="mt-8">
+          {recoveryError ? (
+            <p
+              role="alert"
+              className="mb-4 rounded-[1.2rem] border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm leading-6 text-[color:var(--foreground)]"
+            >
+              El enlace no pudo validarse. Solicita uno nuevo y ábrelo en el mismo navegador donde lo pediste.
+            </p>
+          ) : null}
           <AdminAuthForm />
         </div>
       </section>
