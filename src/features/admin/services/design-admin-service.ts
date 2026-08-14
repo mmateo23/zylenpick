@@ -1,6 +1,9 @@
 import { revalidatePath } from "next/cache";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import {
   defaultSiteDesignConfig,
   normalizeSiteDesignConfig,
@@ -9,7 +12,6 @@ import {
   type SiteDesignTextsConfig,
   type SiteDesignZonesConfig,
 } from "@/features/design/site-design-config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 const DESIGN_SETTING_KEYS = ["texts", "media", "zones"] as const;
@@ -51,7 +53,7 @@ async function upsertDesignSetting(
 }
 
 export async function getAdminSiteDesignConfig(): Promise<SiteDesignConfig> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("site_design_settings")
     .select("key, value")

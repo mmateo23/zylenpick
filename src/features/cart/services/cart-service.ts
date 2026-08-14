@@ -1,6 +1,6 @@
 import type { PersistedCart } from "@/features/cart/types";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type CartRecord = {
   id: string;
@@ -71,7 +71,7 @@ export async function getActiveCartBySession(
     return emptyCart();
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("carts")
     .select(
@@ -107,7 +107,7 @@ export async function addMenuItemToCart(params: {
     return emptyCart();
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { sessionId, venueId, menuItemId } = params;
 
   const { data: menuItem, error: menuItemError } = await supabase

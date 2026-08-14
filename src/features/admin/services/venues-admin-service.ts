@@ -8,8 +8,10 @@ import {
   openingHourDayOrder,
   type OpeningHoursValue,
 } from "@/features/venues/opening-hours";
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import type { Database } from "@/types/database";
 
 export type AdminVenueListItem = {
@@ -246,7 +248,7 @@ async function getCitySlugById(cityId: string) {
     return null;
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("cities")
     .select("slug")
@@ -263,7 +265,7 @@ async function getCitySlugById(cityId: string) {
 async function getPublicVenuePathContextById(
   venueId: string,
 ): Promise<PublicVenuePathContext | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
     .select("slug, cities!inner(slug)")
@@ -317,7 +319,7 @@ function revalidatePublicVenuePaths(paths: Array<PublicVenuePathContext | null>)
 }
 
 export async function getAdminCities(): Promise<AdminCityOption[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("cities")
     .select("id, name")
@@ -375,7 +377,7 @@ export function buildVenueInitialValuesFromJoinRequest(
 }
 
 export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   let { data, error } = await supabase
     .from("venues")
     .select(
@@ -423,7 +425,7 @@ export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
 export async function getAdminVenueById(
   venueId: string,
 ): Promise<AdminVenueFormValues | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   let { data, error } = await supabase
     .from("venues")
     .select(

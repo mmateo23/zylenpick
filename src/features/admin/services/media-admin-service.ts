@@ -1,12 +1,14 @@
 import { revalidatePath } from "next/cache";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import {
   getDefaultSiteMediaAssetMap,
   siteMediaAssetDefinitions,
   type SiteMediaAssetKey,
 } from "@/features/site-media/site-media";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminMediaCityItem = {
   id: string;
@@ -52,7 +54,7 @@ function isMissingCityHeroVideoColumnError(message: string) {
 
 export async function getAdminSiteMediaAssets(): Promise<AdminSiteMediaAssetItem[]> {
   const fallbackMap = getDefaultSiteMediaAssetMap();
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("site_media_assets")
     .select("key, image_url");
@@ -80,7 +82,7 @@ export async function getAdminSiteMediaAssets(): Promise<AdminSiteMediaAssetItem
 }
 
 export async function getAdminMediaCities(): Promise<AdminMediaCityItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("cities")
     .select("id, name, slug, hero_image_url, hero_video_url")
@@ -123,7 +125,7 @@ export async function getAdminMediaCities(): Promise<AdminMediaCityItem[]> {
 export async function getAdminMediaCityById(
   cityId: string,
 ): Promise<AdminMediaCityItem | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("cities")
     .select("id, name, slug, hero_image_url, hero_video_url")
@@ -174,7 +176,7 @@ export async function getAdminMediaCityById(
 export async function getAdminVenueMediaByCityId(
   cityId: string,
 ): Promise<AdminMediaVenueItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
     .select("id, name, slug, cover_url, logo_url")
@@ -249,7 +251,7 @@ export async function updateVenueMediaAction(
 
   const coverUrl = String(formData.get("coverUrl") ?? "").trim();
   const logoUrl = String(formData.get("logoUrl") ?? "").trim();
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data: venueData, error: venueError } = await supabase
     .from("venues")
     .select("slug, cities!inner(slug)")

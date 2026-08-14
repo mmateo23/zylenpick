@@ -1,9 +1,11 @@
 import { revalidatePath } from "next/cache";
 import { notFound, redirect } from "next/navigation";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import type { MenuItemAllergen } from "@/features/venues/types";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminVenueContext = {
   id: string;
@@ -148,7 +150,7 @@ function normalizeMenuItemFormValues(formData: FormData): NormalizedMenuItemForm
 async function getPublicVenuePathContextById(
   venueId: string,
 ): Promise<PublicVenuePathContext | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
     .select("slug, cities!inner(slug)")
@@ -184,7 +186,7 @@ function revalidatePublicVenuePaths(pathContext: PublicVenuePathContext | null) 
 export async function getAdminVenueContext(
   venueId: string,
 ): Promise<AdminVenueContext | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
     .select("id, name, slug")
@@ -209,7 +211,7 @@ export async function getAdminVenueContext(
 export async function getAdminMenuItemsByVenueId(
   venueId: string,
 ): Promise<AdminMenuItemListItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const baseQuery = supabase
     .from("menu_items")
     .select(
@@ -281,7 +283,7 @@ export async function getAdminMenuItemById(
   venueId: string,
   menuItemId: string,
 ): Promise<AdminMenuItemFormValues | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("menu_items")
     .select(
@@ -578,7 +580,7 @@ export async function toggleMenuItemAvailabilityAction(
 async function getMenuItemPublicPathContext(
   menuItemId: string,
 ): Promise<PublicVenuePathContext | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("menu_items")
     .select("venues!inner(slug, cities!inner(slug))")
@@ -698,7 +700,7 @@ export async function toggleVenueFeaturedAction(
 export async function getAdminMenuItemsByCityId(
   cityId: string,
 ): Promise<AdminMenuItemListItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const baseQuery = supabase
     .from("menu_items")
     .select(
@@ -774,7 +776,7 @@ export async function getAdminMenuItemsByCityId(
 export async function getAdminHighlightedVenuesByCityId(
   cityId: string,
 ): Promise<AdminHighlightedVenueListItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
     .select("id, name, slug, cover_url, is_featured, city_id, cities(name)")

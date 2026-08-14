@@ -1,9 +1,11 @@
 import { revalidatePath } from "next/cache";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import type { SiteChip, SiteChipType } from "@/features/chips/types";
 import { siteChipTypes } from "@/features/chips/types";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type ChipDishOption = {
   id: string;
@@ -127,7 +129,7 @@ function normalizeChipPayload(formData: FormData) {
 }
 
 export async function getAdminSiteChips(): Promise<SiteChip[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("site_chips")
     .select(
@@ -145,7 +147,7 @@ export async function getAdminSiteChips(): Promise<SiteChip[]> {
 }
 
 export async function getChipDishOptions(): Promise<ChipDishOption[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("menu_items")
     .select(
