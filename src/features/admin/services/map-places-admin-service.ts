@@ -6,6 +6,7 @@ import { mapPlaceCategories } from "@/features/map-places/categories";
 import type {
   AdminMapPlace,
   MapPlaceCategory,
+  MapPlacePlanRole,
   MapPlaceSource,
   MapPlaceStatus,
 } from "@/features/map-places/types";
@@ -27,6 +28,14 @@ export type AdminMapPlaceFormValues = {
   slug: string;
   name: string;
   description: string;
+  coverImageUrl: string;
+  story: string;
+  openingHoursNote: string;
+  accessibilityNote: string;
+  sourceLabel: string;
+  sourceUrl: string;
+  planRole: MapPlacePlanRole;
+  isPlanCandidate: boolean;
   category: MapPlaceCategory;
   latitude: string;
   longitude: string;
@@ -48,6 +57,7 @@ const validSources = new Set<MapPlaceSource>([
   "manual",
 ]);
 const validStatuses = new Set<MapPlaceStatus>(["draft", "review", "published"]);
+const validPlanRoles = new Set<MapPlacePlanRole>(["discover", "enjoy", "support"]);
 
 function isMissingTableError(message: string) {
   const normalized = message.toLowerCase();
@@ -75,10 +85,24 @@ function parseOptionalPositiveNumber(value: string) {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
+function validateOptionalUrl(value: string, label: string, allowLocalPath = false) {
+  if (!value || (allowLocalPath && value.startsWith("/"))) return;
+
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      throw new Error();
+    }
+  } catch {
+    throw new Error(`${label} debe ser una URL http(s) válida.`);
+  }
+}
+
 function normalizeFormData(formData: FormData): AdminMapPlaceFormValues {
   const category = String(formData.get("category") ?? "park") as MapPlaceCategory;
   const source = String(formData.get("source") ?? "field") as MapPlaceSource;
   const status = String(formData.get("status") ?? "draft") as MapPlaceStatus;
+  const planRole = String(formData.get("planRole") ?? "support") as MapPlacePlanRole;
 
   return {
     id: "",
@@ -86,6 +110,14 @@ function normalizeFormData(formData: FormData): AdminMapPlaceFormValues {
     slug: String(formData.get("slug") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
+    coverImageUrl: String(formData.get("coverImageUrl") ?? "").trim(),
+    story: String(formData.get("story") ?? "").trim(),
+    openingHoursNote: String(formData.get("openingHoursNote") ?? "").trim(),
+    accessibilityNote: String(formData.get("accessibilityNote") ?? "").trim(),
+    sourceLabel: String(formData.get("sourceLabel") ?? "").trim(),
+    sourceUrl: String(formData.get("sourceUrl") ?? "").trim(),
+    planRole,
+    isPlanCandidate: formData.get("isPlanCandidate") === "on",
     category,
     latitude: String(formData.get("latitude") ?? "").trim(),
     longitude: String(formData.get("longitude") ?? "").trim(),
@@ -108,6 +140,13 @@ function validateValues(values: AdminMapPlaceFormValues) {
   if (!validSources.has(values.source)) throw new Error("Fuente no válida.");
   if (!validStatuses.has(values.status)) throw new Error("Estado no válido.");
 
+  if (!validPlanRoles.has(values.planRole)) {
+    throw new Error("La función del lugar en el plan no es válida.");
+  }
+
+  validateOptionalUrl(values.coverImageUrl, "La imagen principal", true);
+  validateOptionalUrl(values.sourceUrl, "El enlace oficial");
+
   parseNumber(values.latitude, "La latitud", -90, 90);
   parseNumber(values.longitude, "La longitud", -180, 180);
 
@@ -128,6 +167,14 @@ function toPayload(values: AdminMapPlaceFormValues) {
     slug: values.slug,
     name: values.name,
     description: values.description || null,
+    cover_image_url: values.coverImageUrl || null,
+    story: values.story || null,
+    opening_hours_note: values.openingHoursNote || null,
+    accessibility_note: values.accessibilityNote || null,
+    source_label: values.sourceLabel || null,
+    source_url: values.sourceUrl || null,
+    plan_role: values.planRole,
+    is_plan_candidate: values.isPlanCandidate,
     category: values.category,
     icon_name: category.iconName,
     geometry_type: "point" as const,
@@ -177,7 +224,7 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, icon_name, latitude, longitude, location_accuracy_m, amenities, is_accessible, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
+      "id, city_id, slug, name, description, category, icon_name, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
     )
     .order("sort_order")
     .order("name");
@@ -200,6 +247,14 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
     locationAccuracyM: place.location_accuracy_m,
     amenities: place.amenities ?? [],
     isAccessible: place.is_accessible,
+    coverImageUrl: place.cover_image_url,
+    story: place.story,
+    openingHoursNote: place.opening_hours_note,
+    accessibilityNote: place.accessibility_note,
+    sourceLabel: place.source_label,
+    sourceUrl: place.source_url,
+    planRole: place.plan_role,
+    isPlanCandidate: place.is_plan_candidate,
     source: place.source,
     sourceNote: place.source_note,
     status: place.status,
@@ -215,7 +270,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, latitude, longitude, location_accuracy_m, amenities, is_accessible, source, source_note, status, is_active, sort_order",
+      "id, city_id, slug, name, description, category, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
     )
     .eq("id", id)
     .maybeSingle();
@@ -231,6 +286,14 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     slug: data.slug,
     name: data.name,
     description: data.description ?? "",
+    coverImageUrl: data.cover_image_url ?? "",
+    story: data.story ?? "",
+    openingHoursNote: data.opening_hours_note ?? "",
+    accessibilityNote: data.accessibility_note ?? "",
+    sourceLabel: data.source_label ?? "",
+    sourceUrl: data.source_url ?? "",
+    planRole: data.plan_role,
+    isPlanCandidate: data.is_plan_candidate,
     category: data.category,
     latitude: String(data.latitude),
     longitude: String(data.longitude),
@@ -242,6 +305,44 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     status: data.status,
     isActive: data.is_active,
     sortOrder: String(data.sort_order),
+  };
+}
+
+export async function getAdminMapPlaceCopyValues(
+  id: string,
+): Promise<AdminMapPlaceFormValues | null> {
+  const sourcePlace = await getAdminMapPlaceById(id);
+  if (!sourcePlace) return null;
+
+  const supabase = await createAdminReadClient();
+  const baseSlug = `${sourcePlace.slug}-copia`;
+  const { data, error } = await supabase
+    .from("map_places")
+    .select("slug")
+    .eq("city_id", sourcePlace.cityId)
+    .like("slug", `${baseSlug}%`);
+
+  if (error) {
+    throw new Error(`No se pudo preparar la copia: ${error.message}`);
+  }
+
+  const usedSlugs = new Set((data ?? []).map((place) => place.slug));
+  let copySlug = baseSlug;
+  let suffix = 2;
+
+  while (usedSlugs.has(copySlug)) {
+    copySlug = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  return {
+    ...sourcePlace,
+    id: "",
+    name: `${sourcePlace.name} (copia)`,
+    slug: copySlug,
+    status: "draft",
+    isActive: false,
+    isPlanCandidate: false,
   };
 }
 

@@ -29,35 +29,37 @@ export default async function AdminVenuesPage() {
         </Link>
       </div>
 
-      <section className="glass-panel overflow-hidden rounded-[1.8rem] border border-[color:var(--border)] shadow-[var(--soft-shadow)]">
-        <div className="divide-y divide-white/8">
+      <section className="glass-panel overflow-hidden rounded-[1.8rem] border border-[#741314]/15 bg-[#FFF7E8] shadow-[var(--soft-shadow)]">
+        <div className="divide-y divide-[#741314]/10">
           {venues.map((venue) => (
             <article
               key={venue.id}
-              className="grid gap-4 px-5 py-5 text-sm text-[color:var(--foreground)] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] md:items-center"
+              className="grid gap-4 px-5 py-5 text-sm text-[#24110E] md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] md:items-center"
             >
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="truncate text-base font-semibold">{venue.name}</h2>
+                  <h2 className="truncate text-base font-semibold text-[#24110E]">
+                    {venue.name}
+                  </h2>
                   <AdminStatusBadge tone={venue.isPublished ? "success" : "neutral"}>
                     {venue.isPublished ? "Publicado" : "Oculto"}
                   </AdminStatusBadge>
                 </div>
-                <p className="mt-2 text-sm text-[color:var(--muted-strong)]">
+                <p className="mt-2 text-sm text-[#381932]/70">
                   {venue.cityName ?? "Sin ciudad"}
                 </p>
-                <p className="mt-1 break-all text-xs text-[color:var(--muted)]">
+                <p className="mt-1 break-all text-xs text-[#381932]/50">
                   /{venue.slug}
                 </p>
               </div>
 
-              <div className="grid gap-2 text-[color:var(--muted-strong)] sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+              <div className="grid gap-2 text-[#381932]/75 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                 <p className="min-w-0 truncate">
-                  <span className="text-[color:var(--muted)]">Tel.</span>{" "}
+                  <span className="font-medium text-[#381932]/55">Tel.</span>{" "}
                   {venue.phone ?? "Sin telefono"}
                 </p>
                 <p className="min-w-0 truncate">
-                  <span className="text-[color:var(--muted)]">Email</span>{" "}
+                  <span className="font-medium text-[#381932]/55">Email</span>{" "}
                   {venue.email ?? "Sin email"}
                 </p>
                 <div className="flex flex-wrap gap-2 sm:col-span-2 md:col-span-1 lg:col-span-2">

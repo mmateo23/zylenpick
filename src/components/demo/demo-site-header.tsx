@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { BookOpen, LayoutGrid, MapPinned, Menu, ReceiptText, Store, X } from "lucide-react";
+import { LayoutGrid, Map, MapPinned, Menu, ReceiptText, Store, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
 
@@ -24,6 +24,7 @@ type NavItem = {
 const mobileNavigationItems: NavItem[] = [
   { label: "Explorar selecci\u00f3n", href: "/platos" },
   { label: "Zonas", href: "/zonas" },
+  { label: "Explorar mapa", href: "/mapa" },
   { label: "Tu cesta", href: "/cart" },
   { label: "\u00danete", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
@@ -59,6 +60,7 @@ export function DemoSiteHeader({
     () => [
       { label: "Selecci\u00f3n", href: "/platos", Icon: LayoutGrid },
       { label: "Zonas", href: "/zonas", Icon: MapPinned },
+      { label: "Mapa", href: "/mapa", Icon: Map },
       { label: "\u00danete", href: "/unete", Icon: Store },
     ],
     [],
@@ -108,10 +110,10 @@ export function DemoSiteHeader({
   const desktopLeftDockItems = [
     navigationItems[0],
     navigationItems[1],
-    { label: "Proyecto", href: "/el-proyecto", Icon: BookOpen },
+    navigationItems[2],
   ];
   const desktopRightDockItems = [
-    navigationItems[2],
+    navigationItems[3],
     { label: "Pedidos", href: "/pedidos", Icon: ReceiptText },
   ];
 
@@ -192,7 +194,7 @@ export function DemoSiteHeader({
 
           <div className="hidden items-center justify-center md:flex">
             <nav
-              aria-label="Navegacion principal"
+              aria-label="Navegación principal"
               className={`inline-flex items-center gap-1.5 rounded-[1.7rem] ${desktopNavRailClassName}`}
             >
               {desktopLeftDockItems.map((item) => {
@@ -280,7 +282,7 @@ export function DemoSiteHeader({
             id="demo-mobile-navigation"
             className={`absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border p-3 backdrop-blur-2xl backdrop-saturate-150 md:hidden ${shellClassName}`}
           >
-            <nav aria-label="Navegacion movil">
+            <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
                 {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
@@ -304,6 +306,8 @@ export function DemoSiteHeader({
                           size={21}
                           className={currentCitySlug ? "shrink-0 text-[#FED47D]" : "shrink-0"}
                         />
+                      ) : item.href === "/mapa" ? (
+                        <Map size={21} className="shrink-0" />
                       ) : null}
                       <span className="truncate">{item.label}</span>
                     </Link>

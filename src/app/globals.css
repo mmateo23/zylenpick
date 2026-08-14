@@ -271,6 +271,26 @@ video {
 }
 
 @layer utilities {
+  .admin-shell {
+    --background: #f6efe6;
+    --foreground: #24110e;
+    --surface: #fff7e8;
+    --surface-strong: #ffffff;
+    --surface-dark: #741314;
+    --surface-dark-soft: #5f0f10;
+    --border: rgba(116, 19, 20, 0.16);
+    --border-strong: rgba(116, 19, 20, 0.28);
+    --brand: #741314;
+    --brand-strong: #5f0f10;
+    --brand-soft: rgba(116, 19, 20, 0.08);
+    --accent: #741314;
+    --muted: rgba(36, 17, 14, 0.48);
+    --muted-strong: rgba(36, 17, 14, 0.68);
+    --shadow: 0 18px 60px rgba(116, 19, 20, 0.1);
+    --soft-shadow: 0 18px 60px rgba(116, 19, 20, 0.1);
+    --card-shadow: 0 10px 24px rgba(116, 19, 20, 0.12);
+  }
+
   .text-balance {
     text-wrap: balance;
   }

@@ -1,8 +1,10 @@
 import { notFound, redirect } from "next/navigation";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import type { JoinInterest } from "@/features/join/join-interest";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminJoinRequestStatus = "pending" | "approved" | "rejected";
 
@@ -41,7 +43,7 @@ export type AdminJoinRequestDetail = {
 };
 
 export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("join_requests")
     .select(
@@ -70,7 +72,7 @@ export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]
 export async function getAdminJoinRequestById(
   requestId: string,
 ): Promise<AdminJoinRequestDetail | null> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("join_requests")
     .select(

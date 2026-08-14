@@ -60,6 +60,7 @@ export type Database = {
             | "fountain"
             | "toilets"
             | "monument"
+            | "mural"
             | "viewpoint"
             | "parking"
             | "accessible"
@@ -73,6 +74,14 @@ export type Database = {
           location_accuracy_m: number | null;
           amenities: string[];
           is_accessible: boolean;
+          cover_image_url: string | null;
+          story: string | null;
+          opening_hours_note: string | null;
+          accessibility_note: string | null;
+          source_label: string | null;
+          source_url: string | null;
+          plan_role: "discover" | "enjoy" | "support";
+          is_plan_candidate: boolean;
           source: "field" | "municipal" | "openstreetmap" | "manual";
           source_note: string | null;
           status: "draft" | "review" | "published";
@@ -97,6 +106,7 @@ export type Database = {
             | "fountain"
             | "toilets"
             | "monument"
+            | "mural"
             | "viewpoint"
             | "parking"
             | "accessible"
@@ -110,6 +120,14 @@ export type Database = {
           location_accuracy_m?: number | null;
           amenities?: string[];
           is_accessible?: boolean;
+          cover_image_url?: string | null;
+          story?: string | null;
+          opening_hours_note?: string | null;
+          accessibility_note?: string | null;
+          source_label?: string | null;
+          source_url?: string | null;
+          plan_role?: "discover" | "enjoy" | "support";
+          is_plan_candidate?: boolean;
           source?: "field" | "municipal" | "openstreetmap" | "manual";
           source_note?: string | null;
           status?: "draft" | "review" | "published";
@@ -134,6 +152,7 @@ export type Database = {
             | "fountain"
             | "toilets"
             | "monument"
+            | "mural"
             | "viewpoint"
             | "parking"
             | "accessible"
@@ -147,6 +166,14 @@ export type Database = {
           location_accuracy_m?: number | null;
           amenities?: string[];
           is_accessible?: boolean;
+          cover_image_url?: string | null;
+          story?: string | null;
+          opening_hours_note?: string | null;
+          accessibility_note?: string | null;
+          source_label?: string | null;
+          source_url?: string | null;
+          plan_role?: "discover" | "enjoy" | "support";
+          is_plan_candidate?: boolean;
           source?: "field" | "municipal" | "openstreetmap" | "manual";
           source_note?: string | null;
           status?: "draft" | "review" | "published";

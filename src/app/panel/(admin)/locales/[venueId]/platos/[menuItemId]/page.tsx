@@ -6,6 +6,7 @@ import {
   requireAdminVenueContext,
   updateMenuItemAction,
 } from "@/features/admin/services/menu-items-admin-service";
+import { getAdminVenuePublicHref } from "@/features/admin/services/venues-admin-service";
 
 type AdminMenuItemEditPageProps = {
   params: {
@@ -17,9 +18,10 @@ type AdminMenuItemEditPageProps = {
 export default async function AdminMenuItemEditPage({
   params,
 }: AdminMenuItemEditPageProps) {
-  const [venue, menuItem] = await Promise.all([
+  const [venue, menuItem, venuePreviewHref] = await Promise.all([
     requireAdminVenueContext(params.venueId),
     getAdminMenuItemById(params.venueId, params.menuItemId),
+    getAdminVenuePublicHref(params.venueId),
   ]);
 
   if (!menuItem) {
@@ -40,6 +42,11 @@ export default async function AdminMenuItemEditPage({
       action={updateAction}
       venue={venue}
       initialValues={menuItem}
+      previewHref={
+        venuePreviewHref
+          ? `${venuePreviewHref}#plato-${params.menuItemId}`
+          : null
+      }
     />
   );
 }

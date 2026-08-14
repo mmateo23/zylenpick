@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AdminOpeningHoursTable } from "@/components/admin/admin-opening-hours-table";
+import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import type {
   AdminCityOption,
   AdminJoinRequestPrefill,
@@ -15,6 +16,7 @@ type AdminVenueFormProps = {
   cities: AdminCityOption[];
   initialValues?: AdminVenueFormValues | null;
   requestContext?: AdminJoinRequestPrefill | null;
+  previewHref?: string | null;
 };
 
 function buildInitialValues(
@@ -124,6 +126,7 @@ export function AdminVenueForm({
   cities,
   initialValues,
   requestContext,
+  previewHref,
 }: AdminVenueFormProps) {
   const values = buildInitialValues(initialValues);
 
@@ -140,6 +143,14 @@ export function AdminVenueForm({
           {description}
         </p>
       </div>
+
+      {previewHref ? (
+        <AdminPreviewLink
+          href={previewHref}
+          description="Este formulario modifica la ficha pública del local: presentación, contacto, recogida, horarios y visibilidad."
+          label="Ver ficha pública"
+        />
+      ) : null}
 
       <form action={action} className="mt-8 space-y-8">
         {requestContext ? (
@@ -289,7 +300,7 @@ export function AdminVenueForm({
           <section className="md:col-span-2 rounded-[1.35rem] border border-emerald-400/18 bg-emerald-400/[0.035] p-4 sm:p-5">
             <div className="flex flex-col gap-2 border-b border-white/8 pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">
                   Ubicación y recogida
                 </p>
                 <h2 className="mt-2 text-lg font-semibold text-[color:var(--foreground)]">

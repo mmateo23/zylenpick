@@ -102,7 +102,13 @@ export function AdminOpeningHoursTable({ initialValue }: AdminOpeningHoursTableP
                 <span className="text-sm font-bold text-[color:var(--foreground)]">
                   {openingHourDayLabels[dayKey]}
                 </span>
-                <span className={`text-xs font-semibold lg:hidden ${day.isOpen ? "text-emerald-300" : "text-white/45"}`}>
+                <span
+                  className={`text-xs font-semibold lg:hidden ${
+                    day.isOpen
+                      ? "text-emerald-700"
+                      : "text-[color:var(--muted-strong)]"
+                  }`}
+                >
                   {day.isOpen ? "Abierto" : "Cerrado"}
                 </span>
               </div>

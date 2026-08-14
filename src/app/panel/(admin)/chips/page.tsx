@@ -50,7 +50,7 @@ function ChipSummary({ chip }: { chip: SiteChip }) {
           Orden {chip.sortOrder}
         </span>
         {chip.isPaid ? (
-          <span className="rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1.5 text-amber-100">
+          <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-amber-800">
             Paid
           </span>
         ) : null}

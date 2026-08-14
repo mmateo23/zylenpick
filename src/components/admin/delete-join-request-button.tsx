@@ -30,7 +30,7 @@ export function DeleteJoinRequestButton({
       <button
         type="submit"
         disabled={disabled}
-        className="magnetic-button inline-flex rounded-full border border-[#E5484D]/35 bg-[#E5484D]/12 px-6 py-3.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="magnetic-button inline-flex rounded-full border border-[#B42318]/30 bg-[#FEE4E2] px-6 py-3.5 text-sm font-semibold text-[#B42318] disabled:cursor-not-allowed disabled:opacity-50"
       >
         Eliminar solicitud
       </button>

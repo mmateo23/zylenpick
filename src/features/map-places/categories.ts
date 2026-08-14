@@ -1,4 +1,7 @@
-import type { MapPlaceCategory } from "@/features/map-places/types";
+import type {
+  MapPlaceCategory,
+  MapPlacePlanRole,
+} from "@/features/map-places/types";
 
 export type MapPlaceCategoryDefinition = {
   value: MapPlaceCategory;
@@ -52,6 +55,13 @@ export const mapPlaceCategories: MapPlaceCategoryDefinition[] = [
     markerPath: '<path d="m4 9 8-5 8 5M5 20h14M7 17V10M12 17V10M17 17V10"/>',
   },
   {
+    value: "mural",
+    label: "Mural y arte urbano",
+    shortLabel: "Murales",
+    iconName: "palette",
+    markerPath: '<path d="M5 4h14v16H5zM8 8h8M8 12h5M8 16h8"/><path d="m15 11 2-2 2 2"/>',
+  },
+  {
     value: "viewpoint",
     label: "Mirador",
     shortLabel: "Miradores",
@@ -93,4 +103,14 @@ export function getMapPlaceCategory(category: MapPlaceCategory) {
     mapPlaceCategories.find((definition) => definition.value === category) ??
     mapPlaceCategories[0]
   );
+}
+
+export function getDefaultMapPlacePlanRole(
+  category: MapPlaceCategory,
+): MapPlacePlanRole {
+  if (["monument", "mural", "event"].includes(category)) return "discover";
+  if (["tables", "playground", "park", "viewpoint", "sports"].includes(category)) {
+    return "enjoy";
+  }
+  return "support";
 }

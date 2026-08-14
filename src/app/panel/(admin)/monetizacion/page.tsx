@@ -42,7 +42,7 @@ function Pill({
     tone === "active"
       ? "border-[color:var(--brand)]/25 bg-[color:var(--brand-soft)] text-[color:var(--accent)]"
       : tone === "warning"
-        ? "border-amber-300/20 bg-amber-300/10 text-amber-100"
+        ? "border-amber-300 bg-amber-50 text-amber-800"
         : "border-white/10 bg-white/[0.04] text-[color:var(--muted-strong)]";
 
   return (
@@ -415,7 +415,7 @@ export default async function AdminMonetizationPage() {
                     {row.warnings.map((warning) => (
                       <li
                         key={warning.code}
-                        className="rounded-[1rem] border border-amber-300/20 bg-amber-300/10 px-4 py-3 text-sm leading-6 text-amber-100"
+                        className="rounded-[1rem] border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
                       >
                         {warning.message}
                       </li>

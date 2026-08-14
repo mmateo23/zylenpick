@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, ShieldCheck } from "lucide-react";
 
+import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import type {
   AdminMenuItemFormValues,
   AdminVenueContext,
@@ -17,6 +18,7 @@ type AdminMenuItemFormProps = {
   action: (formData: FormData) => void;
   venue: AdminVenueContext;
   initialValues?: AdminMenuItemFormValues | null;
+  previewHref?: string | null;
 };
 
 const allergenOptions: { value: MenuItemAllergen; label: string }[] = [
@@ -70,6 +72,7 @@ export function AdminMenuItemForm({
   action,
   venue,
   initialValues,
+  previewHref,
 }: AdminMenuItemFormProps) {
   const values = buildInitialValues(venue.id, initialValues);
   const [imageUrl, setImageUrl] = useState(values.imageUrl);
@@ -106,6 +109,14 @@ export function AdminMenuItemForm({
           Local: <span className="ml-2 text-[color:var(--foreground)]">{venue.name}</span>
         </div>
       </div>
+
+      {previewHref ? (
+        <AdminPreviewLink
+          href={previewHref}
+          description="Este formulario modifica el plato dentro de la selección pública del local."
+          label="Ver plato publicado"
+        />
+      ) : null}
 
       <form action={action} className="mt-8 space-y-6">
         <div className="grid gap-5 md:grid-cols-2">
@@ -200,7 +211,7 @@ export function AdminMenuItemForm({
                 className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${
                   selectedAllergens.length > 0
                     ? "border-[color:var(--brand)]/30 bg-[color:var(--brand-soft)] text-[color:var(--foreground)]"
-                    : "border-amber-300/30 bg-amber-300/10 text-amber-100"
+                    : "border-amber-300 bg-amber-50 text-amber-800"
                 }`}
                 role="status"
                 aria-live="polite"

@@ -1,57 +1,48 @@
 "use client";
 
 import {
-  BadgeEuro,
   Building2,
-  FileImage,
   Inbox,
+  Layers3,
   LayoutDashboard,
   MapPinned,
-  Palette,
-  PanelTop,
-  Sparkles,
-  Tags,
+  Settings2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const navigationGroups = [
-  {
-    label: "Principal",
-    items: [
-      { label: "Resumen", href: "/panel", icon: LayoutDashboard },
-      { label: "Locales", href: "/panel/locales", icon: Building2 },
-      { label: "Lugares", href: "/panel/lugares", icon: MapPinned },
-      { label: "Solicitudes", href: "/panel/solicitudes", icon: Inbox },
-    ],
-  },
+const navigationItems = [
+  { label: "Inicio", href: "/panel", icon: LayoutDashboard, matches: [] },
+  { label: "Locales", href: "/panel/locales", icon: Building2, matches: [] },
+  { label: "Explorar", href: "/panel/lugares", icon: MapPinned, matches: [] },
   {
     label: "Contenido",
-    items: [
-      { label: "Destacados", href: "/panel/destacados", icon: Sparkles },
-      { label: "Chips", href: "/panel/chips", icon: Tags },
-      { label: "Imágenes", href: "/panel/imagenes", icon: FileImage },
-    ],
+    href: "/panel/contenido",
+    icon: Layers3,
+    matches: ["/panel/destacados", "/panel/chips", "/panel/imagenes", "/panel/funnel"],
   },
+  { label: "Solicitudes", href: "/panel/solicitudes", icon: Inbox, matches: [] },
   {
-    label: "Configuración",
-    items: [
-      { label: "Funnel", href: "/panel/funnel", icon: PanelTop },
-      { label: "Diseño", href: "/panel/diseno", icon: Palette },
-      { label: "Monetización", href: "/panel/monetizacion", icon: BadgeEuro },
-    ],
+    label: "Ajustes",
+    href: "/panel/ajustes",
+    icon: Settings2,
+    matches: ["/panel/diseno", "/panel/monetizacion"],
   },
 ];
 
-function isItemActive(pathname: string, href: string) {
-  return href === "/panel" ? pathname === href : pathname.startsWith(href);
+function isItemActive(pathname: string, href: string, matches: string[]) {
+  if (href === "/panel") {
+    return pathname === href;
+  }
+
+  return pathname.startsWith(href) || matches.some((match) => pathname.startsWith(match));
 }
 
 export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="rounded-[1.35rem] border border-[#741314]/12 bg-[#FFF7E8] p-3 shadow-[0_18px_55px_rgba(116,19,20,0.08)] lg:sticky lg:top-5 lg:h-[calc(100svh-2.5rem)] lg:p-4">
+    <aside className="w-full min-w-0 rounded-[1.35rem] border border-[#741314]/12 bg-[#FFF7E8] p-3 shadow-[0_18px_55px_rgba(116,19,20,0.08)] lg:sticky lg:top-5 lg:h-[calc(100svh-2.5rem)] lg:p-4">
       <div className="flex items-center justify-between gap-3 px-2 py-2 lg:block lg:px-3 lg:pb-5 lg:pt-3">
         <Link
           href="/panel"
@@ -64,42 +55,30 @@ export function AdminSidebar() {
         </span>
       </div>
 
-      <nav aria-label="Navegación del panel" className="mt-2 lg:mt-0">
-        <div className="flex gap-2 overflow-x-auto pb-1 lg:block lg:space-y-5 lg:overflow-visible lg:pb-0">
-          {navigationGroups.map((group) => (
-            <section key={group.label} aria-labelledby={`admin-nav-${group.label}`} className="shrink-0 lg:shrink">
-              <p
-                id={`admin-nav-${group.label}`}
-                className="sr-only lg:not-sr-only lg:mb-2 lg:px-3 lg:text-[10px] lg:font-bold lg:uppercase lg:tracking-[0.16em] lg:text-[#741314]/45"
-              >
-                {group.label}
-              </p>
-              <ul className="flex gap-1.5 lg:block lg:space-y-1">
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const active = isItemActive(pathname, item.href);
+      <nav aria-label="Navegación del panel" className="mt-2 min-w-0 lg:mt-0">
+        <ul className="grid grid-cols-3 gap-1.5 lg:block lg:space-y-1">
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const active = isItemActive(pathname, item.href, item.matches);
 
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        aria-current={active ? "page" : undefined}
-                        className={`inline-flex min-h-11 items-center gap-2.5 rounded-[0.85rem] border px-3 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 lg:w-full ${
-                          active
-                            ? "border-[#741314] bg-[#741314] text-[#FFF7E8] shadow-[0_8px_22px_rgba(116,19,20,0.16)]"
-                            : "border-transparent text-[#741314]/68 hover:border-[#741314]/12 hover:bg-[#741314]/[0.05] hover:text-[#741314]"
-                        }`}
-                      >
-                        <Icon aria-hidden="true" className="h-[1.1rem] w-[1.1rem] shrink-0" strokeWidth={2} />
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
-        </div>
+            return (
+              <li key={item.href} className="min-w-0">
+                <Link
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-[0.85rem] border px-2 py-2.5 text-xs font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 lg:justify-start lg:gap-2.5 lg:px-3 lg:text-sm ${
+                    active
+                      ? "border-[#741314] bg-[#741314] text-[#FFF7E8] shadow-[0_8px_22px_rgba(116,19,20,0.16)]"
+                      : "border-transparent text-[#741314]/68 hover:border-[#741314]/12 hover:bg-[#741314]/[0.05] hover:text-[#741314]"
+                  }`}
+                >
+                  <Icon aria-hidden="true" className="h-[1.1rem] w-[1.1rem] shrink-0" strokeWidth={2} />
+                  <span className="truncate">{item.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </nav>
 
       <div className="mt-5 hidden border-t border-[#741314]/10 px-3 pt-4 lg:block">

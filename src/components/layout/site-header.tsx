@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpen, LayoutGrid, MapPinned, ReceiptText, Store } from "lucide-react";
+import { LayoutGrid, Map, MapPinned, ReceiptText, Store } from "lucide-react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
 import { ClockIcon } from "@/components/icons/clock-icon";
@@ -26,12 +26,14 @@ type SiteHeaderProps = {
 const navigationItems = [
   { label: "Selecci\u00f3n", href: "/platos", Icon: LayoutGrid },
   { label: "Zonas", href: "/zonas", Icon: MapPinned },
+  { label: "Mapa", href: "/mapa", Icon: Map },
   { label: "\u00danete", href: "/unete", Icon: Store },
 ];
 
 const mobileNavigationItems = [
   { label: "Explorar selecci\u00f3n", href: "/platos" },
   { label: "Zonas", href: "/zonas" },
+  { label: "Explorar mapa", href: "/mapa" },
   { label: "Tu cesta", href: "/cart" },
   { label: "\u00danete", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
@@ -163,10 +165,10 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const desktopLeftDockItems = [
     navigationItems[0],
     navigationItems[1],
-    { label: "Proyecto", href: "/el-proyecto", Icon: BookOpen },
+    navigationItems[2],
   ];
   const desktopRightDockItems = [
-    navigationItems[2],
+    navigationItems[3],
     { label: "Pedidos", href: "/pedidos", Icon: ReceiptText },
   ];
 
@@ -244,7 +246,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
 
           <div className="hidden items-center justify-center md:flex">
             <nav
-              aria-label="Navegacion principal"
+              aria-label="Navegación principal"
               className={`inline-flex items-center gap-1.5 rounded-[1.7rem] ${dockRailClassName}`}
             >
               {showNavigation
@@ -348,7 +350,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             id="mobile-navigation"
             className="absolute inset-x-0 top-[calc(100%+0.7rem)] z-50 rounded-[1.35rem] border border-[#741314]/14 bg-[#FFF7E8]/80 p-3 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-2xl backdrop-saturate-150 md:hidden"
           >
-            <nav aria-label="Navegacion movil">
+            <nav aria-label="Navegación móvil">
               <ul className="grid gap-2">
                 {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
@@ -370,6 +372,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                           size={21}
                           className={selectedCity?.slug ? "shrink-0 text-[#741314]" : "shrink-0"}
                         />
+                      ) : item.href === "/mapa" ? (
+                        <Map size={21} className="shrink-0" />
                       ) : null}
                       <span>{item.label}</span>
                     </Link>

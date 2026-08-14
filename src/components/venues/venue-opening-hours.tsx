@@ -1,13 +1,15 @@
+import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
 import {
   formatOpeningHoursDay,
   openingHourDayLabels,
   openingHourDayOrder,
+  type OpeningStatus,
   type OpeningHoursValue,
 } from "@/features/venues/opening-hours";
 
 type VenueOpeningHoursProps = {
   openingHours: OpeningHoursValue;
-  isOpenNow: boolean;
+  openingStatus: OpeningStatus;
 };
 
 type OpeningHoursGroup = {
@@ -19,7 +21,7 @@ type OpeningHoursGroup = {
 
 export function VenueOpeningHours({
   openingHours,
-  isOpenNow,
+  openingStatus,
 }: VenueOpeningHoursProps) {
   const groupedHours = openingHourDayOrder.reduce<OpeningHoursGroup[]>(
     (groups, dayKey) => {
@@ -54,26 +56,24 @@ export function VenueOpeningHours({
   );
 
   return (
-    <section className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
+    <section
+      id="horarios"
+      className="scroll-mt-28 rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-            Horario
+            Cuándo ir
           </p>
           <h3 className="mt-3 text-2xl font-semibold text-text-primary">
-            Horarios
+            Consulta antes de acercarte.
           </h3>
         </div>
 
-        <span
-          className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-            isOpenNow
-              ? "bg-accent-soft text-accent-strong"
-              : "bg-danger/10 text-danger"
-          }`}
-        >
-          {isOpenNow ? "Abierto" : "Cerrado"}
-        </span>
+        <VenueOpeningStatusBadge
+          openingHours={openingHours}
+          initialStatus={openingStatus}
+        />
       </div>
 
       <div className="mt-5 space-y-2.5">
@@ -108,7 +108,7 @@ export function VenueOpeningHours({
                 group.isClosed ? "text-danger/70" : "text-text-muted"
               }`}
             >
-              {group.isClosed ? "Cerrado" : "Abierto"}
+              {group.isClosed ? "No abre" : "Abre"}
             </span>
           </div>
         ))}

@@ -26,8 +26,7 @@ export default async function AdminProtectedLayout({
             Supabase no está configurado.
           </p>
           <p className="mt-4 text-sm leading-7 text-[color:var(--muted-strong)]">
-            El panel necesita autenticación y acceso a Supabase para
-            funcionar.
+            El panel necesita autenticación y acceso a Supabase para funcionar.
           </p>
         </section>
       </main>

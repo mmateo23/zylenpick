@@ -20,6 +20,20 @@ export type OpeningHoursDayValue = {
 
 export type OpeningHoursValue = Record<OpeningHoursDayKey, OpeningHoursDayValue>;
 
+export type OpeningStatusState =
+  | "open"
+  | "closed"
+  | "opening_soon"
+  | "closing_soon";
+
+export type OpeningStatus = {
+  dayKey: OpeningHoursDayKey;
+  isOpenNow: boolean;
+  state: OpeningStatusState;
+  label: string;
+  minutesUntilChange: number | null;
+};
+
 export const openingHourDayLabels: Record<OpeningHoursDayKey, string> = {
   mon: "L",
   tue: "M",
@@ -122,39 +136,115 @@ function getMadridWeekday(date: Date): OpeningHoursDayKey {
   }
 }
 
-function getMadridTimeValue(date: Date) {
-  return new Intl.DateTimeFormat("en-GB", {
+function getMadridTimeParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
     timeZone: "Europe/Madrid",
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
-  }).format(date);
+  }).formatToParts(date);
+
+  return {
+    hour: Number(parts.find((part) => part.type === "hour")?.value ?? 0),
+    minute: Number(parts.find((part) => part.type === "minute")?.value ?? 0),
+  };
 }
 
-function isCurrentTimeInsideRange(
-  currentTime: string,
-  start: string,
-  end: string,
-) {
-  return Boolean(start && end && currentTime >= start && currentTime <= end);
+function parseTimeToMinutes(value: string) {
+  if (!/^\d{2}:\d{2}$/.test(value)) return null;
+  const [hour, minute] = value.split(":").map(Number);
+  if (hour > 23 || minute > 59) return null;
+  return hour * 60 + minute;
 }
 
-export function getOpeningStatus(openingHours: OpeningHoursValue, now = new Date()) {
+function formatTransitionLabel(action: "Abre" | "Cierra", minutes: number) {
+  if (minutes <= 1) return `${action} en 1 min`;
+  return `${action} en ${minutes} min`;
+}
+
+export function getOpeningStatus(
+  openingHours: OpeningHoursValue,
+  now = new Date(),
+  soonThresholdMinutes = 30,
+): OpeningStatus {
   const dayKey = getMadridWeekday(now);
-  const dayValue = openingHours[dayKey];
-  const currentTime = getMadridTimeValue(now);
+  const dayIndex = openingHourDayOrder.indexOf(dayKey);
+  const madridTime = getMadridTimeParts(now);
+  const currentWeekMinute = dayIndex * 24 * 60 + madridTime.hour * 60 + madridTime.minute;
+  const weekMinutes = 7 * 24 * 60;
+  const intervals: Array<{ start: number; end: number }> = [];
 
-  const isOpenNow =
-    dayValue.isOpen &&
-    (isCurrentTimeInsideRange(currentTime, dayValue.firstOpen, dayValue.firstClose) ||
-      isCurrentTimeInsideRange(
-        currentTime,
-        dayValue.secondOpen,
-        dayValue.secondClose,
-      ));
+  openingHourDayOrder.forEach((key, index) => {
+    const day = openingHours[key];
+    if (!day.isOpen) return;
+
+    const ranges = [
+      [day.firstOpen, day.firstClose],
+      [day.secondOpen, day.secondClose],
+    ] as const;
+
+    ranges.forEach(([open, close]) => {
+      const openMinutes = parseTimeToMinutes(open);
+      const closeMinutes = parseTimeToMinutes(close);
+      if (openMinutes === null || closeMinutes === null) return;
+
+      const baseStart = index * 24 * 60 + openMinutes;
+      const baseEnd = index * 24 * 60 + closeMinutes + (closeMinutes <= openMinutes ? 24 * 60 : 0);
+
+      for (const weekOffset of [-weekMinutes, 0, weekMinutes]) {
+        intervals.push({
+          start: baseStart + weekOffset,
+          end: baseEnd + weekOffset,
+        });
+      }
+    });
+  });
+
+  const currentInterval = intervals.find(
+    (interval) => currentWeekMinute >= interval.start && currentWeekMinute < interval.end,
+  );
+
+  if (currentInterval) {
+    const minutesUntilClose = currentInterval.end - currentWeekMinute;
+    if (minutesUntilClose <= soonThresholdMinutes) {
+      return {
+        dayKey,
+        isOpenNow: true,
+        state: "closing_soon",
+        label: formatTransitionLabel("Cierra", minutesUntilClose),
+        minutesUntilChange: minutesUntilClose,
+      };
+    }
+
+    return {
+      dayKey,
+      isOpenNow: true,
+      state: "open",
+      label: "Abierto ahora",
+      minutesUntilChange: minutesUntilClose,
+    };
+  }
+
+  const nextInterval = intervals
+    .filter((interval) => interval.start > currentWeekMinute)
+    .sort((first, second) => first.start - second.start)[0];
+  const minutesUntilOpen = nextInterval ? nextInterval.start - currentWeekMinute : null;
+
+  if (minutesUntilOpen !== null && minutesUntilOpen <= soonThresholdMinutes) {
+    return {
+      dayKey,
+      isOpenNow: false,
+      state: "opening_soon",
+      label: formatTransitionLabel("Abre", minutesUntilOpen),
+      minutesUntilChange: minutesUntilOpen,
+    };
+  }
 
   return {
     dayKey,
-    isOpenNow,
+    isOpenNow: false,
+    state: "closed",
+    label: "Cerrado ahora",
+    minutesUntilChange: minutesUntilOpen,
   };
 }

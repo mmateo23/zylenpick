@@ -20,6 +20,11 @@ import {
   USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
+import type {
+  OpeningHoursValue,
+  OpeningStatus,
+} from "@/features/venues/opening-hours";
 import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 
 type VenueLocalInformationProps = {
@@ -34,7 +39,8 @@ type VenueLocalInformationProps = {
   pickupEtaMin: number | null;
   latitude: number | null;
   longitude: number | null;
-  isOpenNow: boolean;
+  openingHours: OpeningHoursValue;
+  openingStatus: OpeningStatus;
 };
 
 function formatDistance(distanceKm: number) {
@@ -69,7 +75,8 @@ export function VenueLocalInformation({
   pickupEtaMin,
   latitude,
   longitude,
-  isOpenNow,
+  openingHours,
+  openingStatus,
 }: VenueLocalInformationProps) {
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -134,7 +141,7 @@ export function VenueLocalInformation({
 
     try {
       setUserLocation(await requestUserLocation());
-      setFeedback("Distancia actualizada con tu ubicación actual.");
+      setFeedback("Distancia actualizada desde tu ubicación.");
     } catch (error) {
       setFeedback(getUserLocationErrorMessage(error));
     } finally {
@@ -144,48 +151,42 @@ export function VenueLocalInformation({
 
   return (
     <section
+      id="informacion"
       aria-labelledby="venue-information-title"
-      className="overflow-hidden rounded-[1.35rem] border border-[#741314]/14 bg-[#FFF7E8] text-[#741314] shadow-[0_20px_55px_rgba(116,19,20,0.10)]"
+      className="scroll-mt-28 overflow-hidden rounded-[1.25rem] border border-[#741314]/14 bg-[#FFF7E8] text-[#741314] shadow-[0_16px_42px_rgba(116,19,20,0.08)]"
     >
-      <div className="flex flex-col gap-3 border-b border-[#741314]/10 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+      <div className="flex items-start justify-between gap-4 border-b border-[#741314]/10 px-4 py-4 sm:items-center sm:px-6 sm:py-5">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#741314]/65">
-            Información del local
+            Planifica tu visita
           </p>
           <h2
             id="venue-information-title"
-            className="mt-2 text-2xl font-semibold tracking-[-0.035em] sm:text-3xl"
+            className="mt-1.5 text-xl font-semibold tracking-[-0.035em] sm:text-2xl"
           >
-            Todo claro antes de recoger.
+            Lo importante para llegar y recoger.
           </h2>
         </div>
-        <span
-          role="status"
-          className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold ${
-            isOpenNow
-              ? "border-emerald-700/18 bg-emerald-100 text-emerald-800"
-              : "border-[#741314]/12 bg-[#741314]/[0.05] text-[#741314]/72"
-          }`}
-        >
-          <span className={`h-2 w-2 rounded-full ${isOpenNow ? "bg-emerald-600" : "bg-[#741314]/40"}`} />
-          {isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
-        </span>
+        <VenueOpeningStatusBadge
+          openingHours={openingHours}
+          initialStatus={openingStatus}
+        />
       </div>
 
       <div className="grid lg:grid-cols-[minmax(17rem,0.78fr)_minmax(0,1.22fr)]">
-        <div className="flex flex-col justify-between bg-[#741314] p-5 text-[#FFF7E8] sm:p-7">
+        <div className="flex flex-col justify-between bg-[#741314] p-5 text-[#FFF7E8] sm:p-6">
           <div>
             <div className="flex items-center gap-2 text-[#FFF7E8]">
               <LocateFixed aria-hidden="true" className="h-5 w-5" />
-              <p className="text-xs font-bold uppercase tracking-[0.18em]">Distancia al local</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em]">Desde donde estás</p>
             </div>
             {journey ? (
               <>
-                <p className="mt-5 text-[clamp(2.75rem,7vw,4.8rem)] font-semibold leading-none tracking-[-0.065em]">
+                <p className="mt-4 text-[clamp(2.35rem,7vw,3.8rem)] font-semibold leading-none tracking-[-0.06em]">
                   {journey.distanceLabel}
                 </p>
                 <p className="mt-3 text-sm leading-6 text-[#FFF7E8]/72">
-                  Aproximadamente {journey.walkingMinutes} min andando. Distancia orientativa en línea recta.
+                  Unos {journey.walkingMinutes} min andando. La distancia es orientativa.
                 </p>
                 {userLocation?.accuracy && userLocation.accuracy > 250 ? (
                   <p className="mt-2 text-xs leading-5 text-[#FFF7E8]/62">
@@ -195,11 +196,11 @@ export function VenueLocalInformation({
               </>
             ) : (
               <>
-                <p className="mt-5 max-w-[12ch] text-3xl font-semibold leading-[0.98] tracking-[-0.04em]">
-                  Descubre qué tienes cerca.
+                <p className="mt-4 max-w-[15ch] text-2xl font-semibold leading-[1.02] tracking-[-0.035em] sm:text-3xl">
+                  ¿Te queda cerca?
                 </p>
                 <p className="mt-3 text-sm leading-6 text-[#FFF7E8]/72">
-                  Usa tu ubicación para calcular la distancia aproximada hasta este local.
+                  Comparte tu ubicación para calcular la distancia hasta el local.
                 </p>
               </>
             )}
@@ -210,10 +211,10 @@ export function VenueLocalInformation({
               type="button"
               onClick={handleUseLocation}
               disabled={isLocating}
-              className="mt-6 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold text-[#741314] transition hover:bg-white disabled:cursor-wait disabled:opacity-65"
+              className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold text-[#741314] outline-none transition hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#741314] disabled:cursor-wait disabled:opacity-65"
             >
               <LocateFixed aria-hidden="true" className="h-4.5 w-4.5" />
-              {isLocating ? "Calculando…" : journey ? "Actualizar distancia" : "Calcular distancia"}
+              {isLocating ? "Calculando…" : journey ? "Actualizar ubicación" : "Usar mi ubicación"}
             </button>
           ) : null}
           {feedback ? (
@@ -237,16 +238,16 @@ export function VenueLocalInformation({
             <div className="border-b border-[#741314]/10 p-5 sm:p-6">
               <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[#741314]">
                 <Clock3 aria-hidden="true" className="h-4 w-4" />
-                Recogida
+                Tiempo de preparación
               </dt>
               <dd className="mt-3 text-sm font-semibold leading-6">
-                {pickupEtaMin ? `Preparación aproximada: ${pickupEtaMin} min.` : "Tiempo de preparación por confirmar."}
+                {pickupEtaMin ? `Suele estar listo en unos ${pickupEtaMin} min.` : "El local confirmará cuánto tarda."}
               </dd>
               {pickupNotes ? (
                 <dd className="mt-1 text-xs leading-5 text-[#741314]/62">{pickupNotes}</dd>
               ) : null}
             </div>
-            <div className="border-b border-[#741314]/10 p-5 sm:border-b-0 sm:border-r sm:p-6">
+            <div className="hidden border-b border-[#741314]/10 p-5 sm:block sm:border-b-0 sm:border-r sm:p-6">
               <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[#741314]">
                 <Phone aria-hidden="true" className="h-4 w-4" />
                 Contacto
@@ -257,7 +258,7 @@ export function VenueLocalInformation({
                 {!phone && !email ? <span className="text-[#741314]/62">Contacto pendiente</span> : null}
               </dd>
             </div>
-            <div className="p-5 sm:p-6">
+            <div className="hidden p-5 sm:block sm:p-6">
               <dt className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-[#741314]">
                 <Navigation aria-hidden="true" className="h-4 w-4" />
                 Zona
@@ -266,23 +267,44 @@ export function VenueLocalInformation({
             </div>
           </dl>
 
-          <div className="flex flex-wrap gap-2 border-t border-[#741314]/10 p-4 sm:p-5">
+          <details className="group border-t border-[#741314]/10 sm:hidden">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-5 py-3 text-sm font-bold outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#741314] [&::-webkit-details-marker]:hidden">
+              Contacto y otros datos
+              <span aria-hidden="true" className="text-lg transition-transform group-open:rotate-45">+</span>
+            </summary>
+            <div className="grid gap-4 border-t border-[#741314]/10 px-5 py-4 text-sm">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#741314]/62">Contacto</p>
+                <div className="mt-2 space-y-2 font-semibold">
+                  {phone ? <a className="block underline decoration-[#741314]/30 underline-offset-4" href={`tel:${phone}`}>{phone}</a> : null}
+                  {email ? <a className="block break-all underline decoration-[#741314]/30 underline-offset-4" href={`mailto:${email}`}>{email}</a> : null}
+                  {!phone && !email ? <span className="text-[#741314]/62">Contacto pendiente</span> : null}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#741314]/62">Zona</p>
+                <p className="mt-2 font-semibold">{cityName}</p>
+              </div>
+            </div>
+          </details>
+
+          <div className="grid grid-cols-2 gap-2 border-t border-[#741314]/10 p-4 sm:flex sm:flex-wrap sm:p-5">
             <a
               href={mapsHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-bold text-[#FFF7E8] transition hover:bg-[#5F0F10]"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-bold text-[#FFF7E8] outline-none transition hover:bg-[#5F0F10] focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
             >
               <Navigation aria-hidden="true" className="h-4 w-4" />
-              Cómo llegar
+              Abrir ruta
             </a>
             {phone ? (
               <a
                 href={`tel:${phone}`}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold transition hover:bg-white"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold outline-none transition hover:bg-white focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
               >
                 <Phone aria-hidden="true" className="h-4 w-4" />
-                Llamar
+                Llamar al local
               </a>
             ) : null}
             {websiteHref ? (
@@ -290,20 +312,20 @@ export function VenueLocalInformation({
                 href={websiteHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold transition hover:bg-white"
+                className="col-span-2 inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold outline-none transition hover:bg-white focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:col-span-1"
               >
                 <Globe2 aria-hidden="true" className="h-4 w-4" />
-                Web
+                Visitar web
                 <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
               </a>
             ) : null}
             {!websiteHref && email ? (
               <a
                 href={`mailto:${email}`}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold transition hover:bg-white"
+                className="col-span-2 inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-[#741314]/14 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold outline-none transition hover:bg-white focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:col-span-1"
               >
                 <Mail aria-hidden="true" className="h-4 w-4" />
-                Escribir
+                Enviar email
               </a>
             ) : null}
           </div>

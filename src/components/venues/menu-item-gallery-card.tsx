@@ -8,6 +8,10 @@ import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
 import { BorderBeam } from "@/components/magicui/border-beam";
 import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
 import {
+  ScrollContentHint,
+  useScrollContentHint,
+} from "@/components/ui/scroll-content-hint";
+import {
   AllergenPictogram,
   allergenLabels,
 } from "@/components/venues/allergen-pictogram";
@@ -26,6 +30,7 @@ type MenuItemGalleryCardProps = {
   item: VenueMenuItem;
   venue: CartVenue;
   anchorId?: string;
+  variant?: "default" | "venueCompact";
   labels?: {
     viewDetail: string;
     addForPickup: string;
@@ -36,11 +41,21 @@ export function MenuItemGalleryCard({
   item,
   venue,
   anchorId,
+  variant = "default",
   labels,
 }: MenuItemGalleryCardProps) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const hasCapturedViewRef = useRef(false);
+  const openerButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isVenueCompact = variant === "venueCompact";
+  const {
+    scrollRef: viewerContentRef,
+    canScrollMore: canScrollViewer,
+    scrollForward: scrollViewerForward,
+  } = useScrollContentHint<HTMLDivElement>(isViewerOpen ? item.id : null);
 
   const images = useMemo(() => {
     const gallery = [
@@ -67,16 +82,43 @@ export function MenuItemGalleryCard({
     if (!isViewerOpen) return;
 
     const previousOverflow = document.body.style.overflow;
+    const openerElement = openerButtonRef.current;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setIsViewerOpen(false);
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setIsViewerOpen(false);
+        return;
+      }
+
+      if (event.key !== "Tab" || !dialogRef.current) return;
+
+      const focusableElements = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => !element.hasAttribute("hidden"));
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements.at(-1);
+      if (!firstElement || !lastElement) return;
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
     };
 
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
+    window.requestAnimationFrame(() => closeButtonRef.current?.focus());
 
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
+      openerElement?.focus();
     };
   }, [isViewerOpen]);
 
@@ -124,7 +166,7 @@ export function MenuItemGalleryCard({
     <>
       <article
         id={anchorId}
-        className={`group relative scroll-mt-28 overflow-hidden rounded-[0.9rem] border bg-surface-strong text-left shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,transform] duration-300 hover:shadow-[var(--shadow-soft)] sm:rounded-[1.05rem] ${highlightClassName}`}
+        className={`group relative h-full scroll-mt-28 overflow-hidden rounded-[0.9rem] border bg-surface-strong text-left shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,transform] duration-300 hover:shadow-[var(--shadow-soft)] sm:rounded-[1.05rem] ${highlightClassName}`}
       >
         {item.isFeatured ? (
           <BorderBeam
@@ -136,9 +178,14 @@ export function MenuItemGalleryCard({
         ) : null}
 
         <button
+          ref={openerButtonRef}
           type="button"
           onClick={handleOpenViewer}
-          className="gold-spotlight-content relative block min-h-[18rem] w-full text-left sm:min-h-[20rem]"
+          className={`gold-spotlight-content relative block w-full text-left outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#741314] ${
+            isVenueCompact
+              ? "min-h-[17rem]"
+              : "min-h-[18rem] sm:min-h-[20rem]"
+          }`}
           aria-label={`Ver ${item.name}`}
         >
           <div
@@ -155,20 +202,24 @@ export function MenuItemGalleryCard({
 
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
             <div className="min-w-0 space-y-2">
-              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-black/[0.45] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-xl">
-                <Store aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{venue.name}</span>
-              </span>
+              {!isVenueCompact ? (
+                <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-black/[0.45] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+                  <Store aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{venue.name}</span>
+                </span>
+              ) : null}
               <div className="flex flex-wrap gap-1.5">
                 {item.categoryName ? (
                   <span className="rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-xl">
                     {item.categoryName}
                   </span>
                 ) : null}
-                <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-xl">
-                  <MapPin aria-hidden="true" className="h-3 w-3" />
-                  {venue.cityName}
-                </span>
+                {!isVenueCompact ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-xl">
+                    <MapPin aria-hidden="true" className="h-3 w-3" />
+                    {venue.cityName}
+                  </span>
+                ) : null}
               </div>
             </div>
 
@@ -184,22 +235,28 @@ export function MenuItemGalleryCard({
               ) : null}
               {item.isPickupMonthHighlight ? (
                 <span className="inline-flex rounded-full border border-white/25 bg-black/[0.45] px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
-                  Más recogido
+                  Muy elegido
                 </span>
               ) : null}
             </div>
           </div>
 
-          <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-            <h3 className="line-clamp-2 text-[1.45rem] font-semibold leading-[0.96] tracking-[-0.045em] text-text-inverse sm:text-[1.7rem]">
+          <div className={`absolute inset-x-0 bottom-0 ${isVenueCompact ? "p-3 sm:p-4" : "p-4 sm:p-5"}`}>
+            <h3 className={`line-clamp-2 font-semibold leading-[0.98] tracking-[-0.04em] text-text-inverse ${
+              isVenueCompact ? "text-[1.12rem] sm:text-[1.45rem]" : "text-[1.45rem] sm:text-[1.7rem]"
+            }`}>
               {item.name}
             </h3>
             {item.description ? (
-              <p className="mt-2 line-clamp-1 text-sm leading-6 text-white/85 drop-shadow-[0_3px_10px_rgba(0,0,0,0.72)]">
+              <p className={`${
+                isVenueCompact
+                  ? "mt-2 line-clamp-2 text-xs leading-4 sm:line-clamp-1 sm:text-sm sm:leading-6"
+                  : "mt-2 line-clamp-1 text-sm leading-6"
+              } text-white/85 drop-shadow-[0_3px_10px_rgba(0,0,0,0.72)]`}>
                 {item.description}
               </p>
             ) : null}
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className={`${isVenueCompact ? "mt-3 gap-1.5" : "mt-4 gap-2"} flex flex-wrap items-center`}>
               <ProductPriceBadge
                 priceAmount={item.priceAmount}
                 currency={item.currency}
@@ -208,30 +265,32 @@ export function MenuItemGalleryCard({
                 pricesVisible={venue.pricesVisible}
                 compact
               />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
-                <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
-                {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
-              </span>
+              {!isVenueCompact ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
+                  <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
+                  {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
+                </span>
+              ) : null}
               <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
                 <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
                 {item.allergens.length > 0
-                  ? `${item.allergens.length} ${item.allergens.length === 1 ? "traza" : "trazas"}`
-                  : "Consultar trazas"}
+                  ? `${item.allergens.length} ${item.allergens.length === 1 ? "alérgeno" : "alérgenos"}`
+                  : "Revisar alérgenos"}
               </span>
-              <span className="ml-auto rounded-full border border-white/25 bg-black/[0.45] px-3.5 py-1.5 text-xs font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+              <span className={`${isVenueCompact ? "px-2.5 py-1 text-[10px]" : "ml-auto px-3.5 py-1.5 text-xs"} rounded-full border border-white/25 bg-black/[0.45] font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl`}>
                 {labels?.viewDetail ?? "Ver detalle"}
               </span>
             </div>
           </div>
         </button>
 
-        <div className="gold-spotlight-content border-t border-border-subtle bg-surface-strong px-4 py-3 sm:px-5">
-          <div className="mb-3 flex items-start gap-2 text-xs leading-5 text-text-muted">
+        <div className={`gold-spotlight-content border-t border-border-subtle bg-surface-strong ${isVenueCompact ? "px-3 py-2.5" : "px-4 py-3 sm:px-5"}`}>
+          <div className={`${isVenueCompact ? "mb-2" : "mb-3"} flex items-start gap-2 text-xs leading-5 text-text-muted`}>
             <Info aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
             {item.allergens.length > 0 ? (
               <div className="min-w-0">
-                <p className="font-semibold text-text">Puede contener o presentar trazas de:</p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
+                {!isVenueCompact ? <p className="font-semibold text-text">Alérgenos y posibles trazas:</p> : null}
+                <div className={`${isVenueCompact ? "mt-0" : "mt-2"} flex flex-wrap gap-1.5`}>
                   {item.allergens.map((allergen) => (
                     <AllergenPictogram key={allergen} allergen={allergen} compact />
                   ))}
@@ -239,31 +298,37 @@ export function MenuItemGalleryCard({
               </div>
             ) : (
               <p>
-                <span className="font-semibold text-text">Alérgenos pendientes. </span>
-                Consulta al local antes de pedir.
+                <span className="font-semibold text-text">Información de alérgenos pendiente.</span>
+                {!isVenueCompact ? " Confírmala con el local antes de pedir." : null}
               </p>
             )}
           </div>
-          <AddToCartButton
-            venue={venue}
-            item={{
-              id: item.id,
-              name: item.name,
-              description: item.description,
-              priceAmount: item.priceAmount,
-              currency: item.currency,
-              priceDisplayMode: item.priceDisplayMode,
-              priceDisplayText: item.priceDisplayText,
-              imageUrl: primaryImage,
-            }}
-            className="mt-0"
-            source="dish_card"
-            label={labels?.addForPickup ?? "Añadir para recoger"}
-            buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-accent-border bg-accent-soft px-5 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
-            feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
-            disabled={!venue.pricesVisible}
-            disabledLabel="Disponible pronto"
-          />
+          {isVenueCompact && !venue.pricesVisible ? (
+            <p className="rounded-[0.75rem] bg-[#741314]/[0.06] px-3 py-2 text-center text-[11px] font-semibold leading-4 text-[#741314]">
+              Precio y pedido por confirmar
+            </p>
+          ) : (
+            <AddToCartButton
+              venue={venue}
+              item={{
+                id: item.id,
+                name: item.name,
+                description: item.description,
+                priceAmount: item.priceAmount,
+                currency: item.currency,
+                priceDisplayMode: item.priceDisplayMode,
+                priceDisplayText: item.priceDisplayText,
+                imageUrl: primaryImage,
+              }}
+              className="mt-0"
+              source="dish_card"
+              label={labels?.addForPickup ?? "Añadir para recoger"}
+              buttonClassName="magnetic-button inline-flex min-h-11 w-full justify-center rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong outline-none transition hover:bg-accent-soft focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+              feedbackClassName="mt-3 text-sm leading-6 text-text-muted"
+              disabled={!venue.pricesVisible}
+              disabledLabel="Aún no disponible para añadir"
+            />
+          )}
         </div>
       </article>
 
@@ -273,12 +338,13 @@ export function MenuItemGalleryCard({
           role="dialog"
           aria-modal="true"
           aria-labelledby={`product-dialog-title-${item.id}`}
+          aria-describedby={item.description ? `product-dialog-description-${item.id}` : undefined}
           onMouseDown={(event) => {
             if (event.currentTarget === event.target) setIsViewerOpen(false);
           }}
         >
           <div className="flex h-full min-h-0 items-center justify-center">
-            <section className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(10.5rem,28svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-[#381932]/10 bg-[#FFF9F1] text-[#381932] shadow-[0_28px_90px_rgba(56,25,50,0.28)] sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(14rem,38svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-[min(44rem,calc(100svh-3rem))] lg:grid-cols-[minmax(0,1.18fr)_minmax(23rem,0.82fr)] lg:grid-rows-none">
+            <section ref={dialogRef} className="grid h-[calc(100svh-1rem)] w-full max-w-6xl grid-rows-[minmax(10.5rem,28svh)_minmax(0,1fr)] overflow-hidden rounded-[1.25rem] border border-[#381932]/10 bg-[#FFF9F1] text-[#381932] shadow-[0_28px_90px_rgba(56,25,50,0.28)] sm:h-[calc(100svh-3rem)] sm:grid-rows-[minmax(14rem,38svh)_minmax(0,1fr)] sm:rounded-[1.6rem] lg:h-[min(44rem,calc(100svh-3rem))] lg:grid-cols-[minmax(0,1.18fr)_minmax(23rem,0.82fr)] lg:grid-rows-none">
               <div className="relative min-h-0 overflow-hidden">
                 <div
                   role="img"
@@ -292,9 +358,10 @@ export function MenuItemGalleryCard({
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(56,25,50,0.02)_0%,rgba(56,25,50,0.02)_58%,rgba(56,25,50,0.3)_100%)]" />
                 <button
+                  ref={closeButtonRef}
                   type="button"
                   onClick={() => setIsViewerOpen(false)}
-                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-[#FFF9F1]/90 text-[#381932] shadow-[0_8px_24px_rgba(56,25,50,0.18)] backdrop-blur-md transition hover:bg-white sm:right-4 sm:top-4"
+                  className="magnetic-button absolute right-3 top-3 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/70 bg-[#FFF9F1]/90 text-[#381932] shadow-[0_8px_24px_rgba(56,25,50,0.18)] outline-none backdrop-blur-md transition hover:bg-white focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:right-4 sm:top-4"
                   aria-label="Cerrar visor"
                 >
                   <CloseIcon size={26} />
@@ -327,8 +394,8 @@ export function MenuItemGalleryCard({
                 ) : null}
               </div>
 
-              <aside className="flex min-h-0 flex-col overflow-hidden bg-[#FFF9F1]">
-                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4 sm:gap-4 sm:p-6 lg:p-7">
+              <aside className="relative flex min-h-0 flex-col overflow-hidden bg-[#FFF9F1]">
+                <div ref={viewerContentRef} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 sm:gap-4 sm:p-6 lg:p-7">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#381932]/72">
@@ -358,16 +425,19 @@ export function MenuItemGalleryCard({
                       />
                       <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[11px] font-bold text-[#381932]/72">
                         <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-[#C26157]" />
-                        {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida local"}
+                        {venue.pickupEtaMin ? `${venue.pickupEtaMin} min aprox.` : "Recogida local"}
                       </span>
                     </div>
                     <p className="mt-1 text-xs leading-5 text-[#381932]/62 sm:text-sm">
-                      Para recoger en {venue.cityName}.
+                      Recogida en {venue.cityName}.
                     </p>
                   </div>
 
                   {item.description ? (
-                    <p className="line-clamp-2 text-sm leading-5 text-[#381932]/78 sm:text-base sm:leading-6">
+                    <p
+                      id={`product-dialog-description-${item.id}`}
+                      className="text-sm leading-5 text-[#381932]/78 sm:text-base sm:leading-6"
+                    >
                       {item.description}
                     </p>
                   ) : null}
@@ -393,12 +463,12 @@ export function MenuItemGalleryCard({
                           id={`allergens-title-${item.id}`}
                           className="text-sm font-bold text-[#381932]"
                         >
-                          Alérgenos
+                          Alérgenos y trazas
                         </h5>
                         <p className="mt-0.5 text-[11px] leading-4 text-[#381932]/64">
                           {item.allergens.length > 0
-                            ? "Información declarada por el establecimiento."
-                            : "Información pendiente de confirmar."}
+                            ? "Datos facilitados por el establecimiento."
+                            : "Pendiente de confirmar con el establecimiento."}
                         </p>
                       </div>
                     </div>
@@ -419,15 +489,22 @@ export function MenuItemGalleryCard({
                       </>
                     ) : (
                       <p className="mt-2.5 rounded-[0.75rem] bg-[#FFE9EC] px-3 py-2 text-[11px] font-semibold leading-4 text-[#381932]">
-                        Consulta al local antes de pedir.
+                        Confirma los alérgenos antes de pedir.
                       </p>
                     )}
 
                     <p className="mt-2 text-[10px] leading-4 text-[#381932]/58">
-                      Si tienes una alergia o intolerancia, confirma siempre la información con el local.
+                      Si tienes una alergia o intolerancia, consulta directamente con el local antes de pedir.
                     </p>
                   </section>
                 </div>
+
+                <ScrollContentHint
+                  visible={canScrollViewer}
+                  onActivate={scrollViewerForward}
+                  label="Desliza para leer todo"
+                  positionClassName="inset-x-0 bottom-[4.75rem]"
+                />
 
                 <div className="mt-auto shrink-0 border-t border-[#381932]/10 bg-[#FFF9F1] p-3 sm:p-4">
                   <AddToCartButton
@@ -448,7 +525,7 @@ export function MenuItemGalleryCard({
                     buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-[#C26157] bg-[#C26157] px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(194,97,87,0.2)] transition hover:bg-[#A94F47]"
                     feedbackClassName="mt-3 text-sm leading-6 text-[#381932]/70"
                     disabled={!venue.pricesVisible}
-                    disabledLabel="Disponible pronto"
+                    disabledLabel="Aún no disponible para añadir"
                   />
                 </div>
               </aside>

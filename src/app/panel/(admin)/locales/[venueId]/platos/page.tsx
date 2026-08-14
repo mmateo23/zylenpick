@@ -142,7 +142,7 @@ export default async function AdminVenueMenuItemsPage({
                           <form action={toggleAction}>
                             <button
                               type="submit"
-                              className="text-sm font-semibold text-white/72"
+                              className="text-sm font-semibold text-[color:var(--brand)] transition hover:opacity-75"
                             >
                               {item.isAvailable ? "Desactivar" : "Activar"}
                             </button>

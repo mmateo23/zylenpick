@@ -12,7 +12,11 @@ export const metadata: Metadata = getNoIndexMetadata({
   description: "Ruta aislada para probar un mapa visual de locales.",
 });
 
-export default async function MapaPage() {
+type MapaPageProps = {
+  searchParams?: { lugar?: string };
+};
+
+export default async function MapaPage({ searchParams }: MapaPageProps) {
   const [venues, places] = await Promise.all([
     getVenuesForMap(),
     getPublishedMapPlaces(),
@@ -23,6 +27,7 @@ export default async function MapaPage() {
       accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
       venues={venues}
       places={places}
+      initialPlaceSlug={searchParams?.lugar}
     />
   );
 }

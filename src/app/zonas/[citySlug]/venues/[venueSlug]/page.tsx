@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Clock3, MapPinned, Utensils } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -12,8 +13,10 @@ import { VenueLocalStructuredData } from "@/components/seo/local-seo-structured-
 import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
 import { VenueLocalInformation } from "@/components/venues/venue-local-information";
 import { VenueOpeningHours } from "@/components/venues/venue-opening-hours";
+import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
 import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary";
+import { getOpeningStatus } from "@/features/venues/opening-hours";
 import { getVenueDetails } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
@@ -35,14 +38,14 @@ export async function generateMetadata({
     return getBaseMetadata({
       title: "Local cercano",
       description:
-        "Consulta información del local, su selección visual, tiempos de recogida y productos disponibles.",
+        "Descubre qué prepara este local, consulta cuándo abre y encuentra cómo llegar para recoger.",
       path: `/zonas/${params.citySlug}/venues/${params.venueSlug}`,
     });
   }
 
   return getBaseMetadata({
-    title: `${venue.name} en ${venue.city.name}: selección y recogida`,
-    description: `Descubre la selección de comida, productos y platos de ${venue.name} en ${venue.city.name}. Consulta opciones y recoge en el local.`,
+    title: `${venue.name} en ${venue.city.name}: qué probar y cómo recoger`,
+    description: `Descubre qué prepara ${venue.name}, consulta su horario y encuentra cómo llegar para recoger en ${venue.city.name}.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
     image: venue.coverUrl ?? venue.logoUrl ?? "/logo/LogoNuevo.svg?v=1",
   });
@@ -74,15 +77,17 @@ export default async function VenuePage({ params }: VenuePageProps) {
     notFound();
   }
 
-  const groupedItems = venue.menuItems.reduce<
-    Record<string, typeof venue.menuItems>
-  >((accumulator, item) => {
-    const key = item.categoryName ?? "Menú";
-    accumulator[key] ??= [];
-    accumulator[key].push(item);
-    return accumulator;
-  }, {});
-  const menuSections = Object.entries(groupedItems);
+  const openingStatus = getOpeningStatus(venue.openingHours);
+
+  const menuCategoryCounts = venue.menuItems.reduce<Record<string, number>>(
+    (accumulator, item) => {
+      const key = item.categoryName ?? "Otros";
+      accumulator[key] = (accumulator[key] ?? 0) + 1;
+      return accumulator;
+    },
+    {},
+  );
+  const menuCategories = Object.entries(menuCategoryCounts);
   const totalMenuItems = venue.menuItems.length;
 
   const cartVenue = {
@@ -141,7 +146,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.10),transparent_24%),linear-gradient(90deg,rgba(253,227,173,0.95)_0%,rgba(253,227,173,0.76)_36%,rgba(255,247,232,0.32)_68%,transparent_100%),linear-gradient(180deg,rgba(253,227,173,0.12)_0%,rgba(253,227,173,0.28)_50%,rgba(253,227,173,0.86)_100%)]" />
 
-          <div className="relative z-10 mx-auto flex min-h-[calc(78svh-1rem)] w-full max-w-7xl flex-col justify-end px-5 pb-10 pt-8 sm:px-8 sm:pb-12 sm:pt-12 lg:px-12">
+          <div className="relative z-10 mx-auto flex min-h-[34rem] w-full max-w-7xl flex-col justify-end px-5 pb-8 pt-24 sm:min-h-[38rem] sm:px-8 sm:pb-10 lg:min-h-[42rem] lg:px-12">
             <div className="max-w-4xl">
               <Link
                 href={`/zonas/${venue.city.slug}`}
@@ -150,29 +155,25 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 Volver a {venue.city.name}
               </Link>
 
-              <div className="mt-7 flex flex-wrap items-center gap-3">
+              <div className="mt-5 flex flex-wrap items-center gap-2.5">
                 <span className="rounded-full border border-[#741314]/16 bg-[#FFF7E8]/82 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#741314] backdrop-blur-xl">
                   {venue.city.name}
                 </span>
                 <span className="rounded-full border border-[#741314]/16 bg-[#FFF7E8]/82 px-4 py-2 text-xs font-semibold text-[#741314] backdrop-blur-xl">
                   {venue.pickupEtaMin
-                    ? `${venue.pickupEtaMin} min recogida`
-                    : "Recogida disponible"}
+                    ? `Listo en unos ${venue.pickupEtaMin} min`
+                    : "Para recoger"}
                 </span>
-                <span
-                  className={`rounded-full border border-[#741314]/16 px-4 py-2 text-xs font-semibold backdrop-blur-xl ${
-                    venue.isOpenNow
-                      ? "bg-[#741314] text-[#FDE3AD]"
-                      : "bg-[#FFF7E8]/82 text-[#741314]"
-                  }`}
-                >
-                  {venue.isOpenNow ? "Abierto ahora" : "Cerrado ahora"}
-                </span>
+                <VenueOpeningStatusBadge
+                  openingHours={venue.openingHours}
+                  initialStatus={openingStatus}
+                  compact
+                />
               </div>
 
-              <div className="mt-6 flex flex-wrap items-end gap-4">
-                <h1 className="max-w-[13ch] text-balance text-[clamp(3rem,7vw,6.5rem)] font-semibold leading-[0.88] tracking-[-0.07em]">
-                  Selección de {venue.name}
+              <div className="mt-5 flex flex-wrap items-end gap-3 sm:gap-4">
+                <h1 className="max-w-[14ch] text-balance text-[clamp(2.55rem,6vw,5.6rem)] font-semibold leading-[0.9] tracking-[-0.065em]">
+                  {venue.name}
                 </h1>
                 <VerifiedVenueBadge
                   isVerified={venue.isVerified}
@@ -181,17 +182,18 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 />
               </div>
 
-              <p className="mt-6 max-w-[50rem] text-base leading-7 text-[#24110E]/76 sm:text-lg sm:leading-8">
+              <p className="mt-5 max-w-[48rem] text-base leading-7 text-[#24110E]/78 sm:text-lg sm:leading-8">
                 {venue.description}
               </p>
 
-              <p className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#741314]">
+              <p className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#741314]">
                 <WalkIcon size={18} className="text-[#741314]" />
-                Selección visual con {totalMenuItems} productos y platos destacados.
+                {totalMenuItems > 0
+                  ? `${totalMenuItems} ${totalMenuItems === 1 ? "opción" : "opciones"} para elegir sin dar vueltas.`
+                  : "Pronto podrás descubrir qué prepara este local."}
               </p>
-              <p className="mt-4 max-w-[46rem] text-sm leading-6 text-[#24110E]/68">
-                Descubre la selección de {venue.name}. Explora productos,
-                platos, precios y opciones de recogida rápida en {venue.city.name} sin dar vueltas.
+              <p className="mt-3 hidden max-w-[46rem] text-sm leading-6 text-[#24110E]/68 sm:block">
+                Mira qué prepara el local, comprueba cuándo abre y organiza tu recogida en {venue.city.name}.
               </p>
             </div>
           </div>
@@ -199,7 +201,34 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
         <section className="bg-page text-text-primary">
           <div className="mx-auto w-full max-w-[96rem] px-3 py-8 sm:px-6 sm:py-10 lg:px-8">
-            <div className="mb-12">
+            <nav
+              aria-label="Contenido del local"
+              className="mb-6 flex flex-wrap gap-2 rounded-[1.1rem] border border-[#741314]/14 bg-[#FFF7E8] p-2 shadow-[var(--shadow-soft)] sm:mb-8 sm:w-fit"
+            >
+              <a
+                href="#informacion"
+                className="inline-flex min-h-12 flex-1 flex-col items-center justify-center gap-1 whitespace-nowrap rounded-[0.85rem] bg-[#741314] px-2 text-[11px] font-bold leading-none text-[#FDE3AD] outline-none transition hover:bg-[#5F0F10] focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:min-h-11 sm:flex-none sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+              >
+                <MapPinned aria-hidden="true" className="h-[1.1rem] w-[1.1rem] shrink-0" strokeWidth={2.25} />
+                Antes de ir
+              </a>
+              <a
+                href="#seleccion"
+                className="inline-flex min-h-12 flex-1 flex-col items-center justify-center gap-1 whitespace-nowrap rounded-[0.85rem] px-2 text-[11px] font-bold leading-none text-[#741314] outline-none transition hover:bg-[#741314]/8 focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:min-h-11 sm:flex-none sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+              >
+                <Utensils aria-hidden="true" className="h-[1.1rem] w-[1.1rem] shrink-0" strokeWidth={2.25} />
+                Qué elegir
+              </a>
+              <a
+                href="#horarios"
+                className="inline-flex min-h-12 flex-1 flex-col items-center justify-center gap-1 whitespace-nowrap rounded-[0.85rem] px-2 text-[11px] font-bold leading-none text-[#741314] outline-none transition hover:bg-[#741314]/8 focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 sm:min-h-11 sm:flex-none sm:flex-row sm:gap-2 sm:px-4 sm:text-sm"
+              >
+                <Clock3 aria-hidden="true" className="h-[1.1rem] w-[1.1rem] shrink-0" strokeWidth={2.25} />
+                Horario
+              </a>
+            </nav>
+
+            <div className="mb-8 scroll-mt-28 sm:mb-10">
               <VenueLocalInformation
                 venueSlug={venue.slug}
                 venueName={venue.name}
@@ -212,46 +241,75 @@ export default async function VenuePage({ params }: VenuePageProps) {
                 pickupEtaMin={venue.pickupEtaMin}
                 latitude={venue.latitude}
                 longitude={venue.longitude}
-                isOpenNow={venue.isOpenNow}
+                openingHours={venue.openingHours}
+                openingStatus={openingStatus}
               />
             </div>
 
-            <div className="space-y-12">
-              {menuSections.map(([categoryName, items]) => (
-                <section key={categoryName}>
-                  <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
-                        Selección
-                      </p>
-                      <h2 className="mt-3 max-w-[13ch] text-[clamp(1.9rem,3.4vw,3.6rem)] font-semibold leading-[0.92] tracking-[-0.065em] text-text-primary">
-                        {categoryName}
-                      </h2>
-                    </div>
-                    <span className="rounded-full border border-border-subtle bg-surface-muted px-4 py-2 text-xs font-semibold text-text-muted">
-                      {items.length} platos
-                    </span>
-                  </div>
+            <section id="seleccion" className="scroll-mt-28" aria-labelledby="venue-selection-title">
+              <div className="mb-6 grid gap-5 border-b border-border-subtle pb-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.26em] text-accent-strong">
+                    Para recoger
+                  </p>
+                  <h2
+                    id="venue-selection-title"
+                    className="mt-3 text-[clamp(1.9rem,3.4vw,3.35rem)] font-semibold leading-[0.94] tracking-[-0.055em] text-text-primary"
+                  >
+                    Elige lo que te apetece.
+                  </h2>
+                  <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
+                    Pocas opciones, bien explicadas, para decidir rápido.
+                  </p>
+                </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 lg:gap-4 xl:grid-cols-3">
-                    {items.map((item) => (
+                <div className="flex flex-wrap gap-2 lg:max-w-xl lg:justify-end">
+                  {menuCategories.map(([categoryName, count]) => (
+                    <span
+                      key={categoryName}
+                      className="inline-flex items-center gap-2 rounded-full border border-[#741314]/20 bg-[#FFF7E8] px-3 py-2 text-xs font-semibold text-[#741314]"
+                    >
+                      {categoryName}
+                      <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[#741314] px-1.5 py-0.5 text-[10px] font-bold text-[#FDE3AD]">
+                        {count}
+                      </span>
+                    </span>
+                  ))}
+                  <span className="inline-flex items-center rounded-full border border-border-subtle bg-surface-muted px-3 py-2 text-xs font-semibold text-text-muted">
+                    {totalMenuItems} {totalMenuItems === 1 ? "opción" : "opciones"}
+                  </span>
+                </div>
+              </div>
+
+              {venue.menuItems.length > 0 ? (
+                <div className="grid grid-cols-2 gap-3 lg:gap-4 xl:grid-cols-3">
+                  {venue.menuItems.map((item, index) => (
+                    <div key={item.id} className={index === 0 ? "col-span-2 sm:col-span-1" : "col-span-1"}>
                       <MenuItemGalleryCard
-                        key={item.id}
                         item={item}
                         venue={cartVenue}
                         anchorId={`plato-${item.id}`}
+                        variant="venueCompact"
+                        labels={{ viewDetail: "Ver", addForPickup: "Añadir" }}
                       />
-                    ))}
-                  </div>
-                </section>
-              ))}
-            </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-[1.2rem] border border-[#741314]/14 bg-[#FFF7E8] p-6 text-[#381932] sm:p-8">
+                  <p className="text-xl font-semibold">El escaparate de este local se está preparando.</p>
+                  <p className="mt-2 text-sm leading-6 text-[#381932]/68">
+                    Vuelve pronto para descubrir qué podrás recoger aquí.
+                  </p>
+                </div>
+              )}
+            </section>
 
             <div className="mt-12 grid gap-3 lg:grid-cols-2">
               <VenueCartSummary venueId={venue.id} />
               <VenueOpeningHours
                 openingHours={venue.openingHours}
-                isOpenNow={venue.isOpenNow}
+                openingStatus={openingStatus}
               />
             </div>
           </div>

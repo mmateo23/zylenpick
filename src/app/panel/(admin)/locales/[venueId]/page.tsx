@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AdminVenueForm } from "@/components/admin/admin-venue-form";
 import {
   getAdminCities,
+  getAdminVenuePublicHref,
   getAdminVenueById,
   updateVenueAction,
 } from "@/features/admin/services/venues-admin-service";
@@ -17,9 +18,10 @@ type AdminVenueEditPageProps = {
 export default async function AdminVenueEditPage({
   params,
 }: AdminVenueEditPageProps) {
-  const [cities, venue] = await Promise.all([
+  const [cities, venue, previewHref] = await Promise.all([
     getAdminCities(),
     getAdminVenueById(params.venueId),
+    getAdminVenuePublicHref(params.venueId),
   ]);
 
   if (!venue) {
@@ -61,6 +63,7 @@ export default async function AdminVenueEditPage({
         action={updateAction}
         cities={cities}
         initialValues={venue}
+        previewHref={previewHref}
       />
     </div>
   );

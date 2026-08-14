@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Copy, Eye, Pencil } from "lucide-react";
 
 import { getMapPlaceCategory } from "@/features/map-places/categories";
 import { getAdminMapPlaces } from "@/features/admin/services/map-places-admin-service";
@@ -9,8 +10,17 @@ const statusLabels = {
   published: "Publicado",
 };
 
+const planRoleLabels = {
+  discover: "Descubrir",
+  enjoy: "Disfrutar",
+  support: "Apoyo",
+};
+
 export default async function AdminMapPlacesPage() {
   const places = await getAdminMapPlaces();
+  const publishedCount = places.filter((place) => place.status === "published" && place.isActive).length;
+  const planCandidateCount = places.filter((place) => place.isPlanCandidate).length;
+  const incompleteCount = places.filter((place) => !place.description || !place.coverImageUrl).length;
 
   return (
     <section className="space-y-6">
@@ -26,6 +36,19 @@ export default async function AdminMapPlacesPage() {
           Añadir lugar
         </Link>
       </header>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {[
+          ["Publicados", publishedCount],
+          ["En planes", planCandidateCount],
+          ["Por completar", incompleteCount],
+        ].map(([label, value]) => (
+          <div key={label} className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-4">
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#741314]/55">{label}</p>
+            <p className="mt-2 text-3xl font-semibold text-[#381932]">{value}</p>
+          </div>
+        ))}
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] shadow-[0_16px_45px_rgba(116,19,20,0.06)]">
         {places.length === 0 ? (
@@ -48,12 +71,30 @@ export default async function AdminMapPlacesPage() {
                       <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${place.status === "published" && place.isActive ? "bg-emerald-100 text-emerald-800" : "bg-[#381932]/[0.07] text-[#381932]/60"}`}>
                         {statusLabels[place.status]}
                       </span>
+                      {place.isPlanCandidate ? (
+                        <span className="rounded-full bg-[#FDE3AD] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
+                          Plan · {planRoleLabels[place.planRole]}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-2 text-sm text-[#381932]/60">{place.city.name} · {place.latitude.toFixed(5)}, {place.longitude.toFixed(5)}</p>
                   </div>
-                  <Link href={`/panel/lugares/${place.id}`} className="rounded-full border border-[#741314]/22 px-4 py-2 text-center text-sm font-semibold text-[#741314]">
-                    Editar
-                  </Link>
+                  <div className="grid grid-cols-2 gap-2 sm:flex">
+                    {place.status === "published" && place.isActive ? (
+                      <Link href={`/mapa?lugar=${place.slug}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/14 px-4 py-2 text-center text-sm font-semibold text-[#381932]/65">
+                        <Eye aria-hidden="true" className="h-4 w-4" />
+                        Ver
+                      </Link>
+                    ) : null}
+                    <Link href={`/panel/lugares/nuevo?copiar=${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-center text-sm font-semibold text-[#741314]">
+                      <Copy aria-hidden="true" className="h-4 w-4" />
+                      Duplicar
+                    </Link>
+                    <Link href={`/panel/lugares/${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2 text-center text-sm font-semibold text-[#FFF7E8]">
+                      <Pencil aria-hidden="true" className="h-4 w-4" />
+                      Editar
+                    </Link>
+                  </div>
                 </article>
               );
             })}

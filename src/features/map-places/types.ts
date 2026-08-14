@@ -6,9 +6,12 @@ export type MapPlaceStatus =
   Database["public"]["Tables"]["map_places"]["Row"]["status"];
 export type MapPlaceSource =
   Database["public"]["Tables"]["map_places"]["Row"]["source"];
+export type MapPlacePlanRole =
+  Database["public"]["Tables"]["map_places"]["Row"]["plan_role"];
 
 export type PublicMapPlace = {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
   category: MapPlaceCategory;
@@ -17,6 +20,14 @@ export type PublicMapPlace = {
   longitude: number;
   amenities: string[];
   isAccessible: boolean;
+  coverImageUrl: string | null;
+  story: string | null;
+  openingHoursNote: string | null;
+  accessibilityNote: string | null;
+  sourceLabel: string | null;
+  sourceUrl: string | null;
+  planRole: MapPlacePlanRole;
+  isPlanCandidate: boolean;
   city: {
     slug: string;
     name: string;

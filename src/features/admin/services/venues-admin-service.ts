@@ -284,6 +284,16 @@ async function getPublicVenuePathContextById(
   };
 }
 
+export async function getAdminVenuePublicHref(venueId: string) {
+  const pathContext = await getPublicVenuePathContextById(venueId);
+
+  if (!pathContext) {
+    return null;
+  }
+
+  return `/zonas/${pathContext.citySlug}/venues/${pathContext.venueSlug}`;
+}
+
 function revalidatePublicVenuePaths(paths: Array<PublicVenuePathContext | null>) {
   const uniquePaths = new Set<string>();
 

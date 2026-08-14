@@ -16,16 +16,28 @@ export function VerifiedVenueBadge({
   }
 
   const helpText =
-    "Local verificado por Pickyalo. Este local ha aportado la documentación solicitada para una revisión documental.";
+    "Documentación aportada por el local y revisada por Pickyalo. Esta revisión no sustituye a una administración pública.";
 
   return (
     <span
       title={helpText}
       aria-label="Local verificado por Pickyalo"
-      className="inline-flex items-center gap-2 rounded-full border border-[color:var(--brand)]/18 bg-[color:var(--brand)]/10 px-3 py-1.5 text-xs font-medium text-[color:var(--foreground)] shadow-[var(--card-shadow)]"
+      className="inline-flex items-center gap-2 rounded-full border border-emerald-700/25 bg-emerald-50/95 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-[var(--card-shadow)] backdrop-blur-sm"
     >
-      <PickyaloVerifiedIcon size={17} strokeWidth={2.35} animated />
-      {withLabel ? <span>Verificado por Pickyalo</span> : null}
+      <PickyaloVerifiedIcon
+        size={17}
+        strokeWidth={2.35}
+        animated
+        className="text-emerald-700"
+      />
+      {withLabel ? (
+        <span>
+          Verificado por{" "}
+          <span className="font-pickyalo-wordmark text-[1.04em] tracking-[-0.035em]">
+            Pickyalo
+          </span>
+        </span>
+      ) : null}
     </span>
   );
 }

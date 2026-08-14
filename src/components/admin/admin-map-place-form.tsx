@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { LocateFixed, MapPin } from "lucide-react";
+import { Copy, LocateFixed, MapPin, Route, SlidersHorizontal } from "lucide-react";
 
+import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
+import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import { mapPlaceCategories } from "@/features/map-places/categories";
 import type {
   AdminMapPlaceFormValues,
@@ -20,6 +22,7 @@ type AdminMapPlaceFormProps = {
   cities: MapPlaceCityOption[];
   action: (formData: FormData) => void;
   initialValues?: AdminMapPlaceFormValues | null;
+  mode?: "create" | "edit" | "duplicate";
 };
 
 const defaultCenter: [number, number] = [-4.8308, 39.9579];
@@ -49,7 +52,7 @@ function CategoryIcon({ path }: { path: string }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className="h-5 w-5"
+      className="h-6 w-6"
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
@@ -65,7 +68,9 @@ export function AdminMapPlaceForm({
   cities,
   action,
   initialValues,
+  mode,
 }: AdminMapPlaceFormProps) {
+  const formMode = mode ?? (initialValues?.id ? "edit" : "create");
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
   const markerRef = useRef<Marker | null>(null);
@@ -77,6 +82,13 @@ export function AdminMapPlaceForm({
   const [accuracy, setAccuracy] = useState(initialValues?.locationAccuracyM ?? "");
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    initialValues?.category ?? "park",
+  );
+  const selectedCategoryConfig =
+    mapPlaceCategories.find((category) => category.value === selectedCategory) ??
+    mapPlaceCategories[0];
 
   useEffect(() => {
     if (!accessToken || !mapContainerRef.current) return;
@@ -184,16 +196,73 @@ export function AdminMapPlaceForm({
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#741314]/58">Lugar del mapa</p>
             <h1 className="mt-2 text-3xl font-semibold text-[#381932]">
-              {initialValues ? "Editar punto" : "Añadir punto"}
+              {formMode === "edit"
+                ? "Editar lugar"
+                : formMode === "duplicate"
+                  ? "Duplicar lugar"
+                  : "Añadir lugar"}
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#381932]/65">
-              Marca el lugar sobre el terreno. Guárdalo como borrador hasta comprobar la posición.
+              {formMode === "duplicate"
+                ? "Revisa el nombre y la posición. La copia se guardará como borrador e inactiva."
+                : "Completa lo esencial, marca la posición y guarda. Los detalles adicionales son opcionales."}
             </p>
           </div>
-          <Link href="/panel/lugares" className="rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]">
-            Volver
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            {formMode === "edit" && initialValues?.id ? (
+              <Link
+                href={`/panel/lugares/nuevo?copiar=${initialValues.id}`}
+                className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]"
+              >
+                <Copy aria-hidden="true" className="h-4 w-4" />
+                Duplicar
+              </Link>
+            ) : null}
+            <Link href="/panel/lugares" className="rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]">
+              Volver
+            </Link>
+          </div>
         </div>
+
+        {formMode === "edit" && initialValues?.slug ? (
+          <AdminPreviewLink
+            href={`/mapa?lugar=${encodeURIComponent(initialValues.slug)}`}
+            description="Este formulario modifica el punto, su post informativo y las ayudas que aparecen en el mapa público."
+            label="Ver lugar en el mapa"
+          />
+        ) : null}
+
+        {formMode === "duplicate" ? (
+          <div className="mt-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            Estás trabajando sobre una copia. Nada se publicará hasta que revises el lugar y cambies su estado.
+          </div>
+        ) : null}
+
+        <ol className="mt-6 grid gap-2 sm:grid-cols-3">
+          {["Nombre y ciudad", "Qué tipo de lugar es", "Dónde está"].map(
+            (step, index) => (
+              <li
+                key={step}
+                className="flex items-center gap-3 rounded-xl border border-[#741314]/10 bg-white px-3 py-3 text-sm font-semibold text-[#381932]"
+              >
+                <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#741314] text-xs font-bold text-[#FFF7E8]">
+                  {index + 1}
+                </span>
+                {step}
+              </li>
+            ),
+          )}
+        </ol>
+
+        <button
+          type="button"
+          aria-expanded={showAdvanced}
+          onClick={() => setShowAdvanced((current) => !current)}
+          className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-4 py-2.5 text-sm font-bold text-[#741314] transition hover:bg-[#741314]/[0.05]"
+        >
+          <SlidersHorizontal aria-hidden="true" className="h-4 w-4" />
+          {showAdvanced ? "Ocultar opciones avanzadas" : "Mostrar opciones avanzadas"}
+        </button>
 
         <div className="mt-7 grid gap-5 md:grid-cols-2">
           <label className="block">
@@ -211,7 +280,7 @@ export function AdminMapPlaceForm({
               required
             />
           </label>
-          <label className="block">
+          <label className={showAdvanced ? "block" : "hidden"}>
             <span className="text-sm font-semibold text-[#381932]">Identificador URL</span>
             <input
               name="slug"
@@ -232,7 +301,7 @@ export function AdminMapPlaceForm({
               {cities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
           </label>
-          <label className="block">
+          <label className={showAdvanced ? "block" : "hidden"}>
             <span className="text-sm font-semibold text-[#381932]">Estado</span>
             <select name="status" defaultValue={initialValues?.status ?? "draft"} className={fieldClassName}>
               <option value="draft">Borrador</option>
@@ -252,26 +321,136 @@ export function AdminMapPlaceForm({
         </div>
       </section>
 
+      <div className={showAdvanced ? "block" : "hidden"}>
+        <AdminFormDisclosure
+          title="Historia e información para la visita"
+          description="Añádelo solo si el lugar merece una ficha editorial propia."
+          defaultOpen
+        >
+          <div className="grid gap-5 md:grid-cols-2">
+          <label className="block md:col-span-2">
+            <span className="text-sm font-semibold text-[#381932]">Imagen principal</span>
+            <input
+              name="coverImageUrl"
+              defaultValue={initialValues?.coverImageUrl ?? ""}
+              className={fieldClassName}
+              placeholder="https://... o /ruta-del-proyecto.webp"
+            />
+          </label>
+          <label className="block md:col-span-2">
+            <span className="text-sm font-semibold text-[#381932]">Relato breve</span>
+            <textarea
+              name="story"
+              defaultValue={initialValues?.story ?? ""}
+              className={`${fieldClassName} min-h-32 resize-y`}
+              placeholder="Cuenta por qué merece la pena detenerse aquí. Usa información contrastada y un tono cercano."
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Horario o disponibilidad</span>
+            <input
+              name="openingHoursNote"
+              defaultValue={initialValues?.openingHoursNote ?? ""}
+              className={fieldClassName}
+              placeholder="Espacio exterior, acceso libre"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Accesibilidad</span>
+            <input
+              name="accessibilityNote"
+              defaultValue={initialValues?.accessibilityNote ?? ""}
+              className={fieldClassName}
+              placeholder="Acceso a nivel desde..."
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Nombre de la fuente</span>
+            <input
+              name="sourceLabel"
+              defaultValue={initialValues?.sourceLabel ?? ""}
+              className={fieldClassName}
+              placeholder="Turismo de Talavera"
+            />
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Enlace oficial</span>
+            <input
+              name="sourceUrl"
+              defaultValue={initialValues?.sourceUrl ?? ""}
+              className={fieldClassName}
+              placeholder="https://..."
+              inputMode="url"
+            />
+          </label>
+          </div>
+        </AdminFormDisclosure>
+      </div>
+
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
-        <h2 className="text-xl font-semibold text-[#381932]">Qué hay aquí</h2>
-        <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-          {mapPlaceCategories.map((category) => (
-            <label key={category.value} className="cursor-pointer">
-              <input
-                type="radio"
-                name="category"
-                value={category.value}
-                defaultChecked={(initialValues?.category ?? "park") === category.value}
-                className="peer sr-only"
-              />
-              <span className="flex min-h-20 flex-col justify-between rounded-xl border border-[#741314]/12 bg-white p-3 text-[#381932]/65 transition peer-checked:border-[#741314] peer-checked:bg-[#741314] peer-checked:text-[#FFF7E8] peer-focus-visible:ring-2 peer-focus-visible:ring-[#741314]/30">
-                <CategoryIcon path={category.markerPath} />
-                <span className="mt-2 text-xs font-semibold leading-4">{category.label}</span>
-              </span>
-            </label>
-          ))}
-        </div>
+        <label className="block max-w-xl">
+          <span className="text-sm font-semibold text-[#381932]">Tipo de lugar</span>
+          <div className="mt-2 grid grid-cols-[3.25rem_minmax(0,1fr)] items-center gap-3">
+            <span
+              className="inline-flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-xl bg-[#741314] text-[#FFF7E8]"
+              title={`Icono: ${selectedCategoryConfig.label}`}
+            >
+              <CategoryIcon path={selectedCategoryConfig.markerPath} />
+            </span>
+            <select
+              name="category"
+              value={selectedCategory}
+              onChange={(event) => setSelectedCategory(event.target.value)}
+              className={`${fieldClassName} !mt-0`}
+            >
+              {mapPlaceCategories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <span className="mt-2 block text-xs leading-5 text-[#381932]/58">
+            La vista previa muestra el icono exacto que aparecerá en el mapa.
+          </span>
+        </label>
       </section>
+
+      <div className={showAdvanced ? "block" : "hidden"}>
+        <AdminFormDisclosure
+          eyebrow="Planes"
+          title="Usar en una ruta corta"
+          description="Configura si puede combinarse con un local cercano dentro de un plan Pickyalo."
+          defaultOpen
+        >
+          <div className="mb-5 flex items-center gap-3 text-sm font-semibold text-[#741314]">
+            <Route className="h-5 w-5" aria-hidden="true" />
+            Solo aparecerá si está activo, publicado y marcado como candidato.
+          </div>
+          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-end">
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Papel del lugar</span>
+            <select name="planRole" defaultValue={initialValues?.planRole ?? "support"} className={fieldClassName}>
+              <option value="discover">Descubrir · patrimonio, mural o evento</option>
+              <option value="enjoy">Disfrutar · parque, mesa o mirador</option>
+              <option value="support">Apoyo · servicio útil</option>
+            </select>
+          </label>
+          <label className="flex min-h-[3.25rem] items-center gap-3 rounded-xl border border-[#741314]/16 bg-white px-4 py-3 text-sm text-[#381932]">
+            <input
+              name="isPlanCandidate"
+              type="checkbox"
+              defaultChecked={initialValues?.isPlanCandidate ?? false}
+              className="h-4 w-4 accent-[#741314]"
+            />
+            <span>
+              <strong className="block font-semibold">Puede aparecer en planes</strong>
+              <span className="mt-0.5 block text-xs leading-5 text-[#381932]/58">Actívalo solo después de revisar ubicación y contenido.</span>
+            </span>
+          </label>
+          </div>
+        </AdminFormDisclosure>
+      </div>
 
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -298,20 +477,33 @@ export function AdminMapPlaceForm({
           </div>
         )}
 
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <label className="block">
-            <span className="text-sm font-semibold text-[#381932]">Latitud</span>
-            <input name="latitude" value={latitude} onChange={(event) => setLatitude(event.target.value)} className={fieldClassName} required inputMode="decimal" />
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold text-[#381932]">Longitud</span>
-            <input name="longitude" value={longitude} onChange={(event) => setLongitude(event.target.value)} className={fieldClassName} required inputMode="decimal" />
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold text-[#381932]">Precisión GPS (m)</span>
-            <input name="locationAccuracyM" value={accuracy} onChange={(event) => setAccuracy(event.target.value)} className={fieldClassName} inputMode="decimal" />
-          </label>
-        </div>
+        {showAdvanced || !accessToken ? (
+          <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <label className="block">
+              <span className="text-sm font-semibold text-[#381932]">Latitud</span>
+              <input name="latitude" value={latitude} onChange={(event) => setLatitude(event.target.value)} className={fieldClassName} required inputMode="decimal" />
+            </label>
+            <label className="block">
+              <span className="text-sm font-semibold text-[#381932]">Longitud</span>
+              <input name="longitude" value={longitude} onChange={(event) => setLongitude(event.target.value)} className={fieldClassName} required inputMode="decimal" />
+            </label>
+            <label className="block">
+              <span className="text-sm font-semibold text-[#381932]">Precisión GPS (m)</span>
+              <input name="locationAccuracyM" value={accuracy} onChange={(event) => setAccuracy(event.target.value)} className={fieldClassName} inputMode="decimal" />
+            </label>
+          </div>
+        ) : (
+          <>
+            <input type="hidden" name="latitude" value={latitude} />
+            <input type="hidden" name="longitude" value={longitude} />
+            <input type="hidden" name="locationAccuracyM" value={accuracy} />
+            <p className="mt-4 text-sm font-medium text-[#381932]/65">
+              {latitude && longitude
+                ? "Posición marcada. Puedes ajustarla directamente sobre el mapa."
+                : "Pulsa sobre el mapa para marcar la posición exacta."}
+            </p>
+          </>
+        )}
         {locationMessage ? (
           <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-[#741314]" aria-live="polite">
             <MapPin className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
@@ -320,9 +512,14 @@ export function AdminMapPlaceForm({
         ) : null}
       </section>
 
-      <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
-        <h2 className="text-xl font-semibold text-[#381932]">Revisión y detalles</h2>
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
+      <div className={showAdvanced ? "block" : "hidden"}>
+        <AdminFormDisclosure
+          eyebrow="Control"
+          title="Revisión y servicios"
+          description="Guarda la fuente, el orden y los servicios concretos después de comprobar el punto."
+          defaultOpen
+        >
+          <div className="grid gap-5 md:grid-cols-2">
           <label className="block">
             <span className="text-sm font-semibold text-[#381932]">Cómo se comprobó</span>
             <select name="source" defaultValue={initialValues?.source ?? "field"} className={fieldClassName}>
@@ -354,12 +551,17 @@ export function AdminMapPlaceForm({
             <input name="isActive" type="checkbox" defaultChecked={initialValues?.isActive ?? true} className="accent-[#741314]" />
             Punto activo
           </label>
-        </div>
-      </section>
+          </div>
+        </AdminFormDisclosure>
+      </div>
 
       <div className="flex justify-end">
         <button type="submit" className="rounded-full bg-[#741314] px-6 py-3.5 text-sm font-bold text-[#FFF7E8] shadow-[0_12px_28px_rgba(116,19,20,0.2)]">
-          {initialValues ? "Guardar cambios" : "Crear lugar"}
+          {formMode === "edit"
+            ? "Guardar cambios"
+            : formMode === "duplicate"
+              ? "Crear copia"
+              : "Crear lugar"}
         </button>
       </div>
     </form>

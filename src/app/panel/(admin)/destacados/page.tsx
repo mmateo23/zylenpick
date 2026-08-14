@@ -258,7 +258,7 @@ export default async function AdminHighlightsPage({
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               venue.isFeatured
                                 ? "bg-[rgba(214,166,72,0.16)] text-[#d6a648]"
-                                : "bg-white/8 text-white/58"
+                                : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted-strong)]"
                             }`}
                           >
                             {venue.isFeatured ? "Destacado" : "Normal"}
@@ -376,7 +376,7 @@ export default async function AdminHighlightsPage({
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               item.isFeatured
                                 ? "bg-[rgba(214,166,72,0.16)] text-[#d6a648]"
-                                : "bg-white/8 text-white/58"
+                                : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted-strong)]"
                             }`}
                           >
                             {item.isFeatured ? "Activo" : "No"}
@@ -387,7 +387,7 @@ export default async function AdminHighlightsPage({
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               item.isPickupMonthHighlight
                                 ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
-                                : "bg-white/8 text-white/58"
+                                : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted-strong)]"
                             }`}
                           >
                             {item.isPickupMonthHighlight ? "Activo" : "No"}
@@ -507,7 +507,7 @@ export default async function AdminHighlightsPage({
                             className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
                               item.isHomeFeatured
                                 ? "bg-[rgba(254,212,125,0.16)] text-[color:var(--accent)]"
-                                : "bg-white/8 text-white/58"
+                                : "border border-[color:var(--border)] bg-[color:var(--surface-strong)] text-[color:var(--muted-strong)]"
                             }`}
                           >
                             {item.isHomeFeatured ? "Activo" : "No"}

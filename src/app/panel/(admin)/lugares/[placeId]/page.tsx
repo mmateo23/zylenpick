@@ -23,6 +23,7 @@ export default async function EditMapPlacePage({ params }: EditMapPlacePageProps
       cities={cities}
       initialValues={place}
       action={action}
+      mode="edit"
     />
   );
 }

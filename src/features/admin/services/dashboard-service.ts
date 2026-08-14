@@ -1,51 +1,56 @@
+import { createAdminDataClient } from "@/features/admin/services/admin-auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminDashboardSummary = {
   venuesCount: number | null;
+  publishedVenuesCount: number | null;
   menuItemsCount: number | null;
-  joinRequestsCount: number | null;
+  unavailableMenuItemsCount: number | null;
+  pendingJoinRequestsCount: number | null;
+};
+
+const emptySummary: AdminDashboardSummary = {
+  venuesCount: null,
+  publishedVenuesCount: null,
+  menuItemsCount: null,
+  unavailableMenuItemsCount: null,
+  pendingJoinRequestsCount: null,
 };
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
   if (!isSupabaseConfigured()) {
-    return {
-      venuesCount: null,
-      menuItemsCount: null,
-      joinRequestsCount: null,
-    };
+    return emptySummary;
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
+  const results = await Promise.all([
+    supabase.from("venues").select("*", { count: "exact", head: true }),
+    supabase
+      .from("venues")
+      .select("*", { count: "exact", head: true })
+      .eq("is_active", true)
+      .eq("is_published", true),
+    supabase.from("menu_items").select("*", { count: "exact", head: true }),
+    supabase
+      .from("menu_items")
+      .select("*", { count: "exact", head: true })
+      .eq("is_available", false),
+    supabase
+      .from("join_requests")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending"),
+  ]);
 
-  const [
-    { count: venuesCount, error: venuesError },
-    { count: menuItemsCount, error: menuItemsError },
-    { count: joinRequestsCount, error: joinRequestsError },
-  ] =
-    await Promise.all([
-      supabase.from("venues").select("*", { count: "exact", head: true }),
-      supabase.from("menu_items").select("*", { count: "exact", head: true }),
-      supabase.from("join_requests").select("*", { count: "exact", head: true }),
-    ]);
-
-  if (venuesError) {
-    throw new Error(`Unable to load venues count: ${venuesError.message}`);
-  }
-
-  if (menuItemsError) {
-    throw new Error(`Unable to load menu items count: ${menuItemsError.message}`);
-  }
-
-  if (joinRequestsError) {
-    throw new Error(
-      `Unable to load join requests count: ${joinRequestsError.message}`,
-    );
+  const firstError = results.find((result) => result.error)?.error;
+  if (firstError) {
+    throw new Error(`Unable to load admin dashboard: ${firstError.message}`);
   }
 
   return {
-    venuesCount: venuesCount ?? 0,
-    menuItemsCount: menuItemsCount ?? 0,
-    joinRequestsCount: joinRequestsCount ?? 0,
+    venuesCount: results[0].count ?? 0,
+    publishedVenuesCount: results[1].count ?? 0,
+    menuItemsCount: results[2].count ?? 0,
+    unavailableMenuItemsCount: results[3].count ?? 0,
+    pendingJoinRequestsCount: results[4].count ?? 0,
   };
 }

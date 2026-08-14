@@ -234,7 +234,7 @@ export default async function AdminJoinRequestDetailPage({
         </div>
 
         {isLinked ? (
-          <p className="mt-4 rounded-[1rem] border border-[#E5484D]/25 bg-[#E5484D]/8 px-4 py-3 text-sm leading-6 text-[#FFB4B4]">
+          <p className="mt-4 rounded-[1rem] border border-red-300 bg-red-50 px-4 py-3 text-sm leading-6 text-red-800">
             Esta solicitud ya está vinculada a un local real. Para evitar perder la
             trazabilidad del alta, no se puede eliminar desde el panel.
           </p>

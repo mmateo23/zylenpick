@@ -16,13 +16,13 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
     return (
       <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-          Tu cesta
+          Tu recogida
         </p>
         <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
-          Guarda tu selección y sigue explorando.
+          Aún no has añadido nada.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          El resumen aparecerá cuando añadas productos o platos para recoger.
+          Abre una opción, revisa sus detalles y añádela cuando lo tengas claro.
         </p>
       </div>
     );
@@ -32,19 +32,19 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
     return (
       <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
         <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-          Tu cesta
+          Tu recogida
         </p>
         <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
-          Pedido en otro local.
+          Tu cesta está en otro local.
         </p>
         <p className="mt-3 text-sm leading-6 text-text-secondary">
-          Tienes productos o platos para recoger en {cart.venue.name}.
+          Ya has elegido qué recoger en {cart.venue.name}.
         </p>
         <Link
           href="/cart"
           className="mt-5 inline-flex rounded-full border border-border-subtle bg-surface-strong px-4 py-2.5 text-sm font-semibold text-text-primary transition hover:bg-surface-muted"
         >
-          Ver recogida
+          Revisar cesta
         </Link>
       </div>
     );
@@ -55,21 +55,21 @@ export function VenueCartSummary({ venueId }: VenueCartSummaryProps) {
   return (
     <div className="rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft">
       <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
-        Tu cesta
+        Tu recogida
       </p>
       <p className="mt-3 text-2xl font-semibold leading-tight text-text-primary">
         {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
       </p>
       <p className="mt-3 text-sm leading-6 text-text-secondary">
         {totals.hasDefinitiveTotal
-          ? `Total ${formatPrice(totals.totalAmount, currency)} para recoger.`
-          : "El precio final se confirmará con el establecimiento."}
+          ? `${formatPrice(totals.totalAmount, currency)} en total antes de confirmar.`
+          : "El local confirmará el precio final."}
       </p>
       <Link
         href="/cart"
         className="mt-5 inline-flex rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
       >
-        Ver recogida
+        Revisar cesta
       </Link>
     </div>
   );
