@@ -1,5 +1,5 @@
+import { createAdminDataClient } from "@/features/admin/services/admin-auth";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AdminDashboardSummary = {
   venuesCount: number | null;
@@ -16,7 +16,7 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
     };
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
 
   const [
     { count: venuesCount, error: venuesError },

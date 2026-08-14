@@ -1,6 +1,9 @@
 import { revalidatePath } from "next/cache";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import { getAdminSiteChips } from "@/features/admin/services/chips-admin-service";
 import { getAdminSiteFunnelSettings } from "@/features/admin/services/funnel-admin-service";
 import {
@@ -14,7 +17,6 @@ import {
   type VenueMonetizationUsage,
   type VenueMonetizationWarning,
 } from "@/features/monetization/types";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 type VenueOption = {
@@ -289,7 +291,7 @@ function revalidateMonetizationPaths() {
 }
 
 export async function getVenueMonetizationDashboard(): Promise<VenueMonetizationDashboard> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const [venuesResult, settingsResult, menuItemsResult, funnel, chips] =
     await Promise.all([
       supabase

@@ -1,7 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-import type { Database } from "@/types/database";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 type JoinRequestPayload = {
   venueName: string;
@@ -145,14 +144,12 @@ export async function POST(request: Request) {
   const joinRequestToEmail = process.env.JOIN_REQUEST_TO_EMAIL;
   const joinRequestFromEmail =
     process.env.JOIN_REQUEST_FROM_EMAIL ?? "Pickyalo <onboarding@resend.dev>";
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (
     !resendApiKey ||
     !joinRequestToEmail ||
-    !supabaseUrl ||
-    !supabaseAnonKey
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.SUPABASE_SERVICE_ROLE_KEY
   ) {
     return NextResponse.json(
       {
@@ -170,7 +167,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: validationError }, { status: 400 });
   }
 
-  const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+  const supabase = createSupabaseAdminClient();
 
   const { error: insertError } = await supabase.from("join_requests").insert({
     venue_name: payload.venueName,

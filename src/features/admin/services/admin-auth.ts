@@ -88,7 +88,7 @@ export async function requireAuthorizedAdminSession() {
   return sessionState;
 }
 
-export async function createAdminMutationClient() {
+export async function createAdminDataClient() {
   const sessionState = await requireAuthorizedAdminSession();
 
   if (isSupabaseAdminConfigured()) {
@@ -102,4 +102,8 @@ export async function createAdminMutationClient() {
   }
 
   return createSupabaseServerClient();
+}
+
+export async function createAdminMutationClient() {
+  return createAdminDataClient();
 }

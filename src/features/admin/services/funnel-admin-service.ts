@@ -1,13 +1,15 @@
 import { revalidatePath } from "next/cache";
 
-import { createAdminMutationClient } from "@/features/admin/services/admin-auth";
+import {
+  createAdminDataClient,
+  createAdminMutationClient,
+} from "@/features/admin/services/admin-auth";
 import {
   defaultSiteFunnelSettings,
   normalizeSiteFunnelSettings,
   type SiteFunnelPlatosConfig,
   type SiteFunnelSettings,
 } from "@/features/funnel/site-funnel-settings";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 const FUNNEL_SETTING_KEYS = ["platos"] as const;
@@ -60,7 +62,7 @@ export type FunnelDishOption = {
 };
 
 export async function getAdminSiteFunnelSettings(): Promise<SiteFunnelSettings> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("site_funnel_settings")
     .select("key, value")
@@ -79,7 +81,7 @@ export async function getAdminSiteFunnelSettings(): Promise<SiteFunnelSettings> 
 }
 
 export async function getFunnelDishOptions(): Promise<FunnelDishOption[]> {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("menu_items")
     .select(
