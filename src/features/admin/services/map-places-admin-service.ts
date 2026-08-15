@@ -26,9 +26,17 @@ export type MapPlaceCityOption = {
   slug: string;
 };
 
+export type MapPlaceParentOption = {
+  id: string;
+  cityId: string;
+  name: string;
+  category: MapPlaceCategory;
+};
+
 export type AdminMapPlaceFormValues = {
   id: string;
   cityId: string;
+  parentPlaceId: string;
   slug: string;
   name: string;
   description: string;
@@ -114,6 +122,7 @@ function normalizeFormData(formData: FormData): AdminMapPlaceFormValues {
   return {
     id: "",
     cityId: String(formData.get("cityId") ?? "").trim(),
+    parentPlaceId: String(formData.get("parentPlaceId") ?? "").trim(),
     slug: String(formData.get("slug") ?? "").trim(),
     name: String(formData.get("name") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
@@ -201,6 +210,7 @@ function toPayload(values: AdminMapPlaceFormValues) {
 
   return {
     city_id: values.cityId,
+    parent_place_id: values.parentPlaceId || null,
     slug: values.slug,
     name: values.name,
     description: values.description || null,
@@ -257,12 +267,58 @@ export async function getMapPlaceCities(): Promise<MapPlaceCityOption[]> {
   return data;
 }
 
+export async function getMapPlaceParentOptions(): Promise<MapPlaceParentOption[]> {
+  const supabase = await createAdminReadClient();
+  const { data, error } = await supabase
+    .from("map_places")
+    .select("id, city_id, name, category")
+    .is("parent_place_id", null)
+    .order("name");
+
+  if (error) {
+    if (isMissingTableError(error.message)) return [];
+    throw new Error(`No se pudieron cargar los lugares principales: ${error.message}`);
+  }
+
+  return data.map((place) => ({
+    id: place.id,
+    cityId: place.city_id,
+    name: place.name,
+    category: place.category,
+  }));
+}
+
+async function validateParentPlace(
+  supabase: SupabaseClient<Database>,
+  values: AdminMapPlaceFormValues,
+  currentId?: string,
+) {
+  if (!values.parentPlaceId) return;
+  if (values.parentPlaceId === currentId) {
+    throw new Error("Un lugar no puede estar dentro de sí mismo.");
+  }
+
+  const { data, error } = await supabase
+    .from("map_places")
+    .select("city_id, parent_place_id")
+    .eq("id", values.parentPlaceId)
+    .maybeSingle();
+
+  if (error || !data) throw new Error("El lugar principal seleccionado no existe.");
+  if (data.city_id !== values.cityId) {
+    throw new Error("El lugar principal debe pertenecer a la misma ciudad.");
+  }
+  if (data.parent_place_id) {
+    throw new Error("Solo se permite un nivel de sublugares para mantener el mapa sencillo.");
+  }
+}
+
 export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
   const supabase = await createAdminReadClient();
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
+      "id, city_id, parent_place_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
     )
     .order("sort_order")
     .order("name");
@@ -274,6 +330,7 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
 
   return data.map((place) => ({
     id: place.id,
+    parentPlaceId: place.parent_place_id,
     cityId: place.city_id,
     slug: place.slug,
     name: place.name,
@@ -310,7 +367,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, slug, name, description, category, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
+      "id, city_id, parent_place_id, slug, name, description, category, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
     )
     .eq("id", id)
     .maybeSingle();
@@ -323,6 +380,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
   return {
     id: data.id,
     cityId: data.city_id,
+    parentPlaceId: data.parent_place_id ?? "",
     slug: data.slug,
     name: data.name,
     description: data.description ?? "",
@@ -397,6 +455,7 @@ export async function createMapPlaceAction(formData: FormData) {
   const values = normalizeFormData(formData);
   validateValues(values);
   const supabase = await createAdminReadClient();
+  await validateParentPlace(supabase, values);
   await ensureUniqueSlug(supabase, values.cityId, values.slug);
   const payload: Database["public"]["Tables"]["map_places"]["Insert"] = toPayload(values);
   const { error } = await supabase.from("map_places").insert(payload);
@@ -410,6 +469,7 @@ export async function updateMapPlaceAction(id: string, formData: FormData) {
   const values = normalizeFormData(formData);
   validateValues(values);
   const supabase = await createAdminReadClient();
+  await validateParentPlace(supabase, values, id);
   await ensureUniqueSlug(supabase, values.cityId, values.slug, id);
   const payload: Database["public"]["Tables"]["map_places"]["Update"] = toPayload(values);
   const { error } = await supabase.from("map_places").update(payload).eq("id", id);

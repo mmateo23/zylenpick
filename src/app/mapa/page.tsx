@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { SiteHeader } from "@/components/layout/site-header";
 import { VenuesMap } from "@/components/venues-map/venues-map";
 import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
 import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
@@ -23,11 +24,15 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   ]);
 
   return (
-    <VenuesMap
-      accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
-      venues={venues}
-      places={places}
-      initialPlaceSlug={searchParams?.lugar}
-    />
+    <>
+      <SiteHeader />
+      <VenuesMap
+        accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
+        venues={venues}
+        places={places}
+        initialPlaceSlug={searchParams?.lugar}
+        withSiteHeader
+      />
+    </>
   );
 }

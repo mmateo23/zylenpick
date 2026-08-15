@@ -39,6 +39,7 @@ export type PublicMapPlace = {
 
 export type AdminMapPlace = PublicMapPlace & {
   cityId: string;
+  parentPlaceId: string | null;
   slug: string;
   locationAccuracyM: number | null;
   source: MapPlaceSource;

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, X } from "lucide-react";
+import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, Sparkles, Store, X } from "lucide-react";
 
 import { PlacePost } from "@/components/map-places/place-post";
 import {
@@ -36,6 +36,7 @@ type VenuesMapProps = {
   places: PublicMapPlace[];
   demoMode?: boolean;
   initialPlaceSlug?: string;
+  withSiteHeader?: boolean;
 };
 
 type MapFilter = "all" | "nearby" | "venues" | MapPlaceCategory;
@@ -194,6 +195,7 @@ function createPlaceMarkerElement(place: PublicMapPlace) {
   const element = document.createElement("button");
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--place";
+  element.dataset.category = place.category;
   element.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${category.markerPath}</svg>`;
   return element;
 }
@@ -286,6 +288,7 @@ export function VenuesMap({
   places,
   demoMode = false,
   initialPlaceSlug,
+  withSiteHeader = false,
 }: VenuesMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
@@ -865,7 +868,7 @@ export function VenuesMap({
   }, [openPlace, venues]);
 
   return (
-    <main className="min-h-screen bg-[#FDE3AD] px-3 pb-8 pt-24 text-[#381932] sm:px-6 sm:pt-28 lg:px-10">
+    <main className={`min-h-screen bg-[#FFF7E8] px-3 pb-8 text-[#381932] sm:px-6 lg:px-10 ${withSiteHeader ? "pt-8 sm:pt-10" : "pt-24 sm:pt-28"}`}>
       <section className="mx-auto w-full max-w-7xl">
         <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <div>
@@ -895,12 +898,23 @@ export function VenuesMap({
           </button>
         </header>
 
-        <div className="mt-6 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,7rem),1fr))]">
-          <FilterChip active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
-          <FilterChip active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
-          {venues.length > 0 ? <FilterChip active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
+        <div className="mt-6 grid grid-cols-3 border-y border-[#741314]/12 py-4 sm:max-w-2xl">
+          <MapSummaryItem icon={<Store className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Locales" />
+          <MapSummaryItem icon={<MapPin className="h-4 w-4" aria-hidden="true" />} value={places.length} label="Lugares" />
+          <MapSummaryItem icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} value={activeFilterLabel} label="Viendo" />
+        </div>
+
+        <div className="mt-5 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,7rem),1fr))]">
+          <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
+          <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
+          {venues.length > 0 ? <FilterChip icon={<Store className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
           {availableCategories.map((category) => (
-            <FilterChip key={category.value} active={filter === category.value} onClick={() => selectMapFilter(category.value)}>
+            <FilterChip
+              key={category.value}
+              icon={<CategoryGlyph markerPath={category.markerPath} className="h-4 w-4" />}
+              active={filter === category.value}
+              onClick={() => selectMapFilter(category.value)}
+            >
               {category.shortLabel}
             </FilterChip>
           ))}
@@ -952,7 +966,7 @@ export function VenuesMap({
                 }`}
               >
                 <span className="h-2 w-2 rounded-full bg-[#741314]" />
-                {isImmersive ? `${activeFilterLabel} · ` : ""}{visibleVenues.length + visiblePlaces.length} puntos visibles
+                {activeFilterLabel} · {visibleVenues.length + visiblePlaces.length} puntos visibles
               </div>
               {isImmersive ? (
                 <>
@@ -987,11 +1001,16 @@ export function VenuesMap({
                         </button>
                       </div>
                       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                        <FilterChip active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
-                        <FilterChip active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
-                        {venues.length > 0 ? <FilterChip active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
+                        <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
+                        <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
+                        {venues.length > 0 ? <FilterChip icon={<Store className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
                         {availableCategories.map((category) => (
-                          <FilterChip key={category.value} active={filter === category.value} onClick={() => selectMapFilter(category.value)}>
+                          <FilterChip
+                            key={category.value}
+                            icon={<CategoryGlyph markerPath={category.markerPath} className="h-4 w-4" />}
+                            active={filter === category.value}
+                            onClick={() => selectMapFilter(category.value)}
+                          >
                             {category.shortLabel}
                           </FilterChip>
                         ))}
@@ -1102,7 +1121,12 @@ export function VenuesMap({
         .pickyalo-map-marker.is-plan-stop { box-shadow:0 14px 36px rgba(56,25,50,.3),0 0 0 3px rgba(255,247,232,.96),0 0 0 9px rgba(253,211,125,.72); }
         .pickyalo-map-rank { position:absolute; right:-7px; top:-8px; z-index:2; display:grid; width:21px; height:21px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; font:800 10px/1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 6px 14px rgba(56,25,50,.2); pointer-events:none; }
         .pickyalo-map-marker--place { border:2px solid #741314; background:#FFF7E8; color:#741314; }
+        .pickyalo-map-marker--place[data-category="bench"] { border-color:#4f6954; background:#edf2e8; color:#405b46; }
+        .pickyalo-map-marker--place[data-category="bench"]::before { border-color:#4f6954; }
+        .pickyalo-map-marker--place[data-category="tables"] { border-color:#9d572f; background:#fde3ad; color:#71391f; }
+        .pickyalo-map-marker--place[data-category="tables"]::before { border-color:#9d572f; }
         .pickyalo-map-marker--place.is-active { background:#741314; color:#FFF7E8; }
+        .pickyalo-map-marker--place.is-active::before { border-color:#741314; }
         .pickyalo-map-user-marker { width:18px; height:18px; border:4px solid white; border-radius:999px; background:#741314; box-shadow:0 0 0 5px rgba(116,19,20,.2); }
         .mapboxgl-ctrl-group { display:grid; gap:6px; overflow:visible; border:0!important; background:transparent!important; box-shadow:none!important; }
         .mapboxgl-ctrl-group button { width:40px!important; height:40px!important; overflow:hidden; border:1px solid rgba(116,19,20,.16)!important; border-radius:999px!important; background-color:rgba(255,247,232,.96)!important; box-shadow:0 10px 26px rgba(56,25,50,.15)!important; transition:background-color 160ms ease,transform 160ms ease!important; }
@@ -1211,18 +1235,51 @@ function QuickPlanCard({
   );
 }
 
-function FilterChip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
+function MapSummaryItem({
+  icon,
+  value,
+  label,
+}: {
+  icon: ReactNode;
+  value: ReactNode;
+  label: string;
+}) {
+  return (
+    <div className="flex min-w-0 items-center justify-center gap-2 border-r border-[#741314]/12 px-2 last:border-r-0 sm:justify-start sm:px-4 first:pl-0">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#741314]/[0.08] text-[#741314]">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <strong className="block truncate text-sm font-semibold text-[#381932]">{value}</strong>
+        <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-[#741314]/55 sm:text-[10px]">{label}</span>
+      </span>
+    </div>
+  );
+}
+
+function FilterChip({
+  active,
+  onClick,
+  icon,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex min-h-9 w-full min-w-0 items-center justify-center rounded-full border px-3 py-1.5 text-center text-[10px] uppercase tracking-[0.14em] transition sm:min-h-10 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em] ${
+      className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-3 py-2 text-center text-[10px] uppercase tracking-[0.12em] transition sm:px-3.5 sm:text-[11px] sm:tracking-[0.16em] ${
         active
           ? "border-[#741314]/40 bg-[#741314]/12 font-semibold text-[#741314] shadow-[0_8px_20px_rgba(116,19,20,0.08)]"
           : "border-[#741314]/22 bg-white/54 font-medium text-[#381932]/60 hover:border-[#741314]/38 hover:bg-white/78"
       }`}
     >
+      {icon ? <span className="shrink-0" aria-hidden="true">{icon}</span> : null}
       {children}
     </button>
   );
@@ -1232,21 +1289,25 @@ function getDirectionsHref(latitude: number, longitude: number) {
   return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
 }
 
-function PlaceGlyph({ place }: { place: PublicMapPlace }) {
-  const category = getMapPlaceCategory(place.category);
+function CategoryGlyph({ markerPath, className = "h-6 w-6" }: { markerPath: string; className?: string }) {
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className="h-6 w-6"
+      className={className}
       fill="none"
       stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="1.8"
-      dangerouslySetInnerHTML={{ __html: category.markerPath }}
+      dangerouslySetInnerHTML={{ __html: markerPath }}
     />
   );
+}
+
+function PlaceGlyph({ place }: { place: PublicMapPlace }) {
+  const category = getMapPlaceCategory(place.category);
+  return <CategoryGlyph markerPath={category.markerPath} />;
 }
 
 function VenueSelection({

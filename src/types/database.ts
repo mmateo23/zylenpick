@@ -54,6 +54,7 @@ export type Database = {
           name: string;
           description: string | null;
           category:
+            | "bench"
             | "tables"
             | "playground"
             | "park"
@@ -84,6 +85,9 @@ export type Database = {
           is_plan_candidate: boolean;
           source: "field" | "municipal" | "openstreetmap" | "manual";
           source_note: string | null;
+          external_id: string | null;
+          external_data: Json;
+          source_updated_at: string | null;
           status: "draft" | "review" | "published";
           is_active: boolean;
           verified_at: string | null;
@@ -100,6 +104,7 @@ export type Database = {
           name: string;
           description?: string | null;
           category:
+            | "bench"
             | "tables"
             | "playground"
             | "park"
@@ -130,6 +135,9 @@ export type Database = {
           is_plan_candidate?: boolean;
           source?: "field" | "municipal" | "openstreetmap" | "manual";
           source_note?: string | null;
+          external_id?: string | null;
+          external_data?: Json;
+          source_updated_at?: string | null;
           status?: "draft" | "review" | "published";
           is_active?: boolean;
           verified_at?: string | null;
@@ -146,6 +154,7 @@ export type Database = {
           name?: string;
           description?: string | null;
           category?:
+            | "bench"
             | "tables"
             | "playground"
             | "park"
@@ -176,6 +185,9 @@ export type Database = {
           is_plan_candidate?: boolean;
           source?: "field" | "municipal" | "openstreetmap" | "manual";
           source_note?: string | null;
+          external_id?: string | null;
+          external_data?: Json;
+          source_updated_at?: string | null;
           status?: "draft" | "review" | "published";
           is_active?: boolean;
           verified_at?: string | null;

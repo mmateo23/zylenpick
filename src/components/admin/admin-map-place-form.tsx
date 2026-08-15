@@ -27,6 +27,7 @@ import {
 import type {
   AdminMapPlaceFormValues,
   MapPlaceCityOption,
+  MapPlaceParentOption,
 } from "@/features/admin/services/map-places-admin-service";
 import {
   getUserLocationErrorMessage,
@@ -36,8 +37,10 @@ import {
 type AdminMapPlaceFormProps = {
   accessToken: string;
   cities: MapPlaceCityOption[];
+  parentPlaces: MapPlaceParentOption[];
   action: (formData: FormData) => void;
   initialValues?: AdminMapPlaceFormValues | null;
+  initialParentId?: string;
   mode?: "create" | "edit" | "duplicate";
 };
 
@@ -132,8 +135,10 @@ function CategoryIcon({ path }: { path: string }) {
 export function AdminMapPlaceForm({
   accessToken,
   cities,
+  parentPlaces,
   action,
   initialValues,
+  initialParentId,
   mode,
 }: AdminMapPlaceFormProps) {
   const formMode = mode ?? (initialValues?.id ? "edit" : "create");
@@ -147,6 +152,10 @@ export function AdminMapPlaceForm({
     readInitialPolygonPoints(initialValues),
   );
   const [name, setName] = useState(initialValues?.name ?? "");
+  const selectedInitialParentId = initialValues?.parentPlaceId || initialParentId || "";
+  const initialParent = parentPlaces.find((place) => place.id === selectedInitialParentId);
+  const [cityId, setCityId] = useState(initialValues?.cityId ?? initialParent?.cityId ?? "");
+  const [parentPlaceId, setParentPlaceId] = useState(selectedInitialParentId);
   const [slug, setSlug] = useState(initialValues?.slug ?? "");
   const [slugEdited, setSlugEdited] = useState(Boolean(initialValues?.slug));
   const [latitude, setLatitude] = useState(initialValues?.latitude ?? "");
@@ -167,6 +176,9 @@ export function AdminMapPlaceForm({
   const selectedCategoryConfig =
     mapPlaceCategories.find((category) => category.value === selectedCategory) ??
     mapPlaceCategories[0];
+  const availableParentPlaces = parentPlaces.filter(
+    (place) => place.cityId === cityId && place.id !== initialValues?.id,
+  );
 
   useEffect(() => {
     if (!accessToken || !mapContainerRef.current) return;
@@ -397,13 +409,24 @@ export function AdminMapPlaceForm({
           </div>
           <div className="flex flex-wrap gap-2">
             {formMode === "edit" && initialValues?.id ? (
-              <Link
-                href={`/panel/lugares/nuevo?copiar=${initialValues.id}`}
-                className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]"
-              >
-                <Copy aria-hidden="true" className="h-4 w-4" />
-                Duplicar
-              </Link>
+              <>
+                {!initialValues.parentPlaceId ? (
+                  <Link
+                    href={`/panel/lugares/nuevo?parent=${initialValues.id}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-4 py-2 text-sm font-semibold text-[#FFF7E8]"
+                  >
+                    <MapPin aria-hidden="true" className="h-4 w-4" />
+                    Añadir elemento dentro
+                  </Link>
+                ) : null}
+                <Link
+                  href={`/panel/lugares/nuevo?copiar=${initialValues.id}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]"
+                >
+                  <Copy aria-hidden="true" className="h-4 w-4" />
+                  Duplicar
+                </Link>
+              </>
             ) : null}
             <Link href="/panel/lugares" className="rounded-full border border-[#741314]/18 px-4 py-2 text-sm font-semibold text-[#741314]">
               Volver
@@ -483,10 +506,39 @@ export function AdminMapPlaceForm({
           </label>
           <label className="block">
             <span className="text-sm font-semibold text-[#381932]">Ciudad</span>
-            <select name="cityId" defaultValue={initialValues?.cityId ?? ""} className={fieldClassName} required>
+            <select
+              name="cityId"
+              value={cityId}
+              onChange={(event) => {
+                setCityId(event.target.value);
+                setParentPlaceId("");
+              }}
+              className={fieldClassName}
+              required
+            >
               <option value="" disabled>Selecciona una ciudad</option>
               {cities.map((city) => <option key={city.id} value={city.id}>{city.name}</option>)}
             </select>
+          </label>
+          <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Dentro de (opcional)</span>
+            <select
+              name="parentPlaceId"
+              value={parentPlaceId}
+              onChange={(event) => setParentPlaceId(event.target.value)}
+              className={fieldClassName}
+              disabled={!cityId}
+            >
+              <option value="">Es un lugar principal</option>
+              {availableParentPlaces.map((place) => (
+                <option key={place.id} value={place.id}>
+                  {place.name}
+                </option>
+              ))}
+            </select>
+            <span className="mt-2 block text-xs leading-5 text-[#381932]/58">
+              Úsalo para mesas, bancos, juegos o zonas deportivas situadas dentro de un parque.
+            </span>
           </label>
           <label className={showAdvanced ? "block" : "hidden"}>
             <span className="text-sm font-semibold text-[#381932]">Estado</span>

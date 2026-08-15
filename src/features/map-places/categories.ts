@@ -13,8 +13,15 @@ export type MapPlaceCategoryDefinition = {
 
 export const mapPlaceCategories: MapPlaceCategoryDefinition[] = [
   {
+    value: "bench",
+    label: "Banco",
+    shortLabel: "Bancos",
+    iconName: "bench",
+    markerPath: '<path d="M5 11h14v4H5zM7 7h10v4H7zM7 15v5M17 15v5"/>',
+  },
+  {
     value: "tables",
-    label: "Mesas y bancos",
+    label: "Mesa con bancos",
     shortLabel: "Mesas",
     iconName: "table",
     markerPath: '<path d="M4 10h16M6 6h12v4H6zM7 10l-1 8M17 10l1 8"/>',
@@ -109,7 +116,7 @@ export function getDefaultMapPlacePlanRole(
   category: MapPlaceCategory,
 ): MapPlacePlanRole {
   if (["monument", "mural", "event"].includes(category)) return "discover";
-  if (["tables", "playground", "park", "viewpoint", "sports"].includes(category)) {
+  if (["bench", "tables", "playground", "park", "viewpoint", "sports"].includes(category)) {
     return "enjoy";
   }
   return "support";
