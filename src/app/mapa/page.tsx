@@ -24,7 +24,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   ]);
 
   return (
-    <>
+    <div className="public-light-theme min-h-screen bg-[#FFF7E8]">
       <SiteHeader />
       <VenuesMap
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
@@ -33,6 +33,6 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         initialPlaceSlug={searchParams?.lugar}
         withSiteHeader
       />
-    </>
+    </div>
   );
 }

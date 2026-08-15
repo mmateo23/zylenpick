@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -870,8 +871,8 @@ export function VenuesMap({
   return (
     <main className={`min-h-screen bg-[#FFF7E8] px-3 pb-8 text-[#381932] sm:px-6 lg:px-10 ${withSiteHeader ? "pt-8 sm:pt-10" : "pt-24 sm:pt-28"}`}>
       <section className="mx-auto w-full max-w-7xl">
-        <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-          <div>
+        <header className="grid items-center gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,23rem)] lg:gap-10">
+          <div className="relative z-10">
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#741314]">Explora cerca</p>
               {demoMode ? (
@@ -887,15 +888,29 @@ export function VenuesMap({
                 : "Locales, parques, mesas y lugares útiles marcados y revisados por Pickyalo."}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => void locateUser()}
-            disabled={locating}
-            className="inline-flex w-fit items-center gap-2 rounded-full border border-[#741314]/18 bg-[#FFF7E8] px-4 py-2.5 text-sm font-bold text-[#741314] shadow-[0_10px_26px_rgba(116,19,20,0.08)] disabled:opacity-55"
-          >
-            <LocateFixed className="h-4 w-4" aria-hidden="true" />
-            {locating ? "Localizando..." : userLocation ? "Centrar en mí" : "Usar mi ubicación"}
-          </button>
+          <div className="group relative mx-auto flex w-full max-w-[21rem] flex-col items-center lg:mx-0 lg:ml-auto">
+            <div
+              aria-hidden="true"
+              className="absolute bottom-[4.5rem] left-1/2 h-8 w-[72%] -translate-x-1/2 rounded-[50%] bg-[#741314]/14 blur-xl"
+            />
+            <Image
+              src="/home/zonas/badges/talavera_tile_letters.png"
+              alt="Maqueta isométrica de Talavera de la Reina"
+              width={500}
+              height={500}
+              sizes="(max-width: 1023px) 240px, 336px"
+              className="relative h-auto w-[15rem] select-none object-contain drop-shadow-[0_20px_20px_rgba(56,25,50,0.18)] transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-2 motion-safe:group-hover:scale-[1.025] lg:w-[21rem]"
+            />
+            <button
+              type="button"
+              onClick={() => void locateUser()}
+              disabled={locating}
+              className="relative mt-1 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#741314]/18 bg-white/80 px-4 py-2.5 text-sm font-bold text-[#741314] shadow-[0_10px_26px_rgba(116,19,20,0.08)] backdrop-blur-sm transition hover:border-[#741314]/32 hover:bg-white disabled:opacity-55 sm:w-auto"
+            >
+              <LocateFixed className="h-4 w-4" aria-hidden="true" />
+              {locating ? "Localizando..." : userLocation ? "Centrar en mí" : "Usar mi ubicación"}
+            </button>
+          </div>
         </header>
 
         <div className="mt-6 grid grid-cols-3 border-y border-[#741314]/12 py-4 sm:max-w-2xl">
@@ -947,7 +962,7 @@ export function VenuesMap({
               className={`pickyalo-map-viewport overflow-hidden bg-[#eadfca] transition-[border-radius] duration-200 ${
                 isImmersive
                   ? "fixed inset-0 z-[110] h-[100svh] min-h-0 rounded-none border-0 shadow-none"
-                  : "relative h-[60svh] min-h-[460px] rounded-[1.6rem] border border-[#741314]/14 shadow-[0_28px_80px_rgba(56,25,50,0.14)] sm:h-[68svh] lg:h-[calc(100svh-11rem)] lg:max-h-[780px]"
+                  : "relative h-[60svh] min-h-[460px] rounded-[1.6rem] border border-[#741314]/55 shadow-[0_28px_80px_rgba(56,25,50,0.14)] sm:h-[68svh] lg:h-[calc(100svh-11rem)] lg:max-h-[780px]"
               }`}
             >
               {staticMapUrl ? (
