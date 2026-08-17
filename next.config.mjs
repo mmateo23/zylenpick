@@ -77,6 +77,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "img.zylenlabs.com",
       },
+      {
+        protocol: "https",
+        hostname: "luvfglrodzeanwxgsxdl.supabase.co",
+      },
     ],
   },
 };
