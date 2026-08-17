@@ -16,7 +16,8 @@ import {
 
 import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
 import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
-import { mapPlaceCategories } from "@/features/map-places/categories";
+import type { MapPlaceCategoryDefinition } from "@/features/map-places/categories";
+import { MapPlaceIcon } from "@/features/map-places/icons";
 import {
   createPolygonGeometry,
   getPolygonCenter,
@@ -38,6 +39,7 @@ type AdminMapPlaceFormProps = {
   accessToken: string;
   cities: MapPlaceCityOption[];
   parentPlaces: MapPlaceParentOption[];
+  categories: MapPlaceCategoryDefinition[];
   action: (formData: FormData) => void;
   initialValues?: AdminMapPlaceFormValues | null;
   initialParentId?: string;
@@ -116,26 +118,11 @@ function updateAreaPreview(map: MapboxMap, points: MapCoordinate[]) {
   source?.setData(createAreaPreviewData(points));
 }
 
-function CategoryIcon({ path }: { path: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className="h-6 w-6"
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      dangerouslySetInnerHTML={{ __html: path }}
-    />
-  );
-}
-
 export function AdminMapPlaceForm({
   accessToken,
   cities,
   parentPlaces,
+  categories,
   action,
   initialValues,
   initialParentId,
@@ -171,11 +158,10 @@ export function AdminMapPlaceForm({
   const [locating, setLocating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    initialValues?.category ?? "park",
+    initialValues?.category ?? categories[0]?.value ?? "park",
   );
   const selectedCategoryConfig =
-    mapPlaceCategories.find((category) => category.value === selectedCategory) ??
-    mapPlaceCategories[0];
+    categories.find((category) => category.value === selectedCategory) ?? categories[0];
   const availableParentPlaces = parentPlaces.filter(
     (place) => place.cityId === cityId && place.id !== initialValues?.id,
   );
@@ -632,9 +618,9 @@ export function AdminMapPlaceForm({
           <div className="mt-2 grid grid-cols-[3.25rem_minmax(0,1fr)] items-center gap-3">
             <span
               className="inline-flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-xl bg-[#741314] text-[#FFF7E8]"
-              title={`Icono: ${selectedCategoryConfig.label}`}
+              title={`Icono: ${selectedCategoryConfig?.label ?? "Lugar"}`}
             >
-              <CategoryIcon path={selectedCategoryConfig.markerPath} />
+              <MapPlaceIcon name={selectedCategoryConfig?.iconName ?? "MapPin"} className="h-6 w-6" />
             </span>
             <select
               name="category"
@@ -642,7 +628,7 @@ export function AdminMapPlaceForm({
               onChange={(event) => setSelectedCategory(event.target.value)}
               className={`${fieldClassName} !mt-0`}
             >
-              {mapPlaceCategories.map((category) => (
+              {categories.map((category) => (
                 <option key={category.value} value={category.value}>
                   {category.label}
                 </option>

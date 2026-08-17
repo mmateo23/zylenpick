@@ -2,7 +2,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { mapPlaceCategories } from "@/features/map-places/categories";
 import {
   getPolygonCenter,
   parsePolygonGeometry,
@@ -63,7 +62,6 @@ export type AdminMapPlaceFormValues = {
   sortOrder: string;
 };
 
-const validCategories = new Set(mapPlaceCategories.map((category) => category.value));
 const validSources = new Set<MapPlaceSource>([
   "field",
   "municipal",
@@ -156,7 +154,7 @@ function validateValues(values: AdminMapPlaceFormValues) {
   if (!values.name) throw new Error("El nombre del lugar es obligatorio.");
   if (!values.slug) throw new Error("El slug del lugar es obligatorio.");
   if (!values.cityId) throw new Error("Selecciona una ciudad.");
-  if (!validCategories.has(values.category)) throw new Error("Categoría no válida.");
+  if (!values.category) throw new Error("Selecciona una categoría.");
   if (!validSources.has(values.source)) throw new Error("Fuente no válida.");
   if (!validStatuses.has(values.status)) throw new Error("Estado no válido.");
   if (!validGeometryTypes.has(values.geometryType)) {
@@ -190,8 +188,7 @@ function validateValues(values: AdminMapPlaceFormValues) {
   }
 }
 
-function toPayload(values: AdminMapPlaceFormValues) {
-  const category = mapPlaceCategories.find((item) => item.value === values.category)!;
+function toPayload(values: AdminMapPlaceFormValues, iconName: string) {
   const amenities = values.amenities
     .split(",")
     .map((amenity) => amenity.trim())
@@ -223,7 +220,7 @@ function toPayload(values: AdminMapPlaceFormValues) {
     plan_role: values.planRole,
     is_plan_candidate: values.isPlanCandidate,
     category: values.category,
-    icon_name: category.iconName,
+    icon_name: iconName,
     geometry_type: values.geometryType,
     geometry: polygon,
     latitude,
@@ -238,6 +235,20 @@ function toPayload(values: AdminMapPlaceFormValues) {
     verified_at: values.status === "published" ? new Date().toISOString() : null,
     sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
   };
+}
+
+async function getCategoryIcon(
+  supabase: SupabaseClient<Database>,
+  categorySlug: string,
+) {
+  const { data, error } = await supabase
+    .from("map_place_categories")
+    .select("icon_name")
+    .eq("slug", categorySlug)
+    .maybeSingle();
+
+  if (error || !data) throw new Error("La categoría seleccionada no existe.");
+  return data.icon_name;
 }
 
 async function ensureUniqueSlug(
@@ -455,9 +466,10 @@ export async function createMapPlaceAction(formData: FormData) {
   const values = normalizeFormData(formData);
   validateValues(values);
   const supabase = await createAdminReadClient();
+  const iconName = await getCategoryIcon(supabase, values.category);
   await validateParentPlace(supabase, values);
   await ensureUniqueSlug(supabase, values.cityId, values.slug);
-  const payload: Database["public"]["Tables"]["map_places"]["Insert"] = toPayload(values);
+  const payload: Database["public"]["Tables"]["map_places"]["Insert"] = toPayload(values, iconName);
   const { error } = await supabase.from("map_places").insert(payload);
   if (error) throw new Error(`No se pudo crear el lugar: ${error.message}`);
   revalidatePath("/mapa");
@@ -469,9 +481,10 @@ export async function updateMapPlaceAction(id: string, formData: FormData) {
   const values = normalizeFormData(formData);
   validateValues(values);
   const supabase = await createAdminReadClient();
+  const iconName = await getCategoryIcon(supabase, values.category);
   await validateParentPlace(supabase, values, id);
   await ensureUniqueSlug(supabase, values.cityId, values.slug, id);
-  const payload: Database["public"]["Tables"]["map_places"]["Update"] = toPayload(values);
+  const payload: Database["public"]["Tables"]["map_places"]["Update"] = toPayload(values, iconName);
   const { error } = await supabase.from("map_places").update(payload).eq("id", id);
   if (error) throw new Error(`No se pudo actualizar el lugar: ${error.message}`);
   revalidatePath("/mapa");

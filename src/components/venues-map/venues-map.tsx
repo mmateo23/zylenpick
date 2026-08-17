@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
+import { createRoot, type Root } from "react-dom/client";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
 import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, Sparkles, Store, X } from "lucide-react";
 
@@ -16,7 +17,9 @@ import {
 import {
   getMapPlaceCategory,
   mapPlaceCategories,
+  type MapPlaceCategoryDefinition,
 } from "@/features/map-places/categories";
+import { MapPlaceIcon } from "@/features/map-places/icons";
 import type {
   MapPlaceCategory,
   PublicMapPlace,
@@ -35,6 +38,7 @@ type VenuesMapProps = {
   accessToken: string;
   venues: VenueMapItem[];
   places: PublicMapPlace[];
+  categories?: MapPlaceCategoryDefinition[];
   demoMode?: boolean;
   initialPlaceSlug?: string;
   withSiteHeader?: boolean;
@@ -68,6 +72,7 @@ const nearbyResultLimit = 3;
 const placeAreasSourceId = "pickyalo-place-areas";
 const placeAreasFillLayerId = `${placeAreasSourceId}-fill`;
 const placeAreasLineLayerId = `${placeAreasSourceId}-line`;
+const placeMarkerRoots = new WeakMap<HTMLElement, Root>();
 
 function ensureMapboxStylesheet() {
   if (document.getElementById("mapbox-gl-stylesheet")) return;
@@ -192,13 +197,21 @@ function createVenueMarkerElement() {
 }
 
 function createPlaceMarkerElement(place: PublicMapPlace) {
-  const category = getMapPlaceCategory(place.category);
   const element = document.createElement("button");
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--place";
   element.dataset.category = place.category;
-  element.innerHTML = `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${category.markerPath}</svg>`;
+  const root = createRoot(element);
+  root.render(<MapPlaceIcon name={place.iconName} aria-hidden="true" />);
+  placeMarkerRoots.set(element, root);
   return element;
+}
+
+function removeMapMarker(marker: Marker) {
+  const element = marker.getElement();
+  placeMarkerRoots.get(element)?.unmount();
+  placeMarkerRoots.delete(element);
+  marker.remove();
 }
 
 function addMarkerRank(element: HTMLElement, rank: number, mode: "nearby" | "plan") {
@@ -287,6 +300,7 @@ export function VenuesMap({
   accessToken,
   venues,
   places,
+  categories = mapPlaceCategories,
   demoMode = false,
   initialPlaceSlug,
   withSiteHeader = false,
@@ -327,8 +341,8 @@ export function VenuesMap({
     [accessToken, places, venues],
   );
   const availableCategories = useMemo(
-    () => mapPlaceCategories.filter((category) => places.some((place) => place.category === category.value)),
-    [places],
+    () => categories.filter((category) => places.some((place) => place.category === category.value)),
+    [categories, places],
   );
   const nearbyPoints = useMemo<NearbyPoint[]>(() => {
     if (!userLocation) return [];
@@ -595,7 +609,7 @@ export function VenuesMap({
     setupMap();
     return () => {
       cancelled = true;
-      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.forEach(removeMapMarker);
       markersRef.current = [];
       userMarkerRef.current?.remove();
       userMarkerRef.current = null;
@@ -621,7 +635,7 @@ export function VenuesMap({
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     let cancelled = false;
-    markersRef.current.forEach((marker) => marker.remove());
+    markersRef.current.forEach(removeMapMarker);
     markersRef.current = [];
 
     import("mapbox-gl").then((mapboxgl) => {
@@ -692,7 +706,7 @@ export function VenuesMap({
 
     return () => {
       cancelled = true;
-      markersRef.current.forEach((marker) => marker.remove());
+      markersRef.current.forEach(removeMapMarker);
       markersRef.current = [];
     };
   }, [demoMode, filter, mapReady, nearbyPointMeta, places, quickPlanPointMeta, selection, venues, visiblePlaces, visibleVenues]);
@@ -926,7 +940,7 @@ export function VenuesMap({
           {availableCategories.map((category) => (
             <FilterChip
               key={category.value}
-              icon={<CategoryGlyph markerPath={category.markerPath} className="h-4 w-4" />}
+              icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
               active={filter === category.value}
               onClick={() => selectMapFilter(category.value)}
             >
@@ -1022,7 +1036,7 @@ export function VenuesMap({
                         {availableCategories.map((category) => (
                           <FilterChip
                             key={category.value}
-                            icon={<CategoryGlyph markerPath={category.markerPath} className="h-4 w-4" />}
+                            icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
                             active={filter === category.value}
                             onClick={() => selectMapFilter(category.value)}
                           >
@@ -1084,6 +1098,7 @@ export function VenuesMap({
                     ) : (
                       <PlaceSelection
                         place={selection.item}
+                        category={getMapPlaceCategory(selection.item.category, categories)}
                         distance={selectedDistance}
                         compact
                         onDiscover={() => setOpenPlace(selection.item)}
@@ -1110,7 +1125,7 @@ export function VenuesMap({
                   {selection?.type === "venue" ? (
                     <VenueSelection venue={selection.item} distance={selectedDistance} />
                   ) : selection?.type === "place" ? (
-                    <PlaceSelection place={selection.item} distance={selectedDistance} onDiscover={() => setOpenPlace(selection.item)} />
+                    <PlaceSelection place={selection.item} category={getMapPlaceCategory(selection.item.category, categories)} distance={selectedDistance} onDiscover={() => setOpenPlace(selection.item)} />
                   ) : (
                     <p className="text-sm text-[#381932]/62">Toca un punto para ver sus datos.</p>
                   )}
@@ -1161,6 +1176,7 @@ export function VenuesMap({
       {openPlace ? (
         <PlacePost
           place={openPlace}
+          category={getMapPlaceCategory(openPlace.category, categories)}
           distance={openPlaceDistance}
           nearbyVenue={nearestVenue}
           onClose={() => setOpenPlace(null)}
@@ -1304,25 +1320,8 @@ function getDirectionsHref(latitude: number, longitude: number) {
   return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
 }
 
-function CategoryGlyph({ markerPath, className = "h-6 w-6" }: { markerPath: string; className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      dangerouslySetInnerHTML={{ __html: markerPath }}
-    />
-  );
-}
-
 function PlaceGlyph({ place }: { place: PublicMapPlace }) {
-  const category = getMapPlaceCategory(place.category);
-  return <CategoryGlyph markerPath={category.markerPath} />;
+  return <MapPlaceIcon name={place.iconName} className="h-6 w-6" aria-hidden="true" />;
 }
 
 function VenueSelection({
@@ -1362,16 +1361,17 @@ function VenueSelection({
 
 function PlaceSelection({
   place,
+  category,
   distance,
   onDiscover,
   compact = false,
 }: {
   place: PublicMapPlace;
+  category: MapPlaceCategoryDefinition;
   distance: number | null;
   onDiscover: () => void;
   compact?: boolean;
 }) {
-  const category = getMapPlaceCategory(place.category);
   return (
     <div>
       <div className="flex items-start gap-3">

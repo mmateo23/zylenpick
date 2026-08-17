@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/layout/site-header";
 import { VenuesMap } from "@/components/venues-map/venues-map";
 import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
+import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
 import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
 import { getNoIndexMetadata } from "@/lib/seo";
 
@@ -18,9 +19,10 @@ type MapaPageProps = {
 };
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
-  const [venues, places] = await Promise.all([
+  const [venues, places, categories] = await Promise.all([
     getVenuesForMap(),
     getPublishedMapPlaces(),
+    getPublishedMapPlaceCategories(),
   ]);
 
   return (
@@ -30,6 +32,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
         venues={venues}
         places={places}
+        categories={categories}
         initialPlaceSlug={searchParams?.lugar}
         withSiteHeader
       />

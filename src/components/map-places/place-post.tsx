@@ -16,12 +16,14 @@ import {
 } from "lucide-react";
 
 import { ScrollContentHint } from "@/components/ui/scroll-content-hint";
-import { getMapPlaceCategory } from "@/features/map-places/categories";
+import type { MapPlaceCategoryDefinition } from "@/features/map-places/categories";
+import { MapPlaceIcon } from "@/features/map-places/icons";
 import type { PublicMapPlace } from "@/features/map-places/types";
 import type { VenueMapItem } from "@/features/venues/services/venues-map-service";
 
 type PlacePostProps = {
   place: PublicMapPlace;
+  category: MapPlaceCategoryDefinition;
   distance: number | null;
   nearbyVenue?: VenueMapItem | null;
   onClose: () => void;
@@ -41,21 +43,7 @@ function getSafeBackgroundImage(url: string | null) {
 }
 
 function PlaceGlyph({ place, className = "h-6 w-6" }: { place: PublicMapPlace; className?: string }) {
-  const category = getMapPlaceCategory(place.category);
-
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.8"
-      dangerouslySetInnerHTML={{ __html: category.markerPath }}
-    />
-  );
+  return <MapPlaceIcon name={place.iconName} className={className} aria-hidden="true" />;
 }
 
 function PlaceVisual({ place }: { place: PublicMapPlace }) {
@@ -77,14 +65,13 @@ function PlaceVisual({ place }: { place: PublicMapPlace }) {
   );
 }
 
-export function PlacePost({ place, distance, nearbyVenue, onClose }: PlacePostProps) {
+export function PlacePost({ place, category, distance, nearbyVenue, onClose }: PlacePostProps) {
   const articleRef = useRef<HTMLElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
   const [canScrollMore, setCanScrollMore] = useState(false);
-  const category = getMapPlaceCategory(place.category);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;

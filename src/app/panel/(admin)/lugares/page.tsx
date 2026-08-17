@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Copy, Download, Eye, Pencil } from "lucide-react";
+import { Copy, Download, Eye, Pencil, Shapes } from "lucide-react";
 
 import { getMapPlaceCategory } from "@/features/map-places/categories";
+import { getAdminMapPlaceCategories } from "@/features/admin/services/map-place-categories-admin-service";
 import { getAdminMapPlaces } from "@/features/admin/services/map-places-admin-service";
 
 const statusLabels = {
@@ -24,7 +25,10 @@ type AdminMapPlacesPageProps = {
 };
 
 export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlacesPageProps) {
-  const places = await getAdminMapPlaces();
+  const [places, categories] = await Promise.all([
+    getAdminMapPlaces(),
+    getAdminMapPlaceCategories(),
+  ]);
   const publishedCount = places.filter((place) => place.status === "published" && place.isActive).length;
   const planCandidateCount = places.filter((place) => place.isPlanCandidate).length;
   const incompleteCount = places.filter((place) => !place.description || !place.coverImageUrl).length;
@@ -40,6 +44,10 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link href="/panel/lugares/categorias" className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
+            <Shapes aria-hidden="true" className="h-4 w-4" />
+            Categorías
+          </Link>
           <Link href="/panel/lugares/importar" className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
             <Download aria-hidden="true" className="h-4 w-4" />
             Importar de OSM
@@ -81,7 +89,7 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
         ) : (
           <div className="divide-y divide-[#741314]/10">
             {places.map((place) => {
-              const category = getMapPlaceCategory(place.category);
+              const category = getMapPlaceCategory(place.category, categories);
               return (
                 <article key={place.id} className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                   <div className="min-w-0">

@@ -45,6 +45,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      map_place_categories: {
+        Row: {
+          slug: string;
+          name: string;
+          icon_name: string;
+          is_active: boolean;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          slug: string;
+          name: string;
+          icon_name: string;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          slug?: string;
+          name?: string;
+          icon_name?: string;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       map_places: {
         Row: {
           id: string;
@@ -53,20 +83,7 @@ export type Database = {
           slug: string;
           name: string;
           description: string | null;
-          category:
-            | "bench"
-            | "tables"
-            | "playground"
-            | "park"
-            | "fountain"
-            | "toilets"
-            | "monument"
-            | "mural"
-            | "viewpoint"
-            | "parking"
-            | "accessible"
-            | "sports"
-            | "event";
+          category: string;
           icon_name: string;
           geometry_type: "point" | "polygon" | "line";
           latitude: number;
@@ -103,20 +120,7 @@ export type Database = {
           slug: string;
           name: string;
           description?: string | null;
-          category:
-            | "bench"
-            | "tables"
-            | "playground"
-            | "park"
-            | "fountain"
-            | "toilets"
-            | "monument"
-            | "mural"
-            | "viewpoint"
-            | "parking"
-            | "accessible"
-            | "sports"
-            | "event";
+          category: string;
           icon_name: string;
           geometry_type?: "point" | "polygon" | "line";
           latitude: number;
@@ -153,20 +157,7 @@ export type Database = {
           slug?: string;
           name?: string;
           description?: string | null;
-          category?:
-            | "bench"
-            | "tables"
-            | "playground"
-            | "park"
-            | "fountain"
-            | "toilets"
-            | "monument"
-            | "mural"
-            | "viewpoint"
-            | "parking"
-            | "accessible"
-            | "sports"
-            | "event";
+          category?: string;
           icon_name?: string;
           geometry_type?: "point" | "polygon" | "line";
           latitude?: number;
@@ -197,6 +188,13 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "map_places_category_fkey";
+            columns: ["category"];
+            isOneToOne: false;
+            referencedRelation: "map_place_categories";
+            referencedColumns: ["slug"];
+          },
           {
             foreignKeyName: "map_places_city_id_fkey";
             columns: ["city_id"];
