@@ -1,178 +1,149 @@
-import Link from "next/link";
 import { Camera, Copy, Download, Eye, Pencil, Shapes } from "lucide-react";
+import Link from "next/link";
 
-import { getMapPlaceCategory } from "@/features/map-places/categories";
+import { AdminListToolbar } from "@/components/admin/admin-list-toolbar";
+import { AdminPageHeader } from "@/components/admin/admin-page-header";
+import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { getAdminMapPlaceCategories } from "@/features/admin/services/map-place-categories-admin-service";
-import { getAdminMapPlaces } from "@/features/admin/services/map-places-admin-service";
+import { getAdminMapPlaces, getAdminMapPlacesSummary } from "@/features/admin/services/map-places-admin-service";
+import { getMapPlaceCategory } from "@/features/map-places/categories";
 
-const statusLabels = {
-  draft: "Borrador",
-  review: "Revisión",
-  published: "Publicado",
-};
-
-const planRoleLabels = {
-  discover: "Descubrir",
-  enjoy: "Disfrutar",
-  support: "Apoyo",
-};
+const statusLabels = { draft: "Borrador", review: "Revisión", published: "Publicado" };
+const planRoleLabels = { discover: "Descubrir", enjoy: "Disfrutar", support: "Apoyo" };
 
 type AdminMapPlacesPageProps = {
   searchParams?: {
     importados?: string;
     omitidos?: string;
     estado?: string;
+    categoria?: string;
+    q?: string;
+    pagina?: string;
   };
 };
 
 export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlacesPageProps) {
-  const [places, categories] = await Promise.all([
-    getAdminMapPlaces(),
+  const query = searchParams?.q?.trim() ?? "";
+  const status = searchParams?.estado ?? "";
+  const category = searchParams?.categoria ?? "";
+  const requestedPage = Number(searchParams?.pagina ?? "1");
+  const [result, categories, summary] = await Promise.all([
+    getAdminMapPlaces({ query, status, category, page: Number.isFinite(requestedPage) ? requestedPage : 1 }),
     getAdminMapPlaceCategories(),
+    getAdminMapPlacesSummary(),
   ]);
-  const publishedCount = places.filter((place) => place.status === "published" && place.isActive).length;
-  const planCandidateCount = places.filter((place) => place.isPlanCandidate).length;
-  const incompleteCount = places.filter((place) => !place.description || !place.coverImageUrl).length;
-  const pendingScoutCount = places.filter(
-    (place) => place.captureMethod === "scout" && place.status === "draft",
-  ).length;
-  const showingPending = searchParams?.estado === "pendientes";
-  const visiblePlaces = showingPending
-    ? places.filter((place) => place.captureMethod === "scout" && place.status === "draft")
-    : places;
 
   return (
-    <section className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#741314]/58">Mapa de descubrimiento</p>
-          <h1 className="mt-3 text-3xl font-semibold text-[#381932]">Lugares útiles</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-[#381932]/62">
-            Marca sobre el terreno mesas, parques, monumentos y servicios que ayudan a descubrir cada zona.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/panel/scout" className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-5 py-3 text-sm font-bold text-[#FFF7E8]">
-            <Camera aria-hidden="true" className="h-4 w-4" />
-            Abrir Scout
+    <section className="space-y-5">
+      <AdminPageHeader
+        eyebrow="Mapa de descubrimiento"
+        title="Lugares útiles"
+        description="Captura sobre el terreno, completa lo pendiente y publica únicamente información revisada."
+        action={
+          <Link href="/panel/scout" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8]">
+            <Camera aria-hidden="true" className="h-4 w-4" /> Abrir Scout
           </Link>
-          <Link href="/panel/lugares/categorias" className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
-            <Shapes aria-hidden="true" className="h-4 w-4" />
-            Categorías
-          </Link>
-          <Link href="/panel/lugares/importar" className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
-            <Download aria-hidden="true" className="h-4 w-4" />
-            Importar de OSM
-          </Link>
-          <Link href="/panel/lugares/nuevo" className="rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
-            Añadir lugar
-          </Link>
-        </div>
-      </header>
+        }
+      />
+
+      <div className="flex flex-wrap gap-2">
+        <Link href="/panel/lugares/categorias" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#741314]/18 bg-white px-4 text-sm font-bold text-[#741314]"><Shapes aria-hidden="true" className="h-4 w-4" />Categorías</Link>
+        <Link href="/panel/lugares/importar" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-[#741314]/18 bg-white px-4 text-sm font-bold text-[#741314]"><Download aria-hidden="true" className="h-4 w-4" />Importar OSM</Link>
+        <Link href="/panel/lugares/nuevo" className="inline-flex min-h-11 items-center rounded-xl border border-[#741314]/18 bg-white px-4 text-sm font-bold text-[#741314]">Añadir manualmente</Link>
+      </div>
 
       {searchParams?.importados ? (
         <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
-          {searchParams.importados} lugares importados como borrador.
-          {Number(searchParams.omitidos ?? 0) > 0
-            ? ` ${searchParams.omitidos} duplicados omitidos.`
-            : ""}
+          {searchParams.importados} lugares importados como borrador.{Number(searchParams.omitidos ?? 0) > 0 ? ` ${searchParams.omitidos} duplicados omitidos.` : ""}
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {[
-          ["Publicados", publishedCount],
-          ["En planes", planCandidateCount],
-          ["Por completar", incompleteCount],
+          ["Publicados", summary.published],
+          ["Pendientes Scout", summary.pendingScout],
+          ["Por completar", summary.incomplete],
+          ["En planes", summary.planCandidates],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-4">
-            <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#741314]/55">{label}</p>
+            <p className="text-xs font-bold text-[#741314]/65">{label}</p>
             <p className="mt-2 text-3xl font-semibold text-[#381932]">{value}</p>
           </div>
         ))}
       </div>
 
-      <nav aria-label="Filtros de lugares" className="flex flex-wrap gap-2">
-        <Link
-          href="/panel/lugares"
-          aria-current={!showingPending ? "page" : undefined}
-          className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold ${!showingPending ? "bg-[#741314] text-[#FFF7E8]" : "border border-[#741314]/16 bg-white text-[#741314]"}`}
-        >
-          Todos
-        </Link>
-        <Link
-          href="/panel/lugares?estado=pendientes"
-          aria-current={showingPending ? "page" : undefined}
-          className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold ${showingPending ? "bg-[#741314] text-[#FFF7E8]" : "border border-[#741314]/16 bg-white text-[#741314]"}`}
-        >
-          Pendientes Scout · {pendingScoutCount}
-        </Link>
-      </nav>
+      <AdminListToolbar
+        initialQuery={query}
+        placeholder="Buscar lugar por nombre"
+        filters={[
+          {
+            label: "Estado",
+            param: "estado",
+            value: status,
+            options: [
+              { label: "Todos", value: "" },
+              { label: `Pendientes Scout (${summary.pendingScout})`, value: "pending" },
+              { label: "Borradores", value: "draft" },
+              { label: "En revisión", value: "review" },
+              { label: "Publicados", value: "published" },
+              { label: "Inactivos", value: "inactive" },
+            ],
+          },
+          {
+            label: "Categoría",
+            param: "categoria",
+            value: category,
+            options: [
+              { label: "Todas", value: "" },
+              ...categories.filter((item) => item.isActive).map((item) => ({ label: item.label, value: item.value })),
+            ],
+          },
+        ]}
+      />
 
-      <div className="overflow-hidden rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] shadow-[0_16px_45px_rgba(116,19,20,0.06)]">
-        {visiblePlaces.length === 0 ? (
-          <div className="p-8 text-center">
-            <p className="font-semibold text-[#381932]">
-              {showingPending ? "No hay capturas pendientes." : "Aún no hay lugares marcados."}
-            </p>
-            <p className="mt-2 text-sm text-[#381932]/58">
-              {showingPending ? "Las nuevas capturas Scout aparecerán aquí." : "Empieza por un punto que puedas comprobar en persona."}
-            </p>
-          </div>
+      <p className="px-1 text-sm font-medium text-[#381932]/65">{result.total} {result.total === 1 ? "lugar" : "lugares"}</p>
+
+      <section className="overflow-hidden rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]">
+        {result.items.length === 0 ? (
+          <div className="p-8 text-center"><p className="font-semibold text-[#381932]">No hay lugares con estos filtros.</p><p className="mt-2 text-sm text-[#381932]/58">Las capturas nuevas aparecerán aquí en cuanto se guarden.</p></div>
         ) : (
           <div className="divide-y divide-[#741314]/10">
-            {visiblePlaces.map((place) => {
-              const category = place.category
-                ? getMapPlaceCategory(place.category, categories)
-                : null;
+            {result.items.map((place) => {
+              const placeCategory = place.category ? getMapPlaceCategory(place.category, categories) : null;
               const isPendingScout = place.captureMethod === "scout" && place.status === "draft";
+              const imageUrl = place.thumbnailImageUrl ?? place.coverImageUrl;
               return (
-                <article key={place.id} className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <article key={place.id} className="grid gap-4 p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center sm:p-5">
+                  <div className="hidden h-14 w-14 overflow-hidden rounded-xl border border-[#741314]/10 bg-white sm:block">
+                    {imageUrl ? (
+                      // The source can be a legacy URL not covered by next/image patterns.
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={imageUrl} alt="" width={56} height={56} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="font-semibold text-[#381932]">{place.name || "Captura sin nombre"}</h2>
-                      <span className="rounded-full border border-[#741314]/14 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
-                        {category?.shortLabel ?? "Sin categoría"}
-                      </span>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${place.status === "published" && place.isActive ? "bg-emerald-100 text-emerald-800" : "bg-[#381932]/[0.07] text-[#381932]/60"}`}>
-                        {isPendingScout ? "Pendiente" : statusLabels[place.status]}
-                      </span>
-                      {place.isPlanCandidate ? (
-                        <span className="rounded-full bg-[#FDE3AD] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
-                          Plan · {planRoleLabels[place.planRole]}
-                        </span>
-                      ) : null}
+                      <span className="rounded-full border border-[#741314]/14 bg-white px-2.5 py-1 text-[11px] font-bold text-[#741314]">{placeCategory?.shortLabel ?? "Sin categoría"}</span>
+                      <AdminStatusBadge tone={place.status === "published" && place.isActive ? "success" : isPendingScout ? "warning" : "neutral"}>{isPendingScout ? "Pendiente" : statusLabels[place.status]}</AdminStatusBadge>
+                      {place.isPlanCandidate ? <AdminStatusBadge tone="info">Plan · {planRoleLabels[place.planRole]}</AdminStatusBadge> : null}
                     </div>
-                    <p className="mt-2 text-sm text-[#381932]/60">
-                      {place.city.name} · {place.latitude !== null && place.longitude !== null
-                        ? `${place.latitude.toFixed(5)}, ${place.longitude.toFixed(5)}`
-                        : "Ubicación pendiente"}
-                    </p>
+                    <p className="mt-2 text-sm text-[#381932]/65">{place.city.name} · {place.latitude !== null && place.longitude !== null ? `${place.latitude.toFixed(5)}, ${place.longitude.toFixed(5)}` : "Ubicación pendiente"}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:flex">
-                    {place.status === "published" && place.isActive && place.slug ? (
-                      <Link href={`/mapa?lugar=${place.slug}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/14 px-4 py-2 text-center text-sm font-semibold text-[#381932]/65">
-                        <Eye aria-hidden="true" className="h-4 w-4" />
-                        Ver
-                      </Link>
-                    ) : null}
-                    {!isPendingScout ? (
-                      <Link href={`/panel/lugares/nuevo?copiar=${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-center text-sm font-semibold text-[#741314]">
-                        <Copy aria-hidden="true" className="h-4 w-4" />
-                        Duplicar
-                      </Link>
-                    ) : null}
-                    <Link href={`/panel/lugares/${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2 text-center text-sm font-semibold text-[#FFF7E8]">
-                      <Pencil aria-hidden="true" className="h-4 w-4" />
-                      Editar
-                    </Link>
+                    {place.status === "published" && place.isActive && place.slug ? <Link href={`/mapa?lugar=${place.slug}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#741314]/14 bg-white px-3 text-sm font-semibold text-[#381932]/70"><Eye aria-hidden="true" className="h-4 w-4" />Ver</Link> : null}
+                    {!isPendingScout ? <Link href={`/panel/lugares/nuevo?copiar=${place.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#741314]/18 bg-white px-3 text-sm font-semibold text-[#741314]"><Copy aria-hidden="true" className="h-4 w-4" />Duplicar</Link> : null}
+                    <Link href={`/panel/lugares/${place.id}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#741314] px-4 text-sm font-semibold text-[#FFF7E8]"><Pencil aria-hidden="true" className="h-4 w-4" />{isPendingScout ? "Completar" : "Editar"}</Link>
                   </div>
                 </article>
               );
             })}
           </div>
         )}
-      </div>
+      </section>
+
+      <AdminPagination page={result.page} total={result.total} pageSize={result.pageSize} searchParams={searchParams} />
     </section>
   );
 }

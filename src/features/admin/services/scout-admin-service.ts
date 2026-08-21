@@ -10,11 +10,77 @@ import {
 import type { Database } from "@/types/database";
 
 const STORAGE_BUCKET = "pickyalo-media";
-const MAX_UPLOAD_BYTES = 700 * 1024;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type ScoutCaptureResult =
   | { ok: true; id: string }
   | { ok: false; error: string };
+
+export type ScoutUploadTicketResult =
+  | {
+      ok: true;
+      id: string;
+      uploads: {
+        cover: { signedUrl: string };
+        thumbnail: { signedUrl: string };
+      };
+    }
+  | { ok: false; error: string };
+
+function getScoutStoragePaths(id: string) {
+  return {
+    cover: `map-places/${id}/cover.webp`,
+    thumbnail: `map-places/${id}/thumb.webp`,
+  };
+}
+
+function validateUploadId(value: string) {
+  if (!UUID_PATTERN.test(value)) throw new Error("La captura no tiene un identificador válido.");
+  return value;
+}
+
+export async function prepareScoutUploadAction(): Promise<ScoutUploadTicketResult> {
+  try {
+    await requireAuthorizedAdminSession();
+    const supabase = await createAdminMutationClient();
+    const id = randomUUID();
+    const paths = getScoutStoragePaths(id);
+    const [coverResult, thumbnailResult] = await Promise.all([
+      supabase.storage.from(STORAGE_BUCKET).createSignedUploadUrl(paths.cover),
+      supabase.storage.from(STORAGE_BUCKET).createSignedUploadUrl(paths.thumbnail),
+    ]);
+
+    if (coverResult.error || thumbnailResult.error || !coverResult.data || !thumbnailResult.data) {
+      throw new Error("No se pudo preparar la subida directa.");
+    }
+
+    return {
+      ok: true,
+      id,
+      uploads: {
+        cover: { signedUrl: coverResult.data.signedUrl },
+        thumbnail: { signedUrl: thumbnailResult.data.signedUrl },
+      },
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "No se pudo preparar la captura.",
+    };
+  }
+}
+
+export async function discardScoutUploadAction(id: string) {
+  try {
+    await requireAuthorizedAdminSession();
+    const safeId = validateUploadId(id);
+    const supabase = await createAdminMutationClient();
+    const paths = getScoutStoragePaths(safeId);
+    await supabase.storage.from(STORAGE_BUCKET).remove([paths.cover, paths.thumbnail]);
+  } catch {
+    // Cleanup is best effort and only targets the new capture paths.
+  }
+}
 
 function optionalText(formData: FormData, key: string, maxLength: number) {
   const value = String(formData.get(key) ?? "").trim();
@@ -42,7 +108,7 @@ function optionalCoordinate(
 export async function createScoutDraftAction(
   formData: FormData,
 ): Promise<ScoutCaptureResult> {
-  let storagePath: string | null = null;
+  let uploadId: string | null = null;
   let supabase: Awaited<ReturnType<typeof createAdminMutationClient>> | null = null;
 
   try {
@@ -52,15 +118,15 @@ export async function createScoutDraftAction(
     const cityId = String(formData.get("cityId") ?? "").trim();
     if (!cityId) throw new Error("No hay una ciudad disponible para la captura.");
 
-    const image = formData.get("cover");
-    if (!(image instanceof File) || image.size === 0) {
-      throw new Error("Haz una foto o elige una imagen antes de guardar.");
-    }
-    if (image.type !== "image/webp") {
-      throw new Error("La imagen no se pudo convertir a WebP.");
-    }
-    if (image.size > MAX_UPLOAD_BYTES) {
-      throw new Error("La imagen procesada sigue siendo demasiado grande.");
+    uploadId = validateUploadId(String(formData.get("uploadId") ?? "").trim());
+    const storagePaths = getScoutStoragePaths(uploadId);
+    const { data: uploadedFiles, error: listError } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .list(`map-places/${uploadId}`, { limit: 10 });
+    if (listError) throw new Error("No se pudo comprobar la foto subida.");
+    const uploadedNames = new Set((uploadedFiles ?? []).map((file) => file.name));
+    if (!uploadedNames.has("cover.webp") || !uploadedNames.has("thumb.webp")) {
+      throw new Error("La foto no terminó de subirse. Reinténtalo.");
     }
 
     const latitude = optionalCoordinate(formData, "latitude", -90, 90);
@@ -103,28 +169,19 @@ export async function createScoutDraftAction(
       ? (accessValue as "free" | "restricted" | "unknown")
       : null;
 
-    const id = randomUUID();
-    storagePath = `map-places/${id}/cover.webp`;
-    const imageBytes = new Uint8Array(await image.arrayBuffer());
-    const { error: uploadError } = await supabase.storage
+    const { data: coverUrlData } = supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(storagePath, imageBytes, {
-        cacheControl: "31536000",
-        contentType: "image/webp",
-        upsert: false,
-      });
-    if (uploadError) throw new Error(`No se pudo subir la foto: ${uploadError.message}`);
-
-    const { data: publicUrlData } = supabase.storage
+      .getPublicUrl(storagePaths.cover);
+    const { data: thumbnailUrlData } = supabase.storage
       .from(STORAGE_BUCKET)
-      .getPublicUrl(storagePath);
+      .getPublicUrl(storagePaths.thumbnail);
 
     const capturedBy =
       session.user?.id && session.user.id !== "development-admin"
         ? session.user.id
         : null;
     const payload: Database["public"]["Tables"]["map_places"]["Insert"] = {
-      id,
+      id: uploadId,
       city_id: cityId,
       name: optionalText(formData, "name", 140),
       slug: null,
@@ -133,7 +190,8 @@ export async function createScoutDraftAction(
       latitude,
       longitude,
       location_accuracy_m: locationAccuracyM,
-      cover_image_url: publicUrlData.publicUrl,
+      cover_image_url: coverUrlData.publicUrl,
+      thumbnail_image_url: thumbnailUrlData.publicUrl,
       opening_hours_note: optionalText(formData, "availability", 260),
       source_note: optionalText(formData, "note", 600),
       source: "field",
@@ -149,17 +207,19 @@ export async function createScoutDraftAction(
 
     const { error: insertError } = await supabase.from("map_places").insert(payload);
     if (insertError) {
-      const cleanup = await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
-      if (!cleanup.error) storagePath = null;
+      await supabase.storage.from(STORAGE_BUCKET).remove([storagePaths.cover, storagePaths.thumbnail]);
+      uploadId = null;
       throw new Error(`No se pudo guardar el borrador: ${insertError.message}`);
     }
 
-    storagePath = null;
+    const id = uploadId;
+    uploadId = null;
     revalidatePath("/panel/lugares");
     return { ok: true, id };
   } catch (error) {
-    if (storagePath && supabase) {
-      await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
+    if (uploadId && supabase) {
+      const paths = getScoutStoragePaths(uploadId);
+      await supabase.storage.from(STORAGE_BUCKET).remove([paths.cover, paths.thumbnail]);
     }
     return {
       ok: false,

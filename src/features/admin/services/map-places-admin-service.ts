@@ -32,6 +32,39 @@ export type MapPlaceParentOption = {
   category: MapPlaceCategory;
 };
 
+export type AdminMapPlaceListItem = Pick<
+  AdminMapPlace,
+  | "id"
+  | "slug"
+  | "name"
+  | "category"
+  | "latitude"
+  | "longitude"
+  | "status"
+  | "isActive"
+  | "isPlanCandidate"
+  | "planRole"
+  | "captureMethod"
+  | "coverImageUrl"
+  | "city"
+> & {
+  thumbnailImageUrl: string | null;
+};
+
+export type AdminMapPlaceListResult = {
+  items: AdminMapPlaceListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+export type AdminMapPlacesSummary = {
+  published: number;
+  planCandidates: number;
+  incomplete: number;
+  pendingScout: number;
+};
+
 export type AdminMapPlaceFormValues = {
   id: string;
   cityId: string;
@@ -347,56 +380,108 @@ async function validateParentPlace(
   }
 }
 
-export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
+export async function getAdminMapPlaces({
+  query = "",
+  status = "",
+  category = "",
+  page = 1,
+  pageSize = 25,
+}: {
+  query?: string;
+  status?: string;
+  category?: string;
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<AdminMapPlaceListResult> {
   const supabase = await createAdminReadClient();
-  const { data, error } = await supabase
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  let placesQuery = supabase
     .from("map_places")
     .select(
-      "id, city_id, parent_place_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, captured_by, capture_method, access_type, cities!inner(slug, name)",
+      "id, slug, name, category, latitude, longitude, cover_image_url, thumbnail_image_url, plan_role, is_plan_candidate, status, is_active, capture_method, cities!inner(slug, name)",
+      { count: "exact" },
     )
-    .order("sort_order")
-    .order("name");
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize - 1);
+
+  if (query.trim()) placesQuery = placesQuery.ilike("name", `%${query.trim()}%`);
+  if (category) placesQuery = placesQuery.eq("category", category);
+  if (status === "pending") {
+    placesQuery = placesQuery.eq("status", "draft").eq("capture_method", "scout");
+  } else if (["draft", "review", "published"].includes(status)) {
+    placesQuery = placesQuery.eq(
+      "status",
+      status as "draft" | "review" | "published",
+    );
+  } else if (status === "inactive") {
+    placesQuery = placesQuery.eq("is_active", false);
+  }
+
+  const { data, error, count } = await placesQuery;
 
   if (error) {
-    if (isMissingTableError(error.message)) return [];
+    if (isMissingTableError(error.message)) {
+      return { items: [], total: 0, page: safePage, pageSize };
+    }
     throw new Error(`No se pudieron cargar los lugares: ${error.message}`);
   }
 
-  return data.map((place) => ({
-    id: place.id,
-    parentPlaceId: place.parent_place_id,
-    cityId: place.city_id,
-    slug: place.slug,
-    name: place.name,
-    description: place.description,
-    category: place.category,
-    iconName: place.icon_name,
-    latitude: place.latitude,
-    longitude: place.longitude,
-    geometryType: place.geometry_type,
-    geometry: parsePolygonGeometry(place.geometry),
-    locationAccuracyM: place.location_accuracy_m,
-    amenities: place.amenities ?? [],
-    isAccessible: place.is_accessible,
-    coverImageUrl: place.cover_image_url,
-    story: place.story,
-    openingHoursNote: place.opening_hours_note,
-    accessibilityNote: place.accessibility_note,
-    sourceLabel: place.source_label,
-    sourceUrl: place.source_url,
-    planRole: place.plan_role,
-    isPlanCandidate: place.is_plan_candidate,
-    source: place.source,
-    sourceNote: place.source_note,
-    status: place.status,
-    isActive: place.is_active,
-    sortOrder: place.sort_order,
-    verifiedAt: place.verified_at,
-    capturedBy: place.captured_by,
-    captureMethod: place.capture_method,
-    accessType: place.access_type,
-    city: { slug: place.cities.slug, name: place.cities.name },
-  }));
+  return {
+    items: data.map((place) => ({
+      id: place.id,
+      slug: place.slug,
+      name: place.name,
+      category: place.category,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      coverImageUrl: place.cover_image_url,
+      thumbnailImageUrl: place.thumbnail_image_url,
+      planRole: place.plan_role,
+      isPlanCandidate: place.is_plan_candidate,
+      status: place.status,
+      isActive: place.is_active,
+      captureMethod: place.capture_method,
+      city: { slug: place.cities.slug, name: place.cities.name },
+    })),
+    total: count ?? 0,
+    page: safePage,
+    pageSize,
+  };
+}
+
+export async function getAdminMapPlacesSummary(): Promise<AdminMapPlacesSummary> {
+  const supabase = await createAdminReadClient();
+  const [published, planCandidates, incomplete, pendingScout] = await Promise.all([
+    supabase
+      .from("map_places")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "published")
+      .eq("is_active", true),
+    supabase
+      .from("map_places")
+      .select("id", { count: "exact", head: true })
+      .eq("is_plan_candidate", true),
+    supabase
+      .from("map_places")
+      .select("id", { count: "exact", head: true })
+      .or("description.is.null,cover_image_url.is.null"),
+    supabase
+      .from("map_places")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "draft")
+      .eq("capture_method", "scout"),
+  ]);
+  const error = [published, planCandidates, incomplete, pendingScout].find(
+    (result) => result.error,
+  )?.error;
+  if (error) throw new Error(`No se pudo cargar el resumen de lugares: ${error.message}`);
+  return {
+    published: published.count ?? 0,
+    planCandidates: planCandidates.count ?? 0,
+    incomplete: incomplete.count ?? 0,
+    pendingScout: pendingScout.count ?? 0,
+  };
 }
 
 export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFormValues | null> {

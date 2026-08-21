@@ -379,16 +379,16 @@ export function AdminMenuItemForm({
           </label>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="sticky bottom-3 z-30 flex flex-wrap gap-3 rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]/95 p-2 shadow-[0_16px_40px_rgba(56,25,50,0.12)] backdrop-blur-md">
           <button
             type="submit"
-            className="magnetic-button inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)]"
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-[#741314] px-6 py-3 text-sm font-semibold text-[#FFF7E8] sm:flex-none"
           >
             {submitLabel}
           </button>
           <Link
             href={`/panel/locales/${venue.id}/platos`}
-            className="magnetic-button inline-flex rounded-full border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-[color:var(--foreground)]"
+            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full border border-[#741314]/18 bg-white px-6 py-3 text-sm font-semibold text-[#741314] sm:flex-none"
           >
             Volver a platos
           </Link>

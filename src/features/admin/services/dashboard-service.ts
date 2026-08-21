@@ -7,6 +7,7 @@ export type AdminDashboardSummary = {
   menuItemsCount: number | null;
   unavailableMenuItemsCount: number | null;
   pendingJoinRequestsCount: number | null;
+  pendingScoutCount: number | null;
 };
 
 const emptySummary: AdminDashboardSummary = {
@@ -15,6 +16,7 @@ const emptySummary: AdminDashboardSummary = {
   menuItemsCount: null,
   unavailableMenuItemsCount: null,
   pendingJoinRequestsCount: null,
+  pendingScoutCount: null,
 };
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
@@ -39,6 +41,11 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
       .from("join_requests")
       .select("*", { count: "exact", head: true })
       .eq("status", "pending"),
+    supabase
+      .from("map_places")
+      .select("id", { count: "exact", head: true })
+      .eq("capture_method", "scout")
+      .eq("status", "draft"),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
@@ -52,5 +59,6 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
     menuItemsCount: results[2].count ?? 0,
     unavailableMenuItemsCount: results[3].count ?? 0,
     pendingJoinRequestsCount: results[4].count ?? 0,
+    pendingScoutCount: results[5].count ?? 0,
   };
 }

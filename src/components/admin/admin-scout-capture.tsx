@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { createScoutDraftAction } from "@/features/admin/services/scout-admin-service";
+import {
+  createScoutDraftAction,
+  discardScoutUploadAction,
+  prepareScoutUploadAction,
+} from "@/features/admin/services/scout-admin-service";
 import type { MapPlaceCityOption } from "@/features/admin/services/map-places-admin-service";
 import type { MapPlaceCategoryDefinition } from "@/features/map-places/categories";
 import { MapPlaceIcon } from "@/features/map-places/icons";
@@ -29,6 +33,18 @@ type LocationState = "idle" | "loading" | "ready" | "error";
 const inputClassName =
   "mt-2 min-h-12 w-full rounded-xl border border-[#741314]/16 bg-white px-4 text-base text-[#381932] outline-none transition placeholder:text-[#381932]/35 focus:border-[#741314]/55 focus:ring-2 focus:ring-[#741314]/10";
 
+async function uploadScoutFile(signedUrl: string, file: File) {
+  const body = new FormData();
+  body.append("cacheControl", "31536000");
+  body.append("", file, file.name);
+  const response = await fetch(signedUrl, {
+    method: "PUT",
+    headers: { "x-upsert": "false" },
+    body,
+  });
+  if (!response.ok) throw new Error("Supabase Storage rechazó la subida.");
+}
+
 export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const requestedLocationRef = useRef(false);
@@ -38,6 +54,7 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
     "unknown",
   );
   const [processedImage, setProcessedImage] = useState<File | null>(null);
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageProgress, setImageProgress] = useState(0);
@@ -105,11 +122,13 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
       const result = await processScoutImage(file);
       setImageProgress(45);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      setProcessedImage(result);
-      setPreviewUrl(URL.createObjectURL(result));
+      setProcessedImage(result.cover);
+      setThumbnailImage(result.thumbnail);
+      setPreviewUrl(URL.createObjectURL(result.cover));
       setImageProgress(50);
     } catch (error) {
       setProcessedImage(null);
+      setThumbnailImage(null);
       setImageProgress(0);
       setImageError(error instanceof Error ? error.message : "No se pudo procesar la foto.");
     }
@@ -118,7 +137,7 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
-    if (!processedImage) {
+    if (!processedImage || !thumbnailImage) {
       setImageError("Haz una foto o elige una imagen antes de guardar.");
       return;
     }
@@ -126,8 +145,39 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
     setSubmitting(true);
     setSubmitError(null);
     setImageProgress(65);
+    const ticket = await prepareScoutUploadAction();
+    if (!ticket.ok) {
+      setSubmitError(ticket.error);
+      setImageProgress(50);
+      setSubmitting(false);
+      return;
+    }
+
+    setImageProgress(72);
+    try {
+      await uploadScoutFile(ticket.uploads.cover.signedUrl, processedImage);
+    } catch (error) {
+      await discardScoutUploadAction(ticket.id);
+      setSubmitError(error instanceof Error ? error.message : "No se pudo subir la foto.");
+      setImageProgress(50);
+      setSubmitting(false);
+      return;
+    }
+
+    setImageProgress(84);
+    try {
+      await uploadScoutFile(ticket.uploads.thumbnail.signedUrl, thumbnailImage);
+    } catch (error) {
+      await discardScoutUploadAction(ticket.id);
+      setSubmitError(error instanceof Error ? error.message : "No se pudo subir la miniatura.");
+      setImageProgress(50);
+      setSubmitting(false);
+      return;
+    }
+
+    setImageProgress(92);
     const formData = new FormData(event.currentTarget);
-    formData.set("cover", processedImage, "cover.webp");
+    formData.set("uploadId", ticket.id);
     const result = await createScoutDraftAction(formData);
     if (!result.ok) {
       setSubmitError(result.error);
@@ -145,6 +195,7 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
     setProcessedImage(null);
+    setThumbnailImage(null);
     setImageError(null);
     setImageProgress(0);
     setLatitude("");
@@ -184,7 +235,7 @@ export function AdminScoutCapture({ cities, categories }: AdminScoutCaptureProps
             Completar ahora
           </Link>
           <Link
-            href="/panel/lugares?estado=pendientes"
+            href="/panel/lugares?estado=pending"
             className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#741314]/22 px-4 text-center text-sm font-bold text-[#741314]"
           >
             Ver pendientes

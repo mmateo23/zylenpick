@@ -2,6 +2,7 @@
 
 import {
   Building2,
+  Camera,
   Inbox,
   Layers3,
   LayoutDashboard,
@@ -13,8 +14,9 @@ import { usePathname } from "next/navigation";
 
 const navigationItems = [
   { label: "Inicio", href: "/panel", icon: LayoutDashboard, matches: [] },
+  { label: "Scout", href: "/panel/scout", icon: Camera, matches: [] },
   { label: "Locales", href: "/panel/locales", icon: Building2, matches: [] },
-  { label: "Explorar", href: "/panel/lugares", icon: MapPinned, matches: [] },
+  { label: "Lugares", href: "/panel/lugares", icon: MapPinned, matches: [] },
   {
     label: "Contenido",
     href: "/panel/contenido",
@@ -56,7 +58,7 @@ export function AdminSidebar() {
       </div>
 
       <nav aria-label="Navegación del panel" className="mt-2 min-w-0 lg:mt-0">
-        <ul className="grid grid-cols-3 gap-1.5 lg:block lg:space-y-1">
+        <ul className="grid grid-cols-4 gap-1.5 sm:grid-cols-7 lg:block lg:space-y-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
             const active = isItemActive(pathname, item.href, item.matches);

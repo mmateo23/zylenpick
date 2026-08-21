@@ -31,6 +31,13 @@ export type AdminMenuItemListItem = {
   isPickupMonthHighlight: boolean;
 };
 
+export type AdminMenuItemListResult = {
+  items: AdminMenuItemListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
 export type AdminHighlightedVenueListItem = {
   id: string;
   name: string;
@@ -210,34 +217,91 @@ export async function getAdminVenueContext(
 
 export async function getAdminMenuItemsByVenueId(
   venueId: string,
-): Promise<AdminMenuItemListItem[]> {
+  {
+    query = "",
+    status = "",
+    page = 1,
+    pageSize = 25,
+  }: {
+    query?: string;
+    status?: string;
+    page?: number;
+    pageSize?: number;
+  } = {},
+): Promise<AdminMenuItemListResult> {
   const supabase = await createAdminDataClient();
-  const baseQuery = supabase
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  let baseQuery = supabase
     .from("menu_items")
     .select(
       "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, venues(name, city_id, cities(name))",
+      { count: "exact" },
     )
     .eq("venue_id", venueId)
     .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true })
+    .range(from, from + pageSize - 1);
 
-  const { data, error } = await baseQuery;
+  if (query.trim()) baseQuery = baseQuery.ilike("name", `%${query.trim()}%`);
+  if (status === "available") baseQuery = baseQuery.eq("is_available", true);
+  if (status === "paused") baseQuery = baseQuery.eq("is_available", false);
+
+  const { data, error, count } = await baseQuery;
 
   if (error && isMissingHighlightColumnError(error.message)) {
-    const { data: fallbackData, error: fallbackError } = await supabase
+    let fallbackQuery = supabase
       .from("menu_items")
       .select(
         "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, venues(name, city_id, cities(name))",
+        { count: "exact" },
       )
       .eq("venue_id", venueId)
       .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (query.trim()) fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
+    if (status === "available") fallbackQuery = fallbackQuery.eq("is_available", true);
+    if (status === "paused") fallbackQuery = fallbackQuery.eq("is_available", false);
+
+    const { data: fallbackData, error: fallbackError, count: fallbackCount } =
+      await fallbackQuery;
 
     if (fallbackError) {
       throw new Error(`Unable to load admin menu items: ${fallbackError.message}`);
     }
 
-    return fallbackData.map((item) => ({
+    return {
+      items: fallbackData.map((item) => ({
+        id: item.id,
+        name: item.name,
+        venueId: item.venue_id,
+        venueName: item.venues?.name ?? null,
+        cityId: item.venues?.city_id ?? null,
+        cityName: item.venues?.cities?.name ?? null,
+        categoryName: item.category_name,
+        imageUrl: item.image_url,
+        priceAmount: item.price_amount,
+        currency: item.currency,
+        sortOrder: item.sort_order,
+        isAvailable: item.is_available,
+        isFeatured: false,
+        isHomeFeatured: false,
+        isPickupMonthHighlight: false,
+      })),
+      total: fallbackCount ?? 0,
+      page: safePage,
+      pageSize,
+    };
+  }
+
+  if (error) {
+    throw new Error(`Unable to load admin menu items: ${error.message}`);
+  }
+
+  return {
+    items: data.map((item) => ({
       id: item.id,
       name: item.name,
       venueId: item.venue_id,
@@ -250,33 +314,14 @@ export async function getAdminMenuItemsByVenueId(
       currency: item.currency,
       sortOrder: item.sort_order,
       isAvailable: item.is_available,
-      isFeatured: false,
-      isHomeFeatured: false,
-      isPickupMonthHighlight: false,
-    }));
-  }
-
-  if (error) {
-    throw new Error(`Unable to load admin menu items: ${error.message}`);
-  }
-
-  return data.map((item) => ({
-    id: item.id,
-    name: item.name,
-    venueId: item.venue_id,
-    venueName: item.venues?.name ?? null,
-    cityId: item.venues?.city_id ?? null,
-    cityName: item.venues?.cities?.name ?? null,
-    categoryName: item.category_name,
-    imageUrl: item.image_url,
-    priceAmount: item.price_amount,
-    currency: item.currency,
-    sortOrder: item.sort_order,
-    isAvailable: item.is_available,
-    isFeatured: item.is_featured,
-    isHomeFeatured: item.is_home_featured,
-    isPickupMonthHighlight: item.is_pickup_month_highlight,
-  }));
+      isFeatured: item.is_featured,
+      isHomeFeatured: item.is_home_featured,
+      isPickupMonthHighlight: item.is_pickup_month_highlight,
+    })),
+    total: count ?? 0,
+    page: safePage,
+    pageSize,
+  };
 }
 
 export async function getAdminMenuItemById(

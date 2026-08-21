@@ -93,6 +93,7 @@ export type Database = {
           amenities: string[];
           is_accessible: boolean;
           cover_image_url: string | null;
+          thumbnail_image_url: string | null;
           story: string | null;
           opening_hours_note: string | null;
           accessibility_note: string | null;
@@ -133,6 +134,7 @@ export type Database = {
           amenities?: string[];
           is_accessible?: boolean;
           cover_image_url?: string | null;
+          thumbnail_image_url?: string | null;
           story?: string | null;
           opening_hours_note?: string | null;
           accessibility_note?: string | null;
@@ -173,6 +175,7 @@ export type Database = {
           amenities?: string[];
           is_accessible?: boolean;
           cover_image_url?: string | null;
+          thumbnail_image_url?: string | null;
           story?: string | null;
           opening_hours_note?: string | null;
           accessibility_note?: string | null;

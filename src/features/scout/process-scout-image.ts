@@ -1,5 +1,7 @@
 const MAX_SIDE = 1600;
 const TARGET_BYTES = 500 * 1024;
+const THUMB_MAX_SIDE = 480;
+const THUMB_TARGET_BYTES = 120 * 1024;
 
 function canvasToWebp(canvas: HTMLCanvasElement, quality: number) {
   return new Promise<Blob>((resolve, reject) => {
@@ -81,10 +83,39 @@ export async function processScoutImage(file: File) {
     if ((bestBlob && bestBlob.size <= TARGET_BYTES) || scale === 1) break;
   }
 
+  if (!bestBlob) {
+    if (source instanceof ImageBitmap) source.close();
+    throw new Error("No se pudo convertir la imagen.");
+  }
+
+  const thumbnailScale = Math.min(1, THUMB_MAX_SIDE / Math.max(sourceWidth, sourceHeight));
+  const thumbnailCanvas = document.createElement("canvas");
+  thumbnailCanvas.width = Math.max(1, Math.round(sourceWidth * thumbnailScale));
+  thumbnailCanvas.height = Math.max(1, Math.round(sourceHeight * thumbnailScale));
+  const thumbnailContext = thumbnailCanvas.getContext("2d", { alpha: false });
+  if (!thumbnailContext) {
+    if (source instanceof ImageBitmap) source.close();
+    throw new Error("No se pudo preparar la miniatura.");
+  }
+  thumbnailContext.drawImage(source, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+
+  let thumbnailBlob: Blob | null = null;
+  for (const quality of [0.8, 0.72, 0.64]) {
+    thumbnailBlob = await canvasToWebp(thumbnailCanvas, quality);
+    if (thumbnailBlob.size <= THUMB_TARGET_BYTES) break;
+  }
+
   if (source instanceof ImageBitmap) source.close();
-  if (!bestBlob) throw new Error("No se pudo convertir la imagen.");
-  return new File([bestBlob], "cover.webp", {
-    type: "image/webp",
-    lastModified: Date.now(),
-  });
+  if (!thumbnailBlob) throw new Error("No se pudo crear la miniatura.");
+
+  return {
+    cover: new File([bestBlob], "cover.webp", {
+      type: "image/webp",
+      lastModified: Date.now(),
+    }),
+    thumbnail: new File([thumbnailBlob], "thumb.webp", {
+      type: "image/webp",
+      lastModified: Date.now(),
+    }),
+  };
 }

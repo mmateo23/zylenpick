@@ -878,8 +878,8 @@ export function AdminMapPlaceForm({
         </AdminFormDisclosure>
       </div>
 
-      <div className="flex justify-end">
-        <button type="submit" className="rounded-full bg-[#741314] px-6 py-3.5 text-sm font-bold text-[#FFF7E8] shadow-[0_12px_28px_rgba(116,19,20,0.2)]">
+      <div className="sticky bottom-3 z-30 flex justify-end rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]/95 p-2 shadow-[0_16px_40px_rgba(56,25,50,0.12)] backdrop-blur-md">
+        <button type="submit" className="min-h-11 w-full rounded-full bg-[#741314] px-6 py-3 text-sm font-bold text-[#FFF7E8] sm:w-auto">
           {formMode === "edit"
             ? "Guardar cambios"
             : formMode === "duplicate"

@@ -1,9 +1,9 @@
 import {
   ArrowRight,
   Building2,
-  Inbox,
   Layers3,
   MapPinned,
+  Camera,
   Settings2,
   Utensils,
 } from "lucide-react";
@@ -36,11 +36,11 @@ export default async function AdminDashboardPage() {
       icon: Utensils,
     },
     {
-      label: "Por revisar",
-      value: summary.pendingJoinRequestsCount,
-      description: "Solicitudes pendientes",
-      href: "/panel/solicitudes",
-      icon: Inbox,
+      label: "Capturas pendientes",
+      value: summary.pendingScoutCount,
+      description: "Scout por completar",
+      href: "/panel/lugares?estado=pending",
+      icon: Camera,
     },
   ];
 
@@ -79,10 +79,10 @@ export default async function AdminDashboardPage() {
         description="Consulta el estado de Pickyalo y entra directamente en la tarea que quieres resolver."
         action={
           <Link
-            href="/panel/locales/nuevo"
+            href="/panel/scout"
             className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-5 py-2.5 text-sm font-bold text-[#FFF7E8] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
           >
-            Crear local
+            Abrir Scout
           </Link>
         }
       />
@@ -118,11 +118,15 @@ export default async function AdminDashboardPage() {
             <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#741314]/50">Estado</p>
             <h2 id="status-title" className="mt-1 text-xl font-semibold text-[#24110E]">Pendientes principales</h2>
           </div>
-          <AdminStatusBadge tone={(summary.pendingJoinRequestsCount ?? 0) > 0 ? "warning" : "success"}>
-            {(summary.pendingJoinRequestsCount ?? 0) > 0 ? "Revisión necesaria" : "Al día"}
+          <AdminStatusBadge tone={((summary.pendingJoinRequestsCount ?? 0) + (summary.pendingScoutCount ?? 0)) > 0 ? "warning" : "success"}>
+            {((summary.pendingJoinRequestsCount ?? 0) + (summary.pendingScoutCount ?? 0)) > 0 ? "Revisión necesaria" : "Al día"}
           </AdminStatusBadge>
         </div>
-        <div className="mt-5 grid gap-2 sm:grid-cols-2">
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <Link href="/panel/lugares?estado=pending" className="flex min-h-12 items-center justify-between rounded-[0.9rem] border border-[#741314]/10 px-4 py-3 text-sm font-semibold text-[#741314] transition hover:bg-[#741314]/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]">
+            <span>{displayCount(summary.pendingScoutCount)} capturas por completar</span>
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
+          </Link>
           <Link href="/panel/solicitudes" className="flex min-h-12 items-center justify-between rounded-[0.9rem] border border-[#741314]/10 px-4 py-3 text-sm font-semibold text-[#741314] transition hover:bg-[#741314]/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]">
             <span>{displayCount(summary.pendingJoinRequestsCount)} solicitudes por revisar</span>
             <ArrowRight aria-hidden="true" className="h-4 w-4" />

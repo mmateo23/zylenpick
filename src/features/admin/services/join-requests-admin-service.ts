@@ -21,6 +21,13 @@ export type AdminJoinRequestListItem = {
   createdAt: string;
 };
 
+export type AdminJoinRequestListResult = {
+  items: AdminJoinRequestListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
 export type AdminJoinRequestDetail = {
   id: string;
   venueName: string;
@@ -42,31 +49,60 @@ export type AdminJoinRequestDetail = {
   createdAt: string;
 };
 
-export async function getAdminJoinRequests(): Promise<AdminJoinRequestListItem[]> {
+export async function getAdminJoinRequests({
+  query = "",
+  status = "",
+  page = 1,
+  pageSize = 25,
+}: {
+  query?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<AdminJoinRequestListResult> {
   const supabase = await createAdminDataClient();
-  const { data, error } = await supabase
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  let requestQuery = supabase
     .from("join_requests")
     .select(
       "id, venue_name, area, contact_name, contact_email, contact_phone, interest, status, linked_venue_id, created_at",
+      { count: "exact" },
     )
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, from + pageSize - 1);
+
+  if (query.trim()) requestQuery = requestQuery.ilike("venue_name", `%${query.trim()}%`);
+  if (["pending", "approved", "rejected"].includes(status)) {
+    requestQuery = requestQuery.eq(
+      "status",
+      status as "pending" | "approved" | "rejected",
+    );
+  }
+
+  const { data, error, count } = await requestQuery;
 
   if (error) {
     throw new Error(`Unable to load admin join requests: ${error.message}`);
   }
 
-  return data.map((item) => ({
-    id: item.id,
-    venueName: item.venue_name,
-    area: item.area,
-    contactName: item.contact_name,
-    contactEmail: item.contact_email,
-    contactPhone: item.contact_phone,
-    interest: item.interest,
-    status: item.status,
-    linkedVenueId: item.linked_venue_id,
-    createdAt: item.created_at,
-  }));
+  return {
+    items: data.map((item) => ({
+      id: item.id,
+      venueName: item.venue_name,
+      area: item.area,
+      contactName: item.contact_name,
+      contactEmail: item.contact_email,
+      contactPhone: item.contact_phone,
+      interest: item.interest,
+      status: item.status,
+      linkedVenueId: item.linked_venue_id,
+      createdAt: item.created_at,
+    })),
+    total: count ?? 0,
+    page: safePage,
+    pageSize,
+  };
 }
 
 export async function getAdminJoinRequestById(

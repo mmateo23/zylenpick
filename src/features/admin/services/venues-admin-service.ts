@@ -29,6 +29,13 @@ export type AdminVenueListItem = {
   cityName: string | null;
 };
 
+export type AdminVenueListResult = {
+  items: AdminVenueListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
 export type AdminVenueFormValues = {
   id: string;
   name: string;
@@ -376,50 +383,89 @@ export function buildVenueInitialValuesFromJoinRequest(
   };
 }
 
-export async function getAdminVenues(): Promise<AdminVenueListItem[]> {
+export async function getAdminVenues({
+  query = "",
+  status = "",
+  page = 1,
+  pageSize = 25,
+}: {
+  query?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<AdminVenueListResult> {
   const supabase = await createAdminDataClient();
-  let { data, error } = await supabase
+  const safePage = Math.max(1, page);
+  const from = (safePage - 1) * pageSize;
+  const to = from + pageSize - 1;
+  let venuesQuery = supabase
     .from("venues")
     .select(
       "id, name, slug, email, phone, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, cities(name)",
+      { count: "exact" },
     )
     .order("sort_order", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (query.trim()) venuesQuery = venuesQuery.ilike("name", `%${query.trim()}%`);
+  if (status === "published") venuesQuery = venuesQuery.eq("is_published", true);
+  if (status === "hidden") venuesQuery = venuesQuery.eq("is_published", false);
+  if (status === "active") venuesQuery = venuesQuery.eq("is_active", true);
+  if (status === "inactive") venuesQuery = venuesQuery.eq("is_active", false);
+
+  let { data, error, count } = await venuesQuery;
 
   if (error && isMissingPricesVisibleColumnError(error.message)) {
-    const fallbackResult = await supabase
+    let fallbackQuery = supabase
       .from("venues")
       .select(
         "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, cities(name)",
+        { count: "exact" },
       )
       .order("sort_order", { ascending: true, nullsFirst: false })
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (query.trim()) fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
+    if (status === "published") fallbackQuery = fallbackQuery.eq("is_published", true);
+    if (status === "hidden") fallbackQuery = fallbackQuery.eq("is_published", false);
+    if (status === "active") fallbackQuery = fallbackQuery.eq("is_active", true);
+    if (status === "inactive") fallbackQuery = fallbackQuery.eq("is_active", false);
+
+    const fallbackResult = await fallbackQuery;
 
     data = fallbackResult.data?.map((venue) => ({
       ...venue,
       prices_visible: false,
     })) ?? null;
     error = fallbackResult.error;
+    count = fallbackResult.count;
   }
 
   if (error) {
     throw new Error(`Unable to load admin venues: ${error.message}`);
   }
 
-  return (data ?? []).map((venue) => ({
-    id: venue.id,
-    name: venue.name,
-    slug: venue.slug,
-    email: venue.email,
-    phone: venue.phone,
-    isActive: venue.is_active,
-    isPublished: venue.is_published,
-    isVerified: venue.is_verified,
-    pricesVisible: venue.prices_visible,
-    subscriptionActive: venue.subscription_active,
-    subscriptionTier: venue.subscription_tier ?? "basic",
-    cityName: venue.cities?.name ?? null,
-  }));
+  return {
+    items: (data ?? []).map((venue) => ({
+      id: venue.id,
+      name: venue.name,
+      slug: venue.slug,
+      email: venue.email,
+      phone: venue.phone,
+      isActive: venue.is_active,
+      isPublished: venue.is_published,
+      isVerified: venue.is_verified,
+      pricesVisible: venue.prices_visible,
+      subscriptionActive: venue.subscription_active,
+      subscriptionTier: venue.subscription_tier ?? "basic",
+      cityName: venue.cities?.name ?? null,
+    })),
+    total: count ?? 0,
+    page: safePage,
+    pageSize,
+  };
 }
 
 export async function getAdminVenueById(
