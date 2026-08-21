@@ -2,7 +2,7 @@ import type { Database } from "@/types/database";
 import type { MapPolygonGeometry } from "@/features/map-places/geometry";
 
 export type MapPlaceCategory =
-  Database["public"]["Tables"]["map_places"]["Row"]["category"];
+  NonNullable<Database["public"]["Tables"]["map_places"]["Row"]["category"]>;
 export type MapPlaceStatus =
   Database["public"]["Tables"]["map_places"]["Row"]["status"];
 export type MapPlaceSource =
@@ -37,10 +37,18 @@ export type PublicMapPlace = {
   };
 };
 
-export type AdminMapPlace = PublicMapPlace & {
+export type AdminMapPlace = Omit<
+  PublicMapPlace,
+  "slug" | "name" | "category" | "iconName" | "latitude" | "longitude"
+> & {
   cityId: string;
   parentPlaceId: string | null;
-  slug: string;
+  slug: string | null;
+  name: string | null;
+  category: MapPlaceCategory | null;
+  iconName: string | null;
+  latitude: number | null;
+  longitude: number | null;
   locationAccuracyM: number | null;
   source: MapPlaceSource;
   sourceNote: string | null;
@@ -48,4 +56,7 @@ export type AdminMapPlace = PublicMapPlace & {
   isActive: boolean;
   sortOrder: number;
   verifiedAt: string | null;
+  capturedBy: string | null;
+  captureMethod: "admin" | "scout";
+  accessType: "free" | "restricted" | "unknown" | null;
 };

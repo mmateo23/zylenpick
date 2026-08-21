@@ -158,10 +158,11 @@ export function AdminMapPlaceForm({
   const [locating, setLocating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>(
-    initialValues?.category ?? categories[0]?.value ?? "park",
+    initialValues ? initialValues.category : categories[0]?.value ?? "",
   );
-  const selectedCategoryConfig =
-    categories.find((category) => category.value === selectedCategory) ?? categories[0];
+  const selectedCategoryConfig = selectedCategory
+    ? categories.find((category) => category.value === selectedCategory)
+    : undefined;
   const availableParentPlaces = parentPlaces.filter(
     (place) => place.cityId === cityId && place.id !== initialValues?.id,
   );
@@ -581,6 +582,19 @@ export function AdminMapPlaceForm({
             />
           </label>
           <label className="block">
+            <span className="text-sm font-semibold text-[#381932]">Tipo de acceso</span>
+            <select
+              name="accessType"
+              defaultValue={initialValues?.accessType ?? ""}
+              className={fieldClassName}
+            >
+              <option value="">Sin indicar</option>
+              <option value="free">Libre</option>
+              <option value="restricted">Restringido</option>
+              <option value="unknown">Desconocido</option>
+            </select>
+          </label>
+          <label className="block">
             <span className="text-sm font-semibold text-[#381932]">Accesibilidad</span>
             <input
               name="accessibilityNote"
@@ -627,7 +641,9 @@ export function AdminMapPlaceForm({
               value={selectedCategory}
               onChange={(event) => setSelectedCategory(event.target.value)}
               className={`${fieldClassName} !mt-0`}
+              required
             >
+              <option value="" disabled>Selecciona una categoría</option>
               {categories.map((category) => (
                 <option key={category.value} value={category.value}>
                   {category.label}

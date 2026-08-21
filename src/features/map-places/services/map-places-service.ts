@@ -22,6 +22,33 @@ function isMissingPlanColumns(message: string) {
   return normalized.includes("plan_role") || normalized.includes("is_plan_candidate");
 }
 
+function isCompletePublishedPlace<
+  T extends {
+    slug: string | null;
+    name: string | null;
+    category: string | null;
+    icon_name: string | null;
+    latitude: number | null;
+    longitude: number | null;
+  },
+>(place: T): place is T & {
+  slug: string;
+  name: string;
+  category: string;
+  icon_name: string;
+  latitude: number;
+  longitude: number;
+} {
+  return Boolean(
+    place.slug &&
+      place.name &&
+      place.category &&
+      place.icon_name &&
+      place.latitude !== null &&
+      place.longitude !== null,
+  );
+}
+
 export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
   const supabase = createSupabaseServerClient();
   const { data, error } = await supabase
@@ -46,7 +73,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
       .order("name", { ascending: true });
 
     if (!prePlanResult.error) {
-      return prePlanResult.data.map((place) => ({
+      return prePlanResult.data.filter(isCompletePublishedPlace).map((place) => ({
         id: place.id,
         slug: place.slug,
         name: place.name,
@@ -93,7 +120,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
       throw new Error(`Unable to load map places: ${legacyResult.error.message}`);
     }
 
-    return legacyResult.data.map((place) => ({
+    return legacyResult.data.filter(isCompletePublishedPlace).map((place) => ({
       id: place.id,
       slug: place.slug,
       name: place.name,
@@ -129,7 +156,7 @@ export async function getPublishedMapPlaces(): Promise<PublicMapPlace[]> {
     throw new Error(`Unable to load map places: ${error.message}`);
   }
 
-  return data.map((place) => ({
+  return data.filter(isCompletePublishedPlace).map((place) => ({
     id: place.id,
     slug: place.slug,
     name: place.name,

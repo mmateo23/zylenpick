@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Copy, Download, Eye, Pencil, Shapes } from "lucide-react";
+import { Camera, Copy, Download, Eye, Pencil, Shapes } from "lucide-react";
 
 import { getMapPlaceCategory } from "@/features/map-places/categories";
 import { getAdminMapPlaceCategories } from "@/features/admin/services/map-place-categories-admin-service";
@@ -21,6 +21,7 @@ type AdminMapPlacesPageProps = {
   searchParams?: {
     importados?: string;
     omitidos?: string;
+    estado?: string;
   };
 };
 
@@ -32,6 +33,13 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
   const publishedCount = places.filter((place) => place.status === "published" && place.isActive).length;
   const planCandidateCount = places.filter((place) => place.isPlanCandidate).length;
   const incompleteCount = places.filter((place) => !place.description || !place.coverImageUrl).length;
+  const pendingScoutCount = places.filter(
+    (place) => place.captureMethod === "scout" && place.status === "draft",
+  ).length;
+  const showingPending = searchParams?.estado === "pendientes";
+  const visiblePlaces = showingPending
+    ? places.filter((place) => place.captureMethod === "scout" && place.status === "draft")
+    : places;
 
   return (
     <section className="space-y-6">
@@ -44,6 +52,10 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link href="/panel/scout" className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-5 py-3 text-sm font-bold text-[#FFF7E8]">
+            <Camera aria-hidden="true" className="h-4 w-4" />
+            Abrir Scout
+          </Link>
           <Link href="/panel/lugares/categorias" className="inline-flex items-center gap-2 rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
             <Shapes aria-hidden="true" className="h-4 w-4" />
             Categorías
@@ -52,7 +64,7 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
             <Download aria-hidden="true" className="h-4 w-4" />
             Importar de OSM
           </Link>
-          <Link href="/panel/lugares/nuevo" className="rounded-full bg-[#741314] px-5 py-3 text-sm font-bold text-[#FFF7E8]">
+          <Link href="/panel/lugares/nuevo" className="rounded-full border border-[#741314]/18 bg-white px-5 py-3 text-sm font-bold text-[#741314]">
             Añadir lugar
           </Link>
         </div>
@@ -80,26 +92,50 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
         ))}
       </div>
 
+      <nav aria-label="Filtros de lugares" className="flex flex-wrap gap-2">
+        <Link
+          href="/panel/lugares"
+          aria-current={!showingPending ? "page" : undefined}
+          className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold ${!showingPending ? "bg-[#741314] text-[#FFF7E8]" : "border border-[#741314]/16 bg-white text-[#741314]"}`}
+        >
+          Todos
+        </Link>
+        <Link
+          href="/panel/lugares?estado=pendientes"
+          aria-current={showingPending ? "page" : undefined}
+          className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-bold ${showingPending ? "bg-[#741314] text-[#FFF7E8]" : "border border-[#741314]/16 bg-white text-[#741314]"}`}
+        >
+          Pendientes Scout · {pendingScoutCount}
+        </Link>
+      </nav>
+
       <div className="overflow-hidden rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] shadow-[0_16px_45px_rgba(116,19,20,0.06)]">
-        {places.length === 0 ? (
+        {visiblePlaces.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="font-semibold text-[#381932]">Aún no hay lugares marcados.</p>
-            <p className="mt-2 text-sm text-[#381932]/58">Empieza por un punto que puedas comprobar en persona.</p>
+            <p className="font-semibold text-[#381932]">
+              {showingPending ? "No hay capturas pendientes." : "Aún no hay lugares marcados."}
+            </p>
+            <p className="mt-2 text-sm text-[#381932]/58">
+              {showingPending ? "Las nuevas capturas Scout aparecerán aquí." : "Empieza por un punto que puedas comprobar en persona."}
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-[#741314]/10">
-            {places.map((place) => {
-              const category = getMapPlaceCategory(place.category, categories);
+            {visiblePlaces.map((place) => {
+              const category = place.category
+                ? getMapPlaceCategory(place.category, categories)
+                : null;
+              const isPendingScout = place.captureMethod === "scout" && place.status === "draft";
               return (
                 <article key={place.id} className="grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold text-[#381932]">{place.name}</h2>
+                      <h2 className="font-semibold text-[#381932]">{place.name || "Captura sin nombre"}</h2>
                       <span className="rounded-full border border-[#741314]/14 bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
-                        {category.shortLabel}
+                        {category?.shortLabel ?? "Sin categoría"}
                       </span>
                       <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] ${place.status === "published" && place.isActive ? "bg-emerald-100 text-emerald-800" : "bg-[#381932]/[0.07] text-[#381932]/60"}`}>
-                        {statusLabels[place.status]}
+                        {isPendingScout ? "Pendiente" : statusLabels[place.status]}
                       </span>
                       {place.isPlanCandidate ? (
                         <span className="rounded-full bg-[#FDE3AD] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
@@ -107,19 +143,25 @@ export default async function AdminMapPlacesPage({ searchParams }: AdminMapPlace
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-2 text-sm text-[#381932]/60">{place.city.name} · {place.latitude.toFixed(5)}, {place.longitude.toFixed(5)}</p>
+                    <p className="mt-2 text-sm text-[#381932]/60">
+                      {place.city.name} · {place.latitude !== null && place.longitude !== null
+                        ? `${place.latitude.toFixed(5)}, ${place.longitude.toFixed(5)}`
+                        : "Ubicación pendiente"}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:flex">
-                    {place.status === "published" && place.isActive ? (
+                    {place.status === "published" && place.isActive && place.slug ? (
                       <Link href={`/mapa?lugar=${place.slug}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/14 px-4 py-2 text-center text-sm font-semibold text-[#381932]/65">
                         <Eye aria-hidden="true" className="h-4 w-4" />
                         Ver
                       </Link>
                     ) : null}
-                    <Link href={`/panel/lugares/nuevo?copiar=${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-center text-sm font-semibold text-[#741314]">
-                      <Copy aria-hidden="true" className="h-4 w-4" />
-                      Duplicar
-                    </Link>
+                    {!isPendingScout ? (
+                      <Link href={`/panel/lugares/nuevo?copiar=${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/18 px-4 py-2 text-center text-sm font-semibold text-[#741314]">
+                        <Copy aria-hidden="true" className="h-4 w-4" />
+                        Duplicar
+                      </Link>
+                    ) : null}
                     <Link href={`/panel/lugares/${place.id}`} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2 text-center text-sm font-semibold text-[#FFF7E8]">
                       <Pencil aria-hidden="true" className="h-4 w-4" />
                       Editar

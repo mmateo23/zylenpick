@@ -60,6 +60,7 @@ export type AdminMapPlaceFormValues = {
   status: MapPlaceStatus;
   isActive: boolean;
   sortOrder: string;
+  accessType: "free" | "restricted" | "unknown" | "";
 };
 
 const validSources = new Set<MapPlaceSource>([
@@ -147,10 +148,18 @@ function normalizeFormData(formData: FormData): AdminMapPlaceFormValues {
     status,
     isActive: formData.get("isActive") === "on",
     sortOrder: String(formData.get("sortOrder") ?? "").trim(),
+    accessType: String(formData.get("accessType") ?? "") as
+      | "free"
+      | "restricted"
+      | "unknown"
+      | "",
   };
 }
 
-function validateValues(values: AdminMapPlaceFormValues) {
+function validateValues(
+  values: AdminMapPlaceFormValues,
+  options?: { allowPublishedWithoutCover?: boolean },
+) {
   if (!values.name) throw new Error("El nombre del lugar es obligatorio.");
   if (!values.slug) throw new Error("El slug del lugar es obligatorio.");
   if (!values.cityId) throw new Error("Selecciona una ciudad.");
@@ -185,6 +194,13 @@ function validateValues(values: AdminMapPlaceFormValues) {
 
   if (values.status === "published" && values.source === "manual" && !values.sourceNote) {
     throw new Error("Indica cómo se comprobó el punto antes de publicarlo.");
+  }
+  if (
+    values.status === "published" &&
+    !values.coverImageUrl &&
+    !options?.allowPublishedWithoutCover
+  ) {
+    throw new Error("Añade una imagen principal antes de publicar el lugar.");
   }
 }
 
@@ -234,6 +250,7 @@ function toPayload(values: AdminMapPlaceFormValues, iconName: string) {
     is_active: values.isActive,
     verified_at: values.status === "published" ? new Date().toISOString() : null,
     sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
+    access_type: values.accessType || null,
   };
 }
 
@@ -273,6 +290,7 @@ export async function getMapPlaceCities(): Promise<MapPlaceCityOption[]> {
   const { data, error } = await supabase
     .from("cities")
     .select("id, name, slug")
+    .eq("is_active", true)
     .order("name");
   if (error) throw new Error(`No se pudieron cargar las ciudades: ${error.message}`);
   return data;
@@ -291,7 +309,12 @@ export async function getMapPlaceParentOptions(): Promise<MapPlaceParentOption[]
     throw new Error(`No se pudieron cargar los lugares principales: ${error.message}`);
   }
 
-  return data.map((place) => ({
+  return data
+    .filter(
+      (place): place is typeof place & { name: string; category: string } =>
+        Boolean(place.name && place.category),
+    )
+    .map((place) => ({
     id: place.id,
     cityId: place.city_id,
     name: place.name,
@@ -329,7 +352,7 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, parent_place_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, cities!inner(slug, name)",
+      "id, city_id, parent_place_id, slug, name, description, category, icon_name, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, verified_at, captured_by, capture_method, access_type, cities!inner(slug, name)",
     )
     .order("sort_order")
     .order("name");
@@ -369,6 +392,9 @@ export async function getAdminMapPlaces(): Promise<AdminMapPlace[]> {
     isActive: place.is_active,
     sortOrder: place.sort_order,
     verifiedAt: place.verified_at,
+    capturedBy: place.captured_by,
+    captureMethod: place.capture_method,
+    accessType: place.access_type,
     city: { slug: place.cities.slug, name: place.cities.name },
   }));
 }
@@ -378,7 +404,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
   const { data, error } = await supabase
     .from("map_places")
     .select(
-      "id, city_id, parent_place_id, slug, name, description, category, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order",
+      "id, city_id, parent_place_id, slug, name, description, category, geometry_type, geometry, latitude, longitude, location_accuracy_m, amenities, is_accessible, cover_image_url, story, opening_hours_note, accessibility_note, source_label, source_url, plan_role, is_plan_candidate, source, source_note, status, is_active, sort_order, access_type",
     )
     .eq("id", id)
     .maybeSingle();
@@ -392,8 +418,8 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     id: data.id,
     cityId: data.city_id,
     parentPlaceId: data.parent_place_id ?? "",
-    slug: data.slug,
-    name: data.name,
+    slug: data.slug ?? "",
+    name: data.name ?? "",
     description: data.description ?? "",
     coverImageUrl: data.cover_image_url ?? "",
     story: data.story ?? "",
@@ -403,9 +429,9 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     sourceUrl: data.source_url ?? "",
     planRole: data.plan_role,
     isPlanCandidate: data.is_plan_candidate,
-    category: data.category,
-    latitude: String(data.latitude),
-    longitude: String(data.longitude),
+    category: data.category ?? "",
+    latitude: data.latitude?.toString() ?? "",
+    longitude: data.longitude?.toString() ?? "",
     geometryType:
       data.geometry_type === "polygon" ? "polygon" : "point",
     geometry:
@@ -420,6 +446,7 @@ export async function getAdminMapPlaceById(id: string): Promise<AdminMapPlaceFor
     status: data.status,
     isActive: data.is_active,
     sortOrder: String(data.sort_order),
+    accessType: data.access_type ?? "",
   };
 }
 
@@ -479,8 +506,19 @@ export async function createMapPlaceAction(formData: FormData) {
 export async function updateMapPlaceAction(id: string, formData: FormData) {
   "use server";
   const values = normalizeFormData(formData);
-  validateValues(values);
   const supabase = await createAdminReadClient();
+  const { data: currentPlace, error: currentPlaceError } = await supabase
+    .from("map_places")
+    .select("status, cover_image_url")
+    .eq("id", id)
+    .maybeSingle();
+  if (currentPlaceError || !currentPlace) {
+    throw new Error("No se pudo comprobar el estado actual del lugar.");
+  }
+  validateValues(values, {
+    allowPublishedWithoutCover:
+      currentPlace.status === "published" && !currentPlace.cover_image_url,
+  });
   const iconName = await getCategoryIcon(supabase, values.category);
   await validateParentPlace(supabase, values, id);
   await ensureUniqueSlug(supabase, values.cityId, values.slug, id);
