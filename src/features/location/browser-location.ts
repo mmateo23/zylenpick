@@ -18,6 +18,20 @@ export type UserLocationRequestError =
   | "unavailable"
   | "timeout";
 
+type MapboxGeocodingFeature = {
+  properties?: {
+    full_address?: string;
+    name?: string;
+    name_preferred?: string;
+    place_formatted?: string;
+    context?: {
+      neighborhood?: { name?: string };
+      locality?: { name?: string };
+      place?: { name?: string };
+    };
+  };
+};
+
 export function getDistanceInKm(
   latitudeA: number,
   longitudeA: number,
@@ -170,6 +184,56 @@ export function requestUserLocation(): Promise<UserLocation> {
       },
     );
   });
+}
+
+export async function getUserLocationLabel(
+  accessToken: string,
+  location: UserLocation,
+  signal?: AbortSignal,
+) {
+  if (!accessToken) return null;
+
+  const params = new URLSearchParams({
+    longitude: String(location.longitude),
+    latitude: String(location.latitude),
+    access_token: accessToken,
+    language: "es",
+    types: "address,street,neighborhood,locality,place",
+  });
+
+  try {
+    const response = await fetch(
+      `https://api.mapbox.com/search/geocode/v6/reverse?${params.toString()}`,
+      { signal },
+    );
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as {
+      features?: MapboxGeocodingFeature[];
+    };
+    const properties = payload.features?.[0]?.properties;
+    if (!properties) return null;
+
+    if (properties.full_address) return properties.full_address;
+
+    const primaryName = properties.name_preferred ?? properties.name;
+    const areaName =
+      properties.context?.neighborhood?.name ??
+      properties.context?.locality?.name ??
+      properties.context?.place?.name;
+    const conciseLabel = [primaryName, areaName]
+      .filter((value, index, values): value is string =>
+        Boolean(value) && values.indexOf(value) === index,
+      )
+      .join(", ");
+
+    return conciseLabel || properties.place_formatted || null;
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return null;
+    }
+    return null;
+  }
 }
 
 export function getUserLocationErrorMessage(error: unknown) {

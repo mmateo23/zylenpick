@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, ShieldCheck } from "lucide-react";
 
+import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
 import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import type {
   AdminMenuItemFormValues,
   AdminVenueContext,
 } from "@/features/admin/services/menu-items-admin-service";
+import { menuItemAllergenOptions } from "@/features/venues/allergens";
 import type { MenuItemAllergen } from "@/features/venues/types";
 
 type AdminMenuItemFormProps = {
@@ -20,23 +22,6 @@ type AdminMenuItemFormProps = {
   initialValues?: AdminMenuItemFormValues | null;
   previewHref?: string | null;
 };
-
-const allergenOptions: { value: MenuItemAllergen; label: string }[] = [
-  { value: "gluten", label: "Gluten" },
-  { value: "crustaceos", label: "Crustáceos" },
-  { value: "huevo", label: "Huevo" },
-  { value: "pescado", label: "Pescado" },
-  { value: "cacahuetes", label: "Cacahuetes" },
-  { value: "soja", label: "Soja" },
-  { value: "leche", label: "Leche" },
-  { value: "frutos_de_cascara", label: "Frutos de cáscara" },
-  { value: "apio", label: "Apio" },
-  { value: "mostaza", label: "Mostaza" },
-  { value: "sesamo", label: "Sésamo" },
-  { value: "sulfitos", label: "Sulfitos" },
-  { value: "altramuces", label: "Altramuces" },
-  { value: "moluscos", label: "Moluscos" },
-];
 
 function buildInitialValues(
   venueId: string,
@@ -62,7 +47,7 @@ function buildInitialValues(
 }
 
 function fieldClassName() {
-  return "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
+  return "mt-2.5 min-h-12 w-full rounded-xl border border-[#741314]/14 bg-white px-4 py-3 text-base text-[#381932] outline-none transition placeholder:text-[#381932]/38 focus:border-[#741314] focus:ring-2 focus:ring-[#741314]/12";
 }
 
 export function AdminMenuItemForm({
@@ -105,8 +90,8 @@ export function AdminMenuItemForm({
         <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
           {description}
         </p>
-        <div className="mt-5 inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-[color:var(--muted-strong)]">
-          Local: <span className="ml-2 text-[color:var(--foreground)]">{venue.name}</span>
+        <div className="mt-5 inline-flex min-h-11 items-center rounded-full border border-[#741314]/12 bg-[#FFF7E8] px-4 py-2 text-xs font-medium text-[#381932]/62">
+          Local: <span className="ml-2 font-semibold text-[#381932]">{venue.name}</span>
         </div>
       </div>
 
@@ -118,16 +103,49 @@ export function AdminMenuItemForm({
         />
       ) : null}
 
+      {values.captureStatus === "pending" ? (
+        <aside className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 px-5 py-4 text-[#381932]">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">
+            Captura Scout pendiente
+          </p>
+          <p className="mt-2 text-sm leading-6">
+            Confirma nombre, precio, descripción y alérgenos antes de dejar el producto disponible.
+          </p>
+          {values.scoutNote ? (
+            <p className="mt-3 text-sm"><strong>Nota de captura:</strong> {values.scoutNote}</p>
+          ) : null}
+        </aside>
+      ) : null}
+
       <form action={action} className="mt-8 space-y-6">
-        <div className="grid gap-5 md:grid-cols-2">
+        <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
+          <div className="flex items-start gap-4">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#741314] text-sm font-bold text-[#FFF7E8]">
+              1
+            </span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#741314]/60">
+                Información esencial
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-[#381932]">
+                Haz que el producto se entienda de un vistazo
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[#381932]/62">
+                Nombre, precio, descripción e imagen son lo primero que verá el cliente.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-5 md:grid-cols-2">
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Nombre
+              Nombre del producto
             </span>
             <input
               name="name"
               defaultValue={values.name}
               className={fieldClassName()}
+              autoCapitalize="sentences"
               required
             />
           </label>
@@ -159,19 +177,6 @@ export function AdminMenuItemForm({
             />
           </label>
 
-          <label className="block">
-            <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Orden
-            </span>
-            <input
-              name="sortOrder"
-              type="number"
-              min="0"
-              defaultValue={values.sortOrder}
-              className={fieldClassName()}
-            />
-          </label>
-
           <label className="block md:col-span-2">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
               Descripción
@@ -181,10 +186,19 @@ export function AdminMenuItemForm({
               rows={4}
               defaultValue={values.description}
               className={`${fieldClassName()} resize-y`}
+              placeholder="Qué es, cómo se prepara y qué lo hace especial."
             />
           </label>
+          </div>
+        </section>
 
-          <fieldset className="rounded-[1.35rem] border border-white/10 bg-[color:var(--surface-strong)] p-4 md:col-span-2 sm:p-5">
+        <AdminFormDisclosure
+          eyebrow="Revisión obligatoria"
+          title="Alérgenos y posibles trazas"
+          description="Revísalos antes de publicar. Si faltan datos, la ficha lo indicará claramente."
+          defaultOpen={selectedAllergens.length === 0}
+        >
+          <fieldset className="rounded-xl border border-[#741314]/10 bg-white p-4 sm:p-5">
             <legend className="px-1 text-sm font-semibold text-[color:var(--foreground)]">
               Información alimentaria
             </legend>
@@ -228,13 +242,13 @@ export function AdminMenuItemForm({
             </div>
 
             <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {allergenOptions.map((option) => (
+              {menuItemAllergenOptions.map((option) => (
                 <label
                   key={option.value}
                   className={`group flex min-h-12 cursor-pointer items-center gap-3 rounded-[0.9rem] border px-3 py-2.5 text-sm font-medium transition ${
                     selectedAllergens.includes(option.value)
-                      ? "border-[color:var(--brand)] bg-[color:var(--brand-soft)] text-[color:var(--foreground)]"
-                      : "border-white/10 bg-white/[0.04] text-[color:var(--muted-strong)] hover:border-white/20 hover:text-[color:var(--foreground)]"
+                      ? "border-[#741314] bg-[#FFE9EC] text-[#381932]"
+                      : "border-[#741314]/12 bg-[#FFF7E8] text-[#381932]/72 hover:border-[#741314]/30"
                   }`}
                 >
                   <input
@@ -257,7 +271,7 @@ export function AdminMenuItemForm({
                     className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[0.4rem] border transition ${
                       selectedAllergens.includes(option.value)
                         ? "border-[color:var(--brand)] bg-[color:var(--brand)] text-white"
-                        : "border-white/20 bg-white/5 text-transparent group-hover:border-white/35"
+                        : "border-[#741314]/22 bg-white text-transparent group-hover:border-[#741314]/40"
                     }`}
                   >
                     <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -267,7 +281,7 @@ export function AdminMenuItemForm({
               ))}
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[#741314]/10 pt-4">
               <p className="max-w-2xl text-xs leading-5 text-[color:var(--muted-strong)]">
                 Si no se selecciona ninguno, Pickyalo mostrará “Alérgenos pendientes” para no confundir falta de información con ausencia de alérgenos o trazas.
               </p>
@@ -282,8 +296,16 @@ export function AdminMenuItemForm({
               ) : null}
             </div>
           </fieldset>
+        </AdminFormDisclosure>
 
-          <div className="grid gap-4 md:col-span-2 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#741314]/60">
+              Imagen pública
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-[#381932]">Comprueba cómo se verá</h2>
+          </div>
+          <div className="mt-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]">
             <label className="block">
               <span className="text-sm font-medium text-[color:var(--foreground)]">
                 Imagen
@@ -291,6 +313,7 @@ export function AdminMenuItemForm({
               <input
                 name="imageUrl"
                 type="url"
+                inputMode="url"
                 defaultValue={values.imageUrl}
                 className={fieldClassName()}
                 placeholder="https://..."
@@ -301,12 +324,12 @@ export function AdminMenuItemForm({
               />
             </label>
 
-            <div className="rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] p-3">
+            <div className="rounded-xl border border-[#741314]/12 bg-white p-3">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-[color:var(--muted)]">
                 Vista previa
               </p>
 
-              <div className="mt-3 overflow-hidden rounded-[1rem] border border-white/10 bg-white/5">
+              <div className="mt-3 overflow-hidden rounded-lg border border-[#741314]/10 bg-[#FFF7E8]">
                 {trimmedImageUrl ? (
                   hasPreview ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -329,55 +352,87 @@ export function AdminMenuItemForm({
               </div>
             </div>
           </div>
+        </section>
 
-          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+        <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
+          <div className="flex items-start gap-4">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#741314] text-sm font-bold text-[#FFF7E8]">
+              2
+            </span>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#741314]/60">Disponibilidad</p>
+              <h2 className="mt-1 text-xl font-semibold text-[#381932]">Controla si puede elegirse</h2>
+            </div>
+          </div>
+          <label className="mt-6 flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-[#741314]/12 bg-white px-4 py-4 has-[:checked]:border-emerald-600/30 has-[:checked]:bg-emerald-50">
             <input
               name="isAvailable"
               type="checkbox"
               defaultChecked={values.isAvailable}
-              className="h-4 w-4 accent-[color:var(--brand)]"
+              className="h-5 w-5 accent-emerald-600"
             />
-            <span className="text-sm text-[color:var(--muted-strong)]">
-              Plato disponible
+            <span>
+              <span className="block text-sm font-semibold text-[#381932]">Producto disponible</span>
+              <span className="mt-1 block text-xs leading-5 text-[#381932]/60">Desactívalo temporalmente sin borrar su ficha.</span>
             </span>
           </label>
+        </section>
 
-          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+        <AdminFormDisclosure
+          eyebrow="Promoción y orden"
+          title="Ajustes editoriales"
+          description="Úsalos solo cuando quieras cambiar la posición o destacar este producto."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+          <label className="flex min-h-14 items-center gap-3 rounded-xl border border-[#741314]/12 bg-white px-4 py-4">
             <input
               name="isFeatured"
               type="checkbox"
               defaultChecked={values.isFeatured}
-              className="h-4 w-4 accent-[color:var(--brand)]"
+              className="h-5 w-5 accent-[#741314]"
             />
             <span className="text-sm text-[color:var(--muted-strong)]">
               Marcar como destacado
             </span>
           </label>
 
-          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+          <label className="flex min-h-14 items-center gap-3 rounded-xl border border-[#741314]/12 bg-white px-4 py-4">
             <input
               name="isHomeFeatured"
               type="checkbox"
               defaultChecked={values.isHomeFeatured}
-              className="h-4 w-4 accent-[color:var(--brand)]"
+              className="h-5 w-5 accent-[#741314]"
             />
             <span className="text-sm text-[color:var(--muted-strong)]">
               Mostrar en destacados de la home
             </span>
           </label>
 
-          <label className="flex items-center gap-3 rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-4">
+          <label className="flex min-h-14 items-center gap-3 rounded-xl border border-[#741314]/12 bg-white px-4 py-4">
             <input
               name="isPickupMonthHighlight"
               type="checkbox"
               defaultChecked={values.isPickupMonthHighlight}
-              className="h-4 w-4 accent-[color:var(--accent)]"
+              className="h-5 w-5 accent-[#741314]"
             />
             <span className="text-sm text-[color:var(--muted-strong)]">
               Marcar como más recogido del mes
             </span>
           </label>
-        </div>
+          <label className="block">
+            <span className="text-sm font-medium text-[#381932]">Orden visual</span>
+            <input
+              name="sortOrder"
+              type="number"
+              inputMode="numeric"
+              min="0"
+              defaultValue={values.sortOrder}
+              className={fieldClassName()}
+              placeholder="0"
+            />
+          </label>
+          </div>
+        </AdminFormDisclosure>
 
         <div className="sticky bottom-3 z-30 flex flex-wrap gap-3 rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]/95 p-2 shadow-[0_16px_40px_rgba(56,25,50,0.12)] backdrop-blur-md">
           <button

@@ -36,9 +36,14 @@ export default async function AdminVenueMenuItemsPage({ params, searchParams }: 
         title={`Selección de ${venue.name}`}
         description="Busca, edita o pausa productos desde una vista clara."
         action={
-          <Link href={`/panel/locales/${venue.id}/platos/nuevo`} className="inline-flex min-h-11 items-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8]">
-            Crear producto
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href={`/panel/scout?tipo=product&venueId=${venue.id}`} className="inline-flex min-h-11 items-center rounded-full border border-[#741314]/18 bg-white px-5 text-sm font-bold text-[#741314]">
+              Scout producto
+            </Link>
+            <Link href={`/panel/locales/${venue.id}/platos/nuevo`} className="inline-flex min-h-11 items-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8]">
+              Crear producto
+            </Link>
+          </div>
         }
       />
 
@@ -58,6 +63,7 @@ export default async function AdminVenueMenuItemsPage({ params, searchParams }: 
               { label: "Todos", value: "" },
               { label: "Disponibles", value: "available" },
               { label: "Pausados", value: "paused" },
+              { label: "Pendientes de completar", value: "pending" },
             ],
           },
         ]}
@@ -87,15 +93,25 @@ export default async function AdminVenueMenuItemsPage({ params, searchParams }: 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <h2 className="min-w-0 flex-1 font-semibold text-[#381932]">{item.name}</h2>
-                        <AdminStatusBadge tone={item.isAvailable ? "success" : "neutral"}>{item.isAvailable ? "Disponible" : "Pausado"}</AdminStatusBadge>
+                        {item.captureStatus === "pending" ? (
+                          <AdminStatusBadge tone="warning">Pendiente</AdminStatusBadge>
+                        ) : (
+                          <AdminStatusBadge tone={item.isAvailable ? "success" : "neutral"}>{item.isAvailable ? "Disponible" : "Pausado"}</AdminStatusBadge>
+                        )}
                       </div>
                       <p className="mt-1 text-sm text-[#381932]/60">{item.categoryName ?? "Sin categoría"}</p>
-                      <p className="mt-2 font-semibold text-[#381932]">{formatPrice(item.priceAmount, item.currency)}</p>
+                      <p className="mt-2 font-semibold text-[#381932]">
+                        {item.captureStatus === "pending" ? "Precio pendiente" : formatPrice(item.priceAmount, item.currency)}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     <Link href={`/panel/locales/${venue.id}/platos/${item.id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8]">Editar</Link>
-                    <form action={toggleAction}><button type="submit" className="min-h-11 w-full rounded-xl border border-[#741314]/18 bg-white px-3 text-sm font-bold text-[#741314]">{item.isAvailable ? "Pausar" : "Activar"}</button></form>
+                    {item.captureStatus === "pending" ? (
+                      <span className="inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-3 text-center text-sm font-bold text-amber-900">Completa antes</span>
+                    ) : (
+                      <form action={toggleAction}><button type="submit" className="min-h-11 w-full rounded-xl border border-[#741314]/18 bg-white px-3 text-sm font-bold text-[#741314]">{item.isAvailable ? "Pausar" : "Activar"}</button></form>
+                    )}
                   </div>
                 </article>
               );
@@ -119,10 +135,10 @@ export default async function AdminVenueMenuItemsPage({ params, searchParams }: 
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={item.imageUrl} alt="" width={48} height={48} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                       ) : null}</div><div><p className="font-semibold">{item.name}</p><p className="mt-1 text-xs text-[#381932]/55">{item.categoryName ?? "Sin categoría"}</p></div></div></td>
-                      <td className="px-5 py-4 font-semibold">{formatPrice(item.priceAmount, item.currency)}</td>
-                      <td className="px-5 py-4"><AdminStatusBadge tone={item.isAvailable ? "success" : "neutral"}>{item.isAvailable ? "Disponible" : "Pausado"}</AdminStatusBadge></td>
+                      <td className="px-5 py-4 font-semibold">{item.captureStatus === "pending" ? "Pendiente" : formatPrice(item.priceAmount, item.currency)}</td>
+                      <td className="px-5 py-4">{item.captureStatus === "pending" ? <AdminStatusBadge tone="warning">Pendiente</AdminStatusBadge> : <AdminStatusBadge tone={item.isAvailable ? "success" : "neutral"}>{item.isAvailable ? "Disponible" : "Pausado"}</AdminStatusBadge>}</td>
                       <td className="px-5 py-4"><div className="flex flex-wrap gap-2">{item.isFeatured ? <AdminStatusBadge tone="info">Destacado</AdminStatusBadge> : null}{item.isPickupMonthHighlight ? <AdminStatusBadge tone="warning">Top del mes</AdminStatusBadge> : null}{!item.isFeatured && !item.isPickupMonthHighlight ? <span className="text-[#381932]/50">Normal</span> : null}</div></td>
-                      <td className="px-5 py-4"><div className="flex justify-end gap-2"><Link href={`/panel/locales/${venue.id}/platos/${item.id}`} className="inline-flex min-h-11 items-center rounded-xl border border-[#741314]/18 bg-white px-4 font-bold text-[#741314]">Editar</Link><form action={toggleAction}><button type="submit" className="min-h-11 rounded-xl px-3 font-bold text-[#741314]">{item.isAvailable ? "Pausar" : "Activar"}</button></form></div></td>
+                      <td className="px-5 py-4"><div className="flex justify-end gap-2"><Link href={`/panel/locales/${venue.id}/platos/${item.id}`} className="inline-flex min-h-11 items-center rounded-xl border border-[#741314]/18 bg-white px-4 font-bold text-[#741314]">Editar</Link>{item.captureStatus === "pending" ? <span className="inline-flex min-h-11 items-center px-3 font-bold text-amber-800">Completa antes</span> : <form action={toggleAction}><button type="submit" className="min-h-11 rounded-xl px-3 font-bold text-[#741314]">{item.isAvailable ? "Pausar" : "Activar"}</button></form>}</div></td>
                     </tr>
                   );
                 })}

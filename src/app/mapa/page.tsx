@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { SiteHeader } from "@/components/layout/site-header";
+import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { VenuesMap } from "@/components/venues-map/venues-map";
 import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
 import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
@@ -15,7 +16,7 @@ export const metadata: Metadata = getNoIndexMetadata({
 });
 
 type MapaPageProps = {
-  searchParams?: { lugar?: string };
+  searchParams?: { lugar?: string; localizar?: string };
 };
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
@@ -34,8 +35,10 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         places={places}
         categories={categories}
         initialPlaceSlug={searchParams?.lugar}
+        autoLocate={searchParams?.localizar === "1"}
         withSiteHeader
       />
+      <ZylenPickFooter theme="light" />
     </div>
   );
 }

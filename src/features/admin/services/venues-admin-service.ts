@@ -27,6 +27,7 @@ export type AdminVenueListItem = {
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
   cityName: string | null;
+  captureStatus: "pending" | "complete";
 };
 
 export type AdminVenueListResult = {
@@ -59,6 +60,9 @@ export type AdminVenueFormValues = {
   subscriptionTier: "basic" | "oro" | "titanio";
   sortOrder: string;
   openingHours: OpeningHoursValue;
+  captureStatus?: "pending" | "complete";
+  scoutNote?: string;
+  observedHours?: string;
 };
 
 export type AdminJoinRequestPrefill = {
@@ -401,7 +405,7 @@ export async function getAdminVenues({
   let venuesQuery = supabase
     .from("venues")
     .select(
-      "id, name, slug, email, phone, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, cities(name)",
+      "id, name, slug, email, phone, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, capture_status, cities(name)",
       { count: "exact" },
     )
     .order("sort_order", { ascending: true, nullsFirst: false })
@@ -413,6 +417,7 @@ export async function getAdminVenues({
   if (status === "hidden") venuesQuery = venuesQuery.eq("is_published", false);
   if (status === "active") venuesQuery = venuesQuery.eq("is_active", true);
   if (status === "inactive") venuesQuery = venuesQuery.eq("is_active", false);
+  if (status === "pending") venuesQuery = venuesQuery.eq("capture_status", "pending");
 
   let { data, error, count } = await venuesQuery;
 
@@ -420,7 +425,7 @@ export async function getAdminVenues({
     let fallbackQuery = supabase
       .from("venues")
       .select(
-        "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, cities(name)",
+        "id, name, slug, email, phone, is_active, is_published, is_verified, subscription_active, subscription_tier, capture_status, cities(name)",
         { count: "exact" },
       )
       .order("sort_order", { ascending: true, nullsFirst: false })
@@ -432,6 +437,7 @@ export async function getAdminVenues({
     if (status === "hidden") fallbackQuery = fallbackQuery.eq("is_published", false);
     if (status === "active") fallbackQuery = fallbackQuery.eq("is_active", true);
     if (status === "inactive") fallbackQuery = fallbackQuery.eq("is_active", false);
+    if (status === "pending") fallbackQuery = fallbackQuery.eq("capture_status", "pending");
 
     const fallbackResult = await fallbackQuery;
 
@@ -461,6 +467,7 @@ export async function getAdminVenues({
       subscriptionActive: venue.subscription_active,
       subscriptionTier: venue.subscription_tier ?? "basic",
       cityName: venue.cities?.name ?? null,
+      captureStatus: venue.capture_status === "pending" ? "pending" : "complete",
     })),
     total: count ?? 0,
     page: safePage,
@@ -475,7 +482,7 @@ export async function getAdminVenueById(
   let { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, sort_order, opening_hours",
+      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, sort_order, opening_hours, capture_status, scout_note, observed_hours",
     )
     .eq("id", venueId)
     .maybeSingle();
@@ -484,7 +491,7 @@ export async function getAdminVenueById(
     const fallbackResult = await supabase
       .from("venues")
       .select(
-        "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours",
+        "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, subscription_active, subscription_tier, sort_order, opening_hours, capture_status, scout_note, observed_hours",
       )
       .eq("id", venueId)
       .maybeSingle();
@@ -526,6 +533,9 @@ export async function getAdminVenueById(
     subscriptionTier: data.subscription_tier ?? "basic",
     sortOrder: data.sort_order?.toString() ?? "",
     openingHours: normalizeOpeningHours(data.opening_hours),
+    captureStatus: data.capture_status === "pending" ? "pending" : "complete",
+    scoutNote: data.scout_note ?? "",
+    observedHours: data.observed_hours ?? "",
   };
 }
 
@@ -559,6 +569,7 @@ export async function createVenueAction(formData: FormData) {
     subscription_tier: values.subscriptionTier,
     sort_order: values.sortOrder ? Number(values.sortOrder) : null,
     opening_hours: values.openingHours,
+    capture_status: "complete",
   };
   let { data, error } = await supabase
     .from("venues")
@@ -644,6 +655,7 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
     subscription_tier: values.subscriptionTier,
     sort_order: values.sortOrder ? Number(values.sortOrder) : null,
     opening_hours: values.openingHours,
+    capture_status: "complete",
   };
   let { error } = await supabase
     .from("venues")

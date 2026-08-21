@@ -29,6 +29,7 @@ export type AdminMenuItemListItem = {
   isFeatured: boolean;
   isHomeFeatured: boolean;
   isPickupMonthHighlight: boolean;
+  captureStatus: "pending" | "complete";
 };
 
 export type AdminMenuItemListResult = {
@@ -62,6 +63,8 @@ export type AdminMenuItemFormValues = {
   isHomeFeatured: boolean;
   isPickupMonthHighlight: boolean;
   allergens: MenuItemAllergen[];
+  captureStatus?: "pending" | "complete";
+  scoutNote?: string;
 };
 
 type NormalizedMenuItemFormValues = Omit<AdminMenuItemFormValues, "id" | "venueId">;
@@ -235,7 +238,7 @@ export async function getAdminMenuItemsByVenueId(
   let baseQuery = supabase
     .from("menu_items")
     .select(
-      "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, venues(name, city_id, cities(name))",
+      "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, capture_status, venues(name, city_id, cities(name))",
       { count: "exact" },
     )
     .eq("venue_id", venueId)
@@ -245,7 +248,8 @@ export async function getAdminMenuItemsByVenueId(
 
   if (query.trim()) baseQuery = baseQuery.ilike("name", `%${query.trim()}%`);
   if (status === "available") baseQuery = baseQuery.eq("is_available", true);
-  if (status === "paused") baseQuery = baseQuery.eq("is_available", false);
+  if (status === "paused") baseQuery = baseQuery.eq("is_available", false).neq("capture_status", "pending");
+  if (status === "pending") baseQuery = baseQuery.eq("capture_status", "pending");
 
   const { data, error, count } = await baseQuery;
 
@@ -253,7 +257,7 @@ export async function getAdminMenuItemsByVenueId(
     let fallbackQuery = supabase
       .from("menu_items")
       .select(
-        "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, venues(name, city_id, cities(name))",
+        "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, capture_status, venues(name, city_id, cities(name))",
         { count: "exact" },
       )
       .eq("venue_id", venueId)
@@ -263,7 +267,8 @@ export async function getAdminMenuItemsByVenueId(
 
     if (query.trim()) fallbackQuery = fallbackQuery.ilike("name", `%${query.trim()}%`);
     if (status === "available") fallbackQuery = fallbackQuery.eq("is_available", true);
-    if (status === "paused") fallbackQuery = fallbackQuery.eq("is_available", false);
+    if (status === "paused") fallbackQuery = fallbackQuery.eq("is_available", false).neq("capture_status", "pending");
+    if (status === "pending") fallbackQuery = fallbackQuery.eq("capture_status", "pending");
 
     const { data: fallbackData, error: fallbackError, count: fallbackCount } =
       await fallbackQuery;
@@ -289,6 +294,7 @@ export async function getAdminMenuItemsByVenueId(
         isFeatured: false,
         isHomeFeatured: false,
         isPickupMonthHighlight: false,
+        captureStatus: item.capture_status === "pending" ? "pending" : "complete",
       })),
       total: fallbackCount ?? 0,
       page: safePage,
@@ -317,6 +323,7 @@ export async function getAdminMenuItemsByVenueId(
       isFeatured: item.is_featured,
       isHomeFeatured: item.is_home_featured,
       isPickupMonthHighlight: item.is_pickup_month_highlight,
+      captureStatus: item.capture_status === "pending" ? "pending" : "complete",
     })),
     total: count ?? 0,
     page: safePage,
@@ -332,7 +339,7 @@ export async function getAdminMenuItemById(
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, venue_id, name, description, price_amount, category_name, image_url, allergens, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight",
+      "id, venue_id, name, description, price_amount, category_name, image_url, allergens, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, capture_status, scout_note",
     )
     .eq("venue_id", venueId)
     .eq("id", menuItemId)
@@ -370,6 +377,8 @@ export async function getAdminMenuItemById(
       isHomeFeatured: fallbackData.is_home_featured,
       isPickupMonthHighlight: fallbackData.is_pickup_month_highlight,
       allergens: [],
+      captureStatus: "complete",
+      scoutNote: "",
     };
   }
 
@@ -405,6 +414,8 @@ export async function getAdminMenuItemById(
       isHomeFeatured: false,
       isPickupMonthHighlight: false,
       allergens: [],
+      captureStatus: "complete",
+      scoutNote: "",
     };
   }
 
@@ -430,6 +441,8 @@ export async function getAdminMenuItemById(
     isHomeFeatured: data.is_home_featured,
     isPickupMonthHighlight: data.is_pickup_month_highlight,
     allergens: normalizeMenuItemAllergens(data.allergens ?? []),
+    captureStatus: data.capture_status === "pending" ? "pending" : "complete",
+    scoutNote: data.scout_note ?? "",
   };
 }
 
@@ -471,6 +484,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
       is_featured: values.isFeatured,
       is_home_featured: values.isHomeFeatured,
       is_pickup_month_highlight: values.isPickupMonthHighlight,
+      capture_status: "complete",
     });
 
     if (fallbackError) {
@@ -536,6 +550,7 @@ export async function updateMenuItemAction(
       is_featured: values.isFeatured,
       is_home_featured: values.isHomeFeatured,
       is_pickup_month_highlight: values.isPickupMonthHighlight,
+      capture_status: "complete",
     })
     .eq("venue_id", venueId)
     .eq("id", menuItemId);
@@ -554,6 +569,7 @@ export async function updateMenuItemAction(
         is_featured: values.isFeatured,
         is_home_featured: values.isHomeFeatured,
         is_pickup_month_highlight: values.isPickupMonthHighlight,
+        capture_status: "complete",
       })
       .eq("venue_id", venueId)
       .eq("id", menuItemId);
@@ -577,6 +593,7 @@ export async function updateMenuItemAction(
         category_name: values.categoryName || null,
         sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
         is_available: values.isAvailable,
+        capture_status: "complete",
       })
       .eq("venue_id", venueId)
       .eq("id", menuItemId);
@@ -749,7 +766,7 @@ export async function getAdminMenuItemsByCityId(
   const baseQuery = supabase
     .from("menu_items")
     .select(
-      "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(name, city_id, cities!inner(id, name))",
+      "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, capture_status, venues!inner(name, city_id, cities!inner(id, name))",
     )
     .eq("venues.city_id", cityId)
     .order("is_home_featured", { ascending: false })
@@ -764,7 +781,7 @@ export async function getAdminMenuItemsByCityId(
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
       .select(
-        "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, venues!inner(name, city_id, cities!inner(id, name))",
+        "id, venue_id, name, category_name, image_url, price_amount, currency, sort_order, is_available, capture_status, venues!inner(name, city_id, cities!inner(id, name))",
       )
       .eq("venues.city_id", cityId)
       .order("sort_order", { ascending: true })
@@ -792,6 +809,7 @@ export async function getAdminMenuItemsByCityId(
       isFeatured: false,
       isHomeFeatured: false,
       isPickupMonthHighlight: false,
+      captureStatus: item.capture_status === "pending" ? "pending" : "complete",
     }));
   }
 
@@ -815,6 +833,7 @@ export async function getAdminMenuItemsByCityId(
     isFeatured: item.is_featured,
     isHomeFeatured: item.is_home_featured,
     isPickupMonthHighlight: item.is_pickup_month_highlight,
+    captureStatus: item.capture_status === "pending" ? "pending" : "complete",
   }));
 }
 

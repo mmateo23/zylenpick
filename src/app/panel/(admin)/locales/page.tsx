@@ -27,12 +27,20 @@ export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageP
         title="Locales y comercios"
         description="Busca una ficha, comprueba su estado y entra directamente a editarla."
         action={
-          <Link
-            href="/panel/locales/nuevo"
-            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
-          >
-            Crear local
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/panel/scout?tipo=venue"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#741314]/18 bg-white px-5 text-sm font-bold text-[#741314]"
+            >
+              Scout local
+            </Link>
+            <Link
+              href="/panel/locales/nuevo"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+            >
+              Crear local
+            </Link>
+          </div>
         }
       />
 
@@ -50,6 +58,7 @@ export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageP
               { label: "Ocultos", value: "hidden" },
               { label: "Activos", value: "active" },
               { label: "Inactivos", value: "inactive" },
+              { label: "Pendientes de completar", value: "pending" },
             ],
           },
         ]}
@@ -75,6 +84,9 @@ export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageP
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="min-w-0 truncate text-base font-semibold text-[#24110E]">{venue.name}</h2>
+                    {venue.captureStatus === "pending" ? (
+                      <AdminStatusBadge tone="warning">Pendiente</AdminStatusBadge>
+                    ) : null}
                     <AdminStatusBadge tone={venue.isPublished ? "success" : "neutral"}>
                       {venue.isPublished ? "Publicado" : "Oculto"}
                     </AdminStatusBadge>

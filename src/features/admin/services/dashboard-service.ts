@@ -46,6 +46,16 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
       .select("id", { count: "exact", head: true })
       .eq("capture_method", "scout")
       .eq("status", "draft"),
+    supabase
+      .from("venues")
+      .select("id", { count: "exact", head: true })
+      .eq("capture_method", "scout")
+      .eq("capture_status", "pending"),
+    supabase
+      .from("menu_items")
+      .select("id", { count: "exact", head: true })
+      .eq("capture_method", "scout")
+      .eq("capture_status", "pending"),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
@@ -59,6 +69,7 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
     menuItemsCount: results[2].count ?? 0,
     unavailableMenuItemsCount: results[3].count ?? 0,
     pendingJoinRequestsCount: results[4].count ?? 0,
-    pendingScoutCount: results[5].count ?? 0,
+    pendingScoutCount:
+      (results[5].count ?? 0) + (results[6].count ?? 0) + (results[7].count ?? 0),
   };
 }

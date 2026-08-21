@@ -4,13 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LayoutGrid, Map, MapPinned, ReceiptText, Store } from "lucide-react";
+import { Info, LayoutGrid, Map, MapPinned, ReceiptText, Store } from "lucide-react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
 import { ClockIcon } from "@/components/icons/clock-icon";
 import { CloseIcon } from "@/components/icons/close-icon";
 import { MenuIcon } from "@/components/icons/menu-icon";
-import { NearModeControl } from "@/components/location/near-mode-control";
 import { useCart } from "@/features/cart/hooks/use-cart";
 import {
   readSelectedCity,
@@ -24,22 +23,27 @@ type SiteHeaderProps = {
 };
 
 const navigationItems = [
-  { label: "Selecci\u00f3n", href: "/platos", Icon: LayoutGrid },
-  { label: "Zonas", href: "/zonas", Icon: MapPinned },
   { label: "Mapa", href: "/mapa", Icon: Map },
-  { label: "\u00danete", href: "/unete", Icon: Store },
+  { label: "Platos", href: "/platos", Icon: LayoutGrid },
+  { label: "Zonas", href: "/zonas", Icon: MapPinned },
 ];
 
 const mobileNavigationItems = [
-  { label: "Explorar selecci\u00f3n", href: "/platos" },
-  { label: "Zonas", href: "/zonas" },
   { label: "Explorar mapa", href: "/mapa" },
+  { label: "Explorar platos", href: "/platos" },
+  { label: "Zonas", href: "/zonas" },
   { label: "Tu cesta", href: "/cart" },
+  { label: "Pedidos", href: "/pedidos" },
   { label: "\u00danete", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
 ];
 
 const logoSrc = "/logo/LogoNuevo.svg";
+const mapDiscoveryHref = "/mapa?localizar=1";
+
+function getNavigationHref(href: string) {
+  return href === "/mapa" ? mapDiscoveryHref : href;
+}
 
 function formatActiveOrderTime(pickupAt: string | null | undefined) {
   if (!pickupAt) {
@@ -165,18 +169,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const desktopLeftDockItems = [
     navigationItems[0],
     navigationItems[1],
-    navigationItems[2],
   ];
   const desktopRightDockItems = [
-    navigationItems[3],
-    { label: "Pedidos", href: "/pedidos", Icon: ReceiptText },
+    navigationItems[2],
   ];
 
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-2 py-1.5 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
-          <div className="flex items-center justify-center gap-1.5 md:hidden">
+        <div className="rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+          <div className={`${showNavigation ? "grid grid-cols-[repeat(3,2.25rem)_3.5rem_repeat(3,2.25rem)] gap-px" : "flex gap-1"} items-center justify-center md:hidden`}>
             {showNavigation ? (
               <button
                 type="button"
@@ -194,21 +196,35 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
 
             {showNavigation ? (
               <Link
+                href={mapDiscoveryHref}
+                aria-label="Explorar mapa"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                  isItemActive("/mapa")
+                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
+                    : dockButtonClassName
+                }`}
+              >
+                <Map size={23} strokeWidth={2.05} />
+              </Link>
+            ) : null}
+
+            {showNavigation ? (
+              <Link
                 href="/platos"
-                aria-label="Explorar selección"
+                aria-label="Explorar platos"
                 className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
                   isItemActive("/platos")
                     ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
                     : dockButtonClassName
                 }`}
               >
-                <LayoutGrid size={22} strokeWidth={2.05} />
+                <LayoutGrid size={23} strokeWidth={2.05} />
               </Link>
             ) : null}
 
             <Link
               href="/"
-              className="inline-flex h-9 min-w-[5.45rem] items-center justify-center rounded-full px-2 transition hover:bg-[#741314]/8"
+              className="inline-flex h-9 w-14 items-center justify-center rounded-full px-1 transition hover:bg-[#741314]/8"
               aria-label="Ir al inicio"
             >
               <Image
@@ -217,22 +233,32 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 width={210}
                 height={42}
                 priority
-                className="h-auto w-[82px]"
+                className="h-auto w-[54px]"
               />
             </Link>
 
             {showNavigation ? (
-              <NearModeControl zoneHref={zoneHref} compact />
+              <Link
+                href={zoneHref}
+                aria-label={selectedCity?.name ? `Ver ${selectedCity.name}` : "Ver zonas"}
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                  isItemActive("/zonas")
+                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
+                    : dockButtonClassName
+                }`}
+              >
+                <MapPinned size={23} strokeWidth={2.05} />
+              </Link>
             ) : null}
 
             <Link
               href={orderAccessHref}
               aria-label={orderAccessLabel}
-              className={`relative inline-flex items-center justify-center rounded-full border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-9 min-w-[2.5rem] px-1.5 text-[10px] font-semibold tracking-[0.04em]" : "h-9 w-9"} ${orderButtonClassName}`}
+              className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${orderButtonClassName}`}
             >
               {showActiveOrderAccess ? (
                 <ActiveOrderIndicator
-                  timeLabel={activeOrderTimeLabel}
+                  timeLabel={null}
                   iconSize={16}
                 />
               ) : (
@@ -242,6 +268,20 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 </>
               )}
             </Link>
+
+            {showNavigation ? (
+              <Link
+                href="/pedidos"
+                aria-label="Tus pedidos"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                  isItemActive("/pedidos")
+                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
+                    : dockButtonClassName
+                }`}
+              >
+                <ReceiptText size={22} strokeWidth={2.05} />
+              </Link>
+            ) : null}
           </div>
 
           <div className="hidden items-center justify-center md:flex">
@@ -251,12 +291,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
             >
               {showNavigation
                 ? desktopLeftDockItems.map((item) => {
-                    if (item.href === "/zonas") {
-                      return <NearModeControl key={item.href} zoneHref={zoneHref} />;
-                    }
-
                     const Icon = item.Icon;
-                    const href = item.href;
+                    const href = getNavigationHref(item.href);
                     const label = item.label;
 
                     return (
@@ -298,11 +334,12 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
               {showNavigation
                 ? desktopRightDockItems.map((item) => {
                     const Icon = item.Icon;
+                    const href = item.href === "/zonas" ? zoneHref : item.href;
 
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
+                        href={href}
                         aria-label={item.label}
                         title={item.label}
                         className={`group/nav relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border outline-none transition duration-200 focus-visible:ring-2 focus-visible:ring-[#741314]/28 ${
@@ -324,7 +361,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 href={orderAccessHref}
                 aria-label={orderAccessLabel}
                 title={orderAccessLabel}
-                className={`relative inline-flex flex-col items-center justify-center gap-1 rounded-[1.25rem] border transition ${showActiveOrderAccess && activeOrderTimeLabel ? "h-14 min-w-[4.35rem] px-2 text-[10px] font-semibold tracking-[0.04em]" : "h-14 w-[4.35rem]"} ${orderButtonClassName}`}
+                className={`relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border px-1 text-[10px] font-semibold tracking-[0.04em] transition ${orderButtonClassName}`}
               >
                 {showActiveOrderAccess ? (
                   <ActiveOrderIndicator
@@ -355,7 +392,7 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
                     <Link
-                      href={item.href}
+                      href={getNavigationHref(item.href)}
                       className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
                           ? "bg-[#741314] text-[#FDE3AD]"
@@ -374,6 +411,14 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                         />
                       ) : item.href === "/mapa" ? (
                         <Map size={21} className="shrink-0" />
+                      ) : item.href === "/platos" ? (
+                        <LayoutGrid size={21} className="shrink-0" />
+                      ) : item.href === "/pedidos" ? (
+                        <ReceiptText size={21} className="shrink-0" />
+                      ) : item.href === "/unete" ? (
+                        <Store size={21} className="shrink-0" />
+                      ) : item.href === "/el-proyecto" ? (
+                        <Info size={21} className="shrink-0" />
                       ) : null}
                       <span>{item.label}</span>
                     </Link>

@@ -203,6 +203,7 @@ export async function getVenuesForMap(): Promise<VenueMapItem[]> {
     )
     .eq("is_active", true)
     .eq("is_published", true)
+    .eq("subscription_active", true)
     .order("name", { ascending: true });
 
   if (error) {

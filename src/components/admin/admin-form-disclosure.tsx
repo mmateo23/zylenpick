@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 type AdminFormDisclosureProps = {
@@ -16,10 +19,13 @@ export function AdminFormDisclosure({
   children,
   defaultOpen = false,
 }: AdminFormDisclosureProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
   return (
     <details
       className="group rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7"
-      open={defaultOpen}
+      open={isOpen}
+      onToggle={(event) => setIsOpen(event.currentTarget.open)}
     >
       <summary className="flex cursor-pointer list-none items-start justify-between gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-4 [&::-webkit-details-marker]:hidden">
         <span>

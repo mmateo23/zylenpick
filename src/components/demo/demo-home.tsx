@@ -771,10 +771,10 @@ export function DemoHome({
               Ver platos
             </Link>
             <Link
-              href={getZonesHref(selectedCity)}
+              href="/mapa?localizar=1"
               className="inline-flex items-center justify-center rounded-full border border-[#741314]/55 bg-[#FDE3AD]/72 px-5 py-3.5 text-sm font-semibold text-[#741314] shadow-[0_14px_36px_rgba(116,19,20,0.10)] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD] md:cursor-none"
             >
-              Explorar zonas
+              Ver mapa
             </Link>
           </div>
           </div>

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, Sparkles, Store, X } from "lucide-react";
+import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, ShoppingBag, Sparkles, X } from "lucide-react";
 
 import { PlacePost } from "@/components/map-places/place-post";
 import {
@@ -27,6 +27,7 @@ import type {
 import {
   formatDistanceLabel,
   getDistanceInKm,
+  getUserLocationLabel,
   getUserLocationErrorMessage,
   readUserLocation,
   requestUserLocation,
@@ -41,6 +42,7 @@ type VenuesMapProps = {
   categories?: MapPlaceCategoryDefinition[];
   demoMode?: boolean;
   initialPlaceSlug?: string;
+  autoLocate?: boolean;
   withSiteHeader?: boolean;
 };
 
@@ -93,28 +95,6 @@ function getInitialCenter(venues: VenueMapItem[], places: PublicMapPlace[]): [nu
     points.reduce((total, point) => total + point[0], 0) / points.length,
     points.reduce((total, point) => total + point[1], 0) / points.length,
   ];
-}
-
-function getStaticMapUrl(
-  accessToken: string,
-  venues: VenueMapItem[],
-  places: PublicMapPlace[],
-) {
-  const points = [
-    ...venues.map((venue) => [venue.longitude, venue.latitude] as const),
-    ...places.map((place) => [place.longitude, place.latitude] as const),
-  ];
-  const center = getInitialCenter(venues, places);
-  const longitudeRange = points.length > 1
-    ? Math.max(...points.map((point) => point[0])) - Math.min(...points.map((point) => point[0]))
-    : 0;
-  const latitudeRange = points.length > 1
-    ? Math.max(...points.map((point) => point[1])) - Math.min(...points.map((point) => point[1]))
-    : 0;
-  const largestRange = Math.max(longitudeRange, latitudeRange, 0.002);
-  const zoom = Math.max(5, Math.min(15, Math.floor(Math.log2(360 / largestRange)) - 1));
-  const viewport = `${center[0].toFixed(5)},${center[1].toFixed(5)},${zoom},0`;
-  return `https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/${viewport}/1200x800?access_token=${encodeURIComponent(accessToken)}`;
 }
 
 function createPlaceAreasData(
@@ -178,6 +158,10 @@ function applyPickyaloMapStyle(map: MapboxMap) {
       }
 
       if (layer.type === "symbol") {
+        if (id.includes("poi")) {
+          map.setLayoutProperty(layer.id, "visibility", "none");
+          return;
+        }
         map.setPaintProperty(layer.id, "text-color", "#4A263D");
         map.setPaintProperty(layer.id, "text-halo-color", "#FFF7E8");
         map.setPaintProperty(layer.id, "text-halo-width", 1.35);
@@ -192,6 +176,7 @@ function createVenueMarkerElement() {
   const element = document.createElement("button");
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--venue";
+  element.dataset.markerImportance = "pickup";
   element.innerHTML = '<img aria-hidden="true" alt="" src="/icons/pickyalo-favicon-32.png" width="32" height="32" draggable="false" />';
   return element;
 }
@@ -201,10 +186,56 @@ function createPlaceMarkerElement(place: PublicMapPlace) {
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--place";
   element.dataset.category = place.category;
+  element.dataset.markerImportance = place.planRole;
+
+  const usesThumbnail = place.planRole === "discover" && Boolean(place.coverImageUrl);
+  if (usesThumbnail) {
+    element.classList.add("pickyalo-map-marker--landmark");
+    const image = document.createElement("img");
+    image.src = place.coverImageUrl ?? "";
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+    image.draggable = false;
+    image.addEventListener("error", () => {
+      image.remove();
+      element.classList.remove("pickyalo-map-marker--landmark");
+      element.classList.add("pickyalo-map-marker--image-fallback");
+      element.style.setProperty("--marker-size", "50px");
+    });
+    element.append(image);
+
+    const iconBadge = document.createElement("span");
+    iconBadge.className = "pickyalo-map-marker-icon";
+    element.append(iconBadge);
+    const root = createRoot(iconBadge);
+    root.render(<MapPlaceIcon name={place.iconName} aria-hidden="true" />);
+    placeMarkerRoots.set(element, root);
+    return element;
+  }
+
   const root = createRoot(element);
   root.render(<MapPlaceIcon name={place.iconName} aria-hidden="true" />);
   placeMarkerRoots.set(element, root);
   return element;
+}
+
+function updateMarkerSizes(map: MapboxMap, markers: Marker[]) {
+  const progress = Math.min(1, Math.max(0, (map.getZoom() - 11.5) / 5));
+
+  markers.forEach((marker) => {
+    const element = marker.getElement();
+    const importance = element.dataset.markerImportance;
+    const [minimum, maximum] = element.classList.contains("pickyalo-map-marker--landmark")
+      ? [58, 76]
+      : importance === "pickup"
+        ? [46, 54]
+        : importance === "discover"
+          ? [46, 56]
+          : [44, 50];
+    const size = Math.round(minimum + (maximum - minimum) * progress);
+    element.style.setProperty("--marker-size", `${size}px`);
+  });
 }
 
 function removeMapMarker(marker: Marker) {
@@ -303,6 +334,7 @@ export function VenuesMap({
   categories = mapPlaceCategories,
   demoMode = false,
   initialPlaceSlug,
+  autoLocate = false,
   withSiteHeader = false,
 }: VenuesMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -319,6 +351,7 @@ export function VenuesMap({
         : null,
   );
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [userLocationLabel, setUserLocationLabel] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [openPlace, setOpenPlace] = useState<PublicMapPlace | null>(null);
@@ -327,6 +360,7 @@ export function VenuesMap({
   const [immersiveFiltersOpen, setImmersiveFiltersOpen] = useState(false);
   const [quickPlanOpen, setQuickPlanOpen] = useState(false);
   const initialPlaceHandledRef = useRef(false);
+  const autoLocateHandledRef = useRef(false);
   const {
     scrollRef: mobileSelectionRef,
     canScrollMore: canScrollMobileSelection,
@@ -336,10 +370,6 @@ export function VenuesMap({
   );
 
   const initialCenter = useMemo(() => getInitialCenter(venues, places), [venues, places]);
-  const staticMapUrl = useMemo(
-    () => (accessToken ? getStaticMapUrl(accessToken, venues, places) : null),
-    [accessToken, places, venues],
-  );
   const availableCategories = useMemo(
     () => categories.filter((category) => places.some((place) => place.category === category.value)),
     [categories, places],
@@ -483,13 +513,27 @@ export function VenuesMap({
   const activeFilterLabel = useMemo(() => {
     if (filter === "all") return "Todo";
     if (filter === "nearby") return "Cerca de ti";
-    if (filter === "venues") return "Locales";
+    if (filter === "venues") return "Recogida";
     return availableCategories.find((category) => category.value === filter)?.shortLabel ?? "Explorar";
   }, [availableCategories, filter]);
 
   useEffect(() => {
     setUserLocation(readUserLocation());
   }, []);
+
+  useEffect(() => {
+    if (!userLocation || !accessToken) {
+      setUserLocationLabel(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    void getUserLocationLabel(accessToken, userLocation, controller.signal).then((label) => {
+      if (!controller.signal.aborted) setUserLocationLabel(label);
+    });
+
+    return () => controller.abort();
+  }, [accessToken, userLocation]);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => mapRef.current?.resize());
@@ -635,6 +679,7 @@ export function VenuesMap({
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     let cancelled = false;
+    let removeZoomListener: (() => void) | null = null;
     markersRef.current.forEach(removeMapMarker);
     markersRef.current = [];
 
@@ -702,10 +747,15 @@ export function VenuesMap({
         );
       });
       markersRef.current = markers;
+      const handleZoom = () => updateMarkerSizes(map, markers);
+      handleZoom();
+      map.on("zoom", handleZoom);
+      removeZoomListener = () => map.off("zoom", handleZoom);
     });
 
     return () => {
       cancelled = true;
+      removeZoomListener?.();
       markersRef.current.forEach(removeMapMarker);
       markersRef.current = [];
     };
@@ -726,6 +776,24 @@ export function VenuesMap({
     });
     return () => { cancelled = true; };
   }, [mapReady, userLocation]);
+
+  useEffect(() => {
+    if (!autoLocate || !mapReady || autoLocateHandledRef.current) return;
+    autoLocateHandledRef.current = true;
+
+    const savedLocation = readUserLocation();
+    if (savedLocation) {
+      setUserLocation(savedLocation);
+      mapRef.current?.flyTo({
+        center: [savedLocation.longitude, savedLocation.latitude],
+        zoom: 15,
+        essential: true,
+      });
+      return;
+    }
+
+    void locateUser();
+  }, [autoLocate, mapReady]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current || !initialPlaceSlug || initialPlaceHandledRef.current) return;
@@ -773,6 +841,7 @@ export function VenuesMap({
         setQuickPlanOpen(true);
       }
       mapRef.current?.flyTo({ center: [location.longitude, location.latitude], zoom: 15, essential: true });
+      setLocationMessage("Ubicación aproximada encontrada.");
     } catch (error) {
       setLocationMessage(getUserLocationErrorMessage(error));
     } finally {
@@ -890,7 +959,7 @@ export function VenuesMap({
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#741314]">Explora cerca</p>
               {demoMode ? (
-                <span className="rounded-full border border-[#741314]/16 bg-[#FFF7E8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
+                <span className="rounded-full border border-[#741314] bg-[#FFF7E8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
                   Demo visual · sin publicar
                 </span>
               ) : null}
@@ -899,7 +968,7 @@ export function VenuesMap({
             <p className="mt-4 max-w-2xl text-sm leading-6 text-[#381932]/68 sm:text-base">
               {demoMode
                 ? "Una muestra de cómo convivirían locales, parques, mesas y servicios en el explorador."
-                : "Locales, parques, mesas y lugares útiles marcados y revisados por Pickyalo."}
+                : "Puntos de recogida, parques, monumentos y lugares útiles marcados y revisados por Pickyalo."}
             </p>
           </div>
           <div className="group relative mx-auto flex w-full max-w-[21rem] flex-col items-center lg:mx-0 lg:ml-auto">
@@ -919,35 +988,33 @@ export function VenuesMap({
               type="button"
               onClick={() => void locateUser()}
               disabled={locating}
-              className="relative mt-1 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#741314]/18 bg-white/80 px-4 py-2.5 text-sm font-bold text-[#741314] shadow-[0_10px_26px_rgba(116,19,20,0.08)] backdrop-blur-sm transition hover:border-[#741314]/32 hover:bg-white disabled:opacity-55 sm:w-auto"
+              className="relative mt-1 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#741314] bg-white/80 px-4 py-2.5 text-sm font-bold text-[#741314] shadow-[0_10px_26px_rgba(116,19,20,0.08)] backdrop-blur-sm transition hover:bg-white disabled:opacity-55 sm:w-auto"
             >
               <LocateFixed className="h-4 w-4" aria-hidden="true" />
               {locating ? "Localizando..." : userLocation ? "Centrar en mí" : "Usar mi ubicación"}
             </button>
+            {userLocation ? (
+              <p className="mt-2 flex max-w-[21rem] items-center justify-center gap-1.5 text-center text-xs font-semibold leading-5 text-[#381932]/70" aria-live="polite">
+                <MapPin className="h-3.5 w-3.5 shrink-0 text-[#741314]" aria-hidden="true" />
+                {userLocationLabel ?? "Tu ubicación aproximada"}
+              </p>
+            ) : null}
           </div>
         </header>
 
         <div className="mt-6 grid grid-cols-3 border-y border-[#741314]/12 py-4 sm:max-w-2xl">
-          <MapSummaryItem icon={<Store className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Locales" />
+          <MapSummaryItem icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Recogida" />
           <MapSummaryItem icon={<MapPin className="h-4 w-4" aria-hidden="true" />} value={places.length} label="Lugares" />
           <MapSummaryItem icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} value={activeFilterLabel} label="Viendo" />
         </div>
 
-        <div className="mt-5 grid gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,7rem),1fr))]">
-          <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
-          <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
-          {venues.length > 0 ? <FilterChip icon={<Store className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
-          {availableCategories.map((category) => (
-            <FilterChip
-              key={category.value}
-              icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
-              active={filter === category.value}
-              onClick={() => selectMapFilter(category.value)}
-            >
-              {category.shortLabel}
-            </FilterChip>
-          ))}
-        </div>
+        <MapFilterControls
+          filter={filter}
+          categories={availableCategories}
+          hasPickupPoints={venues.length > 0}
+          onSelect={selectMapFilter}
+          className="mt-5"
+        />
 
         <button
           type="button"
@@ -979,18 +1046,11 @@ export function VenuesMap({
                   : "relative h-[60svh] min-h-[460px] rounded-[1.6rem] border border-[#741314]/55 shadow-[0_28px_80px_rgba(56,25,50,0.14)] sm:h-[68svh] lg:h-[calc(100svh-11rem)] lg:max-h-[780px]"
               }`}
             >
-              {staticMapUrl ? (
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url("${staticMapUrl}")` }}
-                />
-              ) : null}
               <div className="absolute inset-0 z-[1]">
                 <div ref={mapContainerRef} className="h-full w-full" />
               </div>
               <div
-                className={`pointer-events-none absolute left-3 z-[3] flex items-center gap-2 rounded-full border border-[#741314]/12 bg-[#FFF7E8]/90 px-3 py-2 text-[11px] font-bold text-[#741314] shadow-[0_10px_28px_rgba(56,25,50,0.12)] backdrop-blur-md sm:left-4 ${
+                className={`pointer-events-none absolute left-3 z-[3] flex items-center gap-2 rounded-full border border-[#741314] bg-[#FFF7E8]/90 px-3 py-2 text-[11px] font-bold text-[#741314] shadow-[0_10px_28px_rgba(56,25,50,0.12)] backdrop-blur-md sm:left-4 ${
                   isImmersive ? "top-[4.15rem] sm:top-[4.4rem]" : "top-3 sm:top-4"
                 }`}
               >
@@ -1005,7 +1065,7 @@ export function VenuesMap({
                     aria-expanded={immersiveFiltersOpen}
                     aria-controls="immersive-map-filters"
                     aria-label={immersiveFiltersOpen ? "Cerrar filtros del mapa" : "Abrir filtros del mapa"}
-                    className="absolute left-3 top-3 z-[8] inline-flex h-10 items-center gap-2 rounded-full border border-[#741314]/16 bg-[#FFF7E8]/95 px-3.5 text-xs font-bold text-[#741314] shadow-[0_14px_34px_rgba(56,25,50,0.18)] backdrop-blur-xl transition hover:bg-white sm:left-4 sm:top-4"
+                    className="absolute left-3 top-3 z-[8] inline-flex h-10 items-center gap-2 rounded-full border border-[#741314] bg-[#FFF7E8]/95 px-3.5 text-xs font-bold text-[#741314] shadow-[0_14px_34px_rgba(56,25,50,0.18)] backdrop-blur-xl transition hover:bg-white sm:left-4 sm:top-4"
                   >
                     <ListFilter className="h-[1.05rem] w-[1.05rem]" aria-hidden="true" />
                     Explorar
@@ -1029,21 +1089,13 @@ export function VenuesMap({
                           <X className="h-4 w-4" aria-hidden="true" />
                         </button>
                       </div>
-                      <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                        <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => selectMapFilter("all")}>Todo</FilterChip>
-                        <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => selectMapFilter("nearby")}>Cerca de ti</FilterChip>
-                        {venues.length > 0 ? <FilterChip icon={<Store className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => selectMapFilter("venues")}>Locales</FilterChip> : null}
-                        {availableCategories.map((category) => (
-                          <FilterChip
-                            key={category.value}
-                            icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
-                            active={filter === category.value}
-                            onClick={() => selectMapFilter(category.value)}
-                          >
-                            {category.shortLabel}
-                          </FilterChip>
-                        ))}
-                      </div>
+                      <MapFilterControls
+                        filter={filter}
+                        categories={availableCategories}
+                        hasPickupPoints={venues.length > 0}
+                        onSelect={selectMapFilter}
+                        compact
+                      />
                       <button
                         type="button"
                         onClick={openQuickPlan}
@@ -1074,7 +1126,7 @@ export function VenuesMap({
               ) : null}
               {!mobileSelectionOpen && !quickPlanOpen ? (
                 <div className="pointer-events-none absolute inset-x-3 bottom-3 z-[4] flex justify-center md:hidden">
-                  <p className="rounded-full border border-[#741314]/12 bg-[#FFF7E8]/94 px-3.5 py-2 text-center text-[11px] font-semibold text-[#381932] shadow-[0_12px_32px_rgba(56,25,50,0.14)] backdrop-blur-md">
+                  <p className="rounded-full border border-[#741314] bg-[#FFF7E8]/94 px-3.5 py-2 text-center text-[11px] font-semibold text-[#381932] shadow-[0_12px_32px_rgba(56,25,50,0.14)] backdrop-blur-md">
                     Toca un punto para ver sus datos
                   </p>
                 </div>
@@ -1138,15 +1190,22 @@ export function VenuesMap({
       </section>
 
       <style jsx global>{`
-        .pickyalo-map-marker { position:absolute; display:grid; place-items:center; width:46px; height:46px; border-radius:15px 15px 15px 5px; cursor:pointer; transition:transform 180ms ease, background-color 180ms ease, color 180ms ease; box-shadow:0 12px 28px rgba(56,25,50,.22),0 0 0 3px rgba(255,247,232,.7); }
+        .pickyalo-map-marker { --marker-size:46px; position:absolute; display:grid; width:var(--marker-size); height:var(--marker-size); place-items:center; border-radius:15px 15px 15px 5px; cursor:pointer; transition:width 140ms ease,height 140ms ease,transform 180ms ease,background-color 180ms ease,color 180ms ease; box-shadow:0 12px 28px rgba(56,25,50,.22),0 0 0 3px rgba(255,247,232,.76); }
         .pickyalo-map-marker::before { content:""; position:absolute; left:50%; bottom:-5px; width:10px; height:10px; transform:translateX(-50%) rotate(45deg); border-right:2px solid #741314; border-bottom:2px solid #741314; background:inherit; }
         .pickyalo-map-marker::after { content:attr(data-label); position:absolute; left:50%; bottom:calc(100% + 9px); max-width:180px; transform:translate(-50%,5px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid rgba(116,19,20,.12); border-radius:999px; background:rgba(255,247,232,.96); padding:6px 10px; color:#381932; font:700 11px/1.1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 10px 28px rgba(56,25,50,.15); opacity:0; pointer-events:none; transition:opacity 160ms ease,transform 160ms ease; }
         .pickyalo-map-marker:hover,.pickyalo-map-marker:focus-visible,.pickyalo-map-marker.is-active { transform:translateY(-4px) scale(1.07); z-index:3; }
         .pickyalo-map-marker.is-active { animation:pickyalo-map-marker-select 320ms cubic-bezier(.2,.8,.2,1); box-shadow:0 14px 32px rgba(56,25,50,.28),0 0 0 3px rgba(255,247,232,.92),0 0 0 8px rgba(116,19,20,.18); }
         .pickyalo-map-marker:hover::after,.pickyalo-map-marker:focus-visible::after,.pickyalo-map-marker.is-active::after { opacity:1; transform:translate(-50%,0); }
         .pickyalo-map-marker--venue { border:2px solid #741314; background:#FFF7E8; color:#741314; }
-        .pickyalo-map-marker--venue img { width:30px; height:30px; border-radius:9px; object-fit:cover; pointer-events:none; user-select:none; }
+        .pickyalo-map-marker--venue img { width:calc(var(--marker-size) - 14px); height:calc(var(--marker-size) - 14px); border-radius:9px; object-fit:cover; pointer-events:none; user-select:none; }
         .pickyalo-map-marker--place svg { width:23px; height:23px; }
+        .pickyalo-map-marker--landmark { overflow:visible; border:3px solid #FFF7E8; border-radius:16px 16px 16px 5px; background:#741314; box-shadow:0 16px 34px rgba(56,25,50,.28),0 0 0 2px rgba(116,19,20,.92); }
+        .pickyalo-map-marker--landmark::before { border-color:#741314; background:#FFF7E8; }
+        .pickyalo-map-marker--landmark > img { width:100%; height:100%; border-radius:12px 12px 12px 3px; object-fit:cover; pointer-events:none; user-select:none; }
+        .pickyalo-map-marker-icon { position:absolute; right:-7px; bottom:-7px; display:grid; width:25px; height:25px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; box-shadow:0 6px 14px rgba(56,25,50,.24); }
+        .pickyalo-map-marker-icon svg { width:13px!important; height:13px!important; }
+        .pickyalo-map-marker--image-fallback .pickyalo-map-marker-icon { position:static; width:auto; height:auto; border:0; background:transparent; box-shadow:none; }
+        .pickyalo-map-marker--image-fallback .pickyalo-map-marker-icon svg { width:23px!important; height:23px!important; }
         .pickyalo-map-marker.is-nearby { box-shadow:0 14px 34px rgba(56,25,50,.28),0 0 0 3px rgba(255,247,232,.94),0 0 0 8px rgba(116,19,20,.14); }
         .pickyalo-map-marker.is-plan-stop { box-shadow:0 14px 36px rgba(56,25,50,.3),0 0 0 3px rgba(255,247,232,.96),0 0 0 9px rgba(253,211,125,.72); }
         .pickyalo-map-rank { position:absolute; right:-7px; top:-8px; z-index:2; display:grid; width:21px; height:21px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; font:800 10px/1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 6px 14px rgba(56,25,50,.2); pointer-events:none; }
@@ -1288,6 +1347,58 @@ function MapSummaryItem({
   );
 }
 
+function MapFilterControls({
+  filter,
+  categories,
+  hasPickupPoints,
+  onSelect,
+  compact = false,
+  className = "",
+}: {
+  filter: MapFilter;
+  categories: MapPlaceCategoryDefinition[];
+  hasPickupPoints: boolean;
+  onSelect: (filter: MapFilter) => void;
+  compact?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`${className} space-y-3`}>
+      <div>
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
+          Cómo quieres explorar
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => onSelect("all")}>Todo</FilterChip>
+          <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => onSelect("nearby")}>Cerca de ti</FilterChip>
+          {hasPickupPoints ? (
+            <FilterChip icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => onSelect("venues")}>Recogida</FilterChip>
+          ) : null}
+        </div>
+      </div>
+      {categories.length > 0 ? (
+        <div>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
+            Categorías
+          </p>
+          <div className={`grid grid-cols-2 gap-2 ${compact ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-5"}`}>
+            {categories.map((category) => (
+              <FilterChip
+                key={category.value}
+                icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
+                active={filter === category.value}
+                onClick={() => onSelect(category.value)}
+              >
+                {category.shortLabel}
+              </FilterChip>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function FilterChip({
   active,
   onClick,
@@ -1304,14 +1415,14 @@ function FilterChip({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-1.5 rounded-full border px-3 py-2 text-center text-[10px] uppercase tracking-[0.12em] transition sm:px-3.5 sm:text-[11px] sm:tracking-[0.16em] ${
+      className={`inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-full border px-3 py-2.5 text-center text-xs leading-tight transition sm:px-3.5 sm:text-[13px] ${
         active
-          ? "border-[#741314]/40 bg-[#741314]/12 font-semibold text-[#741314] shadow-[0_8px_20px_rgba(116,19,20,0.08)]"
-          : "border-[#741314]/22 bg-white/54 font-medium text-[#381932]/60 hover:border-[#741314]/38 hover:bg-white/78"
+          ? "border-[#741314] bg-[#741314] font-bold text-[#FFF7E8] shadow-[0_8px_20px_rgba(116,19,20,0.16)]"
+          : "border-[#741314] bg-white/72 font-semibold text-[#381932]/74 hover:bg-white"
       }`}
     >
-      {icon ? <span className="shrink-0" aria-hidden="true">{icon}</span> : null}
-      {children}
+      {icon ? <span className="grid h-5 w-5 shrink-0 place-items-center" aria-hidden="true">{icon}</span> : null}
+      <span className="min-w-0 truncate">{children}</span>
     </button>
   );
 }
@@ -1388,7 +1499,7 @@ function PlaceSelection({
       {place.description ? <p className={`${compact ? "mt-2 line-clamp-2 text-xs leading-5" : "mt-4 text-sm leading-6"} text-[#381932]/68`}>{place.description}</p> : null}
       {!compact && place.amenities.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">
-          {place.amenities.map((amenity) => <span key={amenity} className="rounded-full border border-[#741314]/14 px-3 py-1.5 text-xs font-semibold text-[#741314]">{amenity}</span>)}
+          {place.amenities.map((amenity) => <span key={amenity} className="rounded-full border border-[#741314] bg-[#FFF7E8]/80 px-3 py-1.5 text-xs font-semibold text-[#741314]">{amenity}</span>)}
         </div>
       ) : null}
       {!compact && place.isAccessible ? <p className="mt-4 text-sm font-semibold text-[#741314]">Acceso adaptado indicado</p> : null}
@@ -1417,7 +1528,7 @@ function PlaceSelection({
 function DistanceChip({ distance }: { distance: number }) {
   const walkingMinutes = Math.max(1, Math.round(distance * 12));
   return (
-    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#741314]/[0.08] px-3 py-1.5 text-xs font-bold text-[#741314]">
+    <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-[#741314] bg-[#741314]/[0.08] px-3 py-1.5 text-xs font-bold text-[#741314]">
       <MapPin className="h-3.5 w-3.5" aria-hidden="true" /> A {formatDistanceLabel(distance)} · {walkingMinutes} min a pie
     </span>
   );

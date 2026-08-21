@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import { LayoutGrid, Map, MapPinned, Menu, ReceiptText, Store, X } from "lucide-react";
+import { Info, LayoutGrid, Map, MapPinned, Menu, ReceiptText, Store, X } from "lucide-react";
 import { CartIcon } from "@/components/icons/cart-icon";
 import { useCart } from "@/features/cart/hooks/use-cart";
 
@@ -22,13 +22,20 @@ type NavItem = {
 };
 
 const mobileNavigationItems: NavItem[] = [
-  { label: "Explorar selecci\u00f3n", href: "/platos" },
-  { label: "Zonas", href: "/zonas" },
   { label: "Explorar mapa", href: "/mapa" },
+  { label: "Explorar platos", href: "/platos" },
+  { label: "Zonas", href: "/zonas" },
   { label: "Tu cesta", href: "/cart" },
+  { label: "Pedidos", href: "/pedidos" },
   { label: "\u00danete", href: "/unete" },
   { label: "El proyecto", href: "/el-proyecto" },
 ];
+
+const mapDiscoveryHref = "/mapa?localizar=1";
+
+function getNavigationHref(href: string) {
+  return href === "/mapa" ? mapDiscoveryHref : href;
+}
 
 function getBadgeLabel(totalItems: number) {
   return totalItems > 9 ? "9+" : String(totalItems);
@@ -46,8 +53,6 @@ function CartBadge({ totalItems }: { totalItems: number }) {
   );
 }
 
-const logoSrc = "/logo/LogoNuevo_Negativo.svg";
-
 export function DemoSiteHeader({
   currentCityName = null,
   currentCitySlug = null,
@@ -58,10 +63,9 @@ export function DemoSiteHeader({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigationItems = useMemo<NavItem[]>(
     () => [
-      { label: "Selecci\u00f3n", href: "/platos", Icon: LayoutGrid },
-      { label: "Zonas", href: "/zonas", Icon: MapPinned },
       { label: "Mapa", href: "/mapa", Icon: Map },
-      { label: "\u00danete", href: "/unete", Icon: Store },
+      { label: "Platos", href: "/platos", Icon: LayoutGrid },
+      { label: "Zonas", href: "/zonas", Icon: MapPinned },
     ],
     [],
   );
@@ -73,7 +77,6 @@ export function DemoSiteHeader({
 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const headerLogoSrc = isLightTheme ? "/logo/LogoNuevo.svg" : logoSrc;
   const dockLogoSrc = "/logo/LogoNuevo.svg";
 
   const shellClassName = isLightTheme
@@ -110,11 +113,9 @@ export function DemoSiteHeader({
   const desktopLeftDockItems = [
     navigationItems[0],
     navigationItems[1],
-    navigationItems[2],
   ];
   const desktopRightDockItems = [
-    navigationItems[3],
-    { label: "Pedidos", href: "/pedidos", Icon: ReceiptText },
+    navigationItems[2],
   ];
 
   const mobileNavItemClassName = isLightTheme
@@ -127,11 +128,11 @@ export function DemoSiteHeader({
         <div
           className={
             isLightTheme
-              ? "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-2 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
-              : "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-2 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
+              ? "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
+              : "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
           }
         >
-          <div className="flex items-center justify-center gap-1.5 md:hidden">
+          <div className="grid grid-cols-[repeat(3,2.25rem)_3.5rem_repeat(3,2.25rem)] items-center justify-center gap-px md:hidden">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((value) => !value)}
@@ -144,20 +145,32 @@ export function DemoSiteHeader({
             </button>
 
             <Link
+              href={mapDiscoveryHref}
+              aria-label="Explorar mapa"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                isItemActive("/mapa")
+                  ? desktopNavItemActiveClassName
+                  : iconButtonClassName
+              }`}
+            >
+              <Map size={23} strokeWidth={2.05} />
+            </Link>
+
+            <Link
               href="/platos"
-              aria-label="Explorar selección"
+              aria-label="Explorar platos"
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
                 isItemActive("/platos")
                   ? desktopNavItemActiveClassName
                   : iconButtonClassName
               }`}
             >
-              <LayoutGrid size={22} strokeWidth={2.05} />
+              <LayoutGrid size={23} strokeWidth={2.05} />
             </Link>
 
             <Link
               href="/"
-              className="inline-flex h-9 min-w-[5.45rem] items-center justify-center rounded-full px-2 transition hover:bg-[#741314]/8"
+              className="inline-flex h-9 w-14 items-center justify-center rounded-full px-1 transition hover:bg-[#741314]/8"
               aria-label="Ir al inicio"
             >
               <Image
@@ -166,7 +179,7 @@ export function DemoSiteHeader({
                 width={210}
                 height={42}
                 priority
-                className="h-auto w-[82px]"
+                className="h-auto w-[54px]"
               />
             </Link>
 
@@ -179,7 +192,7 @@ export function DemoSiteHeader({
                   : iconButtonClassName
               }`}
             >
-              <MapPinned size={22} strokeWidth={2.05} />
+              <MapPinned size={23} strokeWidth={2.05} />
             </Link>
 
             <Link
@@ -190,6 +203,18 @@ export function DemoSiteHeader({
               <CartIcon size={22} />
               <CartBadge totalItems={totals.totalItems} />
             </Link>
+
+            <Link
+              href="/pedidos"
+              aria-label="Tus pedidos"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                isItemActive("/pedidos")
+                  ? desktopNavItemActiveClassName
+                  : iconButtonClassName
+              }`}
+            >
+              <ReceiptText size={22} strokeWidth={2.05} />
+            </Link>
           </div>
 
           <div className="hidden items-center justify-center md:flex">
@@ -199,7 +224,9 @@ export function DemoSiteHeader({
             >
               {desktopLeftDockItems.map((item) => {
                 const Icon = item.Icon;
-                const href = item.href === "/zonas" && currentCitySlug ? `/zonas/${currentCitySlug}` : item.href;
+                const href = item.href === "/zonas" && currentCitySlug
+                  ? `/zonas/${currentCitySlug}`
+                  : getNavigationHref(item.href);
                 const label =
                   item.href === "/zonas" && currentCityName ? currentCityName : item.label;
 
@@ -229,22 +256,25 @@ export function DemoSiteHeader({
                 aria-label="Ir al inicio"
               >
                 <Image
-                  src={headerLogoSrc}
+                  src={dockLogoSrc}
                   alt="Pickyalo"
                   width={210}
                   height={42}
                   priority
-                  className="h-auto w-[108px]"
+                  className="h-auto w-[116px]"
                 />
               </Link>
 
               {desktopRightDockItems.map((item) => {
                 const Icon = item.Icon;
+                const href = item.href === "/zonas" && currentCitySlug
+                  ? `/zonas/${currentCitySlug}`
+                  : item.href;
 
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={href}
                     aria-label={item.label}
                     title={item.label}
                     className={`group/nav relative inline-flex h-14 w-[4.35rem] flex-col items-center justify-center gap-1 rounded-[1.25rem] border outline-none transition duration-200 ${
@@ -287,7 +317,7 @@ export function DemoSiteHeader({
                 {mobileNavigationItems.map((item) => (
                   <li key={item.href}>
                     <Link
-                      href={item.href}
+                      href={getNavigationHref(item.href)}
                       className={`flex items-center gap-3 rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
                         isItemActive(item.href)
                           ? isLightTheme
@@ -308,6 +338,14 @@ export function DemoSiteHeader({
                         />
                       ) : item.href === "/mapa" ? (
                         <Map size={21} className="shrink-0" />
+                      ) : item.href === "/platos" ? (
+                        <LayoutGrid size={21} className="shrink-0" />
+                      ) : item.href === "/pedidos" ? (
+                        <ReceiptText size={21} className="shrink-0" />
+                      ) : item.href === "/unete" ? (
+                        <Store size={21} className="shrink-0" />
+                      ) : item.href === "/el-proyecto" ? (
+                        <Info size={21} className="shrink-0" />
                       ) : null}
                       <span className="truncate">{item.label}</span>
                     </Link>
