@@ -26,6 +26,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .codex-logs/
+.codex-*.log
+.playwright-cli/
+*-audit.txt
+
+# local generated artifacts
+/output/
+/supabase/.temp/
+/assets/IMG_8249 4.png
 
 # local env files
 .env*.local
