@@ -425,6 +425,7 @@ export type Database = {
           price_display_text: string | null;
           currency: string;
           image_url: string | null;
+          gallery_image_urls: string[];
           allergens: string[];
           category_name: string | null;
           sort_order: number;
@@ -452,6 +453,7 @@ export type Database = {
           price_display_text?: string | null;
           currency?: string;
           image_url?: string | null;
+          gallery_image_urls?: string[];
           allergens?: string[];
           category_name?: string | null;
           sort_order?: number;
@@ -479,6 +481,7 @@ export type Database = {
           price_display_text?: string | null;
           currency?: string;
           image_url?: string | null;
+          gallery_image_urls?: string[];
           allergens?: string[];
           category_name?: string | null;
           sort_order?: number;

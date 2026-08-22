@@ -22,6 +22,10 @@ function isMissingMenuItemAllergensColumnError(message: string) {
   return message.toLowerCase().includes("menu_items.allergens");
 }
 
+function isMissingMenuItemGalleryColumnError(message: string) {
+  return message.toLowerCase().includes("menu_items.gallery_image_urls");
+}
+
 function isMissingSubscriptionTierColumnError(message: string) {
   return message.toLowerCase().includes("subscription_tier");
 }
@@ -124,12 +128,13 @@ function mapVenueMenuItem(row: {
   price_display_mode?: string | null;
   price_display_text?: string | null;
   image_url: string | null;
+  gallery_image_urls?: string[] | null;
   allergens?: string[] | null;
   category_name: string | null;
   is_featured: boolean;
   is_home_featured: boolean;
   is_pickup_month_highlight: boolean;
-}): VenueMenuItem {
+}, allowGallery = false): VenueMenuItem {
   return {
     id: row.id,
     name: row.name,
@@ -139,6 +144,9 @@ function mapVenueMenuItem(row: {
     priceDisplayMode: normalizePriceDisplayMode(row.price_display_mode),
     priceDisplayText: row.price_display_text?.trim() || null,
     imageUrl: row.image_url,
+    galleryImageUrls: allowGallery
+      ? (row.gallery_image_urls ?? []).map((url) => url.trim()).filter(Boolean).slice(0, 2)
+      : [],
     categoryName: row.category_name,
     allergens: mapMenuItemAllergens(row.allergens),
     isFeatured: row.is_featured,
@@ -166,6 +174,7 @@ function mapHomeShowcaseItem(row: {
     slug: string;
     name: string;
     address: string | null;
+    phone?: string | null;
     latitude?: number | null;
     longitude?: number | null;
     logo_url?: string | null;
@@ -200,6 +209,7 @@ function mapHomeShowcaseItem(row: {
       slug: row.venues.slug,
       name: row.venues.name,
       address: row.venues.address,
+      phone: row.venues.phone ?? null,
       latitude: row.venues.latitude ?? null,
       longitude: row.venues.longitude ?? null,
       logoUrl: row.venues.logo_url ?? null,
@@ -376,7 +386,7 @@ export async function getVenueDetails(
     const { data: menuItems, error: menuError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+        "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, gallery_image_urls, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
       )
       .eq("venue_id", fallbackVenue.id)
       .eq("is_available", true)
@@ -387,6 +397,7 @@ export async function getVenueDetails(
       menuError &&
       (isMissingHomeFeaturedColumnError(menuError.message) ||
         isMissingMenuItemAllergensColumnError(menuError.message) ||
+        isMissingMenuItemGalleryColumnError(menuError.message) ||
         isMissingPriceDisplayColumnError(menuError.message))
     ) {
       const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
@@ -436,7 +447,7 @@ export async function getVenueDetails(
             ...item,
             is_home_featured: false,
             allergens: [],
-          }),
+          }, false),
         ),
       };
     }
@@ -473,7 +484,9 @@ export async function getVenueDetails(
         slug: fallbackVenue.cities.slug,
         name: fallbackVenue.cities.name,
       },
-      menuItems: menuItems.map(mapVenueMenuItem),
+        menuItems: menuItems.map((item) =>
+          mapVenueMenuItem(item, fallbackVenue.subscription_active),
+        ),
     };
   }
 
@@ -488,7 +501,7 @@ export async function getVenueDetails(
   const { data: menuItems, error: menuError } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
+      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, gallery_image_urls, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight",
     )
     .eq("venue_id", venue.id)
     .eq("is_available", true)
@@ -499,6 +512,7 @@ export async function getVenueDetails(
     menuError &&
     (isMissingHomeFeaturedColumnError(menuError.message) ||
       isMissingMenuItemAllergensColumnError(menuError.message) ||
+      isMissingMenuItemGalleryColumnError(menuError.message) ||
       isMissingPriceDisplayColumnError(menuError.message))
   ) {
     const { data: fallbackMenuItems, error: fallbackMenuError } = await supabase
@@ -548,7 +562,7 @@ export async function getVenueDetails(
           ...item,
           is_home_featured: false,
           allergens: [],
-        }),
+        }, false),
       ),
     };
   }
@@ -585,7 +599,9 @@ export async function getVenueDetails(
       slug: venue.cities.slug,
       name: venue.cities.name,
     },
-    menuItems: menuItems.map(mapVenueMenuItem),
+    menuItems: menuItems.map((item) =>
+      mapVenueMenuItem(item, venue.subscription_active),
+    ),
   };
 }
 
@@ -604,7 +620,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, phone, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -627,7 +643,7 @@ export async function getHomeShowcase(): Promise<{
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
       .select(
-        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, latitude, longitude, logo_url, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
+        "id, name, description, price_amount, currency, image_url, category_name, is_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, phone, latitude, longitude, logo_url, cover_url, pickup_eta_min, subscription_active, is_active, is_published, cities!inner(slug, name))",
       )
       .eq("is_available", true)
       .eq("venues.is_active", true)

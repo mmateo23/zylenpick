@@ -131,7 +131,7 @@ export function ZylenPickFooter({
             <p
               className={
                 isLightTheme
-                  ? "mt-4 max-w-[36rem] text-sm font-medium leading-7 text-[#24110E]/72 sm:text-base"
+                  ? "mt-4 max-w-[36rem] text-sm font-medium leading-7 text-[rgba(36,17,14,0.78)] sm:text-base"
                   : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
               }
             >

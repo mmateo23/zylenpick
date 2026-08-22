@@ -48,32 +48,32 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
     () => [
       {
         id: "discover",
-        eyebrow: "01 / descubre cerca",
+        eyebrow: "01 / explora tu ciudad",
         title: [
-          { text: "Lo bueno de " },
-          { text: "cerca", tone: "accent" },
-          { text: " entra primero por los ojos." },
-        ],
-        description:
-          "Pickyalo reune productos y platos destacados de locales cercanos en una galeria visual, real y facil de mirar.",
-        imageUrl:
-          media.discoverImageUrl ??
-          "https://images.unsplash.com/photo-1682685795463-0674c065f315?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        actionLabel: "Explorar",
-        actionHref: "/platos",
-      },
-      {
-        id: "choose",
-        eyebrow: "02 / decide rapido",
-        title: [
-          { text: "Menos " },
-          { text: "ruido", tone: "strike" },
-          { text: ". Mas " },
-          { text: "esto si", tone: "accent" },
+          { text: "Tu ciudad no es un fondo. " },
+          { text: "Es parte del plan", tone: "accent" },
           { text: "." },
         ],
         description:
-          "Sin cartas infinitas, fotos pobres ni vueltas de mas. Ves lo que merece la pena y eliges sin acabar en lo de siempre.",
+          "Explora locales, monumentos, murales, parques y lugares útiles en un mapa cuidado para descubrir Talavera de otra manera.",
+        imageUrl:
+          media.discoverImageUrl ??
+          "https://images.unsplash.com/photo-1682685795463-0674c065f315?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+        actionLabel: "Mapa",
+        actionHref: "/mapa",
+      },
+      {
+        id: "choose",
+        eyebrow: "02 / decide rápido",
+        title: [
+          { text: "Menos " },
+          { text: "ruido", tone: "strike" },
+          { text: ". Más " },
+          { text: "esto sí", tone: "accent" },
+          { text: "." },
+        ],
+        description:
+          "Sin cartas infinitas, fotos pobres ni vueltas de más. Ves productos y platos reales, entiendes lo esencial y eliges rápido.",
         imageUrl:
           media.chooseImageUrl ??
           "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=3032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -85,11 +85,11 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
         eyebrow: "03 / recoge en el local",
         title: [
           { text: "Lo pides claro. " },
-          { text: "Lo recoges facil", tone: "accent" },
+          { text: "Lo recoges fácil", tone: "accent" },
           { text: ". Y el barrio sigue vivo." },
         ],
         description:
-          "El local prepara tu seleccion, tu pasas a recogerla y compras mejor sin perder tiempo ni alejarte de lo cercano.",
+          "El local prepara tu selección, tú pasas a recogerla y aprovechas el camino para vivir y apoyar lo que tienes cerca.",
         imageUrl:
           media.pickupImageUrl ??
           "https://images.unsplash.com/photo-1531920382591-9179c11ab2d5?q=80&w=2342&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -174,7 +174,7 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
           overflow: "hidden",
           borderTopLeftRadius: "2rem",
           borderTopRightRadius: "2rem",
-          backgroundImage: `linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url("${media.heroImageUrl ?? "https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
+          backgroundImage: `linear-gradient(90deg, rgba(36,17,14,0.78) 0%, rgba(36,17,14,0.52) 52%, rgba(36,17,14,0.2) 100%), url("${media.heroImageUrl ?? "https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -294,7 +294,7 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
               position: "absolute",
               inset: 0,
               background:
-                "rgba(255,247,232,0.20)",
+                "linear-gradient(90deg, rgba(36,17,14,0.68) 0%, rgba(36,17,14,0.42) 58%, rgba(36,17,14,0.18) 100%)",
             }}
           />
 
@@ -408,7 +408,7 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
           overflow: "hidden",
           borderBottomLeftRadius: "2rem",
           borderBottomRightRadius: "2rem",
-          backgroundImage: `linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url("${media.outroImageUrl ?? "https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
+          backgroundImage: `linear-gradient(90deg, rgba(36,17,14,0.76) 0%, rgba(36,17,14,0.46) 55%, rgba(36,17,14,0.18) 100%), url("${media.outroImageUrl ?? "https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -438,8 +438,8 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
           </div>
           <div style={closingCardStyle}>
             <p style={{ color: "#24110E", fontSize: "1.35rem", lineHeight: 1.45 }}>
-              Queremos que un buen producto cercano sea facil de encontrar,
-              facil de entender y facil de recoger.
+              Queremos que un buen producto cercano sea fácil de encontrar,
+              fácil de entender y fácil de recoger.
             </p>
             <div className="project-closing-proof">
               <span>Productos activos</span>
@@ -470,7 +470,7 @@ export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
 }
 
 const eyebrowStyle = {
-  color: "#741314",
+  color: "#FDE3AD",
   fontSize: "0.78rem",
   fontWeight: 800,
   letterSpacing: "0.28em",
@@ -480,7 +480,7 @@ const eyebrowStyle = {
 const heroTitleStyle = {
   marginTop: "1.25rem",
   maxWidth: "12ch",
-  color: "#741314",
+  color: "#FFF7E8",
   fontSize: "clamp(4rem, 10vw, 7.8rem)",
   fontWeight: 800,
   lineHeight: 0.86,
@@ -488,7 +488,7 @@ const heroTitleStyle = {
 };
 
 const heroCopyStyle = {
-  color: "rgba(36,17,14,0.74)",
+  color: "rgba(255,247,232,0.9)",
   fontSize: "clamp(1.45rem, 2.3vw, 2rem)",
   fontWeight: 600,
   lineHeight: 1.12,
@@ -497,7 +497,7 @@ const heroCopyStyle = {
 const slideTitleStyle = {
   marginTop: "1.25rem",
   maxWidth: "12ch",
-  color: "#741314",
+  color: "#FFF7E8",
   fontSize: "clamp(3.4rem, 8.5vw, 6.5rem)",
   fontWeight: 800,
   lineHeight: 0.9,
@@ -507,7 +507,7 @@ const slideTitleStyle = {
 const slideCopyStyle = {
   marginTop: "1.75rem",
   maxWidth: "42rem",
-  color: "rgba(36,17,14,0.78)",
+  color: "rgba(255,247,232,0.92)",
   fontSize: "clamp(1rem, 1.5vw, 1.25rem)",
   fontWeight: 650,
   lineHeight: 1.62,

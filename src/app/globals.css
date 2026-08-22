@@ -13,8 +13,8 @@
   --bg-surface-strong: #FFF7E8;
   --bg-surface-muted: rgba(255, 255, 255, 0.48);
   --text-primary: #24110E;
-  --text-secondary: rgba(36, 17, 14, 0.68);
-  --text-muted: rgba(36, 17, 14, 0.46);
+  --text-secondary: rgba(36, 17, 14, 0.78);
+  --text-muted: rgba(36, 17, 14, 0.6);
   --text-inverse: #ffffff;
   --border-subtle: rgba(116, 19, 20, 0.16);
   --border-strong: rgba(116, 19, 20, 0.28);
@@ -127,8 +127,8 @@
   --bg-surface-strong: #FFF7E8;
   --bg-surface-muted: rgba(255, 247, 232, 0.62);
   --text-primary: #24110E;
-  --text-secondary: rgba(36, 17, 14, 0.68);
-  --text-muted: rgba(36, 17, 14, 0.48);
+  --text-secondary: rgba(36, 17, 14, 0.78);
+  --text-muted: rgba(36, 17, 14, 0.6);
   --text-inverse: #ffffff;
   --border-subtle: rgba(116, 19, 20, 0.16);
   --border-strong: rgba(116, 19, 20, 0.28);
@@ -837,7 +837,7 @@ video {
   display: block;
   margin-top: 0.35rem;
   max-width: 17rem;
-  color: white;
+  color: #fff7e8;
   font-size: 0.98rem;
   line-height: 1.25;
 }
@@ -846,7 +846,7 @@ video {
   flex: 0 0 auto;
   border-radius: 999px;
   background: #741314;
-  color: #381932;
+  color: #fde3ad;
   padding: 0.72rem 0.95rem;
   font-size: 0.78rem;
   font-weight: 900;
@@ -892,11 +892,11 @@ video {
 }
 
 .project-mini-action {
-  border: 1px solid rgba(255, 255, 255, 0.11);
+  border: 1px solid rgba(255, 247, 232, 0.32);
   border-radius: 1.1rem;
   background: rgba(255, 255, 255, 0.055);
   padding: 0.95rem;
-  color: white;
+  color: #fff7e8;
   text-decoration: none;
   transition:
     transform 180ms ease,
@@ -926,28 +926,28 @@ video {
 .project-mini-action small {
   display: block;
   margin-top: 0.45rem;
-  color: rgba(255, 255, 255, 0.58);
+  color: rgba(255, 247, 232, 0.78);
   font-size: 0.76rem;
   line-height: 1.45;
 }
 
 .project-title-accent {
-  color: #741314;
-  text-shadow: 0 18px 48px rgba(116, 19, 20, 0.18);
+  color: #fde3ad;
+  text-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
 }
 
 .project-title-strike {
   position: relative;
   display: inline-block;
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 247, 232, 0.7);
   text-decoration-line: line-through;
-  text-decoration-color: #741314;
+  text-decoration-color: #fde3ad;
   text-decoration-thickness: 0.08em;
   text-decoration-skip-ink: none;
 }
 
 .project-title-muted {
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 247, 232, 0.7);
 }
 
 .project-slide-description {
@@ -1013,7 +1013,7 @@ video {
   border: 1px solid rgba(116, 19, 20, 0.28);
   border-radius: 999px;
   background: rgba(116, 19, 20, 0.08);
-  color: rgba(255, 255, 255, 0.78);
+  color: #741314;
   padding: 0.55rem 0.75rem;
   font-size: 0.78rem;
   font-weight: 800;

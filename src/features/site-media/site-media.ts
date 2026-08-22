@@ -34,31 +34,28 @@ export const siteMediaAssetDefinitions = [
   },
   {
     key: "project_step_discover",
-    label: "El Proyecto · descubre",
-    description: "Fondo del primer paso del recorrido editorial.",
-    defaultImageUrl:
-      "https://images.unsplash.com/photo-1682685795463-0674c065f315?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "El Proyecto · origen",
+    description: "Fotografía de la sección Pickyalo nace aquí.",
+    defaultImageUrl: "/cart/empty-cart-talavera.jpg",
   },
   {
     key: "project_step_order",
-    label: "El Proyecto · elige",
-    description: "Fondo del segundo paso del recorrido editorial.",
+    label: "El Proyecto · producto",
+    description: "Fotografía de producto de la sección La propuesta.",
     defaultImageUrl:
       "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=3032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
   },
   {
     key: "project_step_pickup",
-    label: "El Proyecto · recoge",
-    description: "Fondo del tercer paso del recorrido editorial.",
-    defaultImageUrl:
-      "https://images.unsplash.com/photo-1531920382591-9179c11ab2d5?q=80&w=2342&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "El Proyecto · ciudad",
+    description: "Fotografía de la sección dedicada a la ciudad.",
+    defaultImageUrl: "/home/zonas/talavera-poster-local.webp",
   },
   {
     key: "project_idea",
-    label: "El Proyecto · cierre",
-    description: "Fondo de la última pantalla de El Proyecto.",
-    defaultImageUrl:
-      "https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "El Proyecto · comercios",
+    description: "Fotografía de la sección Para los comercios.",
+    defaultImageUrl: "/cart/empty-cart-talavera.jpg",
   },
   {
     key: "cart_empty_hero",

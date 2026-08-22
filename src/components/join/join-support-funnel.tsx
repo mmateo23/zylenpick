@@ -99,8 +99,8 @@ export function JoinSupportFunnel({
               sizes="(min-width: 1024px) 42vw, 100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#24110E]/78 via-transparent to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
+            <div className="absolute inset-0 bg-gradient-to-t from-[#24110E]/88 via-[#24110E]/12 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-6 text-[#FFF7E8] [text-shadow:0_2px_14px_rgba(0,0,0,0.55)] sm:p-8">
               <span className="inline-flex rounded-full border border-white/45 bg-white/15 px-3 py-1.5 text-xs font-bold backdrop-blur-sm">
                 Selección local
               </span>
@@ -181,7 +181,7 @@ export function JoinSupportFunnel({
                       sizes="(min-width: 1024px) 48vw, 100vw"
                       className="object-cover transition duration-500 hover:scale-[1.025] motion-reduce:transform-none"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#24110E]/35 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#24110E]/65 via-transparent to-transparent" />
                     {isVisibilityOption ? (
                       <span className="absolute bottom-4 left-4 rounded-full border border-white/50 bg-white/15 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-sm">
                         Más ojos sobre lo que haces mejor

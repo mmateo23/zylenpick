@@ -58,13 +58,17 @@ export function MenuItemGalleryCard({
   } = useScrollContentHint<HTMLDivElement>(isViewerOpen ? item.id : null);
 
   const images = useMemo(() => {
+    const configuredGallery = item.galleryImageUrls ?? [];
     const gallery = [
       getMenuItemDisplayImage(item.name, item.imageUrl),
-      item.secondaryImageUrl ?? getMenuItemSecondaryImage(item.name),
+      ...configuredGallery,
+      configuredGallery.length === 0
+        ? item.secondaryImageUrl ?? getMenuItemSecondaryImage(item.name)
+        : null,
     ].filter(Boolean) as string[];
 
     return Array.from(new Set(gallery));
-  }, [item.imageUrl, item.name, item.secondaryImageUrl]);
+  }, [item.galleryImageUrls, item.imageUrl, item.name, item.secondaryImageUrl]);
 
   const primaryImage = images[0] ?? null;
   const selectedImage = images[selectedImageIndex] ?? primaryImage;

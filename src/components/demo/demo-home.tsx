@@ -1360,7 +1360,7 @@ export function DemoHome({
       </section>
 
       <section className="relative z-10 px-4 pb-20 pt-6 sm:px-8 lg:pb-28">
-        <div className="mx-auto max-w-6xl border-y border-[#741314]/18 py-14 text-center sm:py-20">
+        <div className="mx-auto max-w-6xl border-y border-[#741314] py-14 text-center sm:py-20">
           <p className="mx-auto max-w-[13ch] text-balance text-[clamp(3rem,8vw,6.8rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#741314]">
             Lo difícil era decidir. Ya no.
           </p>

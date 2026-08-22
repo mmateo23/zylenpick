@@ -5,12 +5,18 @@ import {
   createAdminDataClient,
   createAdminMutationClient,
 } from "@/features/admin/services/admin-auth";
+import {
+  normalizePriceDisplayMode,
+  type PriceDisplayMode,
+} from "@/features/pricing/price-display";
 import type { MenuItemAllergen } from "@/features/venues/types";
 
 export type AdminVenueContext = {
   id: string;
   name: string;
   slug: string;
+  subscriptionActive: boolean;
+  subscriptionTier: "basic" | "oro" | "titanio";
 };
 
 export type AdminMenuItemListItem = {
@@ -55,8 +61,11 @@ export type AdminMenuItemFormValues = {
   name: string;
   description: string;
   price: string;
+  priceDisplayMode: PriceDisplayMode;
+  priceDisplayText: string;
   categoryName: string;
   imageUrl: string;
+  galleryImageUrls: string[];
   sortOrder: string;
   isAvailable: boolean;
   isFeatured: boolean;
@@ -90,6 +99,10 @@ function isMissingHomeFeaturedColumnError(message: string) {
 
 function isMissingMenuItemAllergensColumnError(message: string) {
   return message.toLowerCase().includes("menu_items.allergens");
+}
+
+function isMissingMenuItemGalleryColumnError(message: string) {
+  return message.toLowerCase().includes("menu_items.gallery_image_urls");
 }
 
 function isMissingHighlightColumnError(message: string) {
@@ -146,8 +159,17 @@ function normalizeMenuItemFormValues(formData: FormData): NormalizedMenuItemForm
     name: String(formData.get("name") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
     price: String(formData.get("price") ?? "").trim(),
+    priceDisplayMode: normalizePriceDisplayMode(
+      String(formData.get("priceDisplayMode") ?? "fixed"),
+    ),
+    priceDisplayText: String(formData.get("priceDisplayText") ?? "").trim(),
     categoryName: String(formData.get("categoryName") ?? "").trim(),
     imageUrl: String(formData.get("imageUrl") ?? "").trim(),
+    galleryImageUrls: formData
+      .getAll("galleryImageUrls")
+      .map((value) => String(value).trim())
+      .filter(Boolean)
+      .slice(0, 2),
     sortOrder: String(formData.get("sortOrder") ?? "").trim(),
     isAvailable: formData.get("isAvailable") === "on",
     isFeatured: formData.get("isFeatured") === "on",
@@ -199,7 +221,7 @@ export async function getAdminVenueContext(
   const supabase = await createAdminDataClient();
   const { data, error } = await supabase
     .from("venues")
-    .select("id, name, slug")
+    .select("id, name, slug, subscription_active, subscription_tier")
     .eq("id", venueId)
     .maybeSingle();
 
@@ -215,6 +237,8 @@ export async function getAdminVenueContext(
     id: data.id,
     name: data.name,
     slug: data.slug,
+    subscriptionActive: data.subscription_active,
+    subscriptionTier: data.subscription_tier ?? "basic",
   };
 }
 
@@ -339,13 +363,17 @@ export async function getAdminMenuItemById(
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, venue_id, name, description, price_amount, category_name, image_url, allergens, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, capture_status, scout_note",
+      "id, venue_id, name, description, price_amount, price_display_mode, price_display_text, category_name, image_url, gallery_image_urls, allergens, sort_order, is_available, is_featured, is_home_featured, is_pickup_month_highlight, capture_status, scout_note",
     )
     .eq("venue_id", venueId)
     .eq("id", menuItemId)
     .maybeSingle();
 
-  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+  if (
+    error &&
+    (isMissingMenuItemAllergensColumnError(error.message) ||
+      isMissingMenuItemGalleryColumnError(error.message))
+  ) {
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("menu_items")
       .select(
@@ -369,8 +397,11 @@ export async function getAdminMenuItemById(
       name: fallbackData.name,
       description: fallbackData.description ?? "",
       price: (fallbackData.price_amount / 100).toFixed(2).replace(".", ","),
+      priceDisplayMode: "fixed",
+      priceDisplayText: "",
       categoryName: fallbackData.category_name ?? "",
       imageUrl: fallbackData.image_url ?? "",
+      galleryImageUrls: [],
       sortOrder: fallbackData.sort_order.toString(),
       isAvailable: fallbackData.is_available,
       isFeatured: fallbackData.is_featured,
@@ -406,8 +437,11 @@ export async function getAdminMenuItemById(
       name: fallbackData.name,
       description: fallbackData.description ?? "",
       price: (fallbackData.price_amount / 100).toFixed(2).replace(".", ","),
+      priceDisplayMode: "fixed",
+      priceDisplayText: "",
       categoryName: fallbackData.category_name ?? "",
       imageUrl: fallbackData.image_url ?? "",
+      galleryImageUrls: [],
       sortOrder: fallbackData.sort_order.toString(),
       isAvailable: fallbackData.is_available,
       isFeatured: false,
@@ -433,8 +467,11 @@ export async function getAdminMenuItemById(
     name: data.name,
     description: data.description ?? "",
     price: (data.price_amount / 100).toFixed(2).replace(".", ","),
+    priceDisplayMode: normalizePriceDisplayMode(data.price_display_mode),
+    priceDisplayText: data.price_display_text ?? "",
     categoryName: data.category_name ?? "",
     imageUrl: data.image_url ?? "",
+    galleryImageUrls: (data.gallery_image_urls ?? []).slice(0, 2),
     sortOrder: data.sort_order.toString(),
     isAvailable: data.is_available,
     isFeatured: data.is_featured,
@@ -452,6 +489,7 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
   const supabase = await createAdminMutationClient();
+  const venue = await getAdminVenueContext(venueId);
   const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase.from("menu_items").insert({
@@ -459,8 +497,11 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
     name: values.name,
     description: values.description || null,
     price_amount: priceAmount,
+    price_display_mode: values.priceDisplayMode,
+    price_display_text: values.priceDisplayText || null,
     currency: "EUR",
     image_url: values.imageUrl || null,
+    gallery_image_urls: venue?.subscriptionActive ? values.galleryImageUrls : [],
     category_name: values.categoryName || null,
     allergens: values.allergens,
     sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
@@ -470,12 +511,18 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
     is_pickup_month_highlight: values.isPickupMonthHighlight,
   });
 
-  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+  if (
+    error &&
+    (isMissingMenuItemAllergensColumnError(error.message) ||
+      isMissingMenuItemGalleryColumnError(error.message))
+  ) {
     const { error: fallbackError } = await supabase.from("menu_items").insert({
       venue_id: venueId,
       name: values.name,
       description: values.description || null,
       price_amount: priceAmount,
+      price_display_mode: values.priceDisplayMode,
+      price_display_text: values.priceDisplayText || null,
       currency: "EUR",
       image_url: values.imageUrl || null,
       category_name: values.categoryName || null,
@@ -501,6 +548,8 @@ export async function createMenuItemAction(venueId: string, formData: FormData) 
       name: values.name,
       description: values.description || null,
       price_amount: priceAmount,
+      price_display_mode: values.priceDisplayMode,
+      price_display_text: values.priceDisplayText || null,
       currency: "EUR",
       image_url: values.imageUrl || null,
       category_name: values.categoryName || null,
@@ -534,6 +583,7 @@ export async function updateMenuItemAction(
   const values = normalizeMenuItemFormValues(formData);
   const priceAmount = parsePriceToMinorUnits(values.price);
   const supabase = await createAdminMutationClient();
+  const venue = await getAdminVenueContext(venueId);
   const publicPath = await getPublicVenuePathContextById(venueId);
 
   const { error } = await supabase
@@ -542,7 +592,12 @@ export async function updateMenuItemAction(
       name: values.name,
       description: values.description || null,
       price_amount: priceAmount,
+      price_display_mode: values.priceDisplayMode,
+      price_display_text: values.priceDisplayText || null,
       image_url: values.imageUrl || null,
+      ...(venue?.subscriptionActive
+        ? { gallery_image_urls: values.galleryImageUrls }
+        : {}),
       category_name: values.categoryName || null,
       allergens: values.allergens,
       sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
@@ -555,13 +610,19 @@ export async function updateMenuItemAction(
     .eq("venue_id", venueId)
     .eq("id", menuItemId);
 
-  if (error && isMissingMenuItemAllergensColumnError(error.message)) {
+  if (
+    error &&
+    (isMissingMenuItemAllergensColumnError(error.message) ||
+      isMissingMenuItemGalleryColumnError(error.message))
+  ) {
     const { error: fallbackError } = await supabase
       .from("menu_items")
       .update({
         name: values.name,
         description: values.description || null,
         price_amount: priceAmount,
+        price_display_mode: values.priceDisplayMode,
+        price_display_text: values.priceDisplayText || null,
         image_url: values.imageUrl || null,
         category_name: values.categoryName || null,
         sort_order: values.sortOrder ? Number(values.sortOrder) : 0,
@@ -589,6 +650,8 @@ export async function updateMenuItemAction(
         name: values.name,
         description: values.description || null,
         price_amount: priceAmount,
+        price_display_mode: values.priceDisplayMode,
+        price_display_text: values.priceDisplayText || null,
         image_url: values.imageUrl || null,
         category_name: values.categoryName || null,
         sort_order: values.sortOrder ? Number(values.sortOrder) : 0,

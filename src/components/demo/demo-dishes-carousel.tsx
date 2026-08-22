@@ -19,6 +19,7 @@ import {
   MoreHorizontal,
   MoveLeft,
   MoveRight,
+  Phone,
   Search,
   Send,
   Volume2,
@@ -29,6 +30,7 @@ import {
 import { CartIcon } from "@/components/icons/cart-icon";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
+import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
 import { AllergenPictogram } from "@/components/venues/allergen-pictogram";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
@@ -276,6 +278,7 @@ function getCartVenueFromShowcaseItem(item: HomeShowcaseItem): CartVenue {
     citySlug: item.venue.citySlug,
     cityName: item.venue.cityName,
     address: item.venue.address,
+    phone: item.venue.phone,
     coverUrl: item.venue.coverUrl,
     pickupEtaMin: item.pickupEtaMin,
     pricesVisible: item.venue.pricesVisible,
@@ -3121,7 +3124,7 @@ export function DemoDishesCarousel({
             onClick={() => setActiveIndex(null)}
           />
 
-          <article className="dish-overlay-panel relative z-10 flex max-h-[94svh] w-full max-w-[29rem] flex-col overflow-hidden rounded-[1.65rem] bg-white text-[#111111] shadow-[0_28px_90px_rgba(0,0,0,0.34)] md:max-w-[31rem]">
+          <article className="dish-overlay-panel relative z-10 mx-auto flex h-[min(94svh,52rem)] w-full max-w-[29rem] flex-col overflow-hidden rounded-[1.65rem] bg-white text-[#111111] shadow-[0_28px_90px_rgba(0,0,0,0.34)] md:max-w-[31rem]">
             <header className="flex items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3">
               <Link
                 href={getVenueHref(activeItem)}
@@ -3174,7 +3177,7 @@ export function DemoDishesCarousel({
             <button
               type="button"
               onClick={() => setIsPostImageFullscreen(true)}
-              className="dish-overlay-image relative aspect-[4/5] w-full overflow-hidden bg-[#101010]"
+              className="dish-overlay-image relative min-h-0 w-full flex-1 overflow-hidden bg-[#101010]"
               aria-label="Ver imagen del plato en grande"
             >
               {activeItem.imageUrl ? (
@@ -3209,82 +3212,121 @@ export function DemoDishesCarousel({
               ) : null}
             </button>
 
-            <section className="dish-overlay-copy-desktop bg-white px-4 pb-4 pt-3">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5">
-                  <Link
-                    href={getVenueHref(activeItem)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
-                    aria-label="Ver informacion del plato"
-                  >
-                    <Info className="h-6 w-6" />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => void handleShareDish(activeItem)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
-                    aria-label="Compartir plato"
-                  >
-                    <Send className="h-6 w-6" />
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleAddPostToCart(activeItem)}
-                  disabled={!activeItem.venue.pricesVisible}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD] disabled:cursor-not-allowed disabled:opacity-45"
-                  aria-label={activeItem.venue.pricesVisible ? "Añadir para recoger" : "Precio pendiente"}
-                >
-                  <CartIcon className="h-7 w-7" />
-                </button>
+            <section className="dish-overlay-copy-desktop max-h-[19rem] shrink-0 overflow-y-auto bg-white px-4 pb-4 pt-3">
+              <div className="flex flex-wrap items-center gap-2">
+                {activeItem.categoryName ? (
+                  <span className="inline-flex min-h-8 items-center rounded-full border border-[#741314]/24 bg-[#FFF7E8] px-3 text-[11px] font-extrabold text-[#741314]">
+                    {activeItem.categoryName}
+                  </span>
+                ) : null}
+                {activeItem.pickupEtaMin ? (
+                  <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#381932]/10 bg-[#F7F4F1] px-3 text-[11px] font-semibold text-[#381932]/72">
+                    <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+                    {activeItem.pickupEtaMin} min
+                  </span>
+                ) : null}
               </div>
 
+              <div className="mt-3 flex items-start justify-between gap-3">
+                <h2 className="min-w-0 text-xl font-semibold leading-6 text-[#111111]">
+                  {getDishDisplayName(activeItem)}
+                </h2>
+                <ProductPriceBadge
+                  priceAmount={activeItem.priceAmount}
+                  currency={activeItem.currency}
+                  priceDisplayMode={activeItem.priceDisplayMode}
+                  priceDisplayText={activeItem.priceDisplayText}
+                  pricesVisible={activeItem.venue.pricesVisible}
+                  className="shrink-0 shadow-none"
+                />
+              </div>
+
+              {activeItem.description ? (
+                <p className="mt-2 line-clamp-3 text-sm leading-5 text-[#5f5f5f]">
+                  {getShortDescription(activeItem)}
+                </p>
+              ) : null}
+
+              <details className="group mt-3 rounded-[0.75rem] border border-[#741314]/14 bg-[#FFF7E8]/72 open:bg-[#FFF7E8]">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-xs font-bold text-[#381932] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#741314] [&::-webkit-details-marker]:hidden">
+                  <span>
+                    Alérgenos
+                    {activeItem.allergens.length > 0 ? ` · ${activeItem.allergens.length}` : " · Pendiente"}
+                  </span>
+                  <ChevronDown className="h-4 w-4 text-[#741314] transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
+                </summary>
+                <div className="border-t border-[#741314]/10 px-3 py-3">
+                  {activeItem.allergens.length > 0 ? (
+                    <>
+                      <p className="text-[11px] font-medium leading-4 text-[#381932]/68">
+                        Puede contener o presentar trazas de:
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {activeItem.allergens.map((allergen) => (
+                          <AllergenPictogram key={allergen} allergen={allergen} />
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-xs font-medium leading-5 text-[#381932]/64">
+                      Información pendiente. Consulta al local antes de elegir si tienes alergias o intolerancias.
+                    </p>
+                  )}
+                </div>
+              </details>
+
               {postFeedback ? (
-                <p className="mt-2 rounded-full bg-black/[0.05] px-3 py-2 text-xs font-medium leading-4 text-[#303030]">
+                <p className="mt-3 rounded-[0.65rem] bg-[#381932]/6 px-3 py-2 text-xs font-medium leading-4 text-[#303030]" role="status">
                   {postFeedback}
                 </p>
               ) : null}
 
-              <div className="mt-3 space-y-2">
-                <div className="flex items-start justify-between gap-3">
-                  <h2 className="text-xl font-semibold leading-6 text-[#111111]">
-                    {getDishDisplayName(activeItem)}
-                  </h2>
-                  <span className="shrink-0 text-base font-semibold leading-6 text-[#111111]">
-                    {formatPrice(activeItem)}
-                  </span>
+              <div className="mt-3 flex items-center justify-between gap-2 border-t border-black/8 pt-3">
+                <div className="flex items-center gap-1">
+                  <Link
+                    href={getVenueHref(activeItem)}
+                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold text-[#381932] transition hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
+                  >
+                    <Info className="h-4 w-4" aria-hidden="true" />
+                    Ver local
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => void handleShareDish(activeItem)}
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[#381932] transition hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
+                    aria-label="Compartir plato"
+                  >
+                    <Send className="h-5 w-5" />
+                  </button>
                 </div>
-                {activeItem.description ? (
-                  <p className="text-sm leading-5 text-[#5f5f5f]">
-                    {getShortDescription(activeItem)}
-                  </p>
-                ) : null}
-                {activeItem.allergens.length > 0 ? (
-                  <div className="rounded-[0.8rem] border border-[#C26157]/16 bg-[#FFE9EC]/55 px-3 py-2.5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#381932]/68">
-                      Puede contener o presentar trazas de
-                    </p>
-                    <div className="mt-2 flex max-w-full gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                      {activeItem.allergens.map((allergen) => (
-                        <AllergenPictogram
-                          key={allergen}
-                          allergen={allergen}
-                          compact
-                        />
-                      ))}
-                    </div>
-                  </div>
+                {activeItem.venue.pricesVisible ? (
+                  <button
+                    type="button"
+                    onClick={() => handleAddPostToCart(activeItem)}
+                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+                    aria-label="Añadir para recoger"
+                  >
+                    <CartIcon className="h-5 w-5" />
+                    Añadir
+                  </button>
+                ) : activeItem.venue.phone ? (
+                  <a
+                    href={`tel:${activeItem.venue.phone}`}
+                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+                    aria-label={`Llamar a ${activeItem.venue.name}`}
+                  >
+                    <Phone className="h-5 w-5" aria-hidden="true" />
+                    Llamar
+                  </a>
                 ) : (
-                  <p className="text-xs font-medium text-[#381932]/58">
-                    Información de alérgenos pendiente. Consulta al local.
-                  </p>
+                  <Link
+                    href={getVenueHref(activeItem)}
+                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+                  >
+                    <Info className="h-5 w-5" aria-hidden="true" />
+                    Ver local
+                  </Link>
                 )}
-                {activeItem.pickupEtaMin ? (
-                  <p className="inline-flex items-center gap-1.5 rounded-full bg-[#f1f1f1] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
-                    <Clock3 className="h-3.5 w-3.5" />
-                    Listo en {activeItem.pickupEtaMin} min
-                  </p>
-                ) : null}
               </div>
             </section>
           </article>
@@ -3458,17 +3500,26 @@ export function DemoDishesCarousel({
                           <Send className="h-6 w-6" />
                         </button>
                       </div>
-                      <AddToCartButton
-                        venue={getCartVenueFromShowcaseItem(activeItem)}
-                        item={getCartItemFromShowcaseItem(activeItem)}
-                        label={"A\u00f1adir para recoger"}
-                        source="platos_modal"
-                        className="w-full"
-                        buttonClassName={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full bg-[#141414] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/92" : "inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#07100d] transition hover:bg-white/92"}
-                        feedbackClassName={isLightTheme ? "mt-2 text-xs leading-5 text-black/58" : "mt-2 text-xs leading-5 text-white/58"}
-                        disabled={!activeItem.venue.pricesVisible}
-                        disabledLabel="Disponible pronto"
-                      />
+                      {activeItem.venue.pricesVisible ? (
+                        <AddToCartButton
+                          venue={getCartVenueFromShowcaseItem(activeItem)}
+                          item={getCartItemFromShowcaseItem(activeItem)}
+                          label={"A\u00f1adir para recoger"}
+                          source="platos_modal"
+                          className="w-full"
+                          buttonClassName={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full bg-[#141414] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/92" : "inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#07100d] transition hover:bg-white/92"}
+                          feedbackClassName={isLightTheme ? "mt-2 text-xs leading-5 text-black/58" : "mt-2 text-xs leading-5 text-white/58"}
+                        />
+                      ) : activeItem.venue.phone ? (
+                        <a
+                          href={`tel:${activeItem.venue.phone}`}
+                          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
+                          aria-label={`Llamar a ${activeItem.venue.name}`}
+                        >
+                          <Phone className="h-5 w-5" aria-hidden="true" />
+                          Llamar
+                        </a>
+                      ) : null}
                       <Link
                         href={getVenueHref(activeItem)}
                         className={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:bg-white/[0.09]"}
@@ -3619,17 +3670,26 @@ export function DemoDishesCarousel({
                     >
                       <Send className="h-7 w-7" />
                     </button>
-                    <AddToCartButton
-                      venue={getCartVenueFromShowcaseItem(activeItem)}
-                      item={getCartItemFromShowcaseItem(activeItem)}
-                      label={"A\u00f1adir para recoger"}
-                      source="platos_modal"
-                      className="min-w-[13rem]"
-                      buttonClassName={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
-                      feedbackClassName={isLightTheme ? "mt-2 max-w-[16rem] text-xs leading-5 text-black/58" : "mt-2 max-w-[16rem] text-xs leading-5 text-white/58"}
-                      disabled={!activeItem.venue.pricesVisible}
-                      disabledLabel="Disponible pronto"
-                    />
+                    {activeItem.venue.pricesVisible ? (
+                      <AddToCartButton
+                        venue={getCartVenueFromShowcaseItem(activeItem)}
+                        item={getCartItemFromShowcaseItem(activeItem)}
+                        label={"A\u00f1adir para recoger"}
+                        source="platos_modal"
+                        className="min-w-[13rem]"
+                        buttonClassName={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
+                        feedbackClassName={isLightTheme ? "mt-2 max-w-[16rem] text-xs leading-5 text-black/58" : "mt-2 max-w-[16rem] text-xs leading-5 text-white/58"}
+                      />
+                    ) : activeItem.venue.phone ? (
+                      <a
+                        href={`tel:${activeItem.venue.phone}`}
+                        className="inline-flex min-h-11 min-w-[13rem] items-center justify-center gap-2 rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
+                        aria-label={`Llamar a ${activeItem.venue.name}`}
+                      >
+                        <Phone className="h-5 w-5" aria-hidden="true" />
+                        Llamar
+                      </a>
+                    ) : null}
                     <Link
                       href={getVenueHref(activeItem)}
                       className={isLightTheme ? "inline-flex items-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-black/72 transition hover:bg-black/[0.08] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/72 transition hover:bg-white/[0.09] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}

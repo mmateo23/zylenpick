@@ -986,8 +986,8 @@ export function VenuesMap({
                 </span>
               ) : null}
             </div>
-            <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[0.95] tracking-[-0.045em] sm:text-6xl">Un mapa para salir y descubrir.</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-[#381932]/68 sm:text-base">
+            <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-[#381932] sm:text-6xl">Un mapa para salir y descubrir.</h1>
+            <p className="mt-4 max-w-2xl text-sm font-medium leading-6 text-[#381932]/82 sm:text-base">
               {demoMode
                 ? "Una muestra de cómo convivirían locales, parques, mesas y servicios en el explorador."
                 : "Puntos de recogida, parques, monumentos y lugares útiles marcados y revisados por Pickyalo."}
@@ -1116,7 +1116,6 @@ export function VenuesMap({
                         categories={availableCategories}
                         hasPickupPoints={venues.length > 0}
                         onSelect={selectMapFilter}
-                        compact
                       />
                       <button
                         type="button"
@@ -1373,14 +1372,12 @@ function MapFilterControls({
   categories,
   hasPickupPoints,
   onSelect,
-  compact = false,
   className = "",
 }: {
   filter: MapFilter;
   categories: MapPlaceCategoryDefinition[];
   hasPickupPoints: boolean;
   onSelect: (filter: MapFilter) => void;
-  compact?: boolean;
   className?: string;
 }) {
   return (
@@ -1402,13 +1399,14 @@ function MapFilterControls({
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
             Categorías
           </p>
-          <div className={`grid grid-cols-2 gap-2 ${compact ? "sm:grid-cols-3" : "sm:grid-cols-3 lg:grid-cols-5"}`}>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Categorías del mapa">
             {categories.map((category) => (
               <FilterChip
                 key={category.value}
-                icon={<MapPlaceIcon name={category.iconName} className="h-4 w-4" />}
+                icon={<MapPlaceIcon name={category.iconName} className="h-5 w-5" />}
                 active={filter === category.value}
                 onClick={() => onSelect(category.value)}
+                iconOnly
               >
                 {category.shortLabel}
               </FilterChip>
@@ -1425,25 +1423,33 @@ function FilterChip({
   onClick,
   icon,
   children,
+  iconOnly = false,
 }: {
   active: boolean;
   onClick: () => void;
   icon?: ReactNode;
   children: ReactNode;
+  iconOnly?: boolean;
 }) {
+  const accessibleLabel = typeof children === "string" ? children : undefined;
+
   return (
     <button
       type="button"
       aria-pressed={active}
+      aria-label={iconOnly ? accessibleLabel : undefined}
+      title={iconOnly ? accessibleLabel : undefined}
       onClick={onClick}
-      className={`inline-flex min-h-12 w-full min-w-0 items-center justify-center gap-2 rounded-full border px-3 py-2.5 text-center text-xs leading-tight transition sm:px-3.5 sm:text-[13px] ${
+      className={`inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-full border py-2.5 text-center text-xs leading-tight transition-[width,background-color,border-color,color,box-shadow,padding] duration-200 sm:text-[13px] ${
+        iconOnly ? (active ? "w-auto px-4" : "w-12 px-0") : "w-full min-w-0 px-3 sm:px-3.5"
+      } ${
         active
           ? "border-[#741314] bg-[#741314] font-bold text-[#FFF7E8] shadow-[0_8px_20px_rgba(116,19,20,0.16)]"
           : "border-[#741314] bg-white/72 font-semibold text-[#381932]/74 hover:bg-white"
       }`}
     >
       {icon ? <span className="grid h-5 w-5 shrink-0 place-items-center" aria-hidden="true">{icon}</span> : null}
-      <span className="min-w-0 truncate">{children}</span>
+      {!iconOnly || active ? <span className="min-w-0 whitespace-nowrap">{children}</span> : null}
     </button>
   );
 }

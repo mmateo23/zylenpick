@@ -72,7 +72,7 @@ function getIconMotionClass(campaign: HomeCampaignConfig) {
         : "";
 }
 
-function CampaignIcon({ campaign, compact = false }: { campaign: HomeCampaignConfig; compact?: boolean }) {
+export function CampaignIcon({ campaign, compact = false }: { campaign: HomeCampaignConfig; compact?: boolean }) {
   const iconMotionClass = getIconMotionClass(campaign);
 
   if (campaign.iconSvgUrl) {

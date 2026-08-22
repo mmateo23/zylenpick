@@ -10,6 +10,7 @@ import type {
   AdminMenuItemFormValues,
   AdminVenueContext,
 } from "@/features/admin/services/menu-items-admin-service";
+import type { PriceDisplayMode } from "@/features/pricing/price-display";
 import { menuItemAllergenOptions } from "@/features/venues/allergens";
 import type { MenuItemAllergen } from "@/features/venues/types";
 
@@ -34,8 +35,11 @@ function buildInitialValues(
       name: "",
       description: "",
       price: "",
+      priceDisplayMode: "fixed",
+      priceDisplayText: "",
       categoryName: "",
       imageUrl: "",
+      galleryImageUrls: [],
       sortOrder: "0",
       isAvailable: true,
       isFeatured: false,
@@ -61,7 +65,14 @@ export function AdminMenuItemForm({
 }: AdminMenuItemFormProps) {
   const values = buildInitialValues(venue.id, initialValues);
   const [imageUrl, setImageUrl] = useState(values.imageUrl);
+  const [galleryImageUrls, setGalleryImageUrls] = useState(() => [
+    values.galleryImageUrls[0] ?? "",
+    values.galleryImageUrls[1] ?? "",
+  ]);
   const [hasImageError, setHasImageError] = useState(false);
+  const [priceDisplayMode, setPriceDisplayMode] = useState<PriceDisplayMode>(
+    values.priceDisplayMode,
+  );
   const [selectedAllergens, setSelectedAllergens] = useState<MenuItemAllergen[]>(
     values.allergens,
   );
@@ -73,6 +84,10 @@ export function AdminMenuItemForm({
 
   useEffect(() => {
     setSelectedAllergens(initialValues?.allergens ?? []);
+  }, [initialValues]);
+
+  useEffect(() => {
+    setPriceDisplayMode(initialValues?.priceDisplayMode ?? "fixed");
   }, [initialValues]);
 
   const trimmedImageUrl = imageUrl.trim();
@@ -152,7 +167,27 @@ export function AdminMenuItemForm({
 
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Precio
+              Cómo mostrar el precio
+            </span>
+            <select
+              name="priceDisplayMode"
+              value={priceDisplayMode}
+              className={fieldClassName()}
+              onChange={(event) =>
+                setPriceDisplayMode(event.target.value as PriceDisplayMode)
+              }
+            >
+              <option value="fixed">Precio fijo</option>
+              <option value="from">Desde</option>
+              <option value="variable">Precio variable</option>
+              <option value="hidden">Sin importe</option>
+            </select>
+          </label>
+
+          {priceDisplayMode === "fixed" || priceDisplayMode === "from" ? (
+          <label className="block">
+            <span className="text-sm font-medium text-[color:var(--foreground)]">
+              {priceDisplayMode === "from" ? "Precio mínimo" : "Precio"}
             </span>
             <input
               name="price"
@@ -164,17 +199,43 @@ export function AdminMenuItemForm({
               required
             />
           </label>
+          ) : (
+            <input name="price" type="hidden" value={values.price || "0"} />
+          )}
+
+          {priceDisplayMode === "variable" || priceDisplayMode === "hidden" ? (
+            <label className="block md:col-span-2">
+              <span className="text-sm font-medium text-[color:var(--foreground)]">
+                Texto visible
+              </span>
+              <input
+                name="priceDisplayText"
+                defaultValue={values.priceDisplayText}
+                className={fieldClassName()}
+                placeholder={priceDisplayMode === "variable" ? "Según peso" : "Contactar"}
+                maxLength={32}
+              />
+              <span className="mt-2 block text-xs leading-5 text-[#381932]/58">
+                Déjalo vacío para mostrar “{priceDisplayMode === "variable" ? "Precio a confirmar" : "Contactar"}”.
+              </span>
+            </label>
+          ) : (
+            <input name="priceDisplayText" type="hidden" value="" />
+          )}
 
           <label className="block">
             <span className="text-sm font-medium text-[color:var(--foreground)]">
-              Categoría
+              Categoría visible
             </span>
             <input
               name="categoryName"
               defaultValue={values.categoryName}
               className={fieldClassName()}
-              placeholder="Burgers, Pizza, Sushi..."
+              placeholder="Croquetas, tortilla con cebolla, patatas bravas..."
             />
+            <span className="mt-2 block text-xs leading-5 text-[#381932]/58">
+              Aparecerá como un chip en el post. Usa una categoría breve y concreta.
+            </span>
           </label>
 
           <label className="block md:col-span-2">
@@ -190,6 +251,72 @@ export function AdminMenuItemForm({
             />
           </label>
           </div>
+
+          {venue.subscriptionActive ? (
+            <div className="mt-5 border-t border-[#741314]/12 pt-5">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold text-[#381932]">
+                    Galería del plato
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[#381932]/60">
+                    Añade hasta dos vistas más. La portada seguirá apareciendo primero.
+                  </p>
+                </div>
+                <span className="rounded-full border border-[#741314]/18 bg-white px-3 py-1.5 text-[11px] font-bold text-[#741314]">
+                  Suscripción activa · 3 fotos
+                </span>
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {galleryImageUrls.map((galleryUrl, index) => (
+                  <label key={index} className="block">
+                    <span className="text-sm font-medium text-[#381932]">
+                      Imagen adicional {index + 1}
+                    </span>
+                    <input
+                      name="galleryImageUrls"
+                      type="url"
+                      inputMode="url"
+                      value={galleryUrl}
+                      className={fieldClassName()}
+                      placeholder="https://..."
+                      onChange={(event) => {
+                        const nextUrls = [...galleryImageUrls];
+                        nextUrls[index] = event.target.value;
+                        setGalleryImageUrls(nextUrls);
+                      }}
+                    />
+                    {galleryUrl.trim() ? (
+                      <span className="mt-3 block overflow-hidden rounded-xl border border-[#741314]/12 bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={galleryUrl.trim()}
+                          alt={`Vista previa adicional ${index + 1}`}
+                          className="h-32 w-full object-cover"
+                          loading="lazy"
+                        />
+                      </span>
+                    ) : null}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <>
+              {values.galleryImageUrls.map((galleryUrl) => (
+                <input
+                  key={galleryUrl}
+                  type="hidden"
+                  name="galleryImageUrls"
+                  value={galleryUrl}
+                />
+              ))}
+              <p className="mt-5 border-t border-[#741314]/12 pt-4 text-xs leading-5 text-[#381932]/58">
+                La galería de hasta tres fotos está disponible para locales con suscripción activa.
+              </p>
+            </>
+          )}
         </section>
 
         <AdminFormDisclosure

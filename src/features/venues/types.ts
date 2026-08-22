@@ -44,6 +44,7 @@ export type VenueMenuItem = {
   priceDisplayMode: PriceDisplayMode;
   priceDisplayText: string | null;
   imageUrl: string | null;
+  galleryImageUrls: string[];
   secondaryImageUrl?: string | null;
   categoryName: string | null;
   allergens: MenuItemAllergen[];
@@ -100,6 +101,7 @@ export type HomeShowcaseItem = {
     slug: string;
     name: string;
     address: string | null;
+    phone: string | null;
     latitude: number | null;
     longitude: number | null;
     logoUrl?: string | null;

@@ -29,7 +29,7 @@ type PriceableItem = PriceDisplayInput & {
 };
 
 const DEFAULT_VARIABLE_PRICE_TEXT = "Precio a confirmar";
-const HIDDEN_PRICE_TEXT = "Consultar al establecimiento";
+const HIDDEN_PRICE_TEXT = "Contactar";
 
 export function normalizePriceDisplayMode(
   mode: string | null | undefined,
@@ -80,10 +80,13 @@ export function getPricePresentation(
   }
 
   if (mode === "hidden") {
+    const configuredLabel = input.priceDisplayText?.trim();
+    const label = configuredLabel || HIDDEN_PRICE_TEXT;
+
     return {
       mode,
-      label: HIDDEN_PRICE_TEXT,
-      compactLabel: "Consultar",
+      label,
+      compactLabel: label,
       isDefinitive: false,
     };
   }
