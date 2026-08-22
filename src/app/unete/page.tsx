@@ -1,16 +1,18 @@
 import { JoinSupportFunnel } from "@/components/join/join-support-funnel";
 import { SiteShell } from "@/components/layout/site-shell";
+import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 
-export default function JoinPage() {
+export default async function JoinPage() {
+  const siteMedia = await getSiteMediaAssetMap();
+
   return (
     <SiteShell
       wideContent
-      showBasicFooter={false}
       className="public-light-theme bg-page text-text-primary"
     >
       <main className="min-h-[calc(100svh-5rem)] bg-page px-5 py-8 text-text-primary sm:px-8 sm:py-12 lg:px-12 lg:py-16">
         <div className="mx-auto w-full max-w-7xl">
-          <JoinSupportFunnel />
+          <JoinSupportFunnel heroImageUrl={siteMedia.join_hero.imageUrl} />
         </div>
       </main>
     </SiteShell>

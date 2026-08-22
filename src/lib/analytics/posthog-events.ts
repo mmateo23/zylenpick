@@ -2,9 +2,17 @@
 
 import posthog, { type Properties } from "posthog-js";
 
+import {
+  captureAnalyticsAttribution,
+  getAnalyticsAttribution,
+} from "@/lib/analytics/track-event";
 import { readAnalyticsConsent } from "@/lib/cookies/analytics-consent";
 
 export type PickyaloPostHogEventName =
+  | "$pageview"
+  | "campana_visitada"
+  | "lugar_visto"
+  | "shot_visto"
   | "plato_visto"
   | "local_visto"
   | "add_to_cart"
@@ -54,11 +62,44 @@ export type PedidoConfirmadoProperties = PickyaloBaseEventProperties & {
   currency?: string;
 };
 
+export type PageViewProperties = {
+  $current_url: string;
+  $pathname: string;
+  screen_name: string;
+  screen_group: string;
+};
+
+export type CampanaVisitadaProperties = {
+  campaign_name: string;
+  campaign_source?: string;
+  campaign_medium?: string;
+  campaign_content?: string;
+  landing_path: string;
+};
+
+export type LugarVistoProperties = {
+  place_id: string;
+  place_name: string;
+  place_category: string;
+  city_slug?: string;
+  source: "mapa";
+};
+
+export type ShotVistoProperties = {
+  shot_id: string;
+  shot_name: string;
+  source: "feed" | "interstitial";
+};
+
 export type PickyaloPostHogEventProperties =
   | PlatoVistoProperties
   | LocalVistoProperties
   | AddToCartProperties
   | PedidoConfirmadoProperties
+  | PageViewProperties
+  | CampanaVisitadaProperties
+  | LugarVistoProperties
+  | ShotVistoProperties
   | (Properties & Record<string, PickyaloEventPropertyValue>);
 
 const capturedOnceKeys = new Set<string>();
@@ -95,7 +136,10 @@ export function capturePickyaloEvent(
     capturedOnceKeys.add(namespacedDedupeKey);
   }
 
+  captureAnalyticsAttribution();
+
   const eventProperties = cleanPostHogProperties({
+    ...getAnalyticsAttribution(),
     pathname: window.location.pathname,
     ...properties,
   });
@@ -114,6 +158,32 @@ export function capturePickyaloEvent(
   }
 
   posthog.capture(eventName, eventProperties);
+}
+
+export function capturePageView(properties: PageViewProperties) {
+  capturePickyaloEvent("$pageview", properties);
+}
+
+export function captureCampanaVisitada(
+  properties: CampanaVisitadaProperties,
+) {
+  capturePickyaloEvent("campana_visitada", properties, {
+    dedupeKey: [
+      properties.campaign_name,
+      properties.campaign_source,
+      properties.campaign_medium,
+      properties.campaign_content,
+      properties.landing_path,
+    ].join(":"),
+  });
+}
+
+export function captureLugarVisto(properties: LugarVistoProperties) {
+  capturePickyaloEvent("lugar_visto", properties);
+}
+
+export function captureShotVisto(properties: ShotVistoProperties) {
+  capturePickyaloEvent("shot_visto", properties);
 }
 
 export function capturePlatoVisto(

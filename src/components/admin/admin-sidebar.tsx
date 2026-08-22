@@ -21,7 +21,14 @@ const navigationItems = [
     label: "Contenido",
     href: "/panel/contenido",
     icon: Layers3,
-    matches: ["/panel/destacados", "/panel/chips", "/panel/imagenes", "/panel/funnel"],
+    matches: [
+      "/panel/campana-home",
+      "/panel/destacados",
+      "/panel/chips",
+      "/panel/imagenes",
+      "/panel/funnel",
+      "/panel/tracking",
+    ],
   },
   { label: "Solicitudes", href: "/panel/solicitudes", icon: Inbox, matches: [] },
   {

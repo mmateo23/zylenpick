@@ -23,6 +23,17 @@
   --overlay-card-from: rgba(6, 10, 11, 0.04);
   --overlay-card-mid: rgba(6, 10, 11, 0.18);
   --overlay-card-to: rgba(6, 10, 11, 0.88);
+  /* Stable contrast surfaces for UI placed over photography or mixed media. */
+  --floating-surface: rgba(255, 247, 232, 0.96);
+  --floating-surface-text: #741314;
+  --floating-surface-border: rgba(116, 19, 20, 0.24);
+  --media-copy: #fff7e8;
+  --media-scrim: linear-gradient(
+    180deg,
+    rgba(36, 17, 14, 0.04) 18%,
+    rgba(36, 17, 14, 0.34) 58%,
+    rgba(36, 17, 14, 0.84) 100%
+  );
   --shadow-soft: 0 18px 60px rgba(116, 19, 20, 0.12);
   --radius-sm: 12px;
   --radius-md: 18px;
@@ -298,6 +309,25 @@ video {
   .glass-panel {
     background: color-mix(in srgb, var(--surface) 92%, transparent);
     backdrop-filter: blur(10px);
+  }
+
+  .pickyalo-floating-surface {
+    color: var(--floating-surface-text);
+    background: var(--floating-surface);
+    border-color: var(--floating-surface-border);
+    box-shadow:
+      0 14px 36px rgba(56, 25, 50, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(14px) saturate(1.25);
+  }
+
+  .pickyalo-media-overlay {
+    background: var(--media-scrim);
+  }
+
+  .pickyalo-media-copy {
+    color: var(--media-copy);
+    text-shadow: 0 1px 3px rgba(36, 17, 14, 0.62);
   }
 
   .editorial-card {
@@ -584,11 +614,11 @@ video {
 
 @keyframes magic-border-beam-spin {
   0% {
-    transform: rotate(0deg);
+    transform: rotate(var(--beam-initial-offset, 0deg));
   }
 
   100% {
-    transform: rotate(360deg);
+    transform: rotate(calc(var(--beam-initial-offset, 0deg) + 360deg));
   }
 }
 
@@ -1108,6 +1138,65 @@ video {
 @media (prefers-reduced-motion: reduce) {
   .project-outro-pizza-layer {
     animation: none;
+  }
+}
+
+@keyframes campaignIconFloat {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -3px, 0); }
+}
+
+@keyframes campaignIconPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes campaignIconRotate {
+  to { transform: rotate(360deg); }
+}
+
+.campaign-icon-float { animation: campaignIconFloat 2.8s ease-in-out infinite; }
+.campaign-icon-pulse { animation: campaignIconPulse 2.4s ease-in-out infinite; }
+.campaign-icon-rotate { animation: campaignIconRotate 9s linear infinite; }
+
+@keyframes campaignConfettiFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -10px, 0) rotate(0deg);
+  }
+  14% { opacity: 0.72; }
+  78% { opacity: 0.54; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift), 150px, 0) rotate(var(--confetti-rotation));
+  }
+}
+
+.campaign-confetti-particle {
+  left: var(--confetti-left);
+  width: 5px;
+  height: 9px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: campaignConfettiFall var(--confetti-duration) linear var(--confetti-delay) infinite;
+  will-change: transform, opacity;
+}
+
+.campaign-confetti-particle:nth-child(3n) {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campaign-icon-float,
+  .campaign-icon-pulse,
+  .campaign-icon-rotate {
+    animation: none;
+  }
+
+  .campaign-confetti-particle {
+    display: none;
   }
 }
 

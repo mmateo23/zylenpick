@@ -17,6 +17,11 @@ import {
 } from "lucide-react";
 
 import { CartIcon } from "@/components/icons/cart-icon";
+import {
+  HotPlateIcon,
+  PickyaloLocationIcon,
+} from "@/components/icons/pickyalo";
+import { HomeCampaignCta } from "@/components/home/home-campaign-cta";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import type { City } from "@/features/cities/types";
 import type { SiteDesignConfig } from "@/features/design/site-design-config";
@@ -182,7 +187,7 @@ const FEATURED_HOME_ZONE = {
   imageAlt: "Platos para recoger en Talavera de la Reina",
   avatarSrc:
     "https://tse3.mm.bing.net/th/id/OIP.a2oALG8ItEFAkuxZUKyfqgAAAA?pid=ImgDet&w=184&h=123&c=7&o=7&rm=3",
-  posterSrc: "/home/zonas/talavera-poster-local.webp",
+  posterSrc: "/home/zonas/optimized/talavera-poster-local.webp",
   videoSrc: "https://cdn.pixabay.com/video/2026/05/01/349917.mov",
   cta: "Ver zona",
   href: "/zonas/talavera-de-la-reina",
@@ -190,6 +195,7 @@ const FEATURED_HOME_ZONE = {
 };
 
 export function DemoHome({
+  design,
   featuredItems,
   latestItems,
   template,
@@ -286,16 +292,30 @@ export function DemoHome({
     const loaderStartedAt = window.performance.now();
     const loaderProgressIntervalId = window.setInterval(() => {
       const elapsedMs = window.performance.now() - loaderStartedAt;
-      setLoaderProgress(Math.min(100, Math.round((elapsedMs / 1800) * 100)));
+      let nextProgress = 0;
+
+      if (elapsedMs < 360) {
+        nextProgress = (elapsedMs / 360) * 27;
+      } else if (elapsedMs < 650) {
+        nextProgress = 27;
+      } else if (elapsedMs < 1120) {
+        nextProgress = 27 + ((elapsedMs - 650) / 470) * 39;
+      } else if (elapsedMs < 1420) {
+        nextProgress = 66;
+      } else {
+        nextProgress = 66 + Math.min(1, (elapsedMs - 1420) / 680) * 30;
+      }
+
+      setLoaderProgress(Math.round(nextProgress));
     }, 40);
     const hideLoaderTimeoutId = window.setTimeout(() => {
       setLoaderProgress(100);
       setShowLoader(false);
       window.clearInterval(loaderProgressIntervalId);
-    }, 1800);
+    }, 2200);
     const removeLoaderTimeoutId = window.setTimeout(() => {
       setIsLoaderVisible(false);
-    }, 2520);
+    }, 2920);
 
     return () => {
       window.clearInterval(loaderProgressIntervalId);
@@ -334,6 +354,13 @@ export function DemoHome({
     [previewItems],
   );
   const dishExplorerPreviewItems = useMemo(() => previewItems.slice(0, 8), [previewItems]);
+  const homeProofItems = useMemo(
+    () =>
+      dishExplorerPreviewItems
+        .filter((item) => item.id !== heroPostItem?.id)
+        .slice(0, 3),
+    [dishExplorerPreviewItems, heroPostItem],
+  );
   const showLegacyHomeSections = false;
   return (
     <main
@@ -467,18 +494,17 @@ export function DemoHome({
           }
         }
 
-        @keyframes pickyaloLoaderLogoColorReveal {
-          0% {
-            clip-path: inset(0 100% 0 0);
+        @keyframes pickyaloLoaderMarkBreath {
+          0%, 100% {
+            transform: scale(1);
           }
-          48%,
-          100% {
-            clip-path: inset(0 0 0 0);
+          50% {
+            transform: scale(0.975);
           }
         }
 
-        .pickyalo-loader-logo-color {
-          animation: pickyaloLoaderLogoColorReveal 1.9s ease-in-out infinite;
+        .pickyalo-loader-mark {
+          animation: pickyaloLoaderMarkBreath 1.5s steps(3, end) infinite;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -500,9 +526,8 @@ export function DemoHome({
             animation: none !important;
             transform: none !important;
           }
-          .pickyalo-loader-logo-color {
+          .pickyalo-loader-mark {
             animation: none !important;
-            clip-path: inset(0 0 0 0) !important;
           }
         }
       `}</style>
@@ -521,32 +546,39 @@ export function DemoHome({
                 : "-translate-y-2 opacity-0"
             } motion-reduce:transition-none`}
           >
-            <div className="relative w-36 sm:w-44">
+            <div className="pickyalo-loader-mark relative h-24 w-24 overflow-hidden rounded-[1.45rem] shadow-[0_16px_38px_rgba(116,19,20,0.18)] sm:h-28 sm:w-28 sm:rounded-[1.7rem]">
               <Image
-                src="/logo/LogoNuevo.svg"
+                src="/icons/pickyalo-app.svg"
                 alt="Pickyalo"
-                width={176}
-                height={60}
+                width={112}
+                height={112}
                 priority
-                className="h-auto w-full opacity-90 [filter:grayscale(1)_sepia(1)_saturate(1.9)_hue-rotate(315deg)_brightness(0.54)_contrast(1.18)]"
+                className="h-full w-full object-cover"
               />
-              <div className="pickyalo-loader-logo-color absolute inset-0 overflow-hidden">
-                <Image
-                  src="/logo/LogoNuevo.svg"
-                  alt=""
-                  width={176}
-                  height={60}
-                  priority
-                  aria-hidden="true"
-                  className="h-auto w-full"
+            </div>
+            <div className="w-full max-w-[13rem]" role="progressbar" aria-label="Cargando Pickyalo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loaderProgress}>
+              <div className="h-2 overflow-hidden border border-[#741314] bg-[#FFF7E8] p-[2px]">
+                <div
+                  className="h-full bg-[repeating-linear-gradient(90deg,#741314_0_9px,transparent_9px_12px)] transition-[width] duration-150 [transition-timing-function:steps(4,end)] motion-reduce:transition-none"
+                  style={{ width: `${loaderProgress}%` }}
                 />
+              </div>
+              <div className="mt-2 flex min-h-4 items-center justify-between gap-4 font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[#741314]">
+                <span>
+                  {loaderProgress < 28
+                    ? "Iniciando"
+                    : loaderProgress < 67
+                      ? "Buscando cerca"
+                      : "Preparando"}
+                </span>
+                <span className="tabular-nums" aria-hidden="true">{loaderProgress}%</span>
               </div>
             </div>
             <div
-              className="min-w-20 text-center text-[12px] font-semibold tabular-nums tracking-[0.28em] text-[#741314]"
-              aria-label={`Cargando ${loaderProgress}%`}
+              className="sr-only"
+              aria-live="polite"
             >
-              {loaderProgress}%
+              Cargando {loaderProgress}%
             </div>
           </div>
         </div>
@@ -572,14 +604,14 @@ export function DemoHome({
       >
         <div className="grid w-full max-w-6xl items-center gap-6 lg:grid-cols-[minmax(0,0.82fr)_minmax(19rem,0.9fr)] lg:gap-10">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-          <div className="relative w-32 sm:w-40 md:w-48">
+          <div className="relative h-20 w-20 overflow-hidden rounded-[1.25rem] shadow-[0_14px_34px_rgba(116,19,20,0.16)] sm:h-24 sm:w-24 md:h-28 md:w-28">
             <Image
-              src="/logo/LogoNuevo.svg"
+              src="/icons/pickyalo-app.svg"
               alt={template?.logoAlt ?? "Pickyalo"}
-              width={144}
-              height={48}
+              width={112}
+              height={112}
               priority
-              className="h-auto w-full"
+              className="h-full w-full object-cover"
             />
 
             {showLocationPrompt ? (
@@ -756,27 +788,44 @@ export function DemoHome({
           </div>
 
           <h1 className="mt-4 max-w-[12ch] text-balance text-[clamp(2.8rem,10vw,6.5rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#741314] sm:mt-6 lg:max-w-[9ch]">
-            {"Elige productos y platos en segundos"}
+            {"Tu próxima comida entra por los ojos."}
           </h1>
 
-          <p className="mt-3 max-w-sm text-balance text-[18px] font-medium leading-7 text-[#24110E]/72 sm:mt-4 sm:text-xl sm:leading-8">
-            {"Mira, elige y recoge en local."}
+          <p className="mt-3 max-w-lg text-balance text-[18px] font-medium leading-7 text-[#24110E]/72 sm:mt-4 sm:text-xl sm:leading-8">
+            {"Pickyalo te enseña platos reales de locales cercanos. Tú eliges, vas y recoges."}
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
             <Link
               href={template?.primaryHref ?? "/platos"}
-              className="inline-flex items-center justify-center rounded-full bg-[#741314] px-6 py-3.5 text-sm font-semibold text-[#FDE3AD] shadow-[0_20px_54px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10] md:cursor-none"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#741314] py-2.5 pl-2.5 pr-6 text-sm font-semibold text-[#FDE3AD] shadow-[0_20px_54px_rgba(116,19,20,0.26)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10] md:cursor-none"
             >
-              Ver platos
+              <span
+                aria-hidden="true"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#FDE3AD]/14"
+              >
+                <HotPlateIcon size={19} strokeWidth={2.25} />
+              </span>
+              Explorar platos
             </Link>
             <Link
               href="/mapa?localizar=1"
-              className="inline-flex items-center justify-center rounded-full border border-[#741314]/55 bg-[#FDE3AD]/72 px-5 py-3.5 text-sm font-semibold text-[#741314] shadow-[0_14px_36px_rgba(116,19,20,0.10)] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD] md:cursor-none"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#741314]/55 bg-[#FDE3AD]/72 py-2.5 pl-2.5 pr-5 text-sm font-semibold text-[#741314] shadow-[0_14px_36px_rgba(116,19,20,0.10)] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD] md:cursor-none"
             >
-              Ver mapa
+              <span
+                aria-hidden="true"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#741314]/8"
+              >
+                <PickyaloLocationIcon size={19} strokeWidth={2.25} />
+              </span>
+              Abrir mapa
             </Link>
           </div>
+          {design?.texts.homeCampaign.enabled ? (
+            <div className="mx-auto mt-4 w-full max-w-[31rem] lg:mx-0">
+              <HomeCampaignCta campaign={design.texts.homeCampaign} />
+            </div>
+          ) : null}
           </div>
 
           <div className="relative mx-auto mt-8 flex w-full max-w-[20.5rem] items-center justify-center self-center overflow-visible px-2 pb-8 pt-5 sm:max-w-[22rem] lg:mx-auto lg:mt-0 lg:max-w-[24rem] lg:-translate-x-4 lg:px-0 lg:pb-0 lg:pt-0">
@@ -859,7 +908,7 @@ export function DemoHome({
                       <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
                         {typeof heroPostItem.venue.logoUrl === "string" ? (
                           <Image
-                            src={heroPostItem.venue.logoUrl ?? "/logo/Agrupar.svg"}
+                            src={heroPostItem.venue.logoUrl ?? "/icons/pickyalo-app.svg"}
                             alt={heroPostItem.venue.name}
                             fill
                             sizes="40px"
@@ -959,6 +1008,8 @@ export function DemoHome({
         </div>
       </div>
 
+      {showLegacyHomeSections ? (
+        <>
       <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-8 lg:py-24">
         <div className="pointer-events-none absolute left-[-18vw] top-8 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.14),transparent_68%)] blur-2xl" />
         <div className="pointer-events-none absolute bottom-0 right-[-12vw] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(169,64,42,0.12),transparent_70%)] blur-2xl" />
@@ -1125,6 +1176,203 @@ export function DemoHome({
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+        </>
+      ) : null}
+
+      <section className="relative z-10 overflow-hidden border-t border-[#741314]/12 px-4 py-20 sm:px-8 lg:py-28">
+        <div className="pointer-events-none absolute -right-24 top-8 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.10),transparent_70%)] blur-3xl" />
+        <div className="relative mx-auto max-w-6xl">
+          <div className="grid gap-8 lg:grid-cols-[0.82fr_1.18fr] lg:items-end lg:gap-16">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#741314]">
+                Así funciona Pickyalo
+              </p>
+              <h2 className="mt-5 max-w-[12ch] text-balance text-[clamp(2.8rem,7vw,5.8rem)] font-semibold leading-[0.88] tracking-[-0.075em] text-[#741314]">
+                No busques un local. Encuentra el plato que te llama.
+              </h2>
+            </div>
+            <div className="max-w-xl lg:justify-self-end lg:pb-2">
+              <p className="text-xl font-medium leading-8 text-[#24110E]/78 sm:text-2xl sm:leading-9">
+                Menos cartas eternas. Menos pestañas abiertas. Ves lo que hay, sabes dónde está y decides si vas a por ello.
+              </p>
+              <Link
+                href="/platos"
+                className="mt-7 inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-6 py-3 text-sm font-semibold text-[#FDE3AD] shadow-[0_18px_44px_rgba(116,19,20,0.22)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
+              >
+                Ver qué me apetece
+              </Link>
+            </div>
+          </div>
+
+          {homeProofItems.length ? (
+            <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:mt-16">
+              {homeProofItems.map((item, index) => (
+                <Link
+                  key={item.id}
+                  href={getPostModalHref(item)}
+                  aria-label={`Ver ${item.name}`}
+                  className={`group relative block overflow-hidden bg-[#EAD7C5] shadow-[0_20px_54px_rgba(116,19,20,0.12)] ${
+                    index === 0
+                      ? "col-span-2 aspect-[16/11] rounded-[1.5rem] sm:col-span-1 sm:mt-10 sm:aspect-[4/5] sm:rounded-[2rem]"
+                      : index === 1
+                        ? "aspect-[4/5] rounded-[1.5rem] sm:rounded-[2rem]"
+                        : "aspect-[4/5] rounded-[1.5rem] sm:mt-16 sm:rounded-[2rem]"
+                  }`}
+                >
+                  <Image
+                    src={item.imageUrl ?? "/home/assets/asset_pizza_transparent.png"}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 640px) 92vw, 33vw"
+                    className="object-cover transition duration-700 group-hover:scale-[1.035] motion-reduce:transition-none"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_38%,rgba(36,17,14,0.78))]" />
+                  <div className="absolute inset-x-0 bottom-0 p-3.5 text-[#FFF7E8] sm:p-6">
+                    <span className="inline-flex rounded-full border border-[#FFF7E8]/38 bg-[#741314]/72 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.16em] backdrop-blur-sm sm:px-3 sm:py-1.5 sm:text-[10px] sm:tracking-[0.18em]">
+                      Plato real
+                    </span>
+                    <h3 className="mt-2.5 line-clamp-2 text-lg font-semibold leading-[0.98] tracking-[-0.045em] sm:mt-3 sm:text-3xl sm:leading-none sm:tracking-[-0.05em]">
+                      {item.name}
+                    </h3>
+                    <p className="mt-1.5 line-clamp-2 text-[11px] font-medium leading-4 text-[#FFF7E8]/78 sm:mt-2 sm:text-sm sm:leading-normal">
+                      {item.venue.name} · {item.venue.cityName}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="relative z-10 border-y border-[#741314]/14 bg-[#741314] px-4 py-20 text-[#FFF7E8] sm:px-8 lg:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#FDE3AD]/78">
+                Tres pasos. Ninguna vuelta.
+              </p>
+              <h2 className="mt-4 max-w-[12ch] text-[clamp(3rem,7vw,6rem)] font-semibold leading-[0.86] tracking-[-0.075em]">
+                Mira. Elige. Recoge.
+              </h2>
+            </div>
+            <p className="max-w-md text-lg font-medium leading-8 text-[#FFF7E8]/72">
+              Pickyalo convierte una decisión pesada en un recorrido que se entiende de un vistazo.
+            </p>
+          </div>
+
+          <div className="mt-12 grid border-t border-[#FDE3AD]/22 sm:grid-cols-3">
+            {[
+              ["01", "Mira", "Platos y productos reales, no fotos genéricas ni promesas."],
+              ["02", "Elige", "Una selección corta de locales cercanos para decidir rápido."],
+              ["03", "Recoge", "El local lo prepara y tú pasas a por ello, sin esperar reparto."],
+            ].map(([step, title, text], index) => (
+              <div
+                key={step}
+                className={`border-b border-[#FDE3AD]/22 py-8 sm:border-b-0 sm:px-7 sm:py-10 ${
+                  index > 0 ? "sm:border-l" : "sm:pl-0"
+                } ${index === 2 ? "sm:pr-0" : ""}`}
+              >
+                <span className="font-mono text-xs font-bold tracking-[0.22em] text-[#FDE3AD]/62">
+                  {step}
+                </span>
+                <h3 className="mt-5 text-3xl font-semibold tracking-[-0.055em] text-[#FDE3AD]">
+                  {title}
+                </h3>
+                <p className="mt-3 max-w-xs text-base leading-7 text-[#FFF7E8]/68">{text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 overflow-hidden px-4 py-20 sm:px-8 lg:py-28">
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
+          <Link
+            href="/mapa?localizar=1"
+            aria-label="Explorar Talavera en el mapa de Pickyalo"
+            className="group/map relative block min-h-[24rem] overflow-hidden rounded-[2rem] bg-[#741314] shadow-[0_30px_80px_rgba(116,19,20,0.18)] sm:min-h-[34rem]"
+          >
+            <Image
+              src={FEATURED_HOME_ZONE.posterSrc}
+              alt="Talavera de la Reina y sus locales cercanos"
+              fill
+              sizes="(max-width: 1024px) 92vw, 52vw"
+              className="object-cover transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(36,17,14,0.04),rgba(36,17,14,0.62))]" />
+            <span className="absolute left-5 top-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#FFF7E8]/42 bg-[#741314]/78 px-4 py-2 text-xs font-bold text-[#FFF7E8] backdrop-blur-md sm:left-6 sm:top-6">
+              <PickyaloLocationIcon size={18} strokeWidth={2.25} aria-hidden />
+              Mapa de Talavera
+            </span>
+            <div className="absolute inset-x-0 bottom-0 p-6 text-[#FFF7E8] sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#FDE3AD]">
+                Comida, cultura y lugares útiles
+              </p>
+              <p className="mt-3 max-w-md text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-5xl">
+                Una ciudad también se descubre por el camino.
+              </p>
+              <span className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[#FFF7E8] px-5 py-2.5 text-sm font-bold text-[#741314] transition group-hover/map:-translate-y-0.5">
+                Entrar al mapa
+              </span>
+            </div>
+          </Link>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#741314]">
+              Pickyalo también se recorre
+            </p>
+            <h2 className="mt-5 max-w-[12ch] text-balance text-[clamp(2.8rem,6vw,5.3rem)] font-semibold leading-[0.88] tracking-[-0.075em] text-[#741314]">
+              Recoge algo rico. Descubre la ciudad.
+            </h2>
+            <p className="mt-6 max-w-xl text-lg font-medium leading-8 text-[#24110E]/72">
+              El mapa conecta platos y locales con monumentos, murales, parques y sitios donde parar. Así, salir a recoger también puede enseñarte algo que tenías cerca y todavía no conocías.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              {["Platos y locales", "Murales", "Monumentos", "Parques y mesas"].map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-[#741314]/34 bg-[#FFF7E8] px-4 py-2 text-xs font-bold text-[#741314]"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/mapa?localizar=1"
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-6 py-3 text-sm font-semibold text-[#FDE3AD] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
+              >
+                Explorar el mapa
+              </Link>
+              <Link
+                href="/zonas"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#741314] px-6 py-3 text-sm font-semibold text-[#741314] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD]"
+              >
+                Ver zonas
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-4 pb-20 pt-6 sm:px-8 lg:pb-28">
+        <div className="mx-auto max-w-6xl border-y border-[#741314]/18 py-14 text-center sm:py-20">
+          <p className="mx-auto max-w-[13ch] text-balance text-[clamp(3rem,8vw,6.8rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-[#741314]">
+            Lo difícil era decidir. Ya no.
+          </p>
+          <p className="mx-auto mt-6 max-w-xl text-lg font-medium leading-8 text-[#24110E]/68">
+            Abre Pickyalo, encuentra algo que te apetezca y recógelo cerca.
+          </p>
+          <Link
+            href="/platos"
+            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-[#741314] px-7 py-3.5 text-sm font-semibold text-[#FDE3AD] shadow-[0_20px_54px_rgba(116,19,20,0.22)] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
+          >
+            Quiero verlo
+          </Link>
         </div>
       </section>
 

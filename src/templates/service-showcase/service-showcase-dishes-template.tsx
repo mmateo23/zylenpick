@@ -9,18 +9,21 @@ type ServiceShowcaseDishesTemplateProps = {
   items: HomeShowcaseItem[];
   funnelSettings?: SiteFunnelSettings;
   chips?: SiteChip[];
+  heroImageUrl?: string;
 };
 
 export function ServiceShowcaseDishesTemplate({
   items,
   funnelSettings,
   chips,
+  heroImageUrl,
 }: ServiceShowcaseDishesTemplateProps) {
   return (
     <DemoDishesCarousel
       items={items}
       funnelSettings={funnelSettings}
       chips={chips}
+      heroImageUrl={heroImageUrl}
       template={serviceShowcaseTemplate.dishes}
     />
   );

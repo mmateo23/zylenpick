@@ -38,7 +38,8 @@ const mobileNavigationItems = [
   { label: "El proyecto", href: "/el-proyecto" },
 ];
 
-const logoSrc = "/logo/LogoNuevo.svg";
+const logoSrc = "/icons/pickyalo-app.svg";
+const mobileLogoSrc = "/icons/pickyalo-app.svg";
 const mapDiscoveryHref = "/mapa?localizar=1";
 
 function getNavigationHref(href: string) {
@@ -160,12 +161,17 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   const zoneHref = selectedCity?.slug ? `/zonas/${selectedCity.slug}` : "/zonas";
 
   const dockRailClassName =
-    "border-[#741314]/14 bg-[#FFF7E8]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_12px_28px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150";
+    "border-[var(--floating-surface-border)] bg-[var(--floating-surface)] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_12px_30px_rgba(56,25,50,0.14)] backdrop-blur-xl backdrop-saturate-150";
   const dockButtonClassName =
-    "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] shadow-[0_8px_20px_rgba(116,19,20,0.06)] backdrop-blur-xl hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
+    "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10 hover:text-[#741314]";
+  const mobileDockButtonClassName =
+    "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10";
   const orderButtonClassName = hasOrderSignal
     ? "border-[#741314] bg-[#741314] text-[#FDE3AD] hover:bg-[#5F0F10]"
     : dockButtonClassName;
+  const mobileOrderButtonClassName = hasOrderSignal
+    ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.2)]"
+    : mobileDockButtonClassName;
   const desktopLeftDockItems = [
     navigationItems[0],
     navigationItems[1],
@@ -177,8 +183,8 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div className="rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[var(--shadow-soft)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
-          <div className={`${showNavigation ? "grid grid-cols-[repeat(3,2.25rem)_3.5rem_repeat(3,2.25rem)] gap-px" : "flex gap-1"} items-center justify-center md:hidden`}>
+        <div className="pickyalo-floating-surface mx-auto w-fit rounded-full border px-2 py-1.5 md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+          <div className={`${showNavigation ? "grid grid-cols-[repeat(5,2.75rem)] gap-2" : "flex gap-2"} items-center justify-center md:hidden`}>
             {showNavigation ? (
               <button
                 type="button"
@@ -186,102 +192,75 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-navigation"
                 aria-label={isMobileMenuOpen ? "Cerrar men\u00fa" : "Abrir men\u00fa"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${dockButtonClassName}`}
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${mobileDockButtonClassName}`}
               >
-                {isMobileMenuOpen ? <CloseIcon size={22} /> : <MenuIcon size={22} />}
+                {isMobileMenuOpen ? <CloseIcon size={25} /> : <MenuIcon size={25} />}
               </button>
             ) : (
-              <span className="h-9 w-9" aria-hidden="true" />
+              <span className="h-11 w-11" aria-hidden="true" />
             )}
 
             {showNavigation ? (
               <Link
                 href={mapDiscoveryHref}
                 aria-label="Explorar mapa"
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
                   isItemActive("/mapa")
                     ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
-                    : dockButtonClassName
+                    : mobileDockButtonClassName
                 }`}
               >
-                <Map size={23} strokeWidth={2.05} />
-              </Link>
-            ) : null}
-
-            {showNavigation ? (
-              <Link
-                href="/platos"
-                aria-label="Explorar platos"
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                  isItemActive("/platos")
-                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
-                    : dockButtonClassName
-                }`}
-              >
-                <LayoutGrid size={23} strokeWidth={2.05} />
+                <Map size={26} strokeWidth={2.05} />
               </Link>
             ) : null}
 
             <Link
               href="/"
-              className="inline-flex h-9 w-14 items-center justify-center rounded-full px-1 transition hover:bg-[#741314]/8"
+              className="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-[0.9rem] transition hover:opacity-90"
               aria-label="Ir al inicio"
             >
               <Image
-                src={logoSrc}
+                src={mobileLogoSrc}
                 alt="Pickyalo"
-                width={210}
-                height={42}
+                width={44}
+                height={44}
                 priority
-                className="h-auto w-[54px]"
+                className="h-11 w-11 object-cover"
               />
             </Link>
 
             {showNavigation ? (
               <Link
-                href={zoneHref}
-                aria-label={selectedCity?.name ? `Ver ${selectedCity.name}` : "Ver zonas"}
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                  isItemActive("/zonas")
+                href="/platos"
+                aria-label="Explorar platos"
+                className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
+                  isItemActive("/platos")
                     ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
-                    : dockButtonClassName
+                    : mobileDockButtonClassName
                 }`}
               >
-                <MapPinned size={23} strokeWidth={2.05} />
+                <LayoutGrid size={26} strokeWidth={2.05} />
               </Link>
             ) : null}
 
             <Link
               href={orderAccessHref}
               aria-label={orderAccessLabel}
-              className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${orderButtonClassName}`}
+              className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${mobileOrderButtonClassName}`}
             >
               {showActiveOrderAccess ? (
                 <ActiveOrderIndicator
                   timeLabel={null}
-                  iconSize={16}
+                  iconSize={20}
                 />
               ) : (
                 <>
-                  <CartIcon size={22} />
+                  <CartIcon size={25} />
                   <CartBadge totalItems={totals.totalItems} />
                 </>
               )}
             </Link>
 
-            {showNavigation ? (
-              <Link
-                href="/pedidos"
-                aria-label="Tus pedidos"
-                className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                  isItemActive("/pedidos")
-                    ? "border-[#741314] bg-[#741314] text-[#FDE3AD]"
-                    : dockButtonClassName
-                }`}
-              >
-                <ReceiptText size={22} strokeWidth={2.05} />
-              </Link>
-            ) : null}
           </div>
 
           <div className="hidden items-center justify-center md:flex">
@@ -318,16 +297,16 @@ export function SiteHeader({ showNavigation = true }: SiteHeaderProps) {
 
               <Link
                 href="/"
-                className="inline-flex h-14 min-w-[8.75rem] items-center justify-center rounded-[1.25rem] px-3 transition hover:bg-[#741314]/8"
+                className="inline-flex h-14 w-14 items-center justify-center rounded-[1.25rem] transition hover:bg-[#741314]/8"
                 aria-label="Ir al inicio"
               >
                 <Image
                   src={logoSrc}
                   alt="Pickyalo"
-                  width={210}
-                  height={42}
+                  width={56}
+                  height={56}
                   priority
-                  className="h-auto w-[116px]"
+                  className="h-12 w-12 rounded-[0.9rem] object-cover"
                 />
               </Link>
 

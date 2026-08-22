@@ -49,7 +49,7 @@ const reversePalette = [
 ];
 
 function BrandLogo() {
-  const [src, setSrc] = useState("/logo/LogoNuevo.svg");
+  const [src, setSrc] = useState("/icons/pickyalo-app.svg");
 
   return (
     <div className="flex min-h-16 items-center">
@@ -64,7 +64,7 @@ function BrandLogo() {
 }
 
 function ReverseLogo() {
-  const [src, setSrc] = useState("/logo/LogoNuevo_Negativo.svg");
+  const [src, setSrc] = useState("/icons/pickyalo-app.svg");
 
   return (
     <div className="flex min-h-16 items-center">

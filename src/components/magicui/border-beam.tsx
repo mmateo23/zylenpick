@@ -10,6 +10,9 @@ type BorderBeamProps = {
   borderWidth?: number;
   reverse?: boolean;
   initialOffset?: number;
+  colorFrom?: string;
+  colorTo?: string;
+  glow?: boolean;
 };
 
 export function BorderBeam({
@@ -20,6 +23,9 @@ export function BorderBeam({
   borderWidth = 1.5,
   reverse = false,
   initialOffset = 0,
+  colorFrom = "#F3D58D",
+  colorTo = "#D6A648",
+  glow = false,
 }: BorderBeamProps) {
   const wrapperStyle = {
     "--beam-duration": `${duration}s`,
@@ -27,7 +33,7 @@ export function BorderBeam({
     "--beam-direction": reverse ? "reverse" : "normal",
     "--beam-border-width": `${borderWidth}px`,
     "--beam-size": `${size}px`,
-    transform: `rotate(${initialOffset}deg)`,
+    "--beam-initial-offset": `${initialOffset}deg`,
   } as CSSProperties;
 
   const maskStyle = {
@@ -48,7 +54,13 @@ export function BorderBeam({
       >
         <div
           className={`absolute inset-0 rounded-[inherit] bg-[conic-gradient(from_180deg_at_50%_50%,transparent_0deg,transparent_120deg,rgba(243,213,141,0.08)_150deg,rgba(243,213,141,0.95)_180deg,rgba(214,166,72,1)_210deg,rgba(243,213,141,0.28)_236deg,transparent_270deg,transparent_360deg)] p-[var(--beam-border-width)] ${className}`}
-          style={maskStyle}
+          style={{
+            ...maskStyle,
+            backgroundImage: `conic-gradient(from 180deg at 50% 50%, transparent 0deg, transparent 120deg, ${colorFrom}14 150deg, ${colorFrom} 180deg, ${colorTo} 210deg, ${colorFrom}47 236deg, transparent 270deg, transparent 360deg)`,
+            filter: glow
+              ? `drop-shadow(0 0 4px ${colorFrom}) drop-shadow(0 0 8px ${colorTo})`
+              : undefined,
+          }}
         />
       </div>
     </div>

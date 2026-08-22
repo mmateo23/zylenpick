@@ -110,11 +110,11 @@ export function ZylenPickFooter({
           <div>
             <div className="inline-flex items-center">
               <Image
-                src="/logo/LogoNuevo.svg"
+                src="/icons/pickyalo-app.svg"
                 alt="Pickyalo"
-                width={136}
-                height={28}
-                className="h-auto w-[92px] sm:w-[112px]"
+                width={64}
+                height={64}
+                className="h-14 w-14 rounded-[1rem] object-cover sm:h-16 sm:w-16"
               />
             </div>
 

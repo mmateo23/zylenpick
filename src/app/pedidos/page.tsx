@@ -11,7 +11,7 @@ export const metadata: Metadata = getNoIndexMetadata({
 
 export default function OrdersPage() {
   return (
-    <SiteShell showBasicFooter={false}>
+    <SiteShell>
       <ActiveOrderEntry />
     </SiteShell>
   );

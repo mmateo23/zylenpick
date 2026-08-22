@@ -47,7 +47,7 @@ export async function generateMetadata({
     title: `${venue.name} en ${venue.city.name}: qué probar y cómo recoger`,
     description: `Descubre qué prepara ${venue.name}, consulta su horario y encuentra cómo llegar para recoger en ${venue.city.name}.`,
     path: `/zonas/${venue.city.slug}/venues/${venue.slug}`,
-    image: venue.coverUrl ?? venue.logoUrl ?? "/logo/LogoNuevo.svg?v=1",
+    image: venue.coverUrl ?? venue.logoUrl ?? "/icons/pickyalo-app.svg?v=1",
   });
 }
 

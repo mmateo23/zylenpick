@@ -18,6 +18,18 @@ type ProjectSlide = {
   actionHref: string;
 };
 
+export type ProjectScrollSliderMedia = {
+  heroImageUrl?: string;
+  discoverImageUrl?: string;
+  chooseImageUrl?: string;
+  pickupImageUrl?: string;
+  outroImageUrl?: string;
+};
+
+type ProjectScrollSliderProps = {
+  media?: ProjectScrollSliderMedia;
+};
+
 const productAssets = [
   {
     src: "/home/project/project_post_pickyalo.png",
@@ -26,7 +38,7 @@ const productAssets = [
   },
 ];
 
-export function ProjectScrollSlider() {
+export function ProjectScrollSlider({ media = {} }: ProjectScrollSliderProps) {
   const sliderRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const isMobileRef = useRef(false);
@@ -45,6 +57,7 @@ export function ProjectScrollSlider() {
         description:
           "Pickyalo reune productos y platos destacados de locales cercanos en una galeria visual, real y facil de mirar.",
         imageUrl:
+          media.discoverImageUrl ??
           "https://images.unsplash.com/photo-1682685795463-0674c065f315?q=80&w=1926&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         actionLabel: "Explorar",
         actionHref: "/platos",
@@ -62,6 +75,7 @@ export function ProjectScrollSlider() {
         description:
           "Sin cartas infinitas, fotos pobres ni vueltas de mas. Ves lo que merece la pena y eliges sin acabar en lo de siempre.",
         imageUrl:
+          media.chooseImageUrl ??
           "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=3032&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         actionLabel: "Elegir",
         actionHref: "/platos",
@@ -77,12 +91,13 @@ export function ProjectScrollSlider() {
         description:
           "El local prepara tu seleccion, tu pasas a recogerla y compras mejor sin perder tiempo ni alejarte de lo cercano.",
         imageUrl:
+          media.pickupImageUrl ??
           "https://images.unsplash.com/photo-1531920382591-9179c11ab2d5?q=80&w=2342&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         actionLabel: "Recoger",
         actionHref: "/zonas",
       },
     ],
-    [],
+    [media.chooseImageUrl, media.discoverImageUrl, media.pickupImageUrl],
   );
 
   useEffect(() => {
@@ -159,8 +174,7 @@ export function ProjectScrollSlider() {
           overflow: "hidden",
           borderTopLeftRadius: "2rem",
           borderTopRightRadius: "2rem",
-          backgroundImage:
-            "linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url('https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          backgroundImage: `linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url("${media.heroImageUrl ?? "https://images.unsplash.com/photo-1742845834625-4c68792709f1?q=80&w=2188&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -394,8 +408,7 @@ export function ProjectScrollSlider() {
           overflow: "hidden",
           borderBottomLeftRadius: "2rem",
           borderBottomRightRadius: "2rem",
-          backgroundImage:
-            "linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url('https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
+          backgroundImage: `linear-gradient(rgba(255,247,232,0.20), rgba(255,247,232,0.20)), url("${media.outroImageUrl ?? "https://images.unsplash.com/photo-1696360089706-beac23813902?q=80&w=2210&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}")`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}

@@ -6,6 +6,7 @@ import { ClockIcon } from "@/components/icons/clock-icon";
 import { LocationPinIcon } from "@/components/icons/location-pin-icon";
 import { StepsIcon } from "@/components/icons/steps-icon";
 import { WalkIcon } from "@/components/icons/walk-icon";
+import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
 import {
   getDistanceInKm,
   getUserLocationErrorMessage,
@@ -168,15 +169,26 @@ export function VenueArrivalCard({
         </button>
       ) : null}
 
-      <a
-        href={mapsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="magnetic-button mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
-      >
-        <LocationPinIcon size={18} />
-        Cómo llegar
-      </a>
+      {venueCoordinates ? (
+        <NativeDirectionsLink
+          destination={venueCoordinates}
+          origin={userLocation}
+          destinationLabel={venueName}
+          className="magnetic-button mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
+        >
+          <LocationPinIcon size={18} />
+          Cómo llegar
+        </NativeDirectionsLink>
+      ) : (
+        <a
+          href={mapsUrl}
+          rel="external"
+          className="magnetic-button mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full border border-accent-border bg-accent-soft px-4 py-2.5 text-sm font-semibold text-accent-strong transition hover:bg-accent-soft"
+        >
+          <LocationPinIcon size={18} />
+          Cómo llegar
+        </a>
+      )}
 
       {feedback ? (
         <p className="mt-4 text-sm leading-6 text-text-muted">{feedback}</p>

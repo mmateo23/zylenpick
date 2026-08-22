@@ -599,13 +599,17 @@ export type Database = {
         Row: {
           key:
             | "home_hero"
+            | "dishes_hero"
+            | "map_hero"
             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
             | "project_step_discover"
             | "project_step_order"
-            | "project_step_pickup";
+            | "project_step_pickup"
+            | "cart_empty_hero"
+            | "cart_active_hero";
           label: string;
           description: string | null;
           image_url: string | null;
@@ -615,13 +619,17 @@ export type Database = {
         Insert: {
           key:
             | "home_hero"
+            | "dishes_hero"
+            | "map_hero"
             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
             | "project_step_discover"
             | "project_step_order"
-            | "project_step_pickup";
+            | "project_step_pickup"
+            | "cart_empty_hero"
+            | "cart_active_hero";
           label: string;
           description?: string | null;
           image_url?: string | null;
@@ -631,13 +639,17 @@ export type Database = {
         Update: {
           key?:
             | "home_hero"
+            | "dishes_hero"
+            | "map_hero"
             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
             | "project_step_discover"
             | "project_step_order"
-            | "project_step_pickup";
+            | "project_step_pickup"
+            | "cart_empty_hero"
+            | "cart_active_hero";
           label?: string;
           description?: string | null;
           image_url?: string | null;

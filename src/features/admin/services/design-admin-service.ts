@@ -7,6 +7,9 @@ import {
 import {
   defaultSiteDesignConfig,
   normalizeSiteDesignConfig,
+  type HomeCampaignIconMotion,
+  type HomeCampaignMediaType,
+  type HomeCampaignVisualStyle,
   type SiteDesignConfig,
   type SiteDesignMediaConfig,
   type SiteDesignTextsConfig,
@@ -30,6 +33,88 @@ function revalidateDesignPaths() {
   revalidatePath("/cart");
   revalidatePath("/checkout/success/[orderId]", "page");
   revalidatePath("/panel/diseno");
+  revalidatePath("/panel/campana-home");
+}
+
+function getCampaignMediaType(formData: FormData): HomeCampaignMediaType {
+  const type = getString(formData, "backgroundMediaType");
+  return type === "image" || type === "video" ? type : "none";
+}
+
+function getCheckbox(formData: FormData, key: string) {
+  return formData.get(key) === "on";
+}
+
+function getCampaignHref(formData: FormData) {
+  const href = getString(formData, "href");
+
+  if (href.startsWith("/") && !href.startsWith("//")) {
+    return href;
+  }
+
+  try {
+    const url = new URL(href);
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      return url.toString();
+    }
+  } catch {
+    // The validation error below gives the admin a useful message.
+  }
+
+  throw new Error("El destino debe ser una ruta interna o una URL válida.");
+}
+
+function getCampaignMediaUrl(
+  formData: FormData,
+  key: string,
+  label = "El recurso",
+) {
+  const value = getString(formData, key);
+  if (!value) return "";
+
+  if (value.startsWith("/") && !value.startsWith("//")) {
+    return value;
+  }
+
+  try {
+    const url = new URL(value);
+    if (url.protocol === "https:" || url.protocol === "http:") {
+      return url.toString();
+    }
+  } catch {
+    // The validation error below gives the admin a useful message.
+  }
+
+  throw new Error(`${label} debe usar una ruta interna o una URL válida.`);
+}
+
+
+function getColor(formData: FormData, key: string) {
+  const color = getString(formData, key);
+  if (!/^#[0-9a-f]{6}$/i.test(color)) {
+    throw new Error(`El color ${key} no es válido.`);
+  }
+  return color.toUpperCase();
+}
+
+function getPercentage(formData: FormData, key: string, fallback: number) {
+  const value = Number(getString(formData, key));
+  if (!Number.isFinite(value)) return fallback;
+  return Math.min(100, Math.max(0, Math.round(value)));
+}
+
+function getVisualStyle(formData: FormData): HomeCampaignVisualStyle {
+  const style = getString(formData, "visualStyle");
+  return style === "glass" || style === "spotlight" || style === "outline"
+    ? style
+    : "editorial";
+}
+
+function getIconMotion(formData: FormData): HomeCampaignIconMotion {
+  const motion = getString(formData, "iconMotion");
+  return motion === "float" || motion === "pulse" || motion === "rotate"
+    ? motion
+    : "none";
 }
 
 async function upsertDesignSetting(
@@ -74,18 +159,15 @@ export async function getAdminSiteDesignConfig(): Promise<SiteDesignConfig> {
 export async function updateDesignTextsAction(formData: FormData) {
   "use server";
 
+  const current = await getAdminSiteDesignConfig();
   const texts: SiteDesignTextsConfig = {
     globalLabels: {
-      viewMenu: getString(formData, "globalLabels.viewMenu"),
-      viewDetail: getString(formData, "globalLabels.viewDetail"),
-      addForPickup: getString(formData, "globalLabels.addForPickup"),
+      ...current.texts.globalLabels,
       prepareForPickup: getString(formData, "globalLabels.prepareForPickup"),
       directions: getString(formData, "globalLabels.directions"),
     },
-    home: {
-      heroTitle: getString(formData, "home.heroTitle"),
-      heroSubtitle: getString(formData, "home.heroSubtitle"),
-    },
+    home: current.texts.home,
+    homeCampaign: current.texts.homeCampaign,
     cart: {
       emptyTitle: getString(formData, "cart.emptyTitle"),
       emptySubtitle: getString(formData, "cart.emptySubtitle"),
@@ -106,15 +188,70 @@ export async function updateDesignTextsAction(formData: FormData) {
   await upsertDesignSetting("texts", texts as unknown as Json);
 }
 
+export async function updateHomeCampaignAction(formData: FormData) {
+  "use server";
+
+  const current = await getAdminSiteDesignConfig();
+  const enabled = getCheckbox(formData, "enabled");
+  const title = getString(formData, "title");
+  const ctaLabel = getString(formData, "ctaLabel");
+  const startsOn = getString(formData, "startsOn");
+  const endsOn = getString(formData, "endsOn");
+
+  if (enabled && (!title || !ctaLabel)) {
+    throw new Error("Completa el título y el texto del botón antes de activar la campaña.");
+  }
+
+  if (startsOn && endsOn && endsOn < startsOn) {
+    throw new Error("La fecha de fin no puede ser anterior a la fecha de inicio.");
+  }
+
+  const texts: SiteDesignTextsConfig = {
+    ...current.texts,
+    homeCampaign: {
+      enabled,
+      sponsored: getCheckbox(formData, "sponsored"),
+      eyebrow: getString(formData, "eyebrow"),
+      title,
+      description: getString(formData, "description"),
+      ctaLabel,
+      href: getCampaignHref(formData),
+      startsOn,
+      endsOn,
+      visualStyle: getVisualStyle(formData),
+      backgroundColor: getColor(formData, "backgroundColor"),
+      textColor: getColor(formData, "textColor"),
+      accentColor: getColor(formData, "accentColor"),
+      borderColor: getColor(formData, "borderColor"),
+      backgroundMediaType: getCampaignMediaType(formData),
+      backgroundMediaUrl: getCampaignMediaUrl(
+        formData,
+        "backgroundMediaUrl",
+        "El fondo",
+      ),
+      backgroundMediaOpacity: getPercentage(
+        formData,
+        "backgroundMediaOpacity",
+        current.texts.homeCampaign.backgroundMediaOpacity,
+      ),
+      beamEnabled: getCheckbox(formData, "beamEnabled"),
+      confettiEnabled: getCheckbox(formData, "confettiEnabled"),
+      iconSvgUrl: getCampaignMediaUrl(formData, "iconSvgUrl", "El SVG"),
+      iconMotion: getIconMotion(formData),
+    },
+  };
+
+  await upsertDesignSetting("texts", texts as unknown as Json);
+}
+
 export async function updateDesignMediaAction(formData: FormData) {
   "use server";
 
+  const current = await getAdminSiteDesignConfig();
   const media: SiteDesignMediaConfig = {
-    homeHeroMediaType: getMediaType(formData, "homeHeroMediaType"),
-    homeHeroMediaUrl: getString(formData, "homeHeroMediaUrl"),
+    ...current.media,
     zonesHeroMediaType: getMediaType(formData, "zonesHeroMediaType"),
     zonesHeroMediaUrl: getString(formData, "zonesHeroMediaUrl"),
-    cartEmptyImageUrl: getString(formData, "cartEmptyImageUrl"),
   };
 
   await upsertDesignSetting("media", media as unknown as Json);

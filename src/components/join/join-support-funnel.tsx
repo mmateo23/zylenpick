@@ -34,7 +34,13 @@ const primaryButtonClassName =
 const secondaryButtonClassName =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-border-strong bg-surface-strong px-5 py-3 text-center text-sm font-bold text-text-primary transition hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2";
 
-export function JoinSupportFunnel() {
+type JoinSupportFunnelProps = {
+  heroImageUrl?: string;
+};
+
+export function JoinSupportFunnel({
+  heroImageUrl = "/cart/empty-cart-talavera.jpg",
+}: JoinSupportFunnelProps) {
   const [interest, setInterest] = useState<JoinInterest | "">("");
 
   const selectInterest = (nextInterest: JoinInterest) => {
@@ -86,7 +92,7 @@ export function JoinSupportFunnel() {
         <div className="relative mx-auto w-full max-w-[34rem]">
           <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-surface-strong shadow-[var(--shadow-soft)]">
             <Image
-              src="/cart/empty-cart-talavera.jpg"
+              src={heroImageUrl}
               alt="Profesional de un local en su cocina con la identidad Pickyalo"
               fill
               priority

@@ -313,7 +313,10 @@ export async function updateSiteMediaAssetAction(
   }
 
   revalidatePath("/");
+  revalidatePath("/platos");
+  revalidatePath("/mapa");
   revalidatePath("/unete");
   revalidatePath("/el-proyecto");
+  revalidatePath("/cart");
   revalidatePath("/panel/imagenes");
 }

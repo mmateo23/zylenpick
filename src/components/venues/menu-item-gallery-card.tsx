@@ -198,7 +198,7 @@ export function MenuItemGalleryCard({
                 : "linear-gradient(180deg, var(--brand-accent-soft), var(--overlay-hero-from))",
             }}
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--overlay-card-from),var(--overlay-card-mid)_42%,var(--overlay-card-to)_100%)]" />
+          <div className="pickyalo-media-overlay absolute inset-0" />
 
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
             <div className="min-w-0 space-y-2">

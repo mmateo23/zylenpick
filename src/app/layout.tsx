@@ -4,8 +4,9 @@ import localFont from "next/font/local";
 import { AnalyticsAttribution } from "@/components/analytics/analytics-attribution";
 import { GoogleAnalyticsConsent } from "@/components/analytics/google-analytics-consent";
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
+import { PostHogPageView } from "@/components/analytics/posthog-page-view";
 import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
-import { LocationDiscoveryPrompt } from "@/components/location/location-discovery-prompt";
+import { FloatingHomeCampaign } from "@/components/home/floating-home-campaign";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { PickyaloStructuredData } from "@/components/seo/pickyalo-structured-data";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
@@ -129,9 +130,10 @@ export default function RootLayout({
           <GoogleAnalyticsConsent />
           <PostHogProvider>
             <AnalyticsAttribution />
+            <PostHogPageView />
             <TooltipProvider>
               {children}
-              <LocationDiscoveryPrompt />
+              <FloatingHomeCampaign />
               <InstallPrompt />
               <PickyaloToaster />
               <CookieConsentBanner />

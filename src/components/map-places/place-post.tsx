@@ -15,6 +15,7 @@ import {
   X,
 } from "lucide-react";
 
+import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
 import { ScrollContentHint } from "@/components/ui/scroll-content-hint";
 import type { MapPlaceCategoryDefinition } from "@/features/map-places/categories";
 import { MapPlaceIcon } from "@/features/map-places/icons";
@@ -28,10 +29,6 @@ type PlacePostProps = {
   nearbyVenue?: VenueMapItem | null;
   onClose: () => void;
 };
-
-function getDirectionsHref(place: PublicMapPlace) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`;
-}
 
 function formatWalkingTime(distance: number) {
   return `${Math.max(1, Math.round(distance * 12))} min andando`;
@@ -244,15 +241,17 @@ export function PlacePost({ place, category, distance, nearbyVenue, onClose }: P
                 </Link>
               ) : null}
             </div>
-            <a
-              href={getDirectionsHref(place)}
-              target="_blank"
-              rel="noreferrer"
+            <NativeDirectionsLink
+              destination={{
+                latitude: place.latitude,
+                longitude: place.longitude,
+              }}
+              destinationLabel={place.name}
               className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.3)] transition hover:bg-[#5f1012]"
               aria-label={`Cómo llegar a ${place.name}`}
             >
               <Navigation className="h-6 w-6" aria-hidden="true" />
-            </a>
+            </NativeDirectionsLink>
           </div>
 
           {feedback ? (

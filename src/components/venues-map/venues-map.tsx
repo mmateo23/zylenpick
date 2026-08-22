@@ -10,6 +10,7 @@ import type { Map as MapboxMap, Marker } from "mapbox-gl";
 import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, ShoppingBag, Sparkles, X } from "lucide-react";
 
 import { PlacePost } from "@/components/map-places/place-post";
+import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
 import {
   ScrollContentHint,
   useScrollContentHint,
@@ -34,12 +35,14 @@ import {
   type UserLocation,
 } from "@/features/location/browser-location";
 import type { VenueMapItem } from "@/features/venues/services/venues-map-service";
+import { captureLugarVisto } from "@/lib/analytics/posthog-events";
 
 type VenuesMapProps = {
   accessToken: string;
   venues: VenueMapItem[];
   places: PublicMapPlace[];
   categories?: MapPlaceCategoryDefinition[];
+  heroImageUrl?: string;
   demoMode?: boolean;
   initialPlaceSlug?: string;
   autoLocate?: boolean;
@@ -332,6 +335,7 @@ export function VenuesMap({
   venues,
   places,
   categories = mapPlaceCategories,
+  heroImageUrl = "/home/zonas/badges/talavera_tile_letters.png",
   demoMode = false,
   initialPlaceSlug,
   autoLocate = false,
@@ -355,6 +359,24 @@ export function VenuesMap({
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [openPlace, setOpenPlace] = useState<PublicMapPlace | null>(null);
+  const lastTrackedOpenPlaceRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!openPlace) {
+      lastTrackedOpenPlaceRef.current = null;
+      return;
+    }
+
+    if (lastTrackedOpenPlaceRef.current === openPlace.id) return;
+    lastTrackedOpenPlaceRef.current = openPlace.id;
+    captureLugarVisto({
+      place_id: openPlace.id,
+      place_name: openPlace.name,
+      place_category: openPlace.category,
+      city_slug: openPlace.city.slug,
+      source: "mapa",
+    });
+  }, [openPlace]);
   const [mobileSelectionOpen, setMobileSelectionOpen] = useState(false);
   const [isImmersive, setIsImmersive] = useState(false);
   const [immersiveFiltersOpen, setImmersiveFiltersOpen] = useState(false);
@@ -977,7 +999,7 @@ export function VenuesMap({
               className="absolute bottom-[4.5rem] left-1/2 h-8 w-[72%] -translate-x-1/2 rounded-[50%] bg-[#741314]/14 blur-xl"
             />
             <Image
-              src="/home/zonas/badges/talavera_tile_letters.png"
+              src={heroImageUrl}
               alt="Maqueta isométrica de Talavera de la Reina"
               width={500}
               height={500}
@@ -1307,8 +1329,7 @@ function QuickPlanCard({
         </div>
         <a
           href={getPlanDirectionsHref(origin, plan.stops)}
-          target="_blank"
-          rel="noreferrer"
+          rel="external"
           className="inline-flex items-center gap-2 rounded-full bg-[#741314] px-4 py-3 text-sm font-bold text-[#FFF7E8]"
         >
           Abrir ruta <Navigation className="h-4 w-4" aria-hidden="true" />
@@ -1427,10 +1448,6 @@ function FilterChip({
   );
 }
 
-function getDirectionsHref(latitude: number, longitude: number) {
-  return `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
-}
-
 function PlaceGlyph({ place }: { place: PublicMapPlace }) {
   return <MapPlaceIcon name={place.iconName} className="h-6 w-6" aria-hidden="true" />;
 }
@@ -1462,9 +1479,9 @@ function VenueSelection({
         <Link href={`/zonas/${venue.city.slug}/venues/${venue.slug}`} className={`inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8] ${compact ? "py-2.5" : "py-3"}`}>
           Ver selección <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
         </Link>
-        <a href={getDirectionsHref(venue.latitude, venue.longitude)} target="_blank" rel="noreferrer" aria-label={`Cómo llegar a ${venue.name}`} className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#741314]/18 text-[#741314] transition hover:bg-[#741314]/[0.06]">
+        <NativeDirectionsLink destination={{ latitude: venue.latitude, longitude: venue.longitude }} destinationLabel={venue.name} aria-label={`Cómo llegar a ${venue.name}`} className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#741314]/18 text-[#741314] transition hover:bg-[#741314]/[0.06]">
           <Navigation className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
-        </a>
+        </NativeDirectionsLink>
       </div>
     </div>
   );
@@ -1511,15 +1528,14 @@ function PlaceSelection({
         >
           Descubrir <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
         </button>
-        <a
-          href={getDirectionsHref(place.latitude, place.longitude)}
-          target="_blank"
-          rel="noreferrer"
+        <NativeDirectionsLink
+          destination={{ latitude: place.latitude, longitude: place.longitude }}
+          destinationLabel={place.name}
           aria-label={`Cómo llegar a ${place.name}`}
           className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-[#741314]/18 text-[#741314] transition hover:bg-[#741314]/[0.06]"
         >
           <Navigation className="h-[1.1rem] w-[1.1rem]" aria-hidden="true" />
-        </a>
+        </NativeDirectionsLink>
       </div>
     </div>
   );

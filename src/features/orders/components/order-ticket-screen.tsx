@@ -539,8 +539,7 @@ export function OrderTicketScreen({ orderId, design }: OrderTicketScreenProps) {
           {directionsUrl ? (
             <a
               href={directionsUrl}
-              target="_blank"
-              rel="noreferrer"
+              rel="external"
               className="magnetic-button mt-6 inline-flex w-full items-center justify-center rounded-full bg-cta px-5 py-4 text-base font-semibold text-cta-text shadow-[0_18px_40px_rgba(254,212,125,0.26)] transition hover:bg-cta-hover"
             >
               {design?.texts.success.primaryCta ??

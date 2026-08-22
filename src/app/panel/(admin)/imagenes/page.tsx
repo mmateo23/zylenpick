@@ -44,11 +44,14 @@ export default async function AdminImagesPage({
             Panel admin
           </p>
           <h1 className="mt-3 text-3xl font-semibold text-[color:var(--foreground)]">
-            Imagenes
+            Imágenes visibles
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
-            Gestióna desde una sola pantalla las imagenes globales del sitio, el
-            hero de cada ciudad y las portadas de los locales.
+            Gestiona las imágenes principales de las páginas públicas, las
+            ciudades y los locales desde un único lugar.
+          </p>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+            Las fotos de platos se editan desde Locales → Selección.
           </p>
         </div>
       </div>
@@ -59,11 +62,11 @@ export default async function AdminImagesPage({
             Sitio
           </p>
           <h2 className="mt-3 text-2xl font-semibold text-[color:var(--foreground)]">
-            Imagenes globales
+            Portadas y fondos públicos
           </h2>
           <p className="mt-3 text-sm leading-7 text-[color:var(--muted-strong)]">
-            Aqui puedes cambiar las imagenes principales de la home, la pagina
-            de unete y las secciones visuales de El proyecto.
+            Cada cambio se aplica únicamente al bloque indicado. Si dejas la
+            imagen actual, la web conserva exactamente su aspecto.
           </p>
         </div>
 
@@ -91,11 +94,12 @@ export default async function AdminImagesPage({
                   >
                     <label className="block">
                       <span className="text-sm font-medium text-[color:var(--foreground)]">
-                        URL de imagen
+                        URL o ruta de imagen
                       </span>
                       <input
                         name="imageUrl"
-                        type="url"
+                        type="text"
+                        inputMode="url"
                         defaultValue={asset.imageUrl}
                         placeholder="https://..."
                         className="dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]"

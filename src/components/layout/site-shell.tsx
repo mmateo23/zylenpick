@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 import { MobileCartBar } from "@/components/cart/mobile-cart-bar";
 import { SiteHeader } from "@/components/layout/site-header";
+import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { ActiveOrderWidget } from "@/components/orders/active-order-widget";
 
 type SiteShellProps = {
@@ -41,9 +42,7 @@ export function SiteShell({
       <ActiveOrderWidget />
       <MobileCartBar />
       {showBasicFooter ? (
-        <footer className="px-5 pb-8 text-center text-sm text-[color:var(--muted)] sm:px-6 lg:px-8">
-          by ZylenLabs
-        </footer>
+        <ZylenPickFooter theme="light" />
       ) : null}
     </div>
   );

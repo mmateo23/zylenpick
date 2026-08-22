@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { getCities } from "@/features/cities/services/cities-service";
 import { getSiteDesignConfig } from "@/features/design/services/site-design-service";
+import { isHomeCampaignActive } from "@/features/design/site-design-config";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -11,9 +12,9 @@ import { ServiceShowcaseHomeTemplate } from "@/templates/service-showcase/servic
 export const revalidate = 900;
 
 export const metadata: Metadata = getBaseMetadata({
-  title: "Productos y platos destacados para recoger cerca de ti",
+  title: "Platos reales cerca de ti para recoger",
   description:
-    "Descubre productos y platos destacados de locales cercanos, elige rápido y recoge en local sin complicaciones.",
+    "Descubre platos reales de locales cercanos, recógelos sin dar vueltas y explora tu ciudad con el mapa de Pickyalo.",
   path: "/",
 });
 
@@ -27,12 +28,24 @@ export default async function HomePage() {
     getSiteMediaAssetMap(),
     getSiteDesignConfig(),
   ]);
+  const homeDesign = {
+    ...design,
+    texts: {
+      ...design.texts,
+      homeCampaign: {
+        ...design.texts.homeCampaign,
+        enabled:
+          process.env.NODE_ENV === "development" ||
+          isHomeCampaignActive(design.texts.homeCampaign),
+      },
+    },
+  };
 
   return (
     <ServiceShowcaseHomeTemplate
       cities={cities}
       heroImageUrl={siteMedia.home_hero.imageUrl}
-      design={design}
+      design={homeDesign}
       featuredItems={showcase.featuredItems}
       latestItems={showcase.latestItems}
     />

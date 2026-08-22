@@ -5,6 +5,7 @@ import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { VenuesMap } from "@/components/venues-map/venues-map";
 import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
 import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
+import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
 import { getNoIndexMetadata } from "@/lib/seo";
 
@@ -20,10 +21,11 @@ type MapaPageProps = {
 };
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
-  const [venues, places, categories] = await Promise.all([
+  const [venues, places, categories, siteMedia] = await Promise.all([
     getVenuesForMap(),
     getPublishedMapPlaces(),
     getPublishedMapPlaceCategories(),
+    getSiteMediaAssetMap(),
   ]);
 
   return (
@@ -34,6 +36,7 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         venues={venues}
         places={places}
         categories={categories}
+        heroImageUrl={siteMedia.map_hero.imageUrl}
         initialPlaceSlug={searchParams?.lugar}
         autoLocate={searchParams?.localizar === "1"}
         withSiteHeader

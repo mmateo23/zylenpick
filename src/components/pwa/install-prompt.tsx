@@ -126,7 +126,7 @@ export function InstallPrompt() {
       <div className="flex items-center gap-2.5">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent shadow-[var(--shadow-soft)]">
           <Image
-            src="/logo/Agrupar.svg"
+            src="/icons/pickyalo-app.svg"
             alt=""
             width={25}
             height={25}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
@@ -15,13 +15,14 @@ import {
   Clock3,
   Info,
   LocateFixed,
-  Maximize2,
   MapPin,
   MoreHorizontal,
   MoveLeft,
   MoveRight,
   Search,
   Send,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 
@@ -55,6 +56,7 @@ import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 import {
   captureAddToCart,
   capturePlatoVisto,
+  captureShotVisto,
 } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
 import { showCartToast, showErrorToast } from "@/lib/ui/toast";
@@ -66,6 +68,7 @@ type DemoDishesCarouselProps = {
   template?: DemoDishesTemplate;
   funnelSettings?: SiteFunnelSettings;
   chips?: SiteChip[];
+  heroImageUrl?: string;
 };
 
 export type DemoDishesTemplate = {
@@ -100,16 +103,16 @@ export type DemoDishesTemplate = {
 const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
   promoHrefs: Record<PromoTileId, string>;
 } = {
-  logoSrc: "/logo/LogoNuevo.svg",
-  logoLightSrc: "/logo/LogoNuevo.svg",
-  logoDarkSrc: "/logo/LogoNuevo_Negativo.svg",
+  logoSrc: "/icons/pickyalo-app.svg",
+  logoLightSrc: "/icons/pickyalo-app.svg",
+  logoDarkSrc: "/icons/pickyalo-app.svg",
   logoAlt: "Pickyalo",
-  logoWidth: 210,
-  logoHeight: 44,
-  logoClassName: "h-auto w-[108px] sm:w-[118px]",
-  compactLogoWidth: 92,
-  compactLogoHeight: 30,
-  compactLogoClassName: "h-auto w-[3.7rem] opacity-95 drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)] sm:w-[5.2rem]",
+  logoWidth: 56,
+  logoHeight: 56,
+  logoClassName: "h-12 w-12 sm:h-14 sm:w-14",
+  compactLogoWidth: 48,
+  compactLogoHeight: 48,
+  compactLogoClassName: "h-11 w-11 rounded-[0.8rem] object-cover opacity-95 drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12",
   homeHref: "/",
   emptyEyebrow: "Platos",
   emptyTitle: "No hay platos disponibles",
@@ -155,6 +158,14 @@ type PromoTileId =
   | "simpre-fit"
   | "huelaa-bbq"
   | "sabor-en-video";
+
+const SHOT_PROMO_IDS = [
+  "sabor-en-video",
+  "simpre-fit",
+  "huelaa-bbq",
+] as const satisfies readonly PromoTileId[];
+
+const DISH_NAVIGATION_SHOT_THRESHOLDS = [5, 12] as const;
 
 type CurationFilter =
   | "all"
@@ -1158,6 +1169,7 @@ export function DemoDishesCarousel({
   template,
   funnelSettings = defaultSiteFunnelSettings,
   chips = [],
+  heroImageUrl = "https://images.unsplash.com/photo-1778048840966-04589f37c525?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 }: DemoDishesCarouselProps) {
   const searchParams = useSearchParams();
   const content = {
@@ -1177,6 +1189,13 @@ export function DemoDishesCarousel({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const heroVisualRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
+  const shotPanelRef = useRef<HTMLElement>(null);
+  const shotTouchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const shotWheelTimestampRef = useRef(0);
+  const lastTrackedShotRef = useRef<string | null>(null);
+  const dishWheelTimestampRef = useRef(0);
+  const dishNavigationCountRef = useRef(0);
+  const injectedShotCountRef = useRef(0);
   const mobileOverlayTouchStartRef = useRef<{ x: number; y: number } | null>(
     null,
   );
@@ -1191,10 +1210,15 @@ export function DemoDishesCarousel({
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
   const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
+  const [showDishSwipeHint, setShowDishSwipeHint] = useState(false);
+  const dishSwipeHintShownForOpenRef = useRef(false);
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
   const [activeShotId, setActiveShotId] = useState<PromoTileId | null>(null);
-  const [isShotFullscreen, setIsShotFullscreen] = useState(false);
+  const [activeShotOrigin, setActiveShotOrigin] = useState<"feed" | "interstitial" | null>(null);
+  const [isShotMuted, setIsShotMuted] = useState(true);
   const [shotFeedback, setShotFeedback] = useState<string | null>(null);
+  const [shotDirection, setShotDirection] = useState<-1 | 1>(1);
+  const [showShotSwipeHint, setShowShotSwipeHint] = useState(false);
   const [overlayDirection, setOverlayDirection] = useState<-1 | 1>(1);
   const {
     location: userLocation,
@@ -1302,11 +1326,10 @@ export function DemoDishesCarousel({
       (item) => item.id !== featuredItem?.id,
     );
     const entries = feedItems.map<FeedEntry>((item) => ({ type: "dish", item }));
-    const promoEntries: FeedEntry[] = [
-      { type: "promo", id: "sabor-en-video" },
-      { type: "promo", id: "simpre-fit" },
-      { type: "promo", id: "huelaa-bbq" },
-    ];
+    const promoEntries: FeedEntry[] = SHOT_PROMO_IDS.map((id) => ({
+      type: "promo",
+      id,
+    }));
 
     if (!featuredItem) {
       promoEntries.forEach((promoEntry, promoIndex) => {
@@ -1348,6 +1371,25 @@ export function DemoDishesCarousel({
       ...metadata,
     };
   }, [activeShotId, content.promoHrefs]);
+  const activeShotPosition = activeShotId
+    ? SHOT_PROMO_IDS.findIndex((id) => id === activeShotId)
+    : -1;
+
+  useEffect(() => {
+    if (!activeShot || !activeShotId || !activeShotOrigin) {
+      lastTrackedShotRef.current = null;
+      return;
+    }
+
+    const signature = `${activeShotId}:${activeShotOrigin}`;
+    if (lastTrackedShotRef.current === signature) return;
+    lastTrackedShotRef.current = signature;
+    captureShotVisto({
+      shot_id: activeShotId,
+      shot_name: activeShot.title,
+      source: activeShotOrigin,
+    });
+  }, [activeShot, activeShotId, activeShotOrigin]);
   const activeItem = useMemo(
     () => (activeIndex === null ? null : filteredItems[activeIndex] ?? null),
     [activeIndex, filteredItems],
@@ -1657,9 +1699,44 @@ export function DemoDishesCarousel({
     };
   };
 
+  const navigateDish = useCallback(
+    (direction: -1 | 1) => {
+      if (filteredItems.length === 0 || activeIndex === null) return;
+
+      setOverlayDirection(direction);
+      setPostFeedback(null);
+      setShowDishSwipeHint(false);
+      setActiveIndex(
+        getContextualNavigationIndex(filteredItems, activeIndex, direction),
+      );
+
+      if (direction < 0) return;
+
+      const navigationCount = dishNavigationCountRef.current + 1;
+      dishNavigationCountRef.current = navigationCount;
+      const nextThreshold =
+        DISH_NAVIGATION_SHOT_THRESHOLDS[injectedShotCountRef.current];
+
+      if (!nextThreshold || navigationCount < nextThreshold) return;
+
+      const nextShotId =
+        SHOT_PROMO_IDS[injectedShotCountRef.current % SHOT_PROMO_IDS.length];
+      injectedShotCountRef.current += 1;
+      setActiveShotOrigin("interstitial");
+      setShotFeedback(null);
+      setIsShotMuted(true);
+      setShotDirection(direction);
+      setShowShotSwipeHint(true);
+      setActiveShotId(nextShotId);
+    },
+    [activeIndex, filteredItems],
+  );
+
   const handleMobileOverlayTouchEnd = (
     event: React.TouchEvent<HTMLElement>,
   ) => {
+    setShowDishSwipeHint(false);
+
     if (filteredItems.length === 0 || activeIndex === null) {
       mobileOverlayTouchStartRef.current = null;
       return;
@@ -1675,34 +1752,89 @@ export function DemoDishesCarousel({
       return;
     }
 
+    const deltaY = endY - start.y;
+    const deltaX = endX - start.x;
+
+    if (Math.abs(deltaY) < 58 || Math.abs(deltaY) <= Math.abs(deltaX) * 1.2) {
+      return;
+    }
+
+    navigateDish(deltaY < 0 ? 1 : -1);
+  };
+
+  const handleDishWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (
+      Math.abs(event.deltaY) < 36 ||
+      activeShot ||
+      isPostImageFullscreen
+    ) {
+      return;
+    }
+
+    const now = Date.now();
+    if (now - dishWheelTimestampRef.current < 650) return;
+
+    dishWheelTimestampRef.current = now;
+    navigateDish(event.deltaY > 0 ? 1 : -1);
+  };
+
+  const navigateShot = useCallback((direction: -1 | 1) => {
+    if (activeShotOrigin === "interstitial") {
+      setActiveShotId(null);
+      setActiveShotOrigin(null);
+      setIsShotMuted(true);
+      setShowShotSwipeHint(false);
+      return;
+    }
+
+    setShotDirection(direction);
+    setShotFeedback(null);
+    setShowShotSwipeHint(false);
+    setActiveShotId((current) => {
+      if (!current) return current;
+
+      const currentIndex = SHOT_PROMO_IDS.findIndex((id) => id === current);
+      const safeIndex = currentIndex >= 0 ? currentIndex : 0;
+      const nextIndex =
+        (safeIndex + direction + SHOT_PROMO_IDS.length) % SHOT_PROMO_IDS.length;
+
+      return SHOT_PROMO_IDS[nextIndex];
+    });
+  }, [activeShotOrigin]);
+
+  const handleShotTouchStart = (event: React.TouchEvent<HTMLElement>) => {
+    shotTouchStartRef.current = {
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+    };
+  };
+
+  const handleShotTouchEnd = (event: React.TouchEvent<HTMLElement>) => {
+    const start = shotTouchStartRef.current;
+    shotTouchStartRef.current = null;
+
+    if (!start) return;
+
+    const endX = event.changedTouches[0]?.clientX ?? start.x;
+    const endY = event.changedTouches[0]?.clientY ?? start.y;
     const deltaX = endX - start.x;
     const deltaY = endY - start.y;
 
-    const horizontalThreshold = 72;
-    const horizontalDominanceRatio = 1.25;
-    const verticalCloseThreshold = 92;
-    const verticalDominanceRatio = 1.35;
-
-    if (
-      Math.abs(deltaY) > verticalCloseThreshold &&
-      Math.abs(deltaY) > Math.abs(deltaX) * verticalDominanceRatio
-    ) {
-      setActiveIndex(null);
+    if (Math.abs(deltaY) < 58 || Math.abs(deltaY) <= Math.abs(deltaX) * 1.2) {
       return;
     }
 
-    if (
-      Math.abs(deltaX) < horizontalThreshold ||
-      Math.abs(deltaX) <= Math.abs(deltaY) * horizontalDominanceRatio
-    ) {
-      return;
-    }
+    navigateShot(deltaY < 0 ? 1 : -1);
+  };
 
-    const direction = deltaX < 0 ? 1 : -1;
-    setOverlayDirection(direction);
-    setActiveIndex(
-      getContextualNavigationIndex(filteredItems, activeIndex, direction),
-    );
+  const handleShotWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaY) < 36) return;
+
+    const now = Date.now();
+    if (now - shotWheelTimestampRef.current < 650) return;
+
+    shotWheelTimestampRef.current = now;
+    navigateShot(event.deltaY > 0 ? 1 : -1);
   };
 
   useEffect(() => {
@@ -1716,7 +1848,7 @@ export function DemoDishesCarousel({
   }, [activeIndex, filteredItems.length]);
 
   useEffect(() => {
-    if (activeIndex === null) {
+    if (activeIndex === null && !activeShot) {
       return;
     }
 
@@ -1726,19 +1858,90 @@ export function DemoDishesCarousel({
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [activeIndex]);
+  }, [activeIndex, activeShot]);
+
+  useEffect(() => {
+    if (!activeShotId || !showShotSwipeHint) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setShowShotSwipeHint(false);
+    }, 3200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeShotId, showShotSwipeHint]);
+
+  useGSAP(
+    () => {
+      if (!activeShotId || !shotPanelRef.current) return;
+
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reduceMotion) return;
+
+      gsap.fromTo(
+        shotPanelRef.current,
+        { yPercent: shotDirection > 0 ? 8 : -8, opacity: 0.62 },
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.42,
+          ease: "power3.out",
+          clearProps: "transform,opacity",
+        },
+      );
+    },
+    { dependencies: [activeShotId, shotDirection] },
+  );
 
   useEffect(() => {
     if (activeIndex === null) {
+      dishSwipeHintShownForOpenRef.current = false;
+      setShowDishSwipeHint(false);
       setIsMobileSheetExpanded(false);
       setIsPostImageFullscreen(false);
+      return;
+    }
+
+    if (!dishSwipeHintShownForOpenRef.current) {
+      dishSwipeHintShownForOpenRef.current = true;
+      setShowDishSwipeHint(true);
     }
 
     setPostFeedback(null);
   }, [activeIndex]);
 
   useEffect(() => {
+    if (!showDishSwipeHint) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setShowDishSwipeHint(false);
+    }, 4200);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [showDishSwipeHint]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && activeShot) {
+        setActiveShotId(null);
+        setActiveShotOrigin(null);
+        setIsShotMuted(true);
+        return;
+      }
+
+      if (activeShot && (event.key === "ArrowDown" || event.key === "PageDown")) {
+        event.preventDefault();
+        navigateShot(1);
+        return;
+      }
+
+      if (activeShot && (event.key === "ArrowUp" || event.key === "PageUp")) {
+        event.preventDefault();
+        navigateShot(-1);
+        return;
+      }
+
       if (filteredItems.length === 0) {
         return;
       }
@@ -1757,22 +1960,18 @@ export function DemoDishesCarousel({
         return;
       }
 
-      if (event.key === "ArrowLeft") {
-        setOverlayDirection(-1);
-        setActiveIndex((current) =>
-          current === null
-            ? null
-            : getContextualNavigationIndex(filteredItems, current, -1),
-        );
+      if (isPostImageFullscreen) {
+        return;
       }
 
-      if (event.key === "ArrowRight") {
-        setOverlayDirection(1);
-        setActiveIndex((current) =>
-          current === null
-            ? null
-            : getContextualNavigationIndex(filteredItems, current, 1),
-        );
+      if (event.key === "ArrowUp" || event.key === "PageUp") {
+        event.preventDefault();
+        navigateDish(-1);
+      }
+
+      if (event.key === "ArrowDown" || event.key === "PageDown") {
+        event.preventDefault();
+        navigateDish(1);
       }
     };
 
@@ -1781,7 +1980,14 @@ export function DemoDishesCarousel({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeIndex, filteredItems, isPostImageFullscreen]);
+  }, [
+    activeIndex,
+    activeShot,
+    filteredItems,
+    isPostImageFullscreen,
+    navigateDish,
+    navigateShot,
+  ]);
 
   useGSAP(
     () => {
@@ -1792,49 +1998,28 @@ export function DemoDishesCarousel({
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
-      const isMobileViewport = window.matchMedia("(max-width: 767px)").matches;
-
-      const panelEnterDuration = isMobileViewport ? 0.46 : 0.38;
-      const panelShift = isMobileViewport ? 30 : 24;
-
       if (reduceMotion) {
         return;
       }
 
-      gsap.set([".dish-overlay-backdrop", ".dish-overlay-panel"], {
+      gsap.set(".dish-overlay-panel", {
         willChange: "transform, opacity",
       });
 
-      const timeline = gsap.timeline({
-        defaults: {
-          ease: "power3.out",
+      gsap.fromTo(
+        ".dish-overlay-panel",
+        {
+          yPercent: overlayDirection > 0 ? 8 : -8,
+          opacity: 0.62,
         },
-      });
-
-      timeline
-        .fromTo(
-          ".dish-overlay-backdrop",
-          { autoAlpha: 0 },
-          { autoAlpha: 1, duration: 0.24 },
-        )
-        .fromTo(
-          ".dish-overlay-panel",
-          {
-            x: overlayDirection === 1 ? panelShift : -panelShift,
-            y: 10,
-            scale: 0.992,
-            autoAlpha: 0,
-          },
-          {
-            x: 0,
-            y: 0,
-            scale: 1,
-            autoAlpha: 1,
-            duration: panelEnterDuration,
-          },
-          "-=0.08",
-        )
-        ;
+        {
+          yPercent: 0,
+          opacity: 1,
+          duration: 0.42,
+          ease: "power3.out",
+          clearProps: "transform,opacity,willChange",
+        },
+      );
     },
     {
       scope: rootRef,
@@ -2076,7 +2261,7 @@ export function DemoDishesCarousel({
               <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
                 <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
                   <Image
-                    src="https://images.unsplash.com/photo-1778048840966-04589f37c525?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src={heroImageUrl}
                     alt=""
                     aria-hidden="true"
                     fill
@@ -2511,10 +2696,14 @@ export function DemoDishesCarousel({
                       key={entry.id}
                       onClick={() => {
                         setShotFeedback(null);
+                        setIsShotMuted(true);
+                        setShotDirection(1);
+                        setShowShotSwipeHint(true);
+                        setActiveShotOrigin("feed");
                         setActiveShotId(entry.id);
                       }}
                       className={getPromoCardClassName(promo.variant, isLightTheme)}
-                      aria-label={`Abrir promoción ${promo.label}`}
+                      aria-label={`Abrir Shot ${promo.dish} a pantalla completa`}
                     >
                       <div className="relative flex h-full items-center justify-center overflow-hidden rounded-[inherit] p-4 sm:p-5 lg:p-6">
                         {promo.videoUrl ? (
@@ -2705,23 +2894,26 @@ export function DemoDishesCarousel({
         <ZylenPickFooter theme={isLightTheme ? "light" : "dark"} />
       ) : null}
       {activeShot ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/78 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6">
-          <button
-            type="button"
-            className="absolute inset-0"
-            aria-label="Cerrar Shot"
-            onClick={() => {
-              setActiveShotId(null);
-              setIsShotFullscreen(false);
-            }}
-          />
-
-          <article className="relative z-10 h-[min(88svh,46rem)] w-full max-w-[26rem] overflow-hidden rounded-[1.65rem] bg-black shadow-[0_28px_90px_rgba(0,0,0,0.44)]">
+        <div
+          className="fixed inset-0 z-[100] overflow-hidden bg-[#120708] text-white"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="active-shot-title"
+          onWheel={handleShotWheel}
+        >
+          <article
+            key={activeShotId}
+            ref={shotPanelRef}
+            className="relative h-[100svh] w-full touch-pan-x overflow-hidden bg-black"
+            onTouchStart={handleShotTouchStart}
+            onTouchEnd={handleShotTouchEnd}
+          >
             {activeShot.videoUrl ? (
               <video
+                key={activeShot.videoUrl}
                 src={activeShot.videoUrl}
                 className="absolute inset-0 h-full w-full object-cover"
-                muted
+                muted={isShotMuted}
                 loop
                 playsInline
                 autoPlay
@@ -2730,146 +2922,195 @@ export function DemoDishesCarousel({
             ) : activeShot.imageUrl ? (
               <Image
                 src={activeShot.imageUrl}
-                alt=""
+                alt={activeShot.title}
                 fill
-                sizes="26rem"
+                priority
+                sizes="100vw"
                 className="object-cover"
               />
             ) : null}
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.08),rgba(0,0,0,0.12)_38%,rgba(0,0,0,0.9))]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_82%_48%,rgba(116,19,20,0.16),transparent_34%)]" />
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveShotId(null);
-                setIsShotFullscreen(false);
-              }}
-              className="absolute right-4 top-4 z-[3] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-black/32 text-white backdrop-blur-md transition hover:bg-white/[0.12]"
-              aria-label="Cerrar"
-            >
-              <X className="h-6 w-6" />
-            </button>
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(12,4,5,0.52),transparent_22%,transparent_46%,rgba(10,3,4,0.9)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_76%_52%,transparent_0%,rgba(18,7,8,0.12)_55%,rgba(18,7,8,0.42)_100%)]" />
 
-            <div className="absolute bottom-0 left-0 right-[4.8rem] z-[2] p-4 pb-5 sm:right-24 sm:p-6">
-              <div className="max-w-[23rem] rounded-[1.15rem] border border-white/10 bg-black/24 p-3.5 shadow-[0_18px_48px_rgba(0,0,0,0.3)] backdrop-blur-md sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0">
-                <p className="text-[0.82rem] font-bold text-white">
-                  {activeShot.venueName}
-                </p>
-                <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-white/62">
-                  {activeShot.locationLabel}
-                </p>
-                <h2 className="mt-3 text-[1.75rem] font-black leading-[0.94] tracking-[-0.06em] text-white drop-shadow-[0_8px_26px_rgba(0,0,0,0.45)] sm:text-4xl">
-                  {activeShot.title}
-                </h2>
-                <p className="mt-2 line-clamp-2 text-[0.82rem] leading-5 text-white/76">
-                  {activeShot.description}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-[#741314] px-3 py-1.5 text-xs font-black text-[#FDE3AD]">
-                    {activeShot.priceLabel}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setShotFeedback(
-                        "Este Shot se conectar? al producto real desde panel.",
-                      )
-                    }
-                    className="rounded-full border border-white/14 bg-white/[0.1] px-3 py-1.5 text-xs font-bold text-white/90 backdrop-blur-md transition hover:bg-white/[0.15]"
-                  >
-                    Ver detalle
-                  </button>
-                </div>
-                {shotFeedback ? (
-                  <p className="mt-3 inline-flex rounded-full border border-[#741314]/20 bg-[#741314]/12 px-3 py-1.5 text-[0.72rem] font-bold text-[#FDE3AD]">
-                    {shotFeedback}
+            <header className="absolute inset-x-0 top-0 z-[4] flex items-center justify-between gap-4 px-4 pb-3 pt-[max(1rem,env(safe-area-inset-top))] sm:px-7 sm:pt-[max(1.5rem,env(safe-area-inset-top))]">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#FDE3AD]/35 bg-[#741314]/90 text-[#FDE3AD] shadow-[0_10px_32px_rgba(0,0,0,0.22)] backdrop-blur-md">
+                  <span className="font-pickyalo-wordmark text-lg leading-none">P</span>
+                </span>
+                <div className="min-w-0">
+                  <p className="font-pickyalo-wordmark truncate text-base text-[#FFF7E8]">
+                    Pickyalo
                   </p>
-                ) : null}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FFF7E8]/62">
+                    {activeShotOrigin === "interstitial" ? "Shot recomendado" : "Shot"}
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                autoFocus
+                onClick={() => {
+                  setActiveShotId(null);
+                  setActiveShotOrigin(null);
+                  setIsShotMuted(true);
+                }}
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/90 text-[#741314] shadow-[0_10px_32px_rgba(0,0,0,0.2)] backdrop-blur-md transition hover:bg-[#FFF7E8] motion-reduce:transition-none"
+                aria-label="Cerrar Shot"
+              >
+                <X className="h-7 w-7" />
+              </button>
+            </header>
+
+            {activeShotOrigin !== "interstitial" && activeShotPosition >= 0 ? (
+              <div
+                className="absolute left-1/2 top-[max(1.25rem,env(safe-area-inset-top))] z-[5] flex w-24 -translate-x-1/2 gap-1.5 sm:w-32"
+                aria-label={`Shot ${activeShotPosition + 1} de ${SHOT_PROMO_IDS.length}`}
+              >
+                {SHOT_PROMO_IDS.map((id, index) => (
+                  <span
+                    key={id}
+                    className={`h-1 flex-1 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-colors motion-reduce:transition-none ${
+                      index === activeShotPosition ? "bg-[#FDE3AD]" : "bg-white/32"
+                    }`}
+                  />
+                ))}
+              </div>
+            ) : null}
+
+            {showShotSwipeHint ? (
+              <div className="pointer-events-none absolute left-1/2 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-[4] flex -translate-x-1/2 flex-col items-center text-[#FFF7E8]">
+                <ChevronUp className="h-5 w-5 animate-bounce motion-reduce:animate-none" />
+                <span className="rounded-full border border-[#FDE3AD]/24 bg-black/32 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.15em] backdrop-blur-md">
+                  {activeShotOrigin === "interstitial" ? "Sigue deslizando" : "Desliza"}
+                </span>
+              </div>
+            ) : null}
+
+            <div className="absolute bottom-0 left-0 right-[4.9rem] z-[3] px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:right-[7rem] sm:px-8 sm:pb-[max(2rem,env(safe-area-inset-bottom))] lg:max-w-[46rem]">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#FFF7E8]/72">
+                <span className="truncate text-sm font-black text-[#FFF7E8]">
+                  {activeShot.venueName}
+                </span>
+                <span aria-hidden="true">·</span>
+                <span className="truncate">{activeShot.locationLabel}</span>
+              </div>
+              <h2
+                id="active-shot-title"
+                className="mt-2 max-w-[14ch] text-[clamp(2rem,7vw,4.75rem)] font-black leading-[0.9] tracking-[-0.06em] text-white [text-shadow:0_10px_34px_rgba(0,0,0,0.55)]"
+              >
+                {activeShot.title}
+              </h2>
+              <p className="mt-3 max-w-[34rem] text-sm leading-5 text-[#FFF7E8]/82 [text-shadow:0_4px_18px_rgba(0,0,0,0.7)] sm:text-base sm:leading-6">
+                {activeShot.description}
+              </p>
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-[#FDE3AD]/38 bg-[#741314]/90 px-3 py-1.5 text-xs font-black text-[#FDE3AD] backdrop-blur-md">
+                  {activeShot.priceLabel}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShotFeedback(
+                      "La ficha completa estará disponible cuando este Shot se conecte desde el panel.",
+                    )
+                  }
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/12 px-4 text-xs font-bold text-[#FFF7E8] backdrop-blur-md transition hover:bg-[#FFF7E8]/20 motion-reduce:transition-none"
+                >
+                  <Info className="h-4 w-4" />
+                  Ver detalle
+                </button>
+              </div>
+              {shotFeedback ? (
+                <p
+                  className="mt-3 max-w-[30rem] rounded-xl border border-[#FDE3AD]/25 bg-[#18090A]/72 px-3 py-2 text-xs font-semibold leading-5 text-[#FFF7E8] backdrop-blur-md"
+                  role="status"
+                >
+                  {shotFeedback}
+                </p>
+              ) : null}
             </div>
 
-            <div className="absolute bottom-6 right-3 z-[3] flex flex-col items-center gap-2.5 sm:right-5 sm:gap-3">
+            <div className="absolute bottom-[max(1.1rem,env(safe-area-inset-bottom))] right-2.5 z-[4] flex w-[4.4rem] flex-col items-center gap-3 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] sm:right-5 sm:w-[5rem] sm:gap-4">
               <button
                 type="button"
                 onClick={() =>
                   setShotFeedback(
-                    "Este Shot se añadirá cuando esté conectado al panel.",
+                    "La cesta se activará cuando este Shot esté conectado a un producto real.",
                   )
                 }
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_34px_rgba(116,19,20,0.26)] transition hover:scale-105 sm:h-12 sm:w-12"
+                className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
                 aria-label="Añadir a cesta"
               >
-                <CartIcon className="h-7 w-7" />
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/34 bg-[#741314] text-[#FDE3AD] shadow-[0_12px_34px_rgba(0,0,0,0.28)] transition group-hover:scale-105 motion-reduce:transition-none sm:h-14 sm:w-14">
+                  <CartIcon className="h-7 w-7 sm:h-8 sm:w-8" />
+                </span>
+                <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
+                  Cesta
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() => void handleShareShot()}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
+                className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
                 aria-label="Compartir Shot"
               >
-                <Send className="h-6 w-6 sm:h-7 sm:w-7" />
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/88 text-[#741314] shadow-[0_12px_34px_rgba(0,0,0,0.24)] backdrop-blur-md transition group-hover:scale-105 group-hover:bg-[#FFF7E8] motion-reduce:transition-none sm:h-14 sm:w-14">
+                  <Send className="h-6 w-6 sm:h-7 sm:w-7" />
+                </span>
+                <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
+                  Compartir
+                </span>
               </button>
               <button
                 type="button"
                 onClick={() =>
                   setShotFeedback(
-                    "Abrirá la ficha real cuando el Shot esté conectado al panel.",
+                    "La ficha completa estará disponible cuando este Shot se conecte desde el panel.",
                   )
                 }
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
-                aria-label="Ver información"
+                className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
+                aria-label="Ver información del Shot"
               >
-                <Info className="h-6 w-6 sm:h-7 sm:w-7" />
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/14 text-[#FFF7E8] shadow-[0_12px_34px_rgba(0,0,0,0.24)] backdrop-blur-md transition group-hover:scale-105 group-hover:bg-[#FFF7E8]/22 motion-reduce:transition-none sm:h-14 sm:w-14">
+                  <Info className="h-6 w-6 sm:h-7 sm:w-7" />
+                </span>
+                <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
+                  Detalle
+                </span>
               </button>
-              <button
-                type="button"
-                onClick={() => setIsShotFullscreen(true)}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/14 bg-black/36 text-white shadow-[0_14px_34px_rgba(0,0,0,0.22)] backdrop-blur-md transition hover:scale-105 hover:bg-white/[0.12] sm:h-12 sm:w-12"
-                aria-label="Expandir Shot"
-              >
-                <Maximize2 className="h-6 w-6 sm:h-7 sm:w-7" />
-              </button>
+              {activeShot.videoUrl ? (
+                <button
+                  type="button"
+                  onClick={() => setIsShotMuted((current) => !current)}
+                  className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
+                  aria-label={isShotMuted ? "Activar sonido" : "Silenciar vídeo"}
+                  aria-pressed={!isShotMuted}
+                >
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/14 text-[#FFF7E8] shadow-[0_12px_34px_rgba(0,0,0,0.24)] backdrop-blur-md transition group-hover:scale-105 group-hover:bg-[#FFF7E8]/22 motion-reduce:transition-none sm:h-14 sm:w-14">
+                    {isShotMuted ? (
+                      <VolumeX className="h-6 w-6 sm:h-7 sm:w-7" />
+                    ) : (
+                      <Volume2 className="h-6 w-6 sm:h-7 sm:w-7" />
+                    )}
+                  </span>
+                  <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
+                    {isShotMuted ? "Sonido" : "Silenciar"}
+                  </span>
+                </button>
+              ) : null}
             </div>
           </article>
-
-          {isShotFullscreen ? (
-            <div className="fixed inset-0 z-[60] bg-black">
-              {activeShot.videoUrl ? (
-                <video
-                  src={activeShot.videoUrl}
-                  className="h-full w-full object-contain"
-                  muted
-                  loop
-                  playsInline
-                  autoPlay
-                  controls
-                />
-              ) : activeShot.imageUrl ? (
-                <Image
-                  src={activeShot.imageUrl}
-                  alt={activeShot.title}
-                  fill
-                  sizes="100vw"
-                  className="object-contain p-4"
-                />
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setIsShotFullscreen(false)}
-                className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
-                aria-label="Cerrar vídeo"
-              >
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-          ) : null}
         </div>
       ) : null}
 
       {activeItem ? (
         <div
-          className="dish-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"
+          className="dish-overlay fixed inset-0 z-50 flex touch-pan-x items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Detalle de ${getDishDisplayName(activeItem)}`}
+          onWheel={handleDishWheel}
           onTouchStart={handleMobileOverlayTouchStart}
           onTouchEnd={handleMobileOverlayTouchEnd}
         >
@@ -2948,6 +3189,24 @@ export function DemoDishesCarousel({
                   Imagen no disponible
                 </span>
               )}
+              {showDishSwipeHint ? (
+                <span
+                  className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex justify-center"
+                  role="status"
+                >
+                  <span className="inline-flex max-w-full flex-col items-center rounded-2xl border border-[#FDE3AD]/55 bg-[#381932]/92 px-4 py-2.5 text-center text-[#FFF7E8] shadow-[0_12px_32px_rgba(0,0,0,0.34)] backdrop-blur-md">
+                    <span className="flex items-center gap-2 text-[11px] font-extrabold">
+                      <ChevronUp className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
+                      <span className="sm:hidden">Desliza para ver otro plato</span>
+                      <span className="hidden sm:inline">Usa ↑ ↓ o la rueda</span>
+                      <ChevronDown className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
+                    </span>
+                    <span className="mt-1 text-[9px] font-semibold text-[#FFF7E8]/72">
+                      Arriba: siguiente · Abajo: anterior
+                    </span>
+                  </span>
+                </span>
+              ) : null}
             </button>
 
             <section className="dish-overlay-copy-desktop bg-white px-4 pb-4 pt-3">

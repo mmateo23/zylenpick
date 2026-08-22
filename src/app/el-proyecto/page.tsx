@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import { SiteShell } from "@/components/layout/site-shell";
-import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { ProjectPage } from "@/components/project/project-page";
+import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 
 export const metadata: Metadata = {
   title: "El proyecto",
@@ -11,12 +11,19 @@ export const metadata: Metadata = {
 };
 
 export default async function ProjectRoutePage() {
+  const siteMedia = await getSiteMediaAssetMap();
+
   return (
-    <SiteShell showBasicFooter={false} wideContent>
-      <ProjectPage />
-      <div className="mt-6">
-        <ZylenPickFooter theme="light" />
-      </div>
+    <SiteShell wideContent>
+      <ProjectPage
+        siteMedia={{
+          heroImageUrl: siteMedia.project_hero.imageUrl,
+          discoverImageUrl: siteMedia.project_step_discover.imageUrl,
+          chooseImageUrl: siteMedia.project_step_order.imageUrl,
+          pickupImageUrl: siteMedia.project_step_pickup.imageUrl,
+          outroImageUrl: siteMedia.project_idea.imageUrl,
+        }}
+      />
     </SiteShell>
   );
 }

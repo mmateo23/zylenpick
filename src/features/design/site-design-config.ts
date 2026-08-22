@@ -1,5 +1,38 @@
 import type { Json } from "@/types/database";
 
+export type HomeCampaignVisualStyle =
+  | "editorial"
+  | "glass"
+  | "spotlight"
+  | "outline";
+
+export type HomeCampaignIconMotion = "none" | "float" | "pulse" | "rotate";
+export type HomeCampaignMediaType = "none" | "image" | "video";
+
+export type HomeCampaignConfig = {
+  enabled: boolean;
+  sponsored: boolean;
+  eyebrow: string;
+  title: string;
+  description: string;
+  ctaLabel: string;
+  href: string;
+  startsOn: string;
+  endsOn: string;
+  visualStyle: HomeCampaignVisualStyle;
+  backgroundColor: string;
+  textColor: string;
+  accentColor: string;
+  borderColor: string;
+  backgroundMediaType: HomeCampaignMediaType;
+  backgroundMediaUrl: string;
+  backgroundMediaOpacity: number;
+  beamEnabled: boolean;
+  confettiEnabled: boolean;
+  iconSvgUrl: string;
+  iconMotion: HomeCampaignIconMotion;
+};
+
 export type SiteDesignTextsConfig = {
   globalLabels: {
     viewMenu: string;
@@ -12,6 +45,7 @@ export type SiteDesignTextsConfig = {
     heroTitle: string;
     heroSubtitle: string;
   };
+  homeCampaign: HomeCampaignConfig;
   cart: {
     emptyTitle: string;
     emptySubtitle: string;
@@ -65,6 +99,29 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
       heroSubtitle:
         "Productos y platos destacados cerca de ti. Elige y recógelo sin complicaciones.",
     },
+    homeCampaign: {
+      enabled: false,
+      sponsored: false,
+      eyebrow: "Edición especial",
+      title: "Descubre lo que está pasando cerca",
+      description: "Una selección temporal para salir, probar y recoger.",
+      ctaLabel: "Descubrir",
+      href: "/mapa",
+      startsOn: "",
+      endsOn: "",
+      visualStyle: "editorial",
+      backgroundColor: "#741314",
+      textColor: "#FFF7E8",
+      accentColor: "#FDE3AD",
+      borderColor: "#741314",
+      backgroundMediaType: "none",
+      backgroundMediaUrl: "",
+      backgroundMediaOpacity: 100,
+      beamEnabled: true,
+      confettiEnabled: true,
+      iconSvgUrl: "",
+      iconMotion: "float",
+    },
     cart: {
       emptyTitle: "Elige productos o platos para recoger.",
       emptySubtitle:
@@ -103,6 +160,32 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
     cardCtaLabel: "Ver esta zona",
   },
 };
+
+export function isHomeCampaignActive(
+  campaign: HomeCampaignConfig,
+  now = new Date(),
+) {
+  if (!campaign.enabled) {
+    return false;
+  }
+
+  const madridDate = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Madrid",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+
+  if (campaign.startsOn && madridDate < campaign.startsOn) {
+    return false;
+  }
+
+  if (campaign.endsOn && madridDate > campaign.endsOn) {
+    return false;
+  }
+
+  return true;
+}
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

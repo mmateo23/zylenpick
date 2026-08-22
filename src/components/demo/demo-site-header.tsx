@@ -77,38 +77,39 @@ export function DemoSiteHeader({
 
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const dockLogoSrc = "/logo/LogoNuevo.svg";
+  const dockLogoSrc = "/icons/pickyalo-app.svg";
+  const mobileDockLogoSrc = "/icons/pickyalo-app.svg";
 
   const shellClassName = isLightTheme
     ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] shadow-[0_18px_42px_rgba(116,19,20,0.08)]"
     : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] shadow-[0_18px_42px_rgba(116,19,20,0.08)]";
 
   const iconButtonClassName = isLightTheme
-    ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]"
-    : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
+    ? "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10"
+    : "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10";
   const cartButtonClassName =
     totals.totalItems > 0
-      ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
+      ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.2)]"
       : iconButtonClassName;
 
   const desktopNavRailClassName = isLightTheme
-    ? "border border-[#741314]/14 bg-[#FFF7E8]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_12px_28px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150"
-    : "border border-[#741314]/14 bg-[#FFF7E8]/80 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.76),0_12px_28px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150";
+    ? "border border-[var(--floating-surface-border)] bg-[var(--floating-surface)] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_12px_30px_rgba(56,25,50,0.14)] backdrop-blur-xl backdrop-saturate-150"
+    : "border border-[var(--floating-surface-border)] bg-[var(--floating-surface)] p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_12px_30px_rgba(56,25,50,0.14)] backdrop-blur-xl backdrop-saturate-150";
 
   const desktopNavItemClassName = isLightTheme
-    ? "border-transparent text-[#741314]/72 hover:-translate-y-[1px] hover:bg-[#741314]/10 hover:text-[#741314]"
-    : "border-transparent text-[#741314]/72 hover:-translate-y-[1px] hover:bg-[#741314]/10 hover:text-[#741314]";
+    ? "border-transparent text-[#741314] hover:-translate-y-[1px] hover:bg-[#741314]/10"
+    : "border-transparent text-[#741314] hover:-translate-y-[1px] hover:bg-[#741314]/10";
 
   const desktopNavItemActiveClassName = isLightTheme
     ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.18)]"
     : "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_10px_28px_rgba(116,19,20,0.22)]";
 
   const desktopDockIconClassName = isLightTheme
-    ? "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]"
-    : "border-[#741314]/14 bg-[#FFF7E8]/80 text-[#741314] hover:border-[#741314]/32 hover:bg-[#741314] hover:text-[#FDE3AD]";
+    ? "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10"
+    : "border-transparent bg-transparent text-[#741314] hover:border-[#741314]/18 hover:bg-[#741314]/10";
   const desktopCartButtonClassName =
     totals.totalItems > 0
-      ? "border-[#FED47D]/28 bg-[#FED47D]/10 text-[#FED47D] hover:bg-[#FED47D]/16"
+      ? "border-[#741314] bg-[#741314] text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.2)]"
       : desktopDockIconClassName;
   const desktopLeftDockItems = [
     navigationItems[0],
@@ -125,95 +126,65 @@ export function DemoSiteHeader({
   return (
     <header className="sticky top-[max(0.7rem,env(safe-area-inset-top))] z-40 px-3 sm:px-6 lg:px-8">
       <div className="relative mx-auto w-full max-w-7xl">
-        <div
-          className={
-            isLightTheme
-              ? "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
-              : "rounded-full border border-[#741314]/14 bg-[#FFF7E8]/80 px-1.5 py-1.5 text-[#741314] shadow-[0_10px_30px_rgba(116,19,20,0.08)] backdrop-blur-xl backdrop-saturate-150 sm:px-2.5 md:mx-auto md:w-fit md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none"
-          }
-        >
-          <div className="grid grid-cols-[repeat(3,2.25rem)_3.5rem_repeat(3,2.25rem)] items-center justify-center gap-px md:hidden">
+        <div className="pickyalo-floating-surface mx-auto w-fit rounded-full border px-2 py-1.5 md:border-transparent md:bg-transparent md:p-0 md:shadow-none md:backdrop-blur-none">
+          <div className="grid grid-cols-[repeat(5,2.75rem)] items-center justify-center gap-2 md:hidden">
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((value) => !value)}
               aria-expanded={isMobileMenuOpen}
               aria-controls="demo-mobile-navigation"
               aria-label={isMobileMenuOpen ? "Cerrar men\u00fa" : "Abrir men\u00fa"}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${iconButtonClassName}`}
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${iconButtonClassName}`}
             >
-              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {isMobileMenuOpen ? <X size={25} /> : <Menu size={25} />}
             </button>
 
             <Link
               href={mapDiscoveryHref}
               aria-label="Explorar mapa"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
                 isItemActive("/mapa")
                   ? desktopNavItemActiveClassName
                   : iconButtonClassName
               }`}
             >
-              <Map size={23} strokeWidth={2.05} />
+              <Map size={26} strokeWidth={2.05} />
+            </Link>
+
+            <Link
+              href="/"
+              className="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-[0.9rem] transition hover:opacity-90"
+              aria-label="Ir al inicio"
+            >
+              <Image
+                src={mobileDockLogoSrc}
+                alt="Pickyalo"
+                width={44}
+                height={44}
+                priority
+                className="h-11 w-11 object-cover"
+              />
             </Link>
 
             <Link
               href="/platos"
               aria-label="Explorar platos"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
+              className={`inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${
                 isItemActive("/platos")
                   ? desktopNavItemActiveClassName
                   : iconButtonClassName
               }`}
             >
-              <LayoutGrid size={23} strokeWidth={2.05} />
-            </Link>
-
-            <Link
-              href="/"
-              className="inline-flex h-9 w-14 items-center justify-center rounded-full px-1 transition hover:bg-[#741314]/8"
-              aria-label="Ir al inicio"
-            >
-              <Image
-                src={dockLogoSrc}
-                alt="Pickyalo"
-                width={210}
-                height={42}
-                priority
-                className="h-auto w-[54px]"
-              />
-            </Link>
-
-            <Link
-              href={currentCitySlug ? `/zonas/${currentCitySlug}` : "/zonas"}
-              aria-label={currentCityName ? `Ver ${currentCityName}` : "Ver zonas"}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                isItemActive("/zonas")
-                  ? desktopNavItemActiveClassName
-                  : iconButtonClassName
-              }`}
-            >
-              <MapPinned size={23} strokeWidth={2.05} />
+              <LayoutGrid size={26} strokeWidth={2.05} />
             </Link>
 
             <Link
               href="/cart"
               aria-label="Tu cesta"
-              className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${cartButtonClassName}`}
+              className={`relative inline-flex h-11 w-11 items-center justify-center rounded-full border transition ${cartButtonClassName}`}
             >
-              <CartIcon size={22} />
+              <CartIcon size={25} />
               <CartBadge totalItems={totals.totalItems} />
-            </Link>
-
-            <Link
-              href="/pedidos"
-              aria-label="Tus pedidos"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition ${
-                isItemActive("/pedidos")
-                  ? desktopNavItemActiveClassName
-                  : iconButtonClassName
-              }`}
-            >
-              <ReceiptText size={22} strokeWidth={2.05} />
             </Link>
           </div>
 
@@ -252,16 +223,16 @@ export function DemoSiteHeader({
 
               <Link
                 href="/"
-                className="inline-flex h-14 min-w-[8.75rem] items-center justify-center rounded-[1.25rem] px-3 transition hover:bg-black/[0.045]"
+                className="inline-flex h-14 w-14 items-center justify-center rounded-[1.25rem] transition hover:bg-black/[0.045]"
                 aria-label="Ir al inicio"
               >
                 <Image
                   src={dockLogoSrc}
                   alt="Pickyalo"
-                  width={210}
-                  height={42}
+                  width={56}
+                  height={56}
                   priority
-                  className="h-auto w-[116px]"
+                  className="h-12 w-12 rounded-[0.9rem] object-cover"
                 />
               </Link>
 

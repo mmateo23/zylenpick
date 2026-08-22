@@ -78,7 +78,7 @@ const receiptFrameStyle: CSSProperties = {
 
 const receiptDividerClassName = "my-4 border-t border-dashed border-black/55";
 
-const cartTicketHeroImageUrl =
+const defaultCartActiveHeroImageUrl =
   "https://images.unsplash.com/photo-1528459105426-b9548367069b?q=85&w=1800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 function keepOnlyDigits(value: string) {
@@ -140,9 +140,15 @@ function CartAccordion({
 
 type CartScreenProps = {
   design?: SiteDesignConfig;
+  emptyHeroImageUrl?: string;
+  activeHeroImageUrl?: string;
 };
 
-export function CartScreen({ design }: CartScreenProps) {
+export function CartScreen({
+  design,
+  emptyHeroImageUrl = "/cart/empty-cart-talavera.jpg",
+  activeHeroImageUrl = defaultCartActiveHeroImageUrl,
+}: CartScreenProps) {
   const router = useRouter();
   const { cart, totals } = useCart();
   const [customerName, setCustomerName] = useState("");
@@ -187,7 +193,7 @@ export function CartScreen({ design }: CartScreenProps) {
           <div
             className="absolute inset-0 scale-[1.04] bg-cover bg-center"
             style={{
-              backgroundImage: "url('/cart/empty-cart-talavera.jpg')",
+              backgroundImage: `url(${emptyHeroImageUrl})`,
             }}
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(253,212,125,0.30),transparent_34%),linear-gradient(90deg,rgba(252,250,245,0.98)_0%,rgba(252,250,245,0.94)_42%,rgba(252,250,245,0.70)_70%,rgba(252,250,245,0.34)_100%)]" />
@@ -419,7 +425,7 @@ export function CartScreen({ design }: CartScreenProps) {
         <div
           className="absolute inset-0 scale-[1.04] bg-cover bg-center"
           style={{
-            backgroundImage: `url(${cartTicketHeroImageUrl})`,
+            backgroundImage: `url(${activeHeroImageUrl})`,
           }}
         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_18%),linear-gradient(90deg,rgba(253,227,173,0.94)_0%,rgba(253,227,173,0.76)_42%,rgba(255,247,232,0.44)_72%,rgba(255,247,232,0.18)_100%),linear-gradient(180deg,rgba(253,227,173,0.18)_0%,rgba(253,227,173,0.34)_48%,rgba(253,227,173,0.78)_100%)]" />
@@ -775,7 +781,7 @@ export function CartScreen({ design }: CartScreenProps) {
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${cartTicketHeroImageUrl})` }}
+          style={{ backgroundImage: `url(${activeHeroImageUrl})` }}
         />
         <div
           aria-hidden="true"

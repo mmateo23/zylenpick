@@ -124,29 +124,17 @@ export default async function AdminDesignPage() {
           Diseño &gt; Textos
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-[color:var(--foreground)]">
-          Labels y copy del funnel
+          Textos activos de cesta y pedido
         </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+          Solo aparecen controles conectados actualmente con la web pública.
+        </p>
 
         <div className="mt-6 grid gap-5 xl:grid-cols-2">
           <section className="space-y-4">
             <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
-              Labels globales
+              Acciones de recogida
             </h3>
-            <TextField
-              label="Ver carta"
-              name="globalLabels.viewMenu"
-              value={design.texts.globalLabels.viewMenu}
-            />
-            <TextField
-              label="Ver detalle"
-              name="globalLabels.viewDetail"
-              value={design.texts.globalLabels.viewDetail}
-            />
-            <TextField
-              label="Añadir para recoger"
-              name="globalLabels.addForPickup"
-              value={design.texts.globalLabels.addForPickup}
-            />
             <TextField
               label="Preparar para recoger"
               name="globalLabels.prepareForPickup"
@@ -156,23 +144,6 @@ export default async function AdminDesignPage() {
               label="Cómo llegar"
               name="globalLabels.directions"
               value={design.texts.globalLabels.directions}
-            />
-          </section>
-
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
-              Home
-            </h3>
-            <TextField
-              label="Hero title"
-              name="home.heroTitle"
-              value={design.texts.home.heroTitle}
-            />
-            <TextField
-              label="Hero subtitle"
-              name="home.heroSubtitle"
-              value={design.texts.home.heroSubtitle}
-              multiline
             />
           </section>
         </div>
@@ -264,26 +235,13 @@ export default async function AdminDesignPage() {
           Diseño &gt; Media
         </p>
         <h2 className="mt-3 text-2xl font-semibold text-[color:var(--foreground)]">
-          Fondos principales
+          Fondo de la página de zonas
         </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-[color:var(--muted-strong)]">
+          La portada de la Home se gestiona en Contenido → Imágenes visibles.
+        </p>
 
-        <div className="mt-6 grid gap-5 xl:grid-cols-2">
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
-              Home hero
-            </h3>
-            <SelectField
-              label="Tipo"
-              name="homeHeroMediaType"
-              value={design.media.homeHeroMediaType}
-            />
-            <UrlField
-              label="URL"
-              name="homeHeroMediaUrl"
-              value={design.media.homeHeroMediaUrl}
-            />
-          </section>
-
+        <div className="mt-6 max-w-2xl">
           <section className="space-y-4">
             <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
               Hero general de /zonas
@@ -297,17 +255,6 @@ export default async function AdminDesignPage() {
               label="URL"
               name="zonesHeroMediaUrl"
               value={design.media.zonesHeroMediaUrl}
-            />
-          </section>
-
-          <section className="space-y-4">
-            <h3 className="text-lg font-semibold text-[color:var(--foreground)]">
-              Carrito vacío
-            </h3>
-            <UrlField
-              label="Imagen fallback"
-              name="cartEmptyImageUrl"
-              value={design.media.cartEmptyImageUrl}
             />
           </section>
         </div>

@@ -20,6 +20,7 @@ import {
   USER_LOCATION_UPDATED_EVENT,
   type UserLocation,
 } from "@/features/location/browser-location";
+import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
 import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
 import type {
   OpeningHoursValue,
@@ -122,8 +123,6 @@ export function VenueLocalInformation({
     };
   }, [userLocation, venueCoordinates]);
 
-  const destination = address?.trim() ? `${venueName}, ${address}` : venueName;
-  const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
   const websiteHref = website
     ? website.startsWith("http")
       ? website
@@ -289,15 +288,17 @@ export function VenueLocalInformation({
           </details>
 
           <div className="grid grid-cols-2 gap-2 border-t border-[#741314]/10 p-4 sm:flex sm:flex-wrap sm:p-5">
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-bold text-[#FFF7E8] outline-none transition hover:bg-[#5F0F10] focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
-            >
-              <Navigation aria-hidden="true" className="h-4 w-4" />
-              Abrir ruta
-            </a>
+            {venueCoordinates ? (
+              <NativeDirectionsLink
+                destination={venueCoordinates}
+                origin={userLocation}
+                destinationLabel={venueName}
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-2.5 text-sm font-bold text-[#FFF7E8] outline-none transition hover:bg-[#5F0F10] focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+              >
+                <Navigation aria-hidden="true" className="h-4 w-4" />
+                Abrir ruta
+              </NativeDirectionsLink>
+            ) : null}
             {phone ? (
               <a
                 href={`tel:${phone}`}

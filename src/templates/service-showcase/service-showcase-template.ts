@@ -6,7 +6,7 @@ export const serviceShowcaseTemplate: {
   dishes: DemoDishesTemplate;
 } = {
   home: {
-    logoSrc: "/logo/LogoNuevo.svg",
+    logoSrc: "/icons/pickyalo-app.svg",
     logoAlt: "Pickyalo",
     badgeLabel: "Ruta visual",
     accentBadgeLabel: "Platos primero",
@@ -32,10 +32,10 @@ export const serviceShowcaseTemplate: {
     citiesHref: "/zonas",
   },
   dishes: {
-    logoSrc: "/logo/LogoNuevo.svg",
-    logoLightSrc: "/logo/LogoNuevo.svg",
-    logoDarkSrc: "/logo/LogoNuevo_Negativo.svg",
-    logoClassName: "h-auto w-[108px] sm:w-[118px]",
+    logoSrc: "/icons/pickyalo-app.svg",
+    logoLightSrc: "/icons/pickyalo-app.svg",
+    logoDarkSrc: "/icons/pickyalo-app.svg",
+    logoClassName: "h-12 w-12 sm:h-14 sm:w-14",
     homeHref: "/",
     emptyEyebrow: "Platos",
     emptyTitle: "No hay platos disponibles",

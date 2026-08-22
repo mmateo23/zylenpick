@@ -60,7 +60,7 @@ export async function generateMetadata({
     title: `Comida para recoger en ${city.name}`,
     description: `Descubre comida local, productos y platos destacados de locales cercanos en ${city.name}. Compara opciones y recoge cerca de ti.`,
     path: `/zonas/${city.slug}`,
-    image: city.heroImageUrl ?? "/logo/LogoNuevo.svg?v=1",
+    image: city.heroImageUrl ?? "/icons/pickyalo-app.svg?v=1",
   });
 }
 

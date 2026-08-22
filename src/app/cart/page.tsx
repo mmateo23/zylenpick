@@ -5,10 +5,8 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { getSiteDesignConfig } from "@/features/design/services/site-design-service";
 import { CartScreen } from "@/features/cart/components/cart-screen";
+import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 import { getNoIndexMetadata } from "@/lib/seo";
-
-const cartTicketHeroImageUrl =
-  "https://images.unsplash.com/photo-1528459105426-b9548367069b?q=85&w=1800&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
 
 const cartLightThemeStyle = {
   "--bg-page": "#fcfaf5",
@@ -29,7 +27,10 @@ export const metadata: Metadata = getNoIndexMetadata({
 });
 
 export default async function CartPage() {
-  const design = await getSiteDesignConfig();
+  const [design, siteMedia] = await Promise.all([
+    getSiteDesignConfig(),
+    getSiteMediaAssetMap(),
+  ]);
 
   return (
     <div
@@ -38,11 +39,15 @@ export default async function CartPage() {
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-cover bg-center opacity-45"
-        style={{ backgroundImage: `url(${cartTicketHeroImageUrl})` }}
+        style={{ backgroundImage: `url(${siteMedia.cart_active_hero.imageUrl})` }}
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,rgba(252,250,245,0.72),rgba(252,250,245,0.96))]" />
       <SiteHeader />
-      <CartScreen design={design} />
+      <CartScreen
+        design={design}
+        emptyHeroImageUrl={siteMedia.cart_empty_hero.imageUrl}
+        activeHeroImageUrl={siteMedia.cart_active_hero.imageUrl}
+      />
       <ZylenPickFooter theme="light" />
     </div>
   );
