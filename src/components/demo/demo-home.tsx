@@ -557,9 +557,9 @@ export function DemoHome({
               />
             </div>
             <div className="w-full max-w-[13rem]" role="progressbar" aria-label="Cargando Pickyalo" aria-valuemin={0} aria-valuemax={100} aria-valuenow={loaderProgress}>
-              <div className="h-2 overflow-hidden border border-[#741314] bg-[#FFF7E8] p-[2px]">
+              <div className="relative h-px bg-[#741314]/20">
                 <div
-                  className="h-full bg-[repeating-linear-gradient(90deg,#741314_0_9px,transparent_9px_12px)] transition-[width] duration-150 [transition-timing-function:steps(4,end)] motion-reduce:transition-none"
+                  className="absolute left-0 top-1/2 h-[2px] -translate-y-1/2 bg-[#741314] shadow-[0_0_6px_rgba(116,19,20,0.62),0_0_14px_rgba(116,19,20,0.28)] transition-[width] duration-300 ease-out motion-reduce:transition-none"
                   style={{ width: `${loaderProgress}%` }}
                 />
               </div>
