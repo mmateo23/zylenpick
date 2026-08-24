@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { ArrowUpRight, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, ShoppingBag, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Headphones, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, ShoppingBag, Sparkles, X } from "lucide-react";
 
 import { PlacePost } from "@/components/map-places/place-post";
 import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
@@ -46,10 +46,11 @@ type VenuesMapProps = {
   demoMode?: boolean;
   initialPlaceSlug?: string;
   autoLocate?: boolean;
+  initialExploreOnly?: boolean;
   withSiteHeader?: boolean;
 };
 
-type MapFilter = "all" | "nearby" | "venues" | MapPlaceCategory;
+type MapFilter = "all" | "nearby" | "venues" | "explora" | MapPlaceCategory;
 type Selection =
   | { type: "venue"; item: VenueMapItem }
   | { type: "place"; item: PublicMapPlace };
@@ -190,6 +191,7 @@ function createPlaceMarkerElement(place: PublicMapPlace) {
   element.className = "pickyalo-map-marker pickyalo-map-marker--place";
   element.dataset.category = place.category;
   element.dataset.markerImportance = place.planRole;
+  if (place.explore) element.classList.add("has-explore");
 
   const usesThumbnail = place.planRole === "discover" && Boolean(place.coverImageUrl);
   if (usesThumbnail) {
@@ -243,9 +245,10 @@ function updateMarkerSizes(map: MapboxMap, markers: Marker[]) {
 
 function removeMapMarker(marker: Marker) {
   const element = marker.getElement();
-  placeMarkerRoots.get(element)?.unmount();
+  const root = placeMarkerRoots.get(element);
   placeMarkerRoots.delete(element);
   marker.remove();
+  if (root) window.setTimeout(() => root.unmount(), 0);
 }
 
 function addMarkerRank(element: HTMLElement, rank: number, mode: "nearby" | "plan") {
@@ -339,6 +342,7 @@ export function VenuesMap({
   demoMode = false,
   initialPlaceSlug,
   autoLocate = false,
+  initialExploreOnly = false,
   withSiteHeader = false,
 }: VenuesMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -346,9 +350,17 @@ export function VenuesMap({
   const markersRef = useRef<Marker[]>([]);
   const userMarkerRef = useRef<Marker | null>(null);
   const [mapReady, setMapReady] = useState(false);
-  const [filter, setFilter] = useState<MapFilter>("all");
+  const hasExplorePoints = places.some((place) => Boolean(place.explore));
+  const initialExplorePlace = initialExploreOnly
+    ? places.find((place) => Boolean(place.explore))
+    : undefined;
+  const [filter, setFilter] = useState<MapFilter>(
+    initialExplorePlace ? "explora" : "all",
+  );
   const [selection, setSelection] = useState<Selection | null>(
-    venues[0]
+    initialExplorePlace
+      ? { type: "place", item: initialExplorePlace }
+      : venues[0]
       ? { type: "venue", item: venues[0] }
       : places[0]
         ? { type: "place", item: places[0] }
@@ -377,7 +389,7 @@ export function VenuesMap({
       source: "mapa",
     });
   }, [openPlace]);
-  const [mobileSelectionOpen, setMobileSelectionOpen] = useState(false);
+  const [mobileSelectionOpen, setMobileSelectionOpen] = useState(Boolean(initialExplorePlace));
   const [isImmersive, setIsImmersive] = useState(false);
   const [immersiveFiltersOpen, setImmersiveFiltersOpen] = useState(false);
   const [quickPlanOpen, setQuickPlanOpen] = useState(false);
@@ -529,6 +541,8 @@ export function VenuesMap({
           ? places.filter((place) => nearbyPointMeta.has(`place:${place.id}`))
         : filter === "venues"
           ? []
+        : filter === "explora"
+          ? places.filter((place) => Boolean(place.explore))
           : places.filter((place) => place.category === filter),
     [filter, nearbyPointMeta, places],
   );
@@ -536,6 +550,7 @@ export function VenuesMap({
     if (filter === "all") return "Todo";
     if (filter === "nearby") return "Cerca de ti";
     if (filter === "venues") return "Recogida";
+    if (filter === "explora") return "Historias";
     return availableCategories.find((category) => category.value === filter)?.shortLabel ?? "Explorar";
   }, [availableCategories, filter]);
 
@@ -824,6 +839,7 @@ export function VenuesMap({
     if (!placeBySlug) return;
     initialPlaceHandledRef.current = true;
     setSelection({ type: "place", item: placeBySlug });
+    setMobileSelectionOpen(true);
     mapRef.current.flyTo({
       center: [placeBySlug.longitude, placeBySlug.latitude],
       zoom: Math.max(mapRef.current.getZoom(), 16),
@@ -1034,6 +1050,7 @@ export function VenuesMap({
           filter={filter}
           categories={availableCategories}
           hasPickupPoints={venues.length > 0}
+          hasExplorePoints={hasExplorePoints}
           onSelect={selectMapFilter}
           className="mt-5"
         />
@@ -1115,6 +1132,7 @@ export function VenuesMap({
                         filter={filter}
                         categories={availableCategories}
                         hasPickupPoints={venues.length > 0}
+                        hasExplorePoints={hasExplorePoints}
                         onSelect={selectMapFilter}
                       />
                       <button
@@ -1237,6 +1255,7 @@ export function VenuesMap({
         .pickyalo-map-marker--place[data-category="tables"]::before { border-color:#9d572f; }
         .pickyalo-map-marker--place.is-active { background:#741314; color:#FFF7E8; }
         .pickyalo-map-marker--place.is-active::before { border-color:#741314; }
+        .pickyalo-map-marker--place.has-explore { box-shadow:0 14px 32px rgba(56,25,50,.24),0 0 0 3px rgba(255,247,232,.94),0 0 0 7px rgba(253,227,173,.88); }
         .pickyalo-map-user-marker { width:18px; height:18px; border:4px solid white; border-radius:999px; background:#741314; box-shadow:0 0 0 5px rgba(116,19,20,.2); }
         .mapboxgl-ctrl-group { display:grid; gap:6px; overflow:visible; border:0!important; background:transparent!important; box-shadow:none!important; }
         .mapboxgl-ctrl-group button { width:40px!important; height:40px!important; overflow:hidden; border:1px solid rgba(116,19,20,.16)!important; border-radius:999px!important; background-color:rgba(255,247,232,.96)!important; box-shadow:0 10px 26px rgba(56,25,50,.15)!important; transition:background-color 160ms ease,transform 160ms ease!important; }
@@ -1371,12 +1390,14 @@ function MapFilterControls({
   filter,
   categories,
   hasPickupPoints,
+  hasExplorePoints,
   onSelect,
   className = "",
 }: {
   filter: MapFilter;
   categories: MapPlaceCategoryDefinition[];
   hasPickupPoints: boolean;
+  hasExplorePoints: boolean;
   onSelect: (filter: MapFilter) => void;
   className?: string;
 }) {
@@ -1386,11 +1407,14 @@ function MapFilterControls({
         <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
           Cómo quieres explorar
         </p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <FilterChip icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} active={filter === "all"} onClick={() => onSelect("all")}>Todo</FilterChip>
           <FilterChip icon={<LocateFixed className="h-4 w-4" aria-hidden="true" />} active={filter === "nearby"} onClick={() => onSelect("nearby")}>Cerca de ti</FilterChip>
           {hasPickupPoints ? (
             <FilterChip icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} active={filter === "venues"} onClick={() => onSelect("venues")}>Recogida</FilterChip>
+          ) : null}
+          {hasExplorePoints ? (
+            <FilterChip icon={<Headphones className="h-4 w-4" aria-hidden="true" />} active={filter === "explora"} onClick={() => onSelect("explora")}>Explora</FilterChip>
           ) : null}
         </div>
       </div>
@@ -1519,6 +1543,11 @@ function PlaceSelection({
         </div>
       </div>
       {distance !== null ? <DistanceChip distance={distance} /> : null}
+      {place.explore ? (
+        <p className="mt-2 inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#741314]/18 bg-[#FDE3AD]/55 px-3 text-xs font-bold text-[#741314]">
+          <Headphones className="h-3.5 w-3.5" aria-hidden="true" /> Historia disponible
+        </p>
+      ) : null}
       {place.description ? <p className={`${compact ? "mt-2 line-clamp-2 text-xs leading-5" : "mt-4 text-sm leading-6"} text-[#381932]/68`}>{place.description}</p> : null}
       {!compact && place.amenities.length > 0 ? (
         <div className="mt-4 flex flex-wrap gap-2">

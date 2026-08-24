@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Bell,
+  BookOpen,
   Eye,
   Info,
   MapPin,
@@ -25,6 +26,7 @@ import { HomeCampaignCta } from "@/components/home/home-campaign-cta";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import type { City } from "@/features/cities/types";
 import type { SiteDesignConfig } from "@/features/design/site-design-config";
+import type { PublicExploreMapEntry } from "@/features/explore/types";
 import { mapPlaceCategories } from "@/features/map-places/categories";
 import { MapPlaceIcon } from "@/features/map-places/icons";
 import {
@@ -65,6 +67,7 @@ type DemoHomeProps = {
   cities: City[];
   heroImageUrl: string;
   mapFeatureImageUrl?: string;
+  exploreFeature?: PublicExploreMapEntry | null;
   design?: SiteDesignConfig;
   featuredItems: HomeShowcaseItem[];
   latestItems: HomeShowcaseItem[];
@@ -223,8 +226,19 @@ export function DemoHome({
   featuredItems,
   latestItems,
   mapFeatureImageUrl = "/home/zonas/badges/talavera_tile_mural.png",
+  exploreFeature = null,
   template,
 }: DemoHomeProps) {
+  const mapFeatureHref = exploreFeature
+    ? `/explora/${exploreFeature.routeSlug}/${exploreFeature.pointSlug}?unlock=${exploreFeature.publicToken}`
+    : "/mapa?localizar=1";
+  const mapFeatureTitle =
+    exploreFeature?.pointTitle ?? "Cerámica de los Jardines del Prado";
+  const mapFeatureSubtitle = exploreFeature?.routeName ?? "Talavera de la Reina";
+  const mapFeatureDescription =
+    exploreFeature?.introduction ??
+    "Un paseo donde la cerámica deja de ser un detalle y se convierte en paisaje de la ciudad.";
+  const mapFeatureImage = exploreFeature?.imageUrl ?? mapFeatureImageUrl;
   const router = useRouter();
   const [selectedCity, setSelectedCity] = useState<StoredCity | null>(null);
   const [showLoader, setShowLoader] = useState(true);
@@ -1326,26 +1340,34 @@ export function DemoHome({
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-[13px] font-semibold leading-5">
-                    Cerámica de los Jardines del Prado
+                    {mapFeatureTitle}
                   </span>
                   <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
-                    Talavera de la Reina
+                    {mapFeatureSubtitle}
                   </span>
                 </span>
               </div>
               <span className="rounded-full bg-[#FFE9EC] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#741314]">
-                Mural
+                {exploreFeature ? "Historia" : "Mural"}
               </span>
             </header>
 
             <Link
-              href="/mapa?localizar=1"
-              aria-label="Ver la Cerámica de los Jardines del Prado en el mapa"
+              href={mapFeatureHref}
+              aria-label={
+                exploreFeature
+                  ? `Abrir la historia ${mapFeatureTitle}`
+                  : "Ver la Cerámica de los Jardines del Prado en el mapa"
+              }
               className="group/map relative block aspect-[5/4] overflow-hidden bg-white"
             >
               <Image
-                src={mapFeatureImageUrl}
-                alt="Representación de la cerámica de los Jardines del Prado de Talavera"
+                src={mapFeatureImage}
+                alt={
+                  exploreFeature
+                    ? mapFeatureTitle
+                    : "Representación de la cerámica de los Jardines del Prado de Talavera"
+                }
                 fill
                 sizes="(max-width: 640px) 20rem, 22rem"
                 className="object-cover transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
@@ -1363,22 +1385,31 @@ export function DemoHome({
                   </span>
                 </div>
                 <Link
-                  href="/mapa?localizar=1"
-                  aria-label="Abrir el mapa de Pickyalo"
+                  href={mapFeatureHref}
+                  aria-label={
+                    exploreFeature ? "Abrir esta historia" : "Abrir el mapa de Pickyalo"
+                  }
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_12px_26px_rgba(116,19,20,0.26)] transition hover:bg-[#5F0F10]"
                 >
-                  <MapPin className="h-5 w-5" aria-hidden="true" />
+                  {exploreFeature ? (
+                    <BookOpen className="h-5 w-5" aria-hidden="true" />
+                  ) : (
+                    <MapPin className="h-5 w-5" aria-hidden="true" />
+                  )}
                 </Link>
               </div>
               <div className="mt-3">
                 <h3 className="text-lg font-semibold leading-5">
-                  Cerámica de los Jardines del Prado
+                  {mapFeatureTitle}
                 </h3>
                 <p className="mt-1.5 text-[13px] leading-5 text-[#5f5f5f]">
-                  Un paseo donde la cerámica deja de ser un detalle y se convierte en paisaje de la ciudad.
+                  {mapFeatureDescription}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {["Arte al aire libre", "Paseo", "Fotografía"].map((label) => (
+                  {(exploreFeature
+                    ? ["Historia local", "Paseo", "Cerca"]
+                    : ["Arte al aire libre", "Paseo", "Fotografía"]
+                  ).map((label) => (
                     <span
                       key={label}
                       className="rounded-full bg-[#f1f1f1] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]"
@@ -1394,13 +1425,17 @@ export function DemoHome({
 
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#741314]">
-              Pickyalo también se recorre
+              Pickyalo Explora
             </p>
             <h2 className="mt-5 max-w-[12ch] text-balance text-[clamp(2.8rem,6vw,5.3rem)] font-semibold leading-[0.88] tracking-[-0.075em] text-[#741314]">
-              Recoge algo rico. Descubre la ciudad.
+              {exploreFeature
+                ? "La ciudad también se cuenta."
+                : "Recoge algo rico. Descubre la ciudad."}
             </h2>
             <p className="mt-6 max-w-xl text-lg font-medium leading-8 text-[#24110E]/72">
-              El mapa conecta platos y locales con monumentos, murales, parques y sitios donde parar. Así, salir a recoger también puede enseñarte algo que tenías cerca y todavía no conocías.
+              {exploreFeature
+                ? "Encuentra historias en monumentos, murales y rincones reales de la ciudad. Llega al punto, abre su ficha y descubre qué tienes delante."
+                : "Pickyalo Explora conecta platos y locales con monumentos, murales, parques y sitios donde parar. Así, salir a recoger también puede enseñarte algo que tenías cerca y todavía no conocías."}
             </p>
             <ul className="home-map-category-list mt-7 flex flex-wrap gap-2" aria-label="Categorías disponibles en el mapa">
               {HOME_MAP_CATEGORIES.map((category, index) => {
@@ -1448,16 +1483,16 @@ export function DemoHome({
             </ul>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/mapa?localizar=1"
+                href={exploreFeature ? "/mapa?explora=1" : "/mapa?localizar=1"}
                 className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-6 py-3 text-sm font-semibold text-[#FDE3AD] transition hover:-translate-y-0.5 hover:bg-[#5F0F10]"
               >
-                Explorar el mapa
+                {exploreFeature ? "Descubrir historias" : "Explorar el mapa"}
               </Link>
               <Link
-                href="/zonas"
+                href={exploreFeature ? mapFeatureHref : "/zonas"}
                 className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#741314] px-6 py-3 text-sm font-semibold text-[#741314] transition hover:-translate-y-0.5 hover:bg-[#FDE3AD]"
               >
-                Ver zonas
+                {exploreFeature ? "Abrir historia" : "Ver zonas"}
               </Link>
             </div>
           </div>

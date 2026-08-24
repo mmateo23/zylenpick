@@ -31,6 +31,13 @@ export type PublicMapPlace = {
   sourceUrl: string | null;
   planRole: MapPlacePlanRole;
   isPlanCandidate: boolean;
+  explore?: {
+    routeSlug: string;
+    routeName: string;
+    pointSlug: string;
+    pointTitle: string;
+    publicToken: string;
+  } | null;
   city: {
     slug: string;
     name: string;

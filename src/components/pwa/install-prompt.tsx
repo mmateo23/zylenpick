@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type BeforeInstallPromptEvent = Event & {
@@ -37,6 +38,7 @@ function isIOSDevice() {
 }
 
 export function InstallPrompt() {
+  const pathname = usePathname();
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
@@ -112,7 +114,7 @@ export function InstallPrompt() {
     setIsVisible(false);
   };
 
-  if (!isVisible) {
+  if (!isVisible || pathname.startsWith("/explora/")) {
     return null;
   }
 

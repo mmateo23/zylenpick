@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   Accessibility,
+  ArrowUpRight,
   ChevronDown,
   Clock3,
   ExternalLink,
   Info,
+  Headphones,
   MapPin,
   Navigation,
   Send,
@@ -69,6 +71,9 @@ export function PlacePost({ place, category, distance, nearbyVenue, onClose }: P
   const [showDetails, setShowDetails] = useState(false);
   const [isImageFullscreen, setIsImageFullscreen] = useState(false);
   const [canScrollMore, setCanScrollMore] = useState(false);
+  const exploreHref = place.explore
+    ? `/explora/${place.explore.routeSlug}/${place.explore.pointSlug}?unlock=${place.explore.publicToken}`
+    : null;
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -270,6 +275,19 @@ export function PlacePost({ place, category, distance, nearbyVenue, onClose }: P
               </span>
             </div>
             {place.description ? <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">{place.description}</p> : null}
+
+            {exploreHref ? (
+              <Link
+                href={exploreHref}
+                className="flex min-h-12 items-center justify-between gap-3 rounded-[0.9rem] border border-[#741314]/18 bg-[#FDE3AD]/52 px-3.5 text-sm font-bold text-[#741314] transition hover:bg-[#FDE3AD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <Headphones className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate">Abrir historia</span>
+                </span>
+                <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+              </Link>
+            ) : null}
 
             <div className="flex flex-wrap gap-1.5">
               {place.openingHoursNote ? (

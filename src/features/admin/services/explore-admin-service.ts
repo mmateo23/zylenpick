@@ -320,11 +320,8 @@ export async function getAdminExplorePreviewExperience(
     !point.introduction && "Introducción",
     !point.story && "Relato",
     !point.transcript && "Transcripción",
-    !point.audioUrl && "Audio",
-    !point.audioDurationSeconds && "Duración del audio",
     !point.imageUrl && "Fotografía",
     !point.imageAlt && "Texto alternativo",
-    !point.artisticMapUrl && "Mapa artístico",
     !point.latitude && "Latitud",
     !point.longitude && "Longitud",
   ].filter((value): value is string => Boolean(value));
@@ -333,9 +330,14 @@ export async function getAdminExplorePreviewExperience(
 
   const latitude = Number(point.latitude);
   const longitude = Number(point.longitude);
-  const audioDurationSeconds = Number(point.audioDurationSeconds);
-  if (![latitude, longitude, audioDurationSeconds].every(Number.isFinite)) {
-    return { experience: null, missingFields: ["Coordenadas o duración válidas"] };
+  const audioDurationSeconds = point.audioDurationSeconds
+    ? Number(point.audioDurationSeconds)
+    : null;
+  if (
+    ![latitude, longitude].every(Number.isFinite) ||
+    (audioDurationSeconds !== null && !Number.isFinite(audioDurationSeconds))
+  ) {
+    return { experience: null, missingFields: ["Coordenadas válidas"] };
   }
 
   const next = points.find((item) => Number(item.position) > Number(point.position)) ?? null;

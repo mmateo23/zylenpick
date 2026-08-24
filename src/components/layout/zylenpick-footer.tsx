@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Headphones } from "lucide-react";
 import { useState, type ComponentType } from "react";
 
 import {
@@ -17,6 +17,21 @@ type ZylenPickFooterProps = {
   theme?: "dark" | "light";
 };
 
+function ExploreFooterIcon({
+  size = 24,
+  className,
+  strokeWidth = 2,
+}: AnimatedIconProps) {
+  return (
+    <Headphones
+      aria-hidden="true"
+      size={size}
+      className={className}
+      strokeWidth={strokeWidth}
+    />
+  );
+}
+
 const footerLinks = [
   {
     label: "Platos",
@@ -27,6 +42,11 @@ const footerLinks = [
     label: "Zonas",
     href: "/zonas",
     icon: PickyaloLocationIcon,
+  },
+  {
+    label: "Explora",
+    href: "/mapa?explora=1",
+    icon: ExploreFooterIcon,
   },
   {
     label: "Únete",
@@ -164,8 +184,9 @@ export function ZylenPickFooter({
                       strokeWidth={2.25}
                       animated={iconAnimation.id === link.label}
                       active={
-                        link.label === "El proyecto" &&
-                        iconAnimation.id === link.label
+                        link.label === "El proyecto"
+                          ? iconAnimation.id === link.label
+                          : undefined
                       }
                       loop={false}
                       triggerKey={iconAnimation.triggerKey}

@@ -4,6 +4,7 @@ import { getCities } from "@/features/cities/services/cities-service";
 import { getSiteDesignConfig } from "@/features/design/services/site-design-service";
 import { isHomeCampaignActive } from "@/features/design/site-design-config";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
+import { getPublishedExploreMapEntries } from "@/features/explore/services/explore-service";
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
@@ -20,13 +21,14 @@ export const metadata: Metadata = getBaseMetadata({
 
 export default async function HomePage() {
   const configured = isSupabaseConfigured();
-  const [cities, showcase, siteMedia, design] = await Promise.all([
+  const [cities, showcase, siteMedia, design, exploreEntries] = await Promise.all([
     configured ? getCities() : Promise.resolve([]),
     configured
       ? getHomeShowcase()
       : Promise.resolve({ featuredItems: [], latestItems: [] }),
     getSiteMediaAssetMap(),
     getSiteDesignConfig(),
+    configured ? getPublishedExploreMapEntries() : Promise.resolve([]),
   ]);
   const homeDesign = {
     ...design,
@@ -46,6 +48,7 @@ export default async function HomePage() {
       cities={cities}
       heroImageUrl={siteMedia.home_hero.imageUrl}
       mapFeatureImageUrl={siteMedia.home_map_feature.imageUrl}
+      exploreFeature={exploreEntries[0] ?? null}
       design={homeDesign}
       featuredItems={showcase.featuredItems}
       latestItems={showcase.latestItems}

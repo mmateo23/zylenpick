@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -11,6 +12,7 @@ import {
 } from "@/lib/cookies/analytics-consent";
 
 export function CookieConsentBanner() {
+  const pathname = usePathname();
   const [consentStatus, setConsentStatus] =
     useState<AnalyticsConsentStatus>(null);
   const [hasLoadedConsent, setHasLoadedConsent] = useState(false);
@@ -38,6 +40,10 @@ export function CookieConsentBanner() {
     writeAnalyticsConsent("accepted");
     setIsPanelOpen(false);
   };
+
+  if (pathname.startsWith("/explora/")) {
+    return null;
+  }
 
   return (
     <>

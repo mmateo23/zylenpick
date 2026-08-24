@@ -53,7 +53,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(point.audioDurationSeconds);
+  const [duration, setDuration] = useState(point.audioDurationSeconds ?? 0);
   const [storyOpen, setStoryOpen] = useState(false);
   const source: "preview" | "qr" = preview ? "preview" : "qr";
   const progressKey = `pickyalo.explora.${route.id}.visited`;
@@ -193,57 +193,63 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
             </p>
           </div>
 
-          <audio
-            ref={audioRef}
-            src={point.audioUrl}
-            preload="metadata"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onWaiting={() => setIsLoading(true)}
-            onCanPlay={() => setIsLoading(false)}
-            onTimeUpdate={(event) =>
-              setCurrentTime(event.currentTarget.currentTime)
-            }
-            onLoadedMetadata={(event) =>
-              setDuration(
-                event.currentTarget.duration || point.audioDurationSeconds,
-              )
-            }
-            onError={() => {
-              setAudioError(true);
-              setIsLoading(false);
-            }}
-            onEnded={() => {
-              setIsPlaying(false);
-              if (!preview) {
-                captureExploreEvent(
-                  "explore_audio_completed",
-                  eventProperties,
-                  `${route.id}:${point.id}`,
-                );
+          {point.audioUrl ? (
+            <audio
+              ref={audioRef}
+              src={point.audioUrl}
+              preload="metadata"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onWaiting={() => setIsLoading(true)}
+              onCanPlay={() => setIsLoading(false)}
+              onTimeUpdate={(event) =>
+                setCurrentTime(event.currentTarget.currentTime)
               }
-            }}
-          />
+              onLoadedMetadata={(event) =>
+                setDuration(
+                  event.currentTarget.duration ||
+                    point.audioDurationSeconds ||
+                    0,
+                )
+              }
+              onError={() => {
+                setAudioError(true);
+                setIsLoading(false);
+              }}
+              onEnded={() => {
+                setIsPlaying(false);
+                if (!preview) {
+                  captureExploreEvent(
+                    "explore_audio_completed",
+                    eventProperties,
+                    `${route.id}:${point.id}`,
+                  );
+                }
+              }}
+            />
+          ) : null}
 
           <div className="mt-auto pt-3 lg:pt-8">
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={() => void toggleAudio()}
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8] transition-colors hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-3 motion-reduce:transition-none sm:text-base"
-              >
-                {isLoading ? (
-                  <LoaderCircle
-                    aria-hidden="true"
-                    className="h-5 w-5 animate-spin motion-reduce:animate-none"
-                  />
-                ) : isPlaying ? (
-                  <Pause aria-hidden="true" className="h-5 w-5 fill-current" />
-                ) : (
-                  <AudioLines aria-hidden="true" className="h-5 w-5" />
-                )}
-                {isPlaying ? "Pausar" : "Escuchar"}
-              </button>
+            <div className={`grid gap-2.5 ${point.audioUrl ? "grid-cols-2" : "grid-cols-1"}`}>
+              {point.audioUrl ? (
+                <button
+                  type="button"
+                  onClick={() => void toggleAudio()}
+                  className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8] transition-colors hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-3 motion-reduce:transition-none sm:text-base"
+                >
+                  {isLoading ? (
+                    <LoaderCircle
+                      aria-hidden="true"
+                      className="h-5 w-5 animate-spin motion-reduce:animate-none"
+                    />
+                  ) : isPlaying ? (
+                    <Pause aria-hidden="true" className="h-5 w-5 fill-current" />
+                  ) : (
+                    <AudioLines aria-hidden="true" className="h-5 w-5" />
+                  )}
+                  {isPlaying ? "Pausar" : "Escuchar"}
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={openStory}
@@ -318,7 +324,9 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
               ) : (
                 <div className="flex min-h-11 items-center gap-3 text-[#741314]">
                   <Check aria-hidden="true" className="h-5 w-5" />
-                  <span className="text-sm font-semibold">Ruta completada</span>
+                  <span className="text-sm font-semibold">
+                    {totalPoints === 1 ? "Punto visitado" : "Ruta completada"}
+                  </span>
                 </div>
               )}
             </div>
@@ -371,13 +379,17 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                 <div className="mt-4 whitespace-pre-line font-serif text-[1.35rem] leading-[1.55] text-[#24110E] sm:text-[1.55rem]">
                   {point.story}
                 </div>
-                <div className="my-8 border-t border-[#741314]/20" />
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/62">
-                  Transcripción del audio
-                </p>
-                <div className="mt-4 whitespace-pre-line text-base leading-8 text-[#24110E]/80">
-                  {point.transcript}
-                </div>
+                {point.audioUrl ? (
+                  <>
+                    <div className="my-8 border-t border-[#741314]/20" />
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/62">
+                      Transcripción del audio
+                    </p>
+                    <div className="mt-4 whitespace-pre-line text-base leading-8 text-[#24110E]/80">
+                      {point.transcript}
+                    </div>
+                  </>
+                ) : null}
                 {point.credits ? (
                   <p className="mt-8 border-t border-[#741314]/18 pt-4 text-xs leading-5 text-[#741314]/62">
                     {point.credits}

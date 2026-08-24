@@ -1,6 +1,7 @@
 import { cache } from "react";
 
 import type {
+  PublicExploreMapEntry,
   ExploreSponsor,
   PublicExploreExperience,
   PublicExplorePoint,
@@ -16,11 +17,11 @@ type CompletePointRow = Record<string, unknown> & {
   introduction: string;
   story: string;
   transcript: string;
-  audio_url: string;
-  audio_duration_seconds: number;
+  audio_url: string | null;
+  audio_duration_seconds: number | null;
   image_url: string;
   image_alt: string;
-  artistic_map_url: string;
+  artistic_map_url: string | null;
   latitude: number;
   longitude: number;
   map_place_id: string;
@@ -35,16 +36,58 @@ function completePoint(point: Record<string, unknown>): point is CompletePointRo
       point.introduction &&
       point.story &&
       point.transcript &&
-      point.audio_url &&
-      point.audio_duration_seconds !== null &&
       point.image_url &&
       point.image_alt &&
-      point.artistic_map_url &&
       point.latitude !== null &&
       point.longitude !== null &&
       point.map_place_id,
   );
 }
+
+export const getPublishedExploreMapEntries = cache(
+  async (): Promise<PublicExploreMapEntry[]> => {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("explore_route_points")
+      .select(
+        "map_place_id, slug, title, introduction, image_url, public_token, position, explore_routes!inner(slug, name, status)",
+      )
+      .eq("is_active", true)
+      .eq("is_published", true)
+      .eq("explore_routes.status", "published")
+      .order("position", { ascending: true });
+
+    if (error || !data) return [];
+
+    return data.flatMap((point) => {
+      const route = point.explore_routes;
+      if (
+        !point.map_place_id ||
+        !point.slug ||
+        !point.title ||
+        !point.introduction ||
+        !point.image_url ||
+        !point.public_token ||
+        !route?.slug ||
+        !route.name
+      ) {
+        return [];
+      }
+
+      return [{
+        mapPlaceId: point.map_place_id,
+        pointSlug: point.slug,
+        pointTitle: point.title,
+        introduction: point.introduction,
+        imageUrl: point.image_url,
+        publicToken: point.public_token,
+        position: point.position,
+        routeSlug: route.slug,
+        routeName: route.name,
+      }];
+    });
+  },
+);
 
 function toPublicPoint(
   point: CompletePointRow,

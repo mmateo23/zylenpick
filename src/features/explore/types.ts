@@ -17,11 +17,11 @@ export type PublicExplorePoint = {
   introduction: string;
   story: string;
   transcript: string;
-  audioUrl: string;
-  audioDurationSeconds: number;
+  audioUrl: string | null;
+  audioDurationSeconds: number | null;
   imageUrl: string;
   imageAlt: string;
-  artisticMapUrl: string;
+  artisticMapUrl: string | null;
   latitude: number;
   longitude: number;
   credits: string | null;
@@ -30,6 +30,18 @@ export type PublicExplorePoint = {
     name: string;
     category: string;
   };
+};
+
+export type PublicExploreMapEntry = {
+  mapPlaceId: string;
+  pointSlug: string;
+  pointTitle: string;
+  introduction: string;
+  imageUrl: string;
+  publicToken: string;
+  position: number;
+  routeSlug: string;
+  routeName: string;
 };
 
 export type PublicExploreExperience = {
