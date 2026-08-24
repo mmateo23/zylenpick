@@ -1341,14 +1341,14 @@ export function DemoHome({
             <Link
               href="/mapa?localizar=1"
               aria-label="Ver la Cerámica de los Jardines del Prado en el mapa"
-              className="group/map relative block aspect-[5/4] overflow-hidden bg-[#741314]"
+              className="group/map relative block aspect-[5/4] overflow-hidden bg-white"
             >
               <Image
                 src={mapFeatureImageUrl}
                 alt="Representación de la cerámica de los Jardines del Prado de Talavera"
                 fill
                 sizes="(max-width: 640px) 20rem, 22rem"
-                className="object-contain p-4 transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
+                className="object-cover transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
               />
             </Link>
 

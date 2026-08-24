@@ -75,6 +75,217 @@ export type Database = {
         };
         Relationships: [];
       };
+      explore_sponsors: {
+        Row: {
+          id: string;
+          name: string;
+          logo_url: string | null;
+          short_message: string | null;
+          link_url: string | null;
+          starts_at: string | null;
+          ends_at: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          logo_url?: string | null;
+          short_message?: string | null;
+          link_url?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          logo_url?: string | null;
+          short_message?: string | null;
+          link_url?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      explore_routes: {
+        Row: {
+          id: string;
+          city_id: string;
+          sponsor_id: string | null;
+          name: string;
+          slug: string;
+          description: string | null;
+          cover_image_url: string | null;
+          status: "draft" | "published";
+          sort_order: number;
+          available_languages: string[];
+          credits: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          city_id: string;
+          sponsor_id?: string | null;
+          name: string;
+          slug: string;
+          description?: string | null;
+          cover_image_url?: string | null;
+          status?: "draft" | "published";
+          sort_order?: number;
+          available_languages?: string[];
+          credits?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          city_id?: string;
+          sponsor_id?: string | null;
+          name?: string;
+          slug?: string;
+          description?: string | null;
+          cover_image_url?: string | null;
+          status?: "draft" | "published";
+          sort_order?: number;
+          available_languages?: string[];
+          credits?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "explore_routes_city_id_fkey";
+            columns: ["city_id"];
+            isOneToOne: false;
+            referencedRelation: "cities";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "explore_routes_sponsor_id_fkey";
+            columns: ["sponsor_id"];
+            isOneToOne: false;
+            referencedRelation: "explore_sponsors";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      explore_route_points: {
+        Row: {
+          id: string;
+          route_id: string;
+          map_place_id: string;
+          sponsor_id: string | null;
+          slug: string;
+          position: number;
+          title: string;
+          introduction: string | null;
+          story: string | null;
+          transcript: string | null;
+          audio_url: string | null;
+          audio_duration_seconds: number | null;
+          image_url: string | null;
+          image_alt: string | null;
+          artistic_map_url: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          credits: string | null;
+          translations: Json;
+          is_active: boolean;
+          is_published: boolean;
+          public_token: string;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          route_id: string;
+          map_place_id: string;
+          sponsor_id?: string | null;
+          slug: string;
+          position?: number;
+          title: string;
+          introduction?: string | null;
+          story?: string | null;
+          transcript?: string | null;
+          audio_url?: string | null;
+          audio_duration_seconds?: number | null;
+          image_url?: string | null;
+          image_alt?: string | null;
+          artistic_map_url?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          credits?: string | null;
+          translations?: Json;
+          is_active?: boolean;
+          is_published?: boolean;
+          public_token?: string;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          route_id?: string;
+          map_place_id?: string;
+          sponsor_id?: string | null;
+          slug?: string;
+          position?: number;
+          title?: string;
+          introduction?: string | null;
+          story?: string | null;
+          transcript?: string | null;
+          audio_url?: string | null;
+          audio_duration_seconds?: number | null;
+          image_url?: string | null;
+          image_alt?: string | null;
+          artistic_map_url?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          credits?: string | null;
+          translations?: Json;
+          is_active?: boolean;
+          is_published?: boolean;
+          public_token?: string;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "explore_route_points_route_id_fkey";
+            columns: ["route_id"];
+            isOneToOne: false;
+            referencedRelation: "explore_routes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "explore_route_points_map_place_id_fkey";
+            columns: ["map_place_id"];
+            isOneToOne: false;
+            referencedRelation: "map_places";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "explore_route_points_sponsor_id_fkey";
+            columns: ["sponsor_id"];
+            isOneToOne: false;
+            referencedRelation: "explore_sponsors";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       map_places: {
         Row: {
           id: string;
@@ -958,7 +1169,16 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      move_explore_route_point: {
+        Args: {
+          p_route_id: string;
+          p_point_id: string;
+          p_direction: string;
+        };
+        Returns: undefined;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

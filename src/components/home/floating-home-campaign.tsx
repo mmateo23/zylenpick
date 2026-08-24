@@ -22,6 +22,7 @@ const HIDDEN_PREFIXES = [
   "/carrito",
   "/checkout",
   "/pedidos",
+  "/explora",
   "/cookies",
   "/privacidad",
 ];

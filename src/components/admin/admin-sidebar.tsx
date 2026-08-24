@@ -3,6 +3,7 @@
 import {
   Building2,
   Camera,
+  Compass,
   Inbox,
   Layers3,
   LayoutDashboard,
@@ -17,6 +18,7 @@ const navigationItems = [
   { label: "Scout", href: "/panel/scout", icon: Camera, matches: [] },
   { label: "Locales", href: "/panel/locales", icon: Building2, matches: [] },
   { label: "Lugares", href: "/panel/lugares", icon: MapPinned, matches: [] },
+  { label: "Explora", href: "/panel/explora", icon: Compass, matches: [] },
   {
     label: "Contenido",
     href: "/panel/contenido",

@@ -199,14 +199,14 @@ export function CartScreen({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(253,212,125,0.30),transparent_34%),linear-gradient(90deg,rgba(252,250,245,0.98)_0%,rgba(252,250,245,0.94)_42%,rgba(252,250,245,0.70)_70%,rgba(252,250,245,0.34)_100%)]" />
 
           <div className="relative z-10 mx-auto grid min-h-[calc(44svh-1rem)] w-full max-w-7xl items-end gap-8 px-5 pb-8 pt-8 sm:px-8 sm:pb-10 sm:pt-12 lg:min-h-[30rem] lg:grid-cols-[minmax(0,1fr)_26rem] lg:px-12 lg:pb-10">
-            <div className="max-w-3xl rounded-[1.75rem] border border-[#741314]/12 bg-[#FFF7E8]/92 p-5 shadow-[0_18px_46px_rgba(116,19,20,0.10)] backdrop-blur-md sm:p-6 lg:bg-[#FFF7E8]/88">
-              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#741314]/62">
+            <div className="max-w-3xl rounded-[1.75rem] border border-[#FDE3AD]/24 bg-[#381932]/92 p-5 text-[#FFF7E8] shadow-[0_18px_46px_rgba(36,17,14,0.24)] backdrop-blur-md sm:p-6">
+              <p className="text-xs font-medium uppercase tracking-[0.28em] text-[#FDE3AD]/78">
                 Tu cesta
               </p>
-              <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] lg:max-w-[22ch] lg:text-[3.25rem]">
+              <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-[#FFF7E8] lg:max-w-[22ch] lg:text-[3.25rem]">
                 {design?.texts.cart.emptyTitle ?? "Elige productos o platos para recoger."}
               </h1>
-              <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#24110E]/72 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
+              <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#FFF7E8]/78 sm:text-lg sm:leading-8 lg:max-w-[38rem] lg:text-base lg:leading-7">
                 {design?.texts.cart.emptySubtitle ??
                   "Tu selección aparecerá aquí cuando guardes algo desde un local. Después solo tendrás que confirmar la hora de recogida."}
               </p>
@@ -431,8 +431,8 @@ export function CartScreen({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_18%),linear-gradient(90deg,rgba(253,227,173,0.94)_0%,rgba(253,227,173,0.76)_42%,rgba(255,247,232,0.44)_72%,rgba(255,247,232,0.18)_100%),linear-gradient(180deg,rgba(253,227,173,0.18)_0%,rgba(253,227,173,0.34)_48%,rgba(253,227,173,0.78)_100%)]" />
 
         <div className="relative z-10 mx-auto flex min-h-[24rem] w-full max-w-[96rem] items-end px-5 pb-10 pt-10 sm:px-8 sm:pb-12 sm:pt-14 lg:min-h-[27rem] lg:px-12 lg:pb-12">
-          <div className="max-w-4xl lg:max-w-[34rem] lg:rounded-[1.35rem] lg:border lg:border-[#741314]/16 lg:bg-[#FFF7E8]/84 lg:p-6 lg:shadow-[var(--shadow-soft)] lg:backdrop-blur-md">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#741314]">
+          <div className="max-w-4xl rounded-[1.35rem] border border-[#FDE3AD]/24 bg-[#381932]/90 p-5 text-[#FFF7E8] shadow-[0_18px_46px_rgba(36,17,14,0.24)] backdrop-blur-md sm:p-6 lg:max-w-[34rem]">
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#FDE3AD]/82">
               Tu cesta
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -443,10 +443,10 @@ export function CartScreen({
                 {totals.totalItems} producto{totals.totalItems === 1 ? "" : "s"}
               </span>
             </div>
-            <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-[#741314] lg:max-w-[13ch] lg:text-[3.05rem]">
+            <h1 className="mt-4 max-w-[15ch] text-balance text-[clamp(2.65rem,5.2vw,4.9rem)] font-semibold leading-[0.9] tracking-[-0.065em] text-[#FFF7E8] lg:max-w-[13ch] lg:text-[3.05rem]">
               {design?.texts.cart.filledTitle ?? "Revisa tu recogida."}
             </h1>
-            <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#24110E]/72 sm:text-lg sm:leading-8 lg:max-w-[28rem] lg:text-base lg:leading-7">
+            <p className="mt-4 max-w-[42rem] text-base leading-7 text-[#FFF7E8]/78 sm:text-lg sm:leading-8 lg:max-w-[28rem] lg:text-base lg:leading-7">
               {design?.texts.cart.filledSubtitle ??
                 "Tu pedido se prepara en el local para que solo tengas que llegar y recoger."}
             </p>

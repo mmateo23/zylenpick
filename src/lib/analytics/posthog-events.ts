@@ -13,6 +13,12 @@ export type PickyaloPostHogEventName =
   | "campana_visitada"
   | "lugar_visto"
   | "shot_visto"
+  | "explore_point_opened"
+  | "explore_audio_started"
+  | "explore_audio_completed"
+  | "explore_transcript_opened"
+  | "explore_next_point_clicked"
+  | "explore_route_completed"
   | "plato_visto"
   | "local_visto"
   | "add_to_cart"
@@ -91,6 +97,16 @@ export type ShotVistoProperties = {
   source: "feed" | "interstitial";
 };
 
+export type ExploreEventProperties = {
+  route_id: string;
+  route_slug: string;
+  point_id?: string;
+  point_slug?: string;
+  point_position?: number;
+  total_points?: number;
+  source: "qr" | "route" | "preview";
+};
+
 export type PickyaloPostHogEventProperties =
   | PlatoVistoProperties
   | LocalVistoProperties
@@ -100,6 +116,7 @@ export type PickyaloPostHogEventProperties =
   | CampanaVisitadaProperties
   | LugarVistoProperties
   | ShotVistoProperties
+  | ExploreEventProperties
   | (Properties & Record<string, PickyaloEventPropertyValue>);
 
 const capturedOnceKeys = new Set<string>();
@@ -184,6 +201,20 @@ export function captureLugarVisto(properties: LugarVistoProperties) {
 
 export function captureShotVisto(properties: ShotVistoProperties) {
   capturePickyaloEvent("shot_visto", properties);
+}
+
+export function captureExploreEvent(
+  eventName:
+    | "explore_point_opened"
+    | "explore_audio_started"
+    | "explore_audio_completed"
+    | "explore_transcript_opened"
+    | "explore_next_point_clicked"
+    | "explore_route_completed",
+  properties: ExploreEventProperties,
+  dedupeKey?: string,
+) {
+  capturePickyaloEvent(eventName, properties, { dedupeKey });
 }
 
 export function capturePlatoVisto(
