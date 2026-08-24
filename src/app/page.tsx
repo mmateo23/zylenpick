@@ -45,6 +45,7 @@ export default async function HomePage() {
     <ServiceShowcaseHomeTemplate
       cities={cities}
       heroImageUrl={siteMedia.home_hero.imageUrl}
+      mapFeatureImageUrl={siteMedia.home_map_feature.imageUrl}
       design={homeDesign}
       featuredItems={showcase.featuredItems}
       latestItems={showcase.latestItems}

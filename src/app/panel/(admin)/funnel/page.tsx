@@ -1,13 +1,48 @@
 import {
   getAdminSiteFunnelSettings,
   getFunnelDishOptions,
+  updateFunnelPricingAction,
   updateFunnelPlatosAction,
   type FunnelDishOption,
 } from "@/features/admin/services/funnel-admin-service";
 import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
+import { PricingOfferFields } from "@/components/admin/pricing-offer-fields";
+import type { PricingOfferKey } from "@/features/funnel/site-funnel-settings";
 
 const fieldClassName =
   "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
+
+const pricingOffers: Array<{
+  key: PricingOfferKey;
+  name: string;
+  description: string;
+  priceSuffix: string;
+}> = [
+  {
+    key: "basic",
+    name: "Basic",
+    description: "Cuidar la presencia del local",
+    priceSuffix: "mensual",
+  },
+  {
+    key: "oro",
+    name: "Destacado",
+    description: "Llegar a más personas",
+    priceSuffix: "mensual",
+  },
+  {
+    key: "titanio",
+    name: "Socio",
+    description: "Crecer acompañado",
+    priceSuffix: "mensual",
+  },
+  {
+    key: "professional_onboarding",
+    name: "Alta profesional",
+    description: "Preparación inicial del escaparate",
+    priceSuffix: "pago único",
+  },
+];
 
 function StatusPill({ enabled }: { enabled: boolean }) {
   return (
@@ -362,6 +397,56 @@ export default async function AdminFunnelPage() {
           <SubmitButton>Guardar funnel</SubmitButton>
         </div>
       </form>
+
+      <section className="border-t border-[color:var(--border)] pt-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">
+                Precios de lanzamiento
+              </p>
+              <AdminStatusBadge tone="warning">Stripe test</AdminStatusBadge>
+            </div>
+            <h2 className="mt-3 text-2xl font-semibold text-[color:var(--foreground)]">
+              Descuentos públicos y vinculación manual
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[color:var(--muted-strong)]">
+              Configura lo que verá el local. El cobro no se sincroniza automáticamente:
+              primero crea el cupón en Stripe test y después pega aquí su identificador.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-[1.1rem] border border-amber-300 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+          El panel solo verifica que exista un Coupon ID. Antes de publicar, comprueba en
+          Stripe test que el cupón aplica exactamente el precio mostrado aquí.
+        </div>
+
+        <form
+          action={updateFunnelPricingAction}
+          className="mt-6 rounded-[1.6rem] border border-[color:var(--border)] bg-[color:var(--surface-strong)] p-4 shadow-[var(--soft-shadow)] sm:p-6"
+        >
+          <div className="grid gap-5 xl:grid-cols-2">
+            {pricingOffers.map((offer) => (
+              <PricingOfferFields
+                key={offer.key}
+                fieldKey={offer.key}
+                name={offer.name}
+                description={offer.description}
+                priceSuffix={offer.priceSuffix}
+                config={funnel.pricing[offer.key]}
+              />
+            ))}
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-4 border-t border-[color:var(--border)] pt-5">
+            <SubmitButton>Guardar precios</SubmitButton>
+            <p className="text-xs leading-5 text-[color:var(--muted-strong)]">
+              Guardar aquí no crea ni modifica recursos en Stripe.
+            </p>
+          </div>
+        </form>
+      </section>
     </section>
   );
 }

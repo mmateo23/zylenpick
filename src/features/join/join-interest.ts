@@ -1,4 +1,4 @@
-export const JOIN_INTEREST_OPTIONS = [
+export const JOIN_PLAN_INTEREST_OPTIONS = [
   {
     value: "free_presence",
     title: "Estar en Pickyalo",
@@ -39,12 +39,26 @@ export const JOIN_INTEREST_OPTIONS = [
     features: [
       "Mayor frecuencia de visibilidad",
       "Campañas editoriales",
-      "Revisión periódica y soporte prioritario",
+      "Informe mensual: qué ha funcionado y qué destacar",
     ],
     cta: "Quiero hablar con Pickyalo",
   },
 ] as const;
 
+const JOIN_ADDITIONAL_INTEREST_OPTIONS = [
+  {
+    value: "commercial_consultation",
+    title: "Hablar sobre planes y servicios",
+  },
+] as const;
+
+export const JOIN_INTEREST_OPTIONS = [
+  ...JOIN_PLAN_INTEREST_OPTIONS,
+  ...JOIN_ADDITIONAL_INTEREST_OPTIONS,
+] as const;
+
+export type JoinPlanInterest =
+  (typeof JOIN_PLAN_INTEREST_OPTIONS)[number]["value"];
 export type JoinInterest = (typeof JOIN_INTEREST_OPTIONS)[number]["value"];
 
 export function isJoinInterest(value: unknown): value is JoinInterest {

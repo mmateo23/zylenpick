@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   ArrowUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Clock3,
   Info,
@@ -31,7 +33,6 @@ import { CartIcon } from "@/components/icons/cart-icon";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
-import { AllergenPictogram } from "@/components/venues/allergen-pictogram";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { SiteChip } from "@/features/chips/types";
@@ -446,12 +447,14 @@ const PLATOS_HERO_BURST_LAYERS = [
 
 function DishVisualMedia({
   item,
+  src,
   className,
   sizes,
   priority = false,
   fit = "cover",
 }: {
   item: HomeShowcaseItem;
+  src?: string | null;
   className: string;
   sizes: string;
   priority?: boolean;
@@ -461,7 +464,7 @@ function DishVisualMedia({
 
   return (
     <Image
-      src={item.imageUrl ?? ""}
+      src={src ?? item.imageUrl ?? ""}
       alt={item.name}
       fill
       sizes={sizes}
@@ -1213,6 +1216,7 @@ export function DemoDishesCarousel({
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
   const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
+  const [activePostImageIndex, setActivePostImageIndex] = useState(0);
   const [showDishSwipeHint, setShowDishSwipeHint] = useState(false);
   const dishSwipeHintShownForOpenRef = useRef(false);
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
@@ -1734,6 +1738,24 @@ export function DemoDishesCarousel({
     },
     [activeIndex, filteredItems],
   );
+  const activePostImages = useMemo(() => {
+    if (!activeItem) return [];
+
+    return Array.from(
+      new Set(
+        [activeItem.imageUrl, ...activeItem.galleryImageUrls].filter(
+          (url): url is string => Boolean(url),
+        ),
+      ),
+    );
+  }, [activeItem]);
+  const activePostImage =
+    activePostImages[activePostImageIndex] ?? activePostImages[0] ?? null;
+
+  useEffect(() => {
+    setActivePostImageIndex(0);
+    setIsPostImageFullscreen(false);
+  }, [activeItem?.id]);
 
   const handleMobileOverlayTouchEnd = (
     event: React.TouchEvent<HTMLElement>,
@@ -3174,25 +3196,72 @@ export function DemoDishesCarousel({
               </div>
             </header>
 
-            <button
-              type="button"
-              onClick={() => setIsPostImageFullscreen(true)}
-              className="dish-overlay-image relative min-h-0 w-full flex-1 overflow-hidden bg-[#101010]"
-              aria-label="Ver imagen del plato en grande"
-            >
-              {activeItem.imageUrl ? (
-                <DishVisualMedia
-                  item={activeItem}
-                  sizes="(max-width: 640px) 100vw, 31rem"
-                  className=""
-                  priority
-                />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center px-6 text-sm text-white/70">
-                  Imagen no disponible
-                </span>
-              )}
-              {showDishSwipeHint ? (
+            <div className="dish-overlay-image relative min-h-0 w-full flex-1 overflow-hidden bg-[#101010]">
+              <button
+                type="button"
+                onClick={() => setIsPostImageFullscreen(true)}
+                className="absolute inset-0 w-full"
+                aria-label="Ver imagen del plato en grande"
+              >
+                {activePostImage ? (
+                  <DishVisualMedia
+                    item={activeItem}
+                    src={activePostImage}
+                    sizes="(max-width: 640px) 100vw, 31rem"
+                    className=""
+                    priority
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center px-6 text-sm text-white/70">
+                    Imagen no disponible
+                  </span>
+                )}
+              </button>
+
+              {activePostImages.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActivePostImageIndex((current) =>
+                        getWrappedIndex(activePostImages.length, current - 1),
+                      )
+                    }
+                    className="absolute left-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] transition hover:scale-110 hover:text-[#FDE3AD] focus-visible:rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] motion-reduce:hover:scale-100"
+                    aria-label="Ver imagen anterior"
+                  >
+                    <ChevronLeft className="h-7 w-7 stroke-[1.8]" aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActivePostImageIndex((current) =>
+                        getWrappedIndex(activePostImages.length, current + 1),
+                      )
+                    }
+                    className="absolute right-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] transition hover:scale-110 hover:text-[#FDE3AD] focus-visible:rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] motion-reduce:hover:scale-100"
+                    aria-label="Ver imagen siguiente"
+                  >
+                    <ChevronRight className="h-7 w-7 stroke-[1.8]" aria-hidden="true" />
+                  </button>
+                  <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1.5" aria-label={`Imagen ${activePostImageIndex + 1} de ${activePostImages.length}`}>
+                    {activePostImages.map((image, index) => (
+                      <button
+                        key={`${activeItem.id}-${image}`}
+                        type="button"
+                        onClick={() => setActivePostImageIndex(index)}
+                        className={`h-2.5 w-2.5 rounded-full border border-white/80 shadow-[0_1px_4px_rgba(0,0,0,0.65)] transition-[background-color,transform] ${
+                          index === activePostImageIndex
+                            ? "scale-110 bg-[#FDE3AD]"
+                            : "bg-white/35 hover:bg-white/75"
+                        }`}
+                        aria-label={`Ver imagen ${index + 1}`}
+                        aria-current={index === activePostImageIndex ? "true" : undefined}
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : showDishSwipeHint ? (
                 <span
                   className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex justify-center"
                   role="status"
@@ -3210,9 +3279,9 @@ export function DemoDishesCarousel({
                   </span>
                 </span>
               ) : null}
-            </button>
+            </div>
 
-            <section className="dish-overlay-copy-desktop max-h-[19rem] shrink-0 overflow-y-auto bg-white px-4 pb-4 pt-3">
+            <section className="dish-overlay-copy-desktop shrink-0 bg-white px-4 pb-4 pt-3">
               <div className="flex flex-wrap items-center gap-2">
                 {activeItem.categoryName ? (
                   <span className="inline-flex min-h-8 items-center rounded-full border border-[#741314]/24 bg-[#FFF7E8] px-3 text-[11px] font-extrabold text-[#741314]">
@@ -3247,34 +3316,6 @@ export function DemoDishesCarousel({
                 </p>
               ) : null}
 
-              <details className="group mt-3 rounded-[0.75rem] border border-[#741314]/14 bg-[#FFF7E8]/72 open:bg-[#FFF7E8]">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 text-xs font-bold text-[#381932] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#741314] [&::-webkit-details-marker]:hidden">
-                  <span>
-                    Alérgenos
-                    {activeItem.allergens.length > 0 ? ` · ${activeItem.allergens.length}` : " · Pendiente"}
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-[#741314] transition-transform group-open:rotate-180 motion-reduce:transition-none" aria-hidden="true" />
-                </summary>
-                <div className="border-t border-[#741314]/10 px-3 py-3">
-                  {activeItem.allergens.length > 0 ? (
-                    <>
-                      <p className="text-[11px] font-medium leading-4 text-[#381932]/68">
-                        Puede contener o presentar trazas de:
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {activeItem.allergens.map((allergen) => (
-                          <AllergenPictogram key={allergen} allergen={allergen} />
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-xs font-medium leading-5 text-[#381932]/64">
-                      Información pendiente. Consulta al local antes de elegir si tienes alergias o intolerancias.
-                    </p>
-                  )}
-                </div>
-              </details>
-
               {postFeedback ? (
                 <p className="mt-3 rounded-[0.65rem] bg-[#381932]/6 px-3 py-2 text-xs font-medium leading-4 text-[#303030]" role="status">
                   {postFeedback}
@@ -3285,10 +3326,11 @@ export function DemoDishesCarousel({
                 <div className="flex items-center gap-1">
                   <Link
                     href={getVenueHref(activeItem)}
+                    aria-label="Ver ficha del local e información completa del plato"
                     className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold text-[#381932] transition hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
                   >
                     <Info className="h-4 w-4" aria-hidden="true" />
-                    Ver local
+                    Detalles
                   </Link>
                   <button
                     type="button"
@@ -3341,14 +3383,32 @@ export function DemoDishesCarousel({
               >
                 <X className="h-6 w-6" />
               </button>
-              {activeItem.imageUrl ? (
+              {activePostImage ? (
                 <DishVisualMedia
                   item={activeItem}
+                  src={activePostImage}
                   sizes="100vw"
                   className=""
                   fit="contain"
                   priority
                 />
+              ) : null}
+              {activePostImages.length > 1 ? (
+                <div className="absolute inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-center gap-2">
+                  {activePostImages.map((image, index) => (
+                    <button
+                      key={`fullscreen-${activeItem.id}-${image}`}
+                      type="button"
+                      onClick={() => setActivePostImageIndex(index)}
+                      className={`h-2.5 w-2.5 rounded-full border border-white/80 shadow-[0_1px_4px_rgba(0,0,0,0.65)] transition-[background-color,transform] ${
+                        index === activePostImageIndex
+                          ? "scale-110 bg-[#FDE3AD]"
+                          : "bg-white/35"
+                      }`}
+                      aria-label={`Ver imagen ${index + 1}`}
+                    />
+                  ))}
+                </div>
               ) : null}
             </div>
           ) : null}

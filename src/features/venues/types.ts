@@ -90,6 +90,7 @@ export type HomeShowcaseItem = {
   priceDisplayMode: PriceDisplayMode;
   priceDisplayText: string | null;
   imageUrl: string | null;
+  galleryImageUrls: string[];
   categoryName: string | null;
   allergens: MenuItemAllergen[];
   pickupEtaMin: number | null;

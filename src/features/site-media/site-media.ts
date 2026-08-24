@@ -20,6 +20,12 @@ export const siteMediaAssetDefinitions = [
     defaultImageUrl: "/home/zonas/badges/talavera_tile_letters.png",
   },
   {
+    key: "home_map_feature",
+    label: "Home · post del mapa",
+    description: "Imagen protagonista del post que presenta el mapa en la Home.",
+    defaultImageUrl: "/home/zonas/badges/talavera_tile_mural.png",
+  },
+  {
     key: "join_hero",
     label: "Portada de Únete",
     description: "Imagen principal de la página para captar nuevos locales.",

@@ -8,6 +8,7 @@ import { serviceShowcaseTemplate } from "./service-showcase-template";
 type ServiceShowcaseHomeTemplateProps = {
   cities: City[];
   heroImageUrl: string;
+  mapFeatureImageUrl?: string;
   design?: SiteDesignConfig;
   featuredItems: HomeShowcaseItem[];
   latestItems: HomeShowcaseItem[];

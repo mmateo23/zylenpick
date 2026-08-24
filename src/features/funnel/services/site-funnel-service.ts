@@ -7,7 +7,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
-const FUNNEL_SETTING_KEYS = ["platos"] as const;
+const FUNNEL_SETTING_KEYS = ["platos", "pricing"] as const;
 
 export async function getSiteFunnelSettings(): Promise<SiteFunnelSettings> {
   if (!isSupabaseConfigured()) {

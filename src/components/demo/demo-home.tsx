@@ -25,6 +25,8 @@ import { HomeCampaignCta } from "@/components/home/home-campaign-cta";
 import { SmoothCursor } from "@/components/ui/smooth-cursor";
 import type { City } from "@/features/cities/types";
 import type { SiteDesignConfig } from "@/features/design/site-design-config";
+import { mapPlaceCategories } from "@/features/map-places/categories";
+import { MapPlaceIcon } from "@/features/map-places/icons";
 import {
   readSelectedCity,
   SELECTED_CITY_UPDATED_EVENT,
@@ -62,6 +64,7 @@ export type DemoHomeTemplate = {
 type DemoHomeProps = {
   cities: City[];
   heroImageUrl: string;
+  mapFeatureImageUrl?: string;
   design?: SiteDesignConfig;
   featuredItems: HomeShowcaseItem[];
   latestItems: HomeShowcaseItem[];
@@ -194,10 +197,32 @@ const FEATURED_HOME_ZONE = {
   stats: ["Locales cercanos", "Selección visual", "Recogida local"],
 };
 
+const HOME_MAP_CATEGORY_ORDER = [
+  "monument",
+  "mural",
+  "viewpoint",
+  "event",
+  "park",
+  "playground",
+  "sports",
+  "bench",
+  "tables",
+  "fountain",
+  "toilets",
+  "accessible",
+  "parking",
+];
+
+const HOME_MAP_CATEGORIES = HOME_MAP_CATEGORY_ORDER.flatMap((value) => {
+  const category = mapPlaceCategories.find((item) => item.value === value);
+  return category ? [category] : [];
+});
+
 export function DemoHome({
   design,
   featuredItems,
   latestItems,
+  mapFeatureImageUrl = "/home/zonas/badges/talavera_tile_mural.png",
   template,
 }: DemoHomeProps) {
   const router = useRouter();
@@ -210,6 +235,7 @@ export function DemoHome({
   const [locationPromptExpanded, setLocationPromptExpanded] = useState(false);
   const [locationAccepted, setLocationAccepted] = useState(false);
   const [isHeroBurstActive, setIsHeroBurstActive] = useState(false);
+  const [activeMapCategoryIndex, setActiveMapCategoryIndex] = useState<number | null>(null);
   const isZoneBurstActive = false;
   const [shouldLoadZoneVideo, setShouldLoadZoneVideo] = useState(false);
   const zoneVideoRef = useRef<HTMLVideoElement | null>(null);
@@ -1290,36 +1316,81 @@ export function DemoHome({
       </section>
 
       <section className="relative z-10 overflow-hidden px-4 py-20 sm:px-8 lg:py-28">
-        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-20">
-          <Link
-            href="/mapa?localizar=1"
-            aria-label="Explorar Talavera en el mapa de Pickyalo"
-            className="group/map relative block min-h-[24rem] overflow-hidden rounded-[2rem] bg-[#741314] shadow-[0_30px_80px_rgba(116,19,20,0.18)] sm:min-h-[34rem]"
-          >
-            <Image
-              src={FEATURED_HOME_ZONE.posterSrc}
-              alt="Talavera de la Reina y sus locales cercanos"
-              fill
-              sizes="(max-width: 1024px) 92vw, 52vw"
-              className="object-cover transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(36,17,14,0.04),rgba(36,17,14,0.62))]" />
-            <span className="absolute left-5 top-5 inline-flex min-h-11 items-center gap-2 rounded-full border border-[#FFF7E8]/42 bg-[#741314]/78 px-4 py-2 text-xs font-bold text-[#FFF7E8] backdrop-blur-md sm:left-6 sm:top-6">
-              <PickyaloLocationIcon size={18} strokeWidth={2.25} aria-hidden />
-              Mapa de Talavera
-            </span>
-            <div className="absolute inset-x-0 bottom-0 p-6 text-[#FFF7E8] sm:p-8">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#FDE3AD]">
-                Comida, cultura y lugares útiles
-              </p>
-              <p className="mt-3 max-w-md text-3xl font-semibold leading-[0.96] tracking-[-0.05em] sm:text-5xl">
-                Una ciudad también se descubre por el camino.
-              </p>
-              <span className="mt-5 inline-flex min-h-11 items-center rounded-full bg-[#FFF7E8] px-5 py-2.5 text-sm font-bold text-[#741314] transition group-hover/map:-translate-y-0.5">
-                Entrar al mapa
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-center lg:gap-20">
+          <div className="relative isolate mx-auto w-full max-w-[20rem] sm:max-w-[22rem] lg:mx-0">
+            <article className="relative w-full overflow-hidden rounded-[1.4rem] border border-[#741314]/14 bg-white text-[#111111] shadow-[-14px_22px_46px_rgba(56,25,50,0.24)]">
+            <header className="flex min-h-[3.75rem] items-center justify-between gap-3 border-b border-black/8 bg-white px-3.5 py-2.5">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#741314] text-[#FDE3AD]">
+                  <PickyaloLocationIcon size={18} strokeWidth={2.2} aria-hidden />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[13px] font-semibold leading-5">
+                    Cerámica de los Jardines del Prado
+                  </span>
+                  <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                    Talavera de la Reina
+                  </span>
+                </span>
+              </div>
+              <span className="rounded-full bg-[#FFE9EC] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#741314]">
+                Mural
               </span>
-            </div>
-          </Link>
+            </header>
+
+            <Link
+              href="/mapa?localizar=1"
+              aria-label="Ver la Cerámica de los Jardines del Prado en el mapa"
+              className="group/map relative block aspect-[5/4] overflow-hidden bg-[#741314]"
+            >
+              <Image
+                src={mapFeatureImageUrl}
+                alt="Representación de la cerámica de los Jardines del Prado de Talavera"
+                fill
+                sizes="(max-width: 640px) 20rem, 22rem"
+                className="object-contain p-4 transition duration-700 group-hover/map:scale-[1.025] motion-reduce:transition-none"
+              />
+            </Link>
+
+            <section className="border-t border-black/8 bg-white px-3.5 pb-3.5 pt-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5 text-[#252525]">
+                  <span className="grid h-10 w-10 place-items-center rounded-full" aria-hidden="true">
+                    <Info className="h-5 w-5" />
+                  </span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full" aria-hidden="true">
+                    <Send className="h-5 w-5" />
+                  </span>
+                </div>
+                <Link
+                  href="/mapa?localizar=1"
+                  aria-label="Abrir el mapa de Pickyalo"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_12px_26px_rgba(116,19,20,0.26)] transition hover:bg-[#5F0F10]"
+                >
+                  <MapPin className="h-5 w-5" aria-hidden="true" />
+                </Link>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-lg font-semibold leading-5">
+                  Cerámica de los Jardines del Prado
+                </h3>
+                <p className="mt-1.5 text-[13px] leading-5 text-[#5f5f5f]">
+                  Un paseo donde la cerámica deja de ser un detalle y se convierte en paisaje de la ciudad.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {["Arte al aire libre", "Paseo", "Fotografía"].map((label) => (
+                    <span
+                      key={label}
+                      className="rounded-full bg-[#f1f1f1] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]"
+                    >
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </section>
+            </article>
+          </div>
 
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.26em] text-[#741314]">
@@ -1331,16 +1402,50 @@ export function DemoHome({
             <p className="mt-6 max-w-xl text-lg font-medium leading-8 text-[#24110E]/72">
               El mapa conecta platos y locales con monumentos, murales, parques y sitios donde parar. Así, salir a recoger también puede enseñarte algo que tenías cerca y todavía no conocías.
             </p>
-            <div className="mt-7 flex flex-wrap gap-2">
-              {["Platos y locales", "Murales", "Monumentos", "Parques y mesas"].map((label) => (
-                <span
-                  key={label}
-                  className="rounded-full border border-[#741314]/34 bg-[#FFF7E8] px-4 py-2 text-xs font-bold text-[#741314]"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
+            <ul className="home-map-category-list mt-7 flex flex-wrap gap-2" aria-label="Categorías disponibles en el mapa">
+              {HOME_MAP_CATEGORIES.map((category, index) => {
+                const activeCategoryLabel =
+                  activeMapCategoryIndex === null
+                    ? ""
+                    : HOME_MAP_CATEGORIES[activeMapCategoryIndex]?.label ?? "";
+                const coveredCategoryCount = Math.min(
+                  3,
+                  Math.max(1, Math.ceil((8 + activeCategoryLabel.length * 7) / 52)),
+                );
+                const isCoveredByActiveCategory =
+                  activeMapCategoryIndex !== null &&
+                  index > activeMapCategoryIndex &&
+                  index <= activeMapCategoryIndex + coveredCategoryCount;
+
+                return (
+                  <li
+                    key={category.value}
+                    className={`relative h-11 w-11 flex-none transition-opacity duration-150 hover:z-20 focus-within:z-20 ${isCoveredByActiveCategory ? "pointer-events-none opacity-0" : "opacity-100"}`}
+                  >
+                    <span
+                      tabIndex={0}
+                      title={category.label}
+                      aria-label={category.label}
+                      onMouseEnter={() => setActiveMapCategoryIndex(index)}
+                      onMouseLeave={() => setActiveMapCategoryIndex(null)}
+                      onFocus={() => setActiveMapCategoryIndex(index)}
+                      onBlur={() => setActiveMapCategoryIndex(null)}
+                      className="group/category absolute inset-y-0 left-0 flex min-h-11 max-w-11 items-center overflow-hidden rounded-full border border-[#741314]/28 bg-[#FFF7E8] px-3 text-[#741314] shadow-[0_8px_22px_rgba(116,19,20,0.08)] transition-[max-width,background-color,transform] duration-300 hover:max-w-[13rem] hover:-translate-y-0.5 hover:bg-[#FDE3AD] focus:max-w-[13rem] focus:-translate-y-0.5 focus:bg-[#FDE3AD] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2 motion-reduce:transition-none"
+                    >
+                      <MapPlaceIcon
+                        name={category.iconName}
+                        className="h-5 w-5 shrink-0"
+                        strokeWidth={2}
+                        aria-hidden="true"
+                      />
+                      <span className="max-w-0 overflow-hidden whitespace-nowrap pl-0 text-xs font-bold opacity-0 transition-[max-width,opacity,padding] duration-300 group-hover/category:max-w-[11rem] group-hover/category:pl-2 group-hover/category:opacity-100 group-focus/category:max-w-[11rem] group-focus/category:pl-2 group-focus/category:opacity-100 motion-reduce:transition-none">
+                        {category.label}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/mapa?localizar=1"

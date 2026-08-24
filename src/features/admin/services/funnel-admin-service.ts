@@ -7,12 +7,16 @@ import {
 import {
   defaultSiteFunnelSettings,
   normalizeSiteFunnelSettings,
+  PRICING_OFFER_KEYS,
+  type PricingOfferKey,
   type SiteFunnelPlatosConfig,
+  type SiteFunnelPricingConfig,
+  type SiteFunnelPricingOfferConfig,
   type SiteFunnelSettings,
 } from "@/features/funnel/site-funnel-settings";
 import type { Json } from "@/types/database";
 
-const FUNNEL_SETTING_KEYS = ["platos"] as const;
+const FUNNEL_SETTING_KEYS = ["platos", "pricing"] as const;
 
 function getString(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -29,8 +33,23 @@ function getSelectedStrings(formData: FormData, key: string) {
     .filter(Boolean);
 }
 
+function getPriceCents(formData: FormData, key: string, fallback: number) {
+  const value = getString(formData, key).replace(",", ".");
+  const amount = Number(value);
+
+  return Number.isFinite(amount) && amount >= 0
+    ? Math.round(amount * 100)
+    : fallback;
+}
+
+function getDate(formData: FormData, key: string) {
+  const value = getString(formData, key);
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : "";
+}
+
 function revalidateFunnelPaths() {
   revalidatePath("/platos");
+  revalidatePath("/unete");
   revalidatePath("/panel/funnel");
 }
 
@@ -131,4 +150,57 @@ export async function updateFunnelPlatosAction(formData: FormData) {
   };
 
   await upsertFunnelSetting("platos", platos as unknown as Json);
+}
+
+function getPricingOffer(
+  formData: FormData,
+  key: PricingOfferKey,
+): SiteFunnelPricingOfferConfig {
+  const fallback = defaultSiteFunnelSettings.pricing[key];
+  const prefix = `pricing.${key}`;
+  const stripeCouponId = getString(formData, `${prefix}.stripeCouponId`);
+  const originalPriceCents = getPriceCents(
+    formData,
+    `${prefix}.originalPrice`,
+    fallback.originalPriceCents,
+  );
+  const discountedPriceCents = getPriceCents(
+    formData,
+    `${prefix}.discountedPrice`,
+    fallback.discountedPriceCents,
+  );
+  const enabled = getBoolean(formData, `${prefix}.enabled`) && Boolean(stripeCouponId);
+
+  if (
+    enabled &&
+    (discountedPriceCents <= 0 || discountedPriceCents >= originalPriceCents)
+  ) {
+    throw new Error(
+      `El precio de lanzamiento de ${key} debe ser mayor que cero y menor que el precio original.`,
+    );
+  }
+
+  return {
+    enabled,
+    originalPriceCents,
+    discountedPriceCents,
+    label: getString(formData, `${prefix}.label`),
+    expiresAt: getDate(formData, `${prefix}.expiresAt`),
+    stripeCouponId,
+    stripePromotionCodeId: getString(
+      formData,
+      `${prefix}.stripePromotionCodeId`,
+    ),
+    stripeSyncStatus: stripeCouponId ? "vinculado" : "sin_vincular",
+  };
+}
+
+export async function updateFunnelPricingAction(formData: FormData) {
+  "use server";
+
+  const pricing = Object.fromEntries(
+    PRICING_OFFER_KEYS.map((key) => [key, getPricingOffer(formData, key)]),
+  ) as SiteFunnelPricingConfig;
+
+  await upsertFunnelSetting("pricing", pricing as unknown as Json);
 }

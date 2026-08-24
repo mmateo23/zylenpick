@@ -164,6 +164,7 @@ function mapHomeShowcaseItem(row: {
   price_display_mode?: string | null;
   price_display_text?: string | null;
   image_url: string | null;
+  gallery_image_urls?: string[] | null;
   allergens?: string[] | null;
   category_name: string | null;
   is_featured: boolean;
@@ -198,6 +199,12 @@ function mapHomeShowcaseItem(row: {
     priceDisplayMode: normalizePriceDisplayMode(row.price_display_mode),
     priceDisplayText: row.price_display_text?.trim() || null,
     imageUrl: row.image_url,
+    galleryImageUrls: row.venues.subscription_active
+      ? (row.gallery_image_urls ?? [])
+          .map((url) => url.trim())
+          .filter(Boolean)
+          .slice(0, 2)
+      : [],
     categoryName: row.category_name,
     allergens: mapMenuItemAllergens(row.allergens),
     pickupEtaMin: row.venues.pickup_eta_min,
@@ -620,7 +627,7 @@ export async function getHomeShowcase(): Promise<{
   const { data, error } = await supabase
     .from("menu_items")
     .select(
-      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, phone, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
+      "id, name, description, price_amount, price_display_mode, price_display_text, currency, image_url, gallery_image_urls, allergens, category_name, is_featured, is_home_featured, is_pickup_month_highlight, venues!inner(id, slug, name, address, phone, latitude, longitude, logo_url, cover_url, pickup_eta_min, prices_visible, subscription_active, subscription_tier, is_active, is_published, cities!inner(slug, name))",
     )
     .eq("is_available", true)
     .eq("venues.is_active", true)
@@ -638,6 +645,7 @@ export async function getHomeShowcase(): Promise<{
       isMissingMenuItemAllergensColumnError(error.message) ||
       isMissingSubscriptionTierColumnError(error.message) ||
       isMissingPricesVisibleColumnError(error.message) ||
+      isMissingMenuItemGalleryColumnError(error.message) ||
       isMissingPriceDisplayColumnError(error.message))
   ) {
     const { data: fallbackData, error: fallbackError } = await supabase

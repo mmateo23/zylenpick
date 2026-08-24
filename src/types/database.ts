@@ -528,6 +528,7 @@ export type Database = {
             | "improve_presence"
             | "more_visibility"
             | "guided_growth"
+            | "commercial_consultation"
             | null;
           message: string | null;
           privacy_accepted: boolean;
@@ -554,6 +555,7 @@ export type Database = {
             | "improve_presence"
             | "more_visibility"
             | "guided_growth"
+            | "commercial_consultation"
             | null;
           message?: string | null;
           privacy_accepted?: boolean;
@@ -580,6 +582,7 @@ export type Database = {
             | "improve_presence"
             | "more_visibility"
             | "guided_growth"
+            | "commercial_consultation"
             | null;
           message?: string | null;
           privacy_accepted?: boolean;
@@ -602,9 +605,10 @@ export type Database = {
         Row: {
           key:
             | "home_hero"
-            | "dishes_hero"
-            | "map_hero"
-            | "join_hero"
+             | "dishes_hero"
+             | "map_hero"
+             | "home_map_feature"
+             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
@@ -622,9 +626,10 @@ export type Database = {
         Insert: {
           key:
             | "home_hero"
-            | "dishes_hero"
-            | "map_hero"
-            | "join_hero"
+             | "dishes_hero"
+             | "map_hero"
+             | "home_map_feature"
+             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
@@ -642,9 +647,10 @@ export type Database = {
         Update: {
           key?:
             | "home_hero"
-            | "dishes_hero"
-            | "map_hero"
-            | "join_hero"
+             | "dishes_hero"
+             | "map_hero"
+             | "home_map_feature"
+             | "join_hero"
             | "project_hero"
             | "project_problem"
             | "project_idea"
@@ -738,19 +744,19 @@ export type Database = {
       };
       site_funnel_settings: {
         Row: {
-          key: "platos";
+          key: "platos" | "pricing";
           value: Json;
           created_at: string;
           updated_at: string;
         };
         Insert: {
-          key: "platos";
+          key: "platos" | "pricing";
           value?: Json;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
-          key?: "platos";
+          key?: "platos" | "pricing";
           value?: Json;
           created_at?: string;
           updated_at?: string;
