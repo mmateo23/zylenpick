@@ -3,18 +3,15 @@
 import Image from "next/image";
 import {
   ArrowDown,
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
   Camera,
   Check,
   Clock3,
   Handshake,
-  Info,
   Landmark,
   MapPin,
   Megaphone,
-  MoreHorizontal,
   ShoppingBag,
   Sparkles,
   Store,
@@ -35,22 +32,19 @@ import {
   type SiteFunnelPricingOfferConfig,
 } from "@/features/funnel/site-funnel-settings";
 
-const optionImages: Record<JoinPlanInterest, string> = {
-  free_presence:
-    "https://images.unsplash.com/photo-1561632669-7f55f7975606?q=80&w=1600&auto=format&fit=crop",
-  improve_presence:
-    "https://images.unsplash.com/photo-1584384689201-e0bcbe2c7f1d?q=80&w=1400&auto=format&fit=crop",
+const defaultOptionImages: Record<JoinPlanInterest, string> = {
+  free_presence: "/home/zonas/talavera-poster-local.webp",
+  improve_presence: "/cart/empty-cart-talavera.jpg",
   more_visibility:
     "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=1600&auto=format&fit=crop",
-  guided_growth:
-    "https://images.unsplash.com/photo-1528459105426-b9548367069b?q=85&w=1600&auto=format&fit=crop",
+  guided_growth: "/home/project/project_post_pickyalo.png",
 };
 
 const optionAlt: Record<JoinPlanInterest, string> = {
-  free_presence: "Escaparate de un local cercano",
-  improve_presence: "Mesa preparada con producto local",
+  free_presence: "Talavera de la Reina como entorno local de Pickyalo",
+  improve_presence: "Profesional de un local preparando su propuesta",
   more_visibility: "Plato presentado para una selección visual",
-  guided_growth: "Equipo de un local preparando su propuesta",
+  guided_growth: "Profesional de hostelería acompañado por Pickyalo",
 };
 
 const primaryButtonClassName =
@@ -61,6 +55,8 @@ const secondaryButtonClassName =
 
 type JoinSupportFunnelProps = {
   heroImageUrl?: string;
+  planImageUrls?: Partial<Record<JoinPlanInterest, string>>;
+  showcaseImageUrl?: string;
   pricing?: SiteFunnelPricingConfig;
 };
 
@@ -217,6 +213,7 @@ function JoinOfferPost({
   option,
   offer,
   billingCycle,
+  imageUrl,
   selected,
   onSelect,
 }: {
@@ -224,204 +221,95 @@ function JoinOfferPost({
   option: JoinOption;
   offer?: SiteFunnelPricingOfferConfig | null;
   billingCycle: BillingCycle;
+  imageUrl: string;
   selected: boolean;
   onSelect: () => void;
 }) {
-  const [isFlipped, setIsFlipped] = useState(false);
-  const cardId = `join-offer-${option.value}`;
   const OptionIcon = optionIconByInterest[option.value];
-  const visibleBenefits = [
-    ...JOIN_PLAN_INTEREST_OPTIONS.slice(0, index).map((previousOption) => ({
-      label: `Todo lo de ${previousOption.title}`,
-      inherited: true,
-    })),
-    ...option.features.map((feature) => ({ label: feature, inherited: false })),
-  ];
+  const includedBenefits = includedBenefitsByInterest[option.value];
 
   return (
-    <article className="relative h-[min(82svh,46rem)] min-h-[38rem] w-full max-w-[29rem] [perspective:1200px]">
-      <div
-        className="relative h-full w-full transition-transform duration-700 ease-out motion-reduce:transition-none"
-        style={{
-          transformStyle: "preserve-3d",
-          transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-        }}
-      >
-        <div
-          className={`absolute inset-0 grid overflow-hidden rounded-[1.65rem] border bg-white text-[#111111] shadow-[0_28px_70px_rgba(56,25,50,0.16)] [backface-visibility:hidden] ${
-            selected ? "border-[#741314] ring-2 ring-[#741314]/20" : "border-black/8"
-          }`}
-          style={{ gridTemplateRows: "4.25rem minmax(0, 1fr) auto" }}
-          aria-hidden={isFlipped}
-        >
-          <header className="flex items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#741314]">
-                <Image
-                  src="/icons/pickyalo-app.svg"
-                  alt=""
-                  fill
-                  sizes="40px"
-                  className="object-cover"
-                />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold leading-5 text-[#111111]">Pickyalo</p>
-                <p className="truncate text-xs leading-4 text-[#6f6f6f]">
-                  {option.eyebrow}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              tabIndex={isFlipped ? -1 : 0}
-              aria-label="Ver servicios incluidos"
-              aria-expanded={isFlipped}
-              aria-controls={`${cardId}-services`}
-              onClick={() => setIsFlipped(true)}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
-            >
-              <MoreHorizontal aria-hidden="true" className="h-6 w-6" />
-            </button>
-          </header>
-
-          <div className="relative min-h-0 overflow-hidden bg-[#101010]">
-            <Image
-              src={optionImages[option.value]}
-              alt={optionAlt[option.value]}
-              fill
-              sizes="(min-width: 1024px) 30rem, (min-width: 640px) 70vw, 100vw"
-              className="object-cover"
-            />
+    <article
+      className={`flex h-full w-full max-w-[24rem] flex-col overflow-hidden rounded-[1.5rem] border bg-white text-[#111111] shadow-[0_22px_55px_rgba(56,25,50,0.13)] ${
+        selected ? "border-[#741314] ring-2 ring-[#741314]/18" : "border-black/8"
+      }`}
+    >
+      <header className="flex min-h-[4rem] items-center justify-between gap-3 border-b border-black/8 px-4 py-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-[#741314]">
+            <Image src="/icons/pickyalo-app.svg" alt="" fill sizes="36px" className="object-cover" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold leading-5">Pickyalo</p>
+            <p className="truncate text-xs leading-4 text-[#6f6f6f]">{option.eyebrow}</p>
           </div>
+        </div>
+        <span className="inline-flex items-center gap-2 text-xs font-black text-[#741314]">
+          <OptionIcon aria-hidden="true" className="h-4 w-4" strokeWidth={1.9} />
+          0{index + 1}
+        </span>
+      </header>
 
-          <section className="space-y-3 border-t border-black/8 bg-white px-4 pb-4 pt-3">
-            <div className="flex items-center justify-between gap-3">
-              <button
-                type="button"
-                tabIndex={isFlipped ? -1 : 0}
-                aria-expanded={isFlipped}
-                aria-controls={`${cardId}-services`}
-                onClick={() => setIsFlipped(true)}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-black/10 px-3.5 text-xs font-bold text-[#252525] transition hover:bg-black/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
-                aria-label="Ver servicios incluidos"
-              >
-                <Info aria-hidden="true" className="h-5 w-5" />
-                Qué incluye
-              </button>
-              <button
-                type="button"
-                tabIndex={isFlipped ? -1 : 0}
-                onClick={onSelect}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
-                aria-label={option.cta}
-              >
-                <ArrowRight aria-hidden="true" className="h-5 w-5" />
-              </button>
-            </div>
+      <div className="relative aspect-[5/4] overflow-hidden bg-[#101010]">
+        <Image
+          src={imageUrl}
+          alt={optionAlt[option.value]}
+          fill
+          sizes="(min-width: 1280px) 19rem, (min-width: 768px) 42vw, 100vw"
+          className="object-cover"
+        />
+      </div>
 
-            {offer && isLaunchPriceActive(offer) && offer.label ? (
-              <p className="line-clamp-2 w-fit rounded-full border border-[#741314]/20 bg-[#FFF7E8] px-2.5 py-1 text-[10px] font-black uppercase leading-4 text-[#741314]">
-                {offer.label}
-              </p>
-            ) : null}
+      <div className="flex flex-1 flex-col px-4 pb-4 pt-4">
+        {offer && isLaunchPriceActive(offer) && offer.label ? (
+          <p className="mb-3 line-clamp-2 w-fit rounded-full border border-[#741314]/20 bg-[#FFF7E8] px-2.5 py-1 text-[10px] font-black uppercase leading-4 text-[#741314]">
+            {offer.label}
+          </p>
+        ) : null}
 
-            <div className="space-y-1.5">
-              <h3 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111]">
-                {option.title}
-              </h3>
-              <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
-                {option.subtitle}
-              </p>
-              <div className="flex items-end justify-between gap-4 border-t border-black/8 pt-3">
-                <OfferCardPrice offer={offer} billingCycle={billingCycle} />
-                <span className="max-w-[7.5rem] text-right text-[11px] font-bold leading-4 text-[#741314]">
-                  {includedBenefitsByInterest[option.value]} ventajas incluidas
-                </span>
-              </div>
-            </div>
-          </section>
+        <h3 className="text-xl font-black leading-tight tracking-[-0.035em] text-[#24110E]">
+          {option.title}
+        </h3>
+        <p className="mt-1 min-h-10 text-sm leading-5 text-[#5f5f5f]">{option.subtitle}</p>
+
+        <div className="my-4 flex items-end justify-between gap-3 border-y border-black/8 py-3">
+          <OfferCardPrice offer={offer} billingCycle={billingCycle} />
+          <span className="max-w-[6.5rem] text-right text-[11px] font-bold leading-4 text-[#741314]">
+            {includedBenefits} ventajas incluidas
+          </span>
         </div>
 
-        <div
-          id={`${cardId}-services`}
-          className={`absolute inset-0 flex flex-col overflow-hidden rounded-[1.65rem] border bg-[#FFF7E8] text-[#111111] shadow-[0_28px_70px_rgba(56,25,50,0.16)] [backface-visibility:hidden] ${
-            selected ? "border-accent ring-2 ring-accent/20" : "border-border-strong"
-          }`}
-          style={{ transform: "rotateY(180deg)" }}
-          aria-hidden={!isFlipped}
-        >
-          <header className="flex items-center justify-between gap-3 border-b border-[#741314]/15 bg-[#FFF7E8] px-4 py-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#741314]">
-                <Image src="/icons/pickyalo-app.svg" alt="" fill sizes="40px" className="object-cover" />
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold leading-5 text-[#381932]">Servicios incluidos</p>
-                <p className="truncate text-xs leading-4 text-[#741314]/65">0{index + 1} · {option.title}</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              tabIndex={isFlipped ? 0 : -1}
-              onClick={() => setIsFlipped(false)}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[#741314] transition hover:bg-[#741314]/8 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
-              aria-label="Volver a la fotografía"
-            >
-              <ArrowLeft aria-hidden="true" className="h-6 w-6" />
-            </button>
-          </header>
-
-          <div className="flex flex-1 flex-col justify-center px-6 py-6 sm:px-8">
-            <div className="flex items-center justify-between gap-4">
-              <span className="grid h-14 w-14 place-items-center rounded-[1rem] border border-[#741314]/18 bg-[#741314] text-[#FDE3AD] shadow-[0_12px_24px_rgba(116,19,20,0.14)]">
-                <OptionIcon aria-hidden="true" className="h-7 w-7" strokeWidth={1.8} />
-              </span>
-              <span className="rounded-full border border-[#741314]/18 bg-[#FDE3AD] px-3 py-1.5 text-xs font-black text-[#741314]">
-                {includedBenefitsByInterest[option.value]} ventajas
-              </span>
-            </div>
-            <h3 className="mt-4 text-3xl font-black leading-tight text-[#381932] sm:text-4xl">
-              {option.title}
-            </h3>
-            <div className="mt-4 border-y border-[#741314]/14 py-3">
-              <OfferCardPrice offer={offer} billingCycle={billingCycle} />
-            </div>
-            <p className="mt-4 text-[10px] font-black uppercase tracking-[0.16em] text-[#741314]/70">
-              {index === 0 ? "Incluye" : "Añade sobre el plan anterior"}
-            </p>
-            <ul className="mt-3 grid gap-2.5 text-sm font-semibold leading-5 text-[#381932]">
-              {visibleBenefits.map((benefit) => (
-                <li key={benefit.label} className="flex items-start gap-3">
-                  <span
-                    className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${
-                      benefit.inherited
-                        ? "border border-[#741314]/25 bg-transparent text-[#741314]"
-                        : "bg-[#741314] text-[#FFF7E8]"
-                    }`}
-                  >
-                    <Check aria-hidden="true" className="h-4 w-4" strokeWidth={2.5} />
-                  </span>
-                  <span className={benefit.inherited ? "text-[#741314]/72" : undefined}>
-                    {benefit.label}
-                  </span>
-                </li>
-              ))}
-            </ul>
+        <div aria-label={`${includedBenefits} ventajas incluidas de 12`}>
+          <div className="grid grid-cols-12 gap-1" aria-hidden="true">
+            {Array.from({ length: 12 }, (_, benefitIndex) => (
+              <span
+                key={benefitIndex}
+                className={`h-1.5 rounded-full ${
+                  benefitIndex < includedBenefits ? "bg-[#741314]" : "bg-[#741314]/12"
+                }`}
+              />
+            ))}
           </div>
-
-          <footer className="border-t border-[#741314]/15 bg-[#FFF7E8] p-4">
-            <button
-              type="button"
-              tabIndex={isFlipped ? 0 : -1}
-              onClick={onSelect}
-              className={`${primaryButtonClassName} w-full`}
-            >
-              {option.cta}
-              <ArrowRight aria-hidden="true" className="h-4 w-4" />
-            </button>
-          </footer>
+          <p className="mt-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#741314]/65">
+            {index === 0 ? "Incluye" : "Incluye lo anterior y añade"}
+          </p>
         </div>
+
+        <ul className="mt-3 grid gap-2 text-sm font-semibold leading-5 text-[#381932]">
+          {option.features.map((feature) => (
+            <li key={feature} className="flex items-start gap-2.5">
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#741314] text-[#FFF7E8]">
+                <Check aria-hidden="true" className="h-3.5 w-3.5" strokeWidth={2.5} />
+              </span>
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        <button type="button" onClick={onSelect} className={`${primaryButtonClassName} mt-5 w-full px-4`}>
+          {option.cta}
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        </button>
       </div>
     </article>
   );
@@ -523,6 +411,8 @@ function ServicePrice({
 
 export function JoinSupportFunnel({
   heroImageUrl = "/cart/empty-cart-talavera.jpg",
+  planImageUrls,
+  showcaseImageUrl = "https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=1600&auto=format&fit=crop",
   pricing = defaultSiteFunnelSettings.pricing,
 }: JoinSupportFunnelProps) {
   const [interest, setInterest] = useState<JoinInterest | "">("");
@@ -706,6 +596,7 @@ export function JoinSupportFunnel({
                   option={option}
                   offer={pricingOffer}
                   billingCycle={billingCycle}
+                  imageUrl={planImageUrls?.[option.value] ?? defaultOptionImages[option.value]}
                   selected={isSelected}
                   onSelect={() => selectInterest(option.value)}
                 />
@@ -818,7 +709,7 @@ export function JoinSupportFunnel({
           <article className="grid overflow-hidden rounded-lg border border-border-subtle bg-surface-strong shadow-[var(--shadow-soft)] sm:grid-cols-[1.2fr_0.8fr]">
             <div className="relative min-h-[22rem] sm:min-h-[30rem]">
               <Image
-                src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?q=80&w=1600&auto=format&fit=crop"
+                src={showcaseImageUrl}
                 alt="Plato de pasta mostrado como selección destacada"
                 fill
                 sizes="(min-width: 1024px) 40vw, 100vw"

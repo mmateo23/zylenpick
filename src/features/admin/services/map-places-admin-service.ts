@@ -18,6 +18,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isSupabaseAdminConfigured } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Database } from "@/types/database";
+import { removeScoutMedia } from "@/features/admin/services/scout-storage-cleanup";
 
 export type MapPlaceCityOption = {
   id: string;
@@ -612,4 +613,65 @@ export async function updateMapPlaceAction(id: string, formData: FormData) {
   if (error) throw new Error(`No se pudo actualizar el lugar: ${error.message}`);
   revalidatePath("/mapa");
   redirect("/panel/lugares");
+}
+
+export async function deleteMapPlaceAction(id: string) {
+  "use server";
+
+  const supabase = await createAdminReadClient();
+  try {
+    const { data: place, error: placeError } = await supabase
+      .from("map_places")
+      .select("id, capture_method")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (placeError) throw new Error(placeError.message);
+    if (!place) return { ok: true } as const;
+
+    const [childrenResult, routePointsResult] = await Promise.all([
+      supabase
+        .from("map_places")
+        .select("id", { count: "exact", head: true })
+        .eq("parent_place_id", id),
+      supabase
+        .from("explore_route_points")
+        .select("id", { count: "exact", head: true })
+        .eq("map_place_id", id),
+    ]);
+
+    if (childrenResult.error || routePointsResult.error) {
+      throw new Error(
+        childrenResult.error?.message ?? routePointsResult.error?.message ?? "Error desconocido",
+      );
+    }
+    if ((childrenResult.count ?? 0) > 0) {
+      return {
+        ok: false,
+        error: "No se puede eliminar porque contiene zonas o puntos secundarios. Desvincúlalos primero.",
+      } as const;
+    }
+    if ((routePointsResult.count ?? 0) > 0) {
+      return {
+        ok: false,
+        error: "No se puede eliminar porque forma parte de una ruta de Explora. Retíralo de la ruta primero.",
+      } as const;
+    }
+
+    if (place.capture_method === "scout") {
+      await removeScoutMedia(supabase, "map-places", id);
+    }
+
+    const { error: deleteError } = await supabase.from("map_places").delete().eq("id", id);
+    if (deleteError) throw new Error(deleteError.message);
+
+    revalidatePath("/panel/lugares");
+    revalidatePath("/mapa");
+    return { ok: true } as const;
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "No se pudo eliminar el lugar.",
+    } as const;
+  }
 }

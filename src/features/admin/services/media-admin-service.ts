@@ -1,14 +1,21 @@
+"use server";
+
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 
 import {
   createAdminDataClient,
   createAdminMutationClient,
+  requireAuthorizedAdminSession,
 } from "@/features/admin/services/admin-auth";
 import {
   getDefaultSiteMediaAssetMap,
   siteMediaAssetDefinitions,
   type SiteMediaAssetKey,
+  type SiteMediaPageKey,
 } from "@/features/site-media/site-media";
+
+const STORAGE_BUCKET = "pickyalo-media";
 
 export type AdminMediaCityItem = {
   id: string;
@@ -28,8 +35,11 @@ export type AdminMediaVenueItem = {
 
 export type AdminSiteMediaAssetItem = {
   key: SiteMediaAssetKey;
+  page: SiteMediaPageKey;
+  slot: string;
   label: string;
   description: string;
+  recommendedSize: string;
   imageUrl: string;
 };
 
@@ -78,7 +88,25 @@ export async function getAdminSiteMediaAssets(): Promise<AdminSiteMediaAssetItem
     }
   }
 
-  return siteMediaAssetDefinitions.map((asset) => fallbackMap[asset.key]);
+  return siteMediaAssetDefinitions.map((asset) => ({
+    key: asset.key,
+    page: asset.page,
+    slot: asset.slot,
+    label: asset.label,
+    description: asset.description,
+    recommendedSize: asset.recommendedSize,
+    imageUrl: fallbackMap[asset.key].imageUrl,
+  }));
+}
+
+function revalidateSiteMediaPaths() {
+  revalidatePath("/");
+  revalidatePath("/platos");
+  revalidatePath("/mapa");
+  revalidatePath("/unete");
+  revalidatePath("/el-proyecto");
+  revalidatePath("/cart");
+  revalidatePath("/panel/imagenes");
 }
 
 export async function getAdminMediaCities(): Promise<AdminMediaCityItem[]> {
@@ -312,11 +340,111 @@ export async function updateSiteMediaAssetAction(
     throw new Error(`Unable to update site media asset: ${error.message}`);
   }
 
-  revalidatePath("/");
-  revalidatePath("/platos");
-  revalidatePath("/mapa");
-  revalidatePath("/unete");
-  revalidatePath("/el-proyecto");
-  revalidatePath("/cart");
-  revalidatePath("/panel/imagenes");
+  revalidateSiteMediaPaths();
+}
+
+export async function prepareSiteMediaUploadAction(
+  assetKey: SiteMediaAssetKey,
+  mimeType: string,
+) {
+  "use server";
+
+  await requireAuthorizedAdminSession();
+  const assetDefinition = siteMediaAssetDefinitions.find(
+    (asset) => asset.key === assetKey,
+  );
+
+  if (!assetDefinition || mimeType.toLowerCase() !== "image/webp") {
+    return { ok: false as const, error: "La imagen preparada no es válida." };
+  }
+
+  const path = `site-media/${assetKey}/${randomUUID()}.webp`;
+  const supabase = await createAdminMutationClient();
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUploadUrl(path);
+
+  if (error || !data) {
+    return { ok: false as const, error: "No se pudo preparar la subida." };
+  }
+
+  return {
+    ok: true as const,
+    path,
+    signedUrl: data.signedUrl,
+  };
+}
+
+export async function finalizeSiteMediaUploadAction(
+  assetKey: SiteMediaAssetKey,
+  path: string,
+) {
+  "use server";
+
+  await requireAuthorizedAdminSession();
+  const assetDefinition = siteMediaAssetDefinitions.find(
+    (asset) => asset.key === assetKey,
+  );
+  const expectedPrefix = `site-media/${assetKey}/`;
+
+  if (
+    !assetDefinition ||
+    !path.startsWith(expectedPrefix) ||
+    path.includes("..") ||
+    !path.toLowerCase().endsWith(".webp")
+  ) {
+    return { ok: false as const, error: "La ruta de la imagen no es válida." };
+  }
+
+  const supabase = await createAdminMutationClient();
+  const { data: file, error: downloadError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .download(path);
+
+  if (downloadError || !file) {
+    return { ok: false as const, error: "No se pudo validar la imagen subida." };
+  }
+
+  if (file.size > 4 * 1024 * 1024) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    return { ok: false as const, error: "La imagen supera el tamaño permitido." };
+  }
+
+  const { data: publicData } = supabase.storage
+    .from(STORAGE_BUCKET)
+    .getPublicUrl(path);
+  const imageUrl = publicData.publicUrl;
+  const { error } = await supabase.from("site_media_assets").upsert(
+    {
+      key: assetDefinition.key,
+      label: assetDefinition.label,
+      description: assetDefinition.description,
+      image_url: imageUrl,
+    },
+    { onConflict: "key" },
+  );
+
+  if (error) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    return { ok: false as const, error: "No se pudo guardar la nueva imagen." };
+  }
+
+  revalidateSiteMediaPaths();
+  return { ok: true as const, imageUrl };
+}
+
+export async function discardSiteMediaUploadAction(path: string) {
+  "use server";
+
+  try {
+    await requireAuthorizedAdminSession();
+    if (!path.startsWith("site-media/") || path.includes("..")) {
+      return;
+    }
+
+    const supabase = await createAdminMutationClient();
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+  } catch {
+    // Cleanup is best effort and must not hide the original upload error.
+  }
 }

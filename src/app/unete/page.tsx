@@ -18,6 +18,13 @@ export default async function JoinPage() {
         <div className="mx-auto w-full max-w-7xl">
           <JoinSupportFunnel
             heroImageUrl={siteMedia.join_hero.imageUrl}
+            planImageUrls={{
+              free_presence: siteMedia.join_plan_free.imageUrl,
+              improve_presence: siteMedia.join_plan_presence.imageUrl,
+              more_visibility: siteMedia.join_plan_visibility.imageUrl,
+              guided_growth: siteMedia.join_plan_growth.imageUrl,
+            }}
+            showcaseImageUrl={siteMedia.join_showcase.imageUrl}
             pricing={funnelSettings.pricing}
           />
         </div>

@@ -39,6 +39,13 @@ type AdminScoutCaptureProps = {
 };
 
 type LocationState = "idle" | "loading" | "ready" | "error";
+type ScoutProgressState =
+  | "processing"
+  | "ready"
+  | "uploading"
+  | "saving"
+  | "success"
+  | "error";
 
 const inputClassName =
   "mt-2 min-h-12 w-full rounded-xl border border-[#741314]/16 bg-white px-4 text-base text-[#381932] outline-none transition placeholder:text-[#381932]/35 focus:border-[#741314]/55 focus:ring-2 focus:ring-[#741314]/10";
@@ -85,6 +92,7 @@ export function AdminScoutCapture({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
   const [imageProgress, setImageProgress] = useState(0);
+  const [progressState, setProgressState] = useState<ScoutProgressState | null>(null);
   const [locationState, setLocationState] = useState<LocationState>("idle");
   const [locationError, setLocationError] = useState<string | null>(null);
   const [latitude, setLatitude] = useState("");
@@ -155,19 +163,22 @@ export function AdminScoutCapture({
   async function handleImage(file: File | undefined) {
     if (!file) return;
     setImageError(null);
+    setSubmitError(null);
+    setProgressState("processing");
     setImageProgress(15);
     try {
       const result = await processScoutImage(file);
-      setImageProgress(45);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       setProcessedImage(result.cover);
       setThumbnailImage(result.thumbnail);
       setPreviewUrl(URL.createObjectURL(result.cover));
-      setImageProgress(50);
+      setImageProgress(100);
+      setProgressState("ready");
     } catch (error) {
       setProcessedImage(null);
       setThumbnailImage(null);
       setImageProgress(0);
+      setProgressState("error");
       setImageError(error instanceof Error ? error.message : "No se pudo procesar la foto.");
     }
   }
@@ -180,53 +191,43 @@ export function AdminScoutCapture({
       return;
     }
 
+    let uploadId: string | null = null;
     setSubmitting(true);
     setSubmitError(null);
-    setImageProgress(65);
-    const ticket = await prepareScoutUploadAction(captureType);
-    if (!ticket.ok) {
-      setSubmitError(ticket.error);
-      setImageProgress(50);
-      setSubmitting(false);
-      return;
-    }
-
-    setImageProgress(72);
     try {
+      setProgressState("uploading");
+      setImageProgress(15);
+      const ticket = await prepareScoutUploadAction(captureType);
+      if (!ticket.ok) throw new Error(ticket.error);
+      uploadId = ticket.id;
+
+      setImageProgress(35);
       await uploadScoutFile(ticket.uploads.cover.signedUrl, processedImage);
-    } catch (error) {
-      await discardScoutUploadAction(captureType, ticket.id);
-      setSubmitError(error instanceof Error ? error.message : "No se pudo subir la foto.");
-      setImageProgress(50);
-      setSubmitting(false);
-      return;
-    }
-
-    setImageProgress(84);
-    try {
+      setImageProgress(70);
       await uploadScoutFile(ticket.uploads.thumbnail.signedUrl, thumbnailImage);
-    } catch (error) {
-      await discardScoutUploadAction(captureType, ticket.id);
-      setSubmitError(error instanceof Error ? error.message : "No se pudo subir la miniatura.");
-      setImageProgress(50);
-      setSubmitting(false);
-      return;
-    }
+      setImageProgress(88);
+      setProgressState("saving");
 
-    setImageProgress(92);
-    const formData = new FormData(event.currentTarget);
-    formData.set("uploadId", ticket.id);
-    formData.set("captureType", captureType);
-    const result = await createScoutDraftAction(formData);
-    if (!result.ok) {
-      setSubmitError(result.error);
-      setImageProgress(50);
+      const formData = new FormData(event.currentTarget);
+      formData.set("uploadId", ticket.id);
+      formData.set("captureType", captureType);
+      const result = await createScoutDraftAction(formData);
+      if (!result.ok) throw new Error(result.error);
+
+      uploadId = null;
+      setImageProgress(100);
+      setProgressState("success");
+      setSavedCapture({ id: result.id, type: result.type, venueId: result.venueId });
+    } catch (error) {
+      if (uploadId) await discardScoutUploadAction(captureType, uploadId);
+      setProgressState("error");
+      setImageProgress(100);
+      setSubmitError(
+        error instanceof Error ? error.message : "No se pudo guardar la captura. Reinténtalo.",
+      );
+    } finally {
       setSubmitting(false);
-      return;
     }
-    setImageProgress(100);
-    setSavedCapture({ id: result.id, type: result.type, venueId: result.venueId });
-    setSubmitting(false);
   }
 
   function resetCapture() {
@@ -237,6 +238,7 @@ export function AdminScoutCapture({
     setThumbnailImage(null);
     setImageError(null);
     setImageProgress(0);
+    setProgressState(null);
     setLatitude("");
     setLongitude("");
     setAccuracy("");
@@ -386,17 +388,26 @@ export function AdminScoutCapture({
               />
             </label>
           </div>
-          {imageProgress > 0 ? (
+          {progressState ? (
             <div className="px-4 pb-4" aria-live="polite">
               <div className="h-1.5 overflow-hidden rounded-full bg-[#741314]/10">
-                <div className="h-full rounded-full bg-[#741314] transition-[width]" style={{ width: `${imageProgress}%` }} />
+                <div
+                  className={`h-full rounded-full transition-[width] ${progressState === "error" ? "bg-red-700" : "bg-[#741314]"}`}
+                  style={{ width: `${imageProgress}%` }}
+                />
               </div>
               <p className="mt-2 text-xs font-semibold text-[#381932]/60">
-                {submitting
-                  ? "Subiendo y guardando..."
-                  : processedImage
-                    ? `WebP listo · ${Math.ceil(processedImage.size / 1024)} KB`
-                    : "Procesando imagen..."}
+                {progressState === "processing"
+                  ? "Procesando imagen..."
+                  : progressState === "ready"
+                    ? `Imagen preparada · ${Math.ceil((processedImage?.size ?? 0) / 1024)} KB`
+                    : progressState === "uploading"
+                      ? "Subiendo fotografía..."
+                      : progressState === "saving"
+                        ? "Creando captura..."
+                        : progressState === "success"
+                          ? "Captura guardada"
+                          : "No se pudo completar. Puedes reintentar."}
               </p>
             </div>
           ) : null}
@@ -637,7 +648,9 @@ export function AdminScoutCapture({
         <div className="mx-auto flex max-w-2xl items-center gap-3">
           <div className="hidden min-w-0 flex-1 sm:block">
             <p className="truncate text-sm font-semibold text-[#381932]">
-              {processedImage ? "Foto lista" : "Falta la foto"} · {locationState === "ready" ? "GPS listo" : "GPS opcional"}
+              {progressState === "ready" || (progressState === "error" && processedImage)
+                ? "Imagen preparada"
+                : "Falta la foto"} · {locationState === "ready" ? "GPS listo" : "GPS opcional"}
             </p>
           </div>
           <button

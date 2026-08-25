@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminVenueForm } from "@/components/admin/admin-venue-form";
+import { SafeDeleteButton } from "@/components/admin/safe-delete-button";
 import {
+  deleteVenueAction,
   getAdminCities,
   getAdminVenuePublicHref,
   getAdminVenueById,
@@ -29,6 +31,7 @@ export default async function AdminVenueEditPage({
   }
 
   const updateAction = updateVenueAction.bind(null, params.venueId);
+  const deleteAction = deleteVenueAction.bind(null, params.venueId);
 
   return (
     <div className="space-y-6">
@@ -64,6 +67,11 @@ export default async function AdminVenueEditPage({
         cities={cities}
         initialValues={venue}
         previewHref={previewHref}
+      />
+      <SafeDeleteButton
+        action={deleteAction}
+        entityLabel="este local"
+        redirectTo="/panel/locales"
       />
     </div>
   );

@@ -12,6 +12,7 @@ import {
   createAdminDataClient,
   createAdminMutationClient,
 } from "@/features/admin/services/admin-auth";
+import { removeScoutMedia } from "@/features/admin/services/scout-storage-cleanup";
 import type { Database } from "@/types/database";
 
 export type AdminVenueListItem = {
@@ -689,4 +690,67 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
   ]);
 
   redirect("/panel/locales");
+}
+
+export async function deleteVenueAction(venueId: string) {
+  "use server";
+
+  const previousPublicPath = await getPublicVenuePathContextById(venueId);
+  const supabase = await createAdminMutationClient();
+  try {
+    const { data: venue, error: venueError } = await supabase
+      .from("venues")
+      .select("id, capture_method")
+      .eq("id", venueId)
+      .maybeSingle();
+
+    if (venueError) throw new Error(venueError.message);
+    if (!venue) return { ok: true } as const;
+
+    const relationChecks = await Promise.all([
+      supabase.from("menu_items").select("id", { count: "exact", head: true }).eq("venue_id", venueId),
+      supabase.from("posts").select("id", { count: "exact", head: true }).eq("venue_id", venueId),
+      supabase.from("carts").select("id", { count: "exact", head: true }).eq("venue_id", venueId),
+      supabase.from("venue_memberships").select("id", { count: "exact", head: true }).eq("venue_id", venueId),
+      supabase.from("join_requests").select("id", { count: "exact", head: true }).eq("linked_venue_id", venueId),
+      supabase.from("venue_monetization_settings").select("venue_id", { count: "exact", head: true }).eq("venue_id", venueId),
+    ]);
+    const relationError = relationChecks.find((result) => result.error)?.error;
+    if (relationError) throw new Error(relationError.message);
+
+    const [menuItems, posts, carts, memberships, requests, monetization] = relationChecks.map(
+      (result) => result.count ?? 0,
+    );
+    const blockers = [
+      menuItems > 0 ? `${menuItems} plato(s)` : null,
+      posts > 0 ? `${posts} publicación(es)` : null,
+      carts > 0 ? `${carts} cesta(s)` : null,
+      memberships > 0 ? `${memberships} acceso(s) de equipo` : null,
+      requests > 0 ? `${requests} solicitud(es) vinculada(s)` : null,
+      monetization > 0 ? "configuración de monetización" : null,
+    ].filter(Boolean);
+
+    if (blockers.length > 0) {
+      return {
+        ok: false,
+        error: `No se puede eliminar el local porque conserva ${blockers.join(", ")}. Retira esas relaciones primero.`,
+      } as const;
+    }
+
+    if (venue.capture_method === "scout") {
+      await removeScoutMedia(supabase, "venues", venueId);
+    }
+
+    const { error: deleteError } = await supabase.from("venues").delete().eq("id", venueId);
+    if (deleteError) throw new Error(deleteError.message);
+
+    revalidatePublicVenuePaths([previousPublicPath]);
+    revalidatePath("/panel/locales");
+    return { ok: true } as const;
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "No se pudo eliminar el local.",
+    } as const;
+  }
 }

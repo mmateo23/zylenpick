@@ -5,6 +5,7 @@ import {
   createAdminDataClient,
   createAdminMutationClient,
 } from "@/features/admin/services/admin-auth";
+import { removeScoutMedia } from "@/features/admin/services/scout-storage-cleanup";
 import {
   normalizePriceDisplayMode,
   type PriceDisplayMode,
@@ -675,6 +676,64 @@ export async function updateMenuItemAction(
 
   revalidatePublicVenuePaths(publicPath);
   redirect(`/panel/locales/${venueId}/platos`);
+}
+
+export async function deleteMenuItemAction(venueId: string, menuItemId: string) {
+  "use server";
+
+  const publicPath = await getPublicVenuePathContextById(venueId);
+  const supabase = await createAdminMutationClient();
+  try {
+    const { data: menuItem, error: menuItemError } = await supabase
+      .from("menu_items")
+      .select("id, capture_method")
+      .eq("id", menuItemId)
+      .eq("venue_id", venueId)
+      .maybeSingle();
+
+    if (menuItemError) throw new Error(menuItemError.message);
+    if (!menuItem) return { ok: true } as const;
+
+    const [postsResult, cartItemsResult] = await Promise.all([
+      supabase
+        .from("posts")
+        .select("id", { count: "exact", head: true })
+        .eq("menu_item_id", menuItemId),
+      supabase
+        .from("cart_items")
+        .select("id", { count: "exact", head: true })
+        .eq("menu_item_id", menuItemId),
+    ]);
+    if (postsResult.error || cartItemsResult.error) {
+      throw new Error(postsResult.error?.message ?? cartItemsResult.error?.message ?? "Error desconocido");
+    }
+    if ((postsResult.count ?? 0) > 0 || (cartItemsResult.count ?? 0) > 0) {
+      return {
+        ok: false,
+        error: "No se puede eliminar porque el producto está vinculado a publicaciones o cestas. Desactívalo para conservar el historial.",
+      } as const;
+    }
+
+    if (menuItem.capture_method === "scout") {
+      await removeScoutMedia(supabase, "menu-items", menuItemId);
+    }
+
+    const { error: deleteError } = await supabase
+      .from("menu_items")
+      .delete()
+      .eq("id", menuItemId)
+      .eq("venue_id", venueId);
+    if (deleteError) throw new Error(deleteError.message);
+
+    revalidatePublicVenuePaths(publicPath);
+    revalidatePath(`/panel/locales/${venueId}/platos`);
+    return { ok: true } as const;
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "No se pudo eliminar el producto.",
+    } as const;
+  }
 }
 
 export async function toggleMenuItemAvailabilityAction(
