@@ -27,6 +27,7 @@ export type OpeningStatusState =
   | "closing_soon";
 
 export type OpeningStatus = {
+  source?: "manual" | "schedule";
   dayKey: OpeningHoursDayKey;
   isOpenNow: boolean;
   state: OpeningStatusState;
@@ -110,6 +111,22 @@ export function formatOpeningHoursDay(day: OpeningHoursDayValue) {
   }
 
   return firstRange;
+}
+
+export function getVenueOpeningStatus(
+  hours: OpeningHoursValue,
+  manualOpenStatus?: boolean | null,
+  now = new Date(),
+): OpeningStatus {
+  if (typeof manualOpenStatus !== "boolean") return getOpeningStatus(hours, now);
+  return {
+    dayKey: getMadridWeekday(now),
+    isOpenNow: manualOpenStatus,
+    state: manualOpenStatus ? "open" : "closed",
+    label: manualOpenStatus ? "Abierto ahora" : "Cerrado ahora",
+    minutesUntilChange: null,
+    source: "manual",
+  };
 }
 
 function getMadridWeekday(date: Date): OpeningHoursDayKey {

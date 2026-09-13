@@ -19,6 +19,17 @@ export type PickyaloPostHogEventName =
   | "explore_transcript_opened"
   | "explore_next_point_clicked"
   | "explore_route_completed"
+  | "qr_venue_viewed"
+  | "qr_product_clicked"
+  | "qr_product_opened"
+  | "qr_product_closed"
+  | "qr_full_selection_clicked"
+  | "qr_help_clicked"
+  | "qr_sponsor_viewed"
+  | "qr_sponsor_clicked"
+  | "qr_promo_viewed"
+  | "qr_promo_opened"
+  | "qr_nearby_clicked"
   | "plato_visto"
   | "local_visto"
   | "add_to_cart"
@@ -107,6 +118,22 @@ export type ExploreEventProperties = {
   source: "qr" | "route" | "preview";
 };
 
+export type QrVenueEventProperties = {
+  venue_id: string;
+  venue_slug: string;
+  city_slug: string;
+  product_id?: string;
+  product_name?: string;
+  product_category?: string | null;
+  product_section?: "specials" | "catalog";
+  product_source?: "featured" | "catalog";
+  sponsor_id?: string;
+  sponsor_name?: string;
+  promo_id?: string;
+  nearby_id?: string;
+  nearby_kind?: "place" | "route";
+};
+
 export type PickyaloPostHogEventProperties =
   | PlatoVistoProperties
   | LocalVistoProperties
@@ -117,6 +144,7 @@ export type PickyaloPostHogEventProperties =
   | LugarVistoProperties
   | ShotVistoProperties
   | ExploreEventProperties
+  | QrVenueEventProperties
   | (Properties & Record<string, PickyaloEventPropertyValue>);
 
 const capturedOnceKeys = new Set<string>();
@@ -217,6 +245,25 @@ export function captureExploreEvent(
   capturePickyaloEvent(eventName, properties, { dedupeKey });
 }
 
+export function captureQrVenueEvent(
+  eventName:
+    | "qr_venue_viewed"
+    | "qr_product_clicked"
+    | "qr_product_opened"
+    | "qr_product_closed"
+    | "qr_full_selection_clicked"
+    | "qr_help_clicked"
+    | "qr_sponsor_viewed"
+    | "qr_sponsor_clicked"
+    | "qr_promo_viewed"
+    | "qr_promo_opened"
+    | "qr_nearby_clicked",
+  properties: QrVenueEventProperties,
+  dedupeKey?: string,
+) {
+  capturePickyaloEvent(eventName, properties, { dedupeKey });
+}
+
 export function capturePlatoVisto(
   properties: PlatoVistoProperties = {},
 ) {
@@ -251,6 +298,7 @@ function isInternalTrackingPath(pathname: string) {
   return (
     pathname.startsWith("/demo") ||
     pathname.startsWith("/panel") ||
+    pathname.startsWith("/manage") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next")
   );

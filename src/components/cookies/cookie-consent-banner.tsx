@@ -41,7 +41,7 @@ export function CookieConsentBanner() {
     setIsPanelOpen(false);
   };
 
-  if (pathname.startsWith("/explora/")) {
+  if (pathname.startsWith("/explora/") || pathname.startsWith("/manage")) {
     return null;
   }
 

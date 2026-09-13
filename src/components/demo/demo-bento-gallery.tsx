@@ -12,6 +12,8 @@ import { DemoSiteHeader } from "@/components/demo/demo-site-header";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import type { HomeShowcaseItem } from "@/features/venues/types";
+import type { CurrentWeather } from "@/features/weather/current-weather";
+import { WeatherMapHero } from "@/components/venues-map/weather-map-hero";
 
 gsap.registerPlugin(useGSAP);
 
@@ -22,6 +24,7 @@ type DemoBentoGalleryProps = {
   zoneName?: string | null;
   zoneHeroImageUrl?: string | null;
   zoneHeroVideoUrl?: string | null;
+  weather?: CurrentWeather | null;
 };
 
 type BentoVenueItem = {
@@ -69,10 +72,10 @@ function pickBentoItems(items: HomeShowcaseItem[]) {
 
 function getVenueCardClassName(item: BentoVenueItem, index: number) {
   const baseClass =
-    "bento-photo-card group relative overflow-hidden rounded-[1rem] border border-white/10 bg-[#0b1211] opacity-0 sm:rounded-[1.35rem]";
+    "bento-photo-card group relative overflow-hidden rounded-[1rem] border border-white/10 bg-[#0b1211] sm:rounded-[1.35rem]";
 
   if (item.subscriptionTier === "titanio") {
-    return `${baseClass} col-span-2 min-h-[15.5rem] sm:col-span-2 lg:col-span-2 lg:min-h-[19rem]`;
+    return `${baseClass} min-h-[15.5rem] sm:col-span-2 lg:col-span-2 lg:min-h-[19rem]`;
   }
 
   if (item.subscriptionTier === "oro") {
@@ -91,6 +94,7 @@ export function DemoBentoGallery({
   zoneName = null,
   zoneHeroImageUrl = null,
   zoneHeroVideoUrl = null,
+  weather = null,
 }: DemoBentoGalleryProps) {
   const rootRef = useRef<HTMLElement>(null);
   const isLightTheme = variant === "public";
@@ -116,6 +120,13 @@ export function DemoBentoGallery({
       ).matches;
 
       if (reduceMotion) {
+        return;
+      }
+
+      if (isLightTheme) {
+        gsap.fromTo(".bento-photo-card", { autoAlpha: 0, y: 20 }, {
+          autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out",
+        });
         return;
       }
 
@@ -188,7 +199,7 @@ export function DemoBentoGallery({
     <main
       ref={rootRef}
       className={`min-h-screen transition-colors ${
-        isLightTheme ? "bg-[#fcfaf5] text-[#24110E]" : "bg-[#050816] text-white"
+        isLightTheme ? "overflow-x-clip bg-[#FFF7E8] text-[#24110E]" : "bg-[#050816] text-white"
       }`}
     >
       {variant === "public" ? (
@@ -200,7 +211,17 @@ export function DemoBentoGallery({
           isLightTheme={isLightTheme}
         />
       )}
-      <section className={isLightTheme ? "relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9" : "relative overflow-hidden border-b border-white/6"}>
+      {isLightTheme ? <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <WeatherMapHero
+          weather={weather}
+          heroImageUrl={zoneHeroImageUrl ?? "/home/zonas/badges/talavera_tile_house.png"}
+          imageAlt={`Ilustración de ${zoneDisplayName}`}
+          eyebrow="De aquí, para ti"
+          title={isZoneMode ? `Qué comer en ${zoneDisplayName}.` : "¿Qué local nos apetece hoy?"}
+          description={`Descubre los platos y locales de ${zoneDisplayName}. Elige lo que te apetece y encuentra dónde recogerlo.`}
+          actionHref="#locales"
+        />
+      </div> : <section className="relative overflow-hidden border-b border-white/6">
         {isLightTheme ? (
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]" />
         ) : null}
@@ -299,12 +320,13 @@ export function DemoBentoGallery({
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
       <section
-        className={`relative border-t px-3 py-6 transition-colors sm:px-6 sm:py-8 lg:px-8 lg:py-10 ${
+        id="locales"
+        className={`relative scroll-mt-28 border-t px-3 py-6 transition-colors sm:px-6 sm:py-8 lg:px-8 lg:py-10 ${
           isLightTheme
-            ? "border-black/6 bg-[#f6f1e6]"
+            ? "border-[#741314]/10 bg-[#FFF7E8]"
             : "border-white/6 bg-[#050816]"
         }`}
       >
@@ -313,7 +335,7 @@ export function DemoBentoGallery({
             <div>
               <p
                 className={`text-[11px] font-medium uppercase tracking-[0.3em] ${
-                  isLightTheme ? "text-[#181816]/42" : "text-white/42"
+                  isLightTheme ? "text-[#61433A]" : "text-white/42"
                 }`}
               >
                 Selección visual
@@ -330,7 +352,7 @@ export function DemoBentoGallery({
               href="/zonas"
               className={`hidden rounded-full border px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.22em] backdrop-blur-xl transition sm:inline-flex ${
                 isLightTheme
-                  ? "border-black/8 bg-black/[0.04] text-[#181816]/68 hover:bg-black/[0.06]"
+                  ? "border-black/8 bg-black/[0.04] text-[#61433A] hover:bg-black/[0.06]"
                   : "border-white/10 bg-white/[0.04] text-white/72 hover:bg-white/[0.08]"
               }`}
             >
@@ -354,14 +376,14 @@ export function DemoBentoGallery({
                   src={item.imageUrl ?? ""}
                   alt={`Local ${item.name} en ${item.cityName}`}
                   fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
+                  sizes="(min-width: 1024px) 50vw, (min-width: 640px) 66vw, 100vw"
                   className="object-cover transition duration-500 group-hover:scale-[1.05]"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.02),rgba(6,10,11,0.12)_42%,rgba(6,10,11,0.88)_100%)]" />
                 <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
                   {item.subscriptionActive ? (
                     <span
-                      className="rounded-full border border-white/10 bg-black/18 p-2 text-white/72 backdrop-blur-xl"
+                      className="rounded-full border border-[#FDE3AD]/50 bg-[#741314] p-2 text-[#FDE3AD] backdrop-blur-xl"
                       aria-label="Local verificado"
                     >
                       <ShieldCheck className="h-4 w-4 text-[#FED47D]" />
@@ -376,7 +398,7 @@ export function DemoBentoGallery({
                     <span className="text-[0.9rem] font-bold italic text-[#FED47D] sm:text-[0.96rem]">
                       Ver selección
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-[#FFF7E8] backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD]/50 bg-[#741314] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.22em] text-[#FFF7E8] backdrop-blur-xl">
                       {item.categoryName ?? "Local"}
                     </span>
                   </div>

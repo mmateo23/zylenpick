@@ -14,7 +14,7 @@ const modeClassNames = {
   variable:
     "border-dashed border-[#741314]/38 bg-[#FFF7E8] text-[#741314]",
   hidden:
-    "border-dashed border-[#381932]/24 bg-[#FFF7E8]/92 text-[#381932]/78",
+    "border-dashed border-[#741314]/30 bg-[#FFF7E8] text-[#741314]",
 } as const;
 
 export function ProductPriceBadge({

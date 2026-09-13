@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -29,6 +30,7 @@ type GoogleAnalyticsWindow = Window & {
 };
 
 export function GoogleAnalyticsConsent() {
+  const privateRoute = usePathname().startsWith("/manage");
   const [consentStatus, setConsentStatus] =
     useState<AnalyticsConsentStatus>(null);
 
@@ -40,7 +42,7 @@ export function GoogleAnalyticsConsent() {
   useEffect(() => {
     const browserWindow = window as unknown as GoogleAnalyticsWindow;
 
-    if (consentStatus === "accepted") {
+    if (!privateRoute && consentStatus === "accepted") {
       browserWindow[`ga-disable-${GA_MEASUREMENT_ID}`] = false;
       browserWindow.gtag?.("consent", "update", {
         analytics_storage: "granted",
@@ -55,9 +57,9 @@ export function GoogleAnalyticsConsent() {
       ad_user_data: "denied",
       ad_personalization: "denied",
     });
-  }, [consentStatus]);
+  }, [consentStatus, privateRoute]);
 
-  if (consentStatus !== "accepted") {
+  if (privateRoute || consentStatus !== "accepted") {
     return null;
   }
 

@@ -1,16 +1,22 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
 import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { ArrowUpRight, Headphones, ListFilter, LocateFixed, MapPin, Maximize2, Minimize2, Navigation, Route, ShoppingBag, Sparkles, X } from "lucide-react";
+import { Accessibility, ArrowUpRight, Building2, Clock3, Headphones, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Maximize2, Minimize2, Navigation, Route, Satellite, Shapes, ShoppingBag, Sparkles, X } from "lucide-react";
 
+import { WeatherMapHero } from "./weather-map-hero";
 import { PlacePost } from "@/components/map-places/place-post";
 import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
+import {
+  GuidedDiscoverySheet,
+  type GuidedDiscoveryIntent,
+  type GuidedDiscoveryResult,
+  type GuidedDrawingMode,
+} from "@/components/venues-map/guided-discovery-sheet";
 import {
   ScrollContentHint,
   useScrollContentHint,
@@ -35,6 +41,15 @@ import {
   type UserLocation,
 } from "@/features/location/browser-location";
 import type { VenueMapItem } from "@/features/venues/services/venues-map-service";
+import type { CurrentWeather } from "@/features/weather/current-weather";
+import {
+  createCircleGeometry,
+  createDiscoveryAreaData,
+  createPolygonGeometry,
+  isCoordinateInGeometry,
+  type DiscoveryGeometry,
+  type MapCoordinate,
+} from "@/features/map-discovery/geometry";
 import { captureLugarVisto } from "@/lib/analytics/posthog-events";
 
 type VenuesMapProps = {
@@ -48,6 +63,9 @@ type VenuesMapProps = {
   autoLocate?: boolean;
   initialExploreOnly?: boolean;
   withSiteHeader?: boolean;
+  guidedDiscovery?: boolean;
+  guidedDiscoveryStandalone?: boolean;
+  weather?: CurrentWeather | null;
 };
 
 type MapFilter = "all" | "nearby" | "venues" | "explora" | MapPlaceCategory;
@@ -74,10 +92,18 @@ type ViewTransitionDocument = Document & {
 };
 
 const defaultCenter: [number, number] = [-4.8308, 39.9579];
+const talaveraCityViewCenter: [number, number] = [-4.8306, 39.9609];
 const nearbyResultLimit = 3;
 const placeAreasSourceId = "pickyalo-place-areas";
 const placeAreasFillLayerId = `${placeAreasSourceId}-fill`;
+const placeAreasExtrusionLayerId = `${placeAreasSourceId}-extrusion`;
 const placeAreasLineLayerId = `${placeAreasSourceId}-line`;
+const discoveryAreaSourceId = "pickyalo-discovery-area";
+const discoveryAreaFillLayerId = `${discoveryAreaSourceId}-fill`;
+const discoveryAreaExtrusionLayerId = `${discoveryAreaSourceId}-extrusion`;
+const discoveryAreaLineLayerId = `${discoveryAreaSourceId}-line`;
+const satelliteSourceId = "pickyalo-satellite";
+const satelliteLayerId = `${satelliteSourceId}-imagery`;
 const placeMarkerRoots = new WeakMap<HTMLElement, Root>();
 
 function ensureMapboxStylesheet() {
@@ -124,7 +150,7 @@ function createPlaceAreasData(
   };
 }
 
-function applyPickyaloMapStyle(map: MapboxMap) {
+function applyPickyaloMapStyle(map: MapboxMap, gameAtlas = false) {
   const layers = map.getStyle().layers ?? [];
 
   layers.forEach((layer) => {
@@ -132,18 +158,19 @@ function applyPickyaloMapStyle(map: MapboxMap) {
 
     try {
       if (layer.type === "background") {
-        map.setPaintProperty(layer.id, "background-color", "#F4DFC0");
+        map.setPaintProperty(layer.id, "background-color", gameAtlas ? "#EEECE5" : "#F4DFC0");
         return;
       }
 
       if (layer.type === "fill") {
         if (id.includes("water")) {
-          map.setPaintProperty(layer.id, "fill-color", "#BFD9D1");
+          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#A9D2D1" : "#BFD9D1");
         } else if (id.includes("park") || id.includes("landuse") || id.includes("landcover")) {
-          map.setPaintProperty(layer.id, "fill-color", "#D9DDB5");
+          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#B8C9AD" : "#D9DDB5");
           map.setPaintProperty(layer.id, "fill-opacity", 0.78);
         } else if (id.includes("building")) {
-          map.setPaintProperty(layer.id, "fill-color", "#E8CDA7");
+          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#CBC6BD" : "#E8CDA7");
+          if (gameAtlas) map.setPaintProperty(layer.id, "fill-outline-color", "#B2AAA0");
           map.setPaintProperty(layer.id, "fill-opacity", 0.72);
         }
         return;
@@ -151,7 +178,7 @@ function applyPickyaloMapStyle(map: MapboxMap) {
 
       if (layer.type === "line") {
         if (id.includes("road") || id.includes("street")) {
-          map.setPaintProperty(layer.id, "line-color", "#FFF9ED");
+          map.setPaintProperty(layer.id, "line-color", gameAtlas && id.includes("case") ? "#C1B8AB" : "#FFF9ED");
         } else if (id.includes("water")) {
           map.setPaintProperty(layer.id, "line-color", "#9FC9C0");
         } else if (id.includes("boundary")) {
@@ -166,7 +193,7 @@ function applyPickyaloMapStyle(map: MapboxMap) {
           map.setLayoutProperty(layer.id, "visibility", "none");
           return;
         }
-        map.setPaintProperty(layer.id, "text-color", "#4A263D");
+        map.setPaintProperty(layer.id, "text-color", gameAtlas ? "#423C36" : "#4A263D");
         map.setPaintProperty(layer.id, "text-halo-color", "#FFF7E8");
         map.setPaintProperty(layer.id, "text-halo-width", 1.35);
       }
@@ -176,24 +203,42 @@ function applyPickyaloMapStyle(map: MapboxMap) {
   });
 }
 
-function createVenueMarkerElement() {
+function createVenueMarkerElement(venue: VenueMapItem) {
   const element = document.createElement("button");
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--venue";
   element.dataset.markerImportance = "pickup";
-  element.innerHTML = '<img aria-hidden="true" alt="" src="/icons/pickyalo-favicon-32.png" width="32" height="32" draggable="false" />';
+  const image = document.createElement("img");
+  image.alt = "";
+  image.setAttribute("aria-hidden", "true");
+  image.src = venue.markerLogoUrl || "/icons/pickyalo-app.svg";
+  image.width = 40;
+  image.height = 40;
+  image.draggable = false;
+  image.decoding = "async";
+  image.addEventListener("error", () => {
+    image.src = "/icons/pickyalo-app.svg";
+  }, { once: true });
+  element.append(image);
   return element;
 }
 
-function createPlaceMarkerElement(place: PublicMapPlace) {
+function createPlaceMarkerElement(place: PublicMapPlace, gameAtlas = false) {
   const element = document.createElement("button");
   element.type = "button";
   element.className = "pickyalo-map-marker pickyalo-map-marker--place";
   element.dataset.category = place.category;
   element.dataset.markerImportance = place.planRole;
   if (place.explore) element.classList.add("has-explore");
+  if (place.isAccessible) element.classList.add("is-accessible");
+  if (
+    place.openingHoursNote?.toLowerCase().includes("24") ||
+    place.amenities.some((amenity) => /24\s*h|24 horas|siempre abierto/i.test(amenity))
+  ) {
+    element.classList.add("is-always-open");
+  }
 
-  const usesThumbnail = place.planRole === "discover" && Boolean(place.coverImageUrl);
+  const usesThumbnail = !gameAtlas && place.planRole === "discover" && Boolean(place.coverImageUrl);
   if (usesThumbnail) {
     element.classList.add("pickyalo-map-marker--landmark");
     const image = document.createElement("img");
@@ -225,20 +270,20 @@ function createPlaceMarkerElement(place: PublicMapPlace) {
   return element;
 }
 
-function updateMarkerSizes(map: MapboxMap, markers: Marker[]) {
+function updateMarkerSizes(map: MapboxMap, markers: Marker[], gameAtlas = false) {
   const progress = Math.min(1, Math.max(0, (map.getZoom() - 11.5) / 5));
 
   markers.forEach((marker) => {
     const element = marker.getElement();
     const importance = element.dataset.markerImportance;
     const [minimum, maximum] = element.classList.contains("pickyalo-map-marker--landmark")
-      ? [58, 76]
+      ? [44, 54]
       : importance === "pickup"
-        ? [46, 54]
+        ? [36, 44]
         : importance === "discover"
-          ? [46, 56]
-          : [44, 50];
-    const size = Math.round(minimum + (maximum - minimum) * progress);
+          ? [36, 44]
+          : [34, 40];
+    const size = gameAtlas ? Math.round(36 + 4 * progress) : Math.round(minimum + (maximum - minimum) * progress);
     element.style.setProperty("--marker-size", `${size}px`);
   });
 }
@@ -344,12 +389,24 @@ export function VenuesMap({
   autoLocate = false,
   initialExploreOnly = false,
   withSiteHeader = false,
+  guidedDiscovery = false,
+  guidedDiscoveryStandalone = false,
+  weather = null,
 }: VenuesMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapboxMap | null>(null);
+  const cityViewReturnRef = useRef<{
+    center: [number, number];
+    zoom: number;
+    pitch: number;
+    bearing: number;
+  } | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const userMarkerRef = useRef<Marker | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [mapView, setMapView] = useState<"map" | "satellite">("map");
+  const [isCityView, setIsCityView] = useState(false);
+  const [satelliteMessage, setSatelliteMessage] = useState<string | null>(null);
   const hasExplorePoints = places.some((place) => Boolean(place.explore));
   const initialExplorePlace = initialExploreOnly
     ? places.find((place) => Boolean(place.explore))
@@ -358,7 +415,9 @@ export function VenuesMap({
     initialExplorePlace ? "explora" : "all",
   );
   const [selection, setSelection] = useState<Selection | null>(
-    initialExplorePlace
+    guidedDiscoveryStandalone
+      ? null
+      : initialExplorePlace
       ? { type: "place", item: initialExplorePlace }
       : venues[0]
       ? { type: "venue", item: venues[0] }
@@ -392,7 +451,13 @@ export function VenuesMap({
   const [mobileSelectionOpen, setMobileSelectionOpen] = useState(Boolean(initialExplorePlace));
   const [isImmersive, setIsImmersive] = useState(false);
   const [immersiveFiltersOpen, setImmersiveFiltersOpen] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
   const [quickPlanOpen, setQuickPlanOpen] = useState(false);
+  const [selectedGeometry, setSelectedGeometry] = useState<DiscoveryGeometry | null>(null);
+  const [drawingMode, setDrawingMode] = useState<GuidedDrawingMode>(null);
+  const [selectedIntent, setSelectedIntent] = useState<GuidedDiscoveryIntent | null>(null);
+  const [guidedResultsExpanded, setGuidedResultsExpanded] = useState(false);
+  const [guidedPanelOpen, setGuidedPanelOpen] = useState(false);
   const initialPlaceHandledRef = useRef(false);
   const autoLocateHandledRef = useRef(false);
   const {
@@ -525,17 +590,26 @@ export function VenuesMap({
   );
   const visibleVenues = useMemo(
     () => {
-      if (filter === "all" || filter === "venues") return venues;
-      if (filter === "nearby") {
-        return venues.filter((venue) => nearbyPointMeta.has(`venue:${venue.id}`));
-      }
-      return [];
+      const filteredByMap =
+        filter === "all" || filter === "venues"
+          ? venues
+          : filter === "nearby"
+            ? venues.filter((venue) => nearbyPointMeta.has(`venue:${venue.id}`))
+            : [];
+
+      if (!guidedDiscovery || !selectedGeometry) return filteredByMap;
+      return filteredByMap.filter((venue) =>
+        isCoordinateInGeometry(
+          [venue.longitude, venue.latitude],
+          selectedGeometry,
+        ),
+      );
     },
-    [filter, nearbyPointMeta, venues],
+    [filter, guidedDiscovery, nearbyPointMeta, selectedGeometry, venues],
   );
   const visiblePlaces = useMemo(
-    () =>
-      filter === "all"
+    () => {
+      const filteredByMap = filter === "all"
         ? places
         : filter === "nearby"
           ? places.filter((place) => nearbyPointMeta.has(`place:${place.id}`))
@@ -543,8 +617,38 @@ export function VenuesMap({
           ? []
         : filter === "explora"
           ? places.filter((place) => Boolean(place.explore))
-          : places.filter((place) => place.category === filter),
-    [filter, nearbyPointMeta, places],
+          : places.filter((place) => place.category === filter);
+
+      if (selectedIntent === "food" || selectedIntent === "commerce") return [];
+      if (!guidedDiscovery || !selectedGeometry) return filteredByMap;
+      return filteredByMap.filter((place) =>
+        isCoordinateInGeometry(
+          [place.longitude, place.latitude],
+          selectedGeometry,
+        ),
+      );
+    },
+    [filter, guidedDiscovery, nearbyPointMeta, places, selectedGeometry, selectedIntent],
+  );
+  const guidedResults = useMemo<GuidedDiscoveryResult[]>(
+    () => [
+      ...visibleVenues.map((venue) => ({
+        id: venue.id,
+        type: "venue" as const,
+        name: venue.name,
+        meta: venue.address ?? venue.city.name,
+      })),
+      ...visiblePlaces.map((place) => ({
+        id: place.id,
+        type: "place" as const,
+        name: place.name,
+        imageUrl: place.coverImageUrl,
+        meta:
+          availableCategories.find((category) => category.value === place.category)
+            ?.label ?? place.city.name,
+      })),
+    ],
+    [availableCategories, visiblePlaces, visibleVenues],
   );
   const activeFilterLabel = useMemo(() => {
     if (filter === "all") return "Todo";
@@ -616,10 +720,11 @@ export function VenuesMap({
           attributionControl: false,
         });
         mapRef.current = map;
-        map.addControl(new mapboxgl.default.NavigationControl({ showCompass: false }), "bottom-right");
+        map.addControl(new mapboxgl.default.NavigationControl({ showCompass: guidedDiscoveryStandalone }), guidedDiscoveryStandalone ? "top-right" : "bottom-right");
+        map.addControl(new mapboxgl.default.AttributionControl({ compact: true }), "bottom-right");
         map.once("load", () => {
           if (cancelled) return;
-          applyPickyaloMapStyle(map);
+          applyPickyaloMapStyle(map, guidedDiscoveryStandalone);
           map.addSource(placeAreasSourceId, {
             type: "geojson",
             data: createPlaceAreasData(places),
@@ -639,6 +744,29 @@ export function VenuesMap({
             },
           });
           map.addLayer({
+            id: placeAreasExtrusionLayerId,
+            type: "fill-extrusion",
+            source: placeAreasSourceId,
+            layout: { visibility: "none" },
+            paint: {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-height": [
+                "case",
+                ["==", ["get", "active"], true],
+                12,
+                7,
+              ],
+              "fill-extrusion-color": [
+                "case",
+                ["==", ["get", "active"], true],
+                "#A6403D",
+                "#D6A962",
+              ],
+              "fill-extrusion-opacity": 0.4,
+              "fill-extrusion-vertical-gradient": true,
+            },
+          });
+          map.addLayer({
             id: placeAreasLineLayerId,
             type: "line",
             source: placeAreasSourceId,
@@ -653,6 +781,45 @@ export function VenuesMap({
               ],
             },
           });
+          if (guidedDiscovery) {
+            map.addSource(discoveryAreaSourceId, {
+              type: "geojson",
+              data: createDiscoveryAreaData(null),
+            });
+            map.addLayer({
+              id: discoveryAreaFillLayerId,
+              type: "fill",
+              source: discoveryAreaSourceId,
+              paint: {
+                "fill-color": "#741314",
+                "fill-opacity": 0.14,
+              },
+            });
+            map.addLayer({
+              id: discoveryAreaExtrusionLayerId,
+              type: "fill-extrusion",
+              source: discoveryAreaSourceId,
+              layout: { visibility: "none" },
+              paint: {
+                "fill-extrusion-base": 0,
+                "fill-extrusion-height": 6,
+                "fill-extrusion-color": "#741314",
+                "fill-extrusion-opacity": 0.22,
+                "fill-extrusion-vertical-gradient": true,
+              },
+            });
+            map.addLayer({
+              id: discoveryAreaLineLayerId,
+              type: "line",
+              source: discoveryAreaSourceId,
+              paint: {
+                "line-color": "#741314",
+                "line-opacity": 0.95,
+                "line-width": 3,
+                "line-dasharray": [1.5, 1.2],
+              },
+            });
+          }
           map.on("mouseenter", placeAreasFillLayerId, () => {
             map.getCanvas().style.cursor = "pointer";
           });
@@ -696,9 +863,94 @@ export function VenuesMap({
       userMarkerRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
+      cityViewReturnRef.current = null;
+      setIsCityView(false);
       setMapReady(false);
     };
-  }, [accessToken, initialCenter, places, venues]);
+  }, [accessToken, guidedDiscovery, guidedDiscoveryStandalone, initialCenter, places, venues]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+
+    const syncPerspective = () => setIsCityView(map.getPitch() >= 20);
+    map.on("pitchend", syncPerspective);
+    return () => {
+      map.off("pitchend", syncPerspective);
+    };
+  }, [mapReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+
+    const visibility = isCityView ? "visible" : "none";
+    for (const layerId of [
+      placeAreasExtrusionLayerId,
+      discoveryAreaExtrusionLayerId,
+    ]) {
+      if (map.getLayer(layerId)) {
+        map.setLayoutProperty(layerId, "visibility", visibility);
+      }
+    }
+    if (map.getLayer(placeAreasFillLayerId)) {
+      map.setPaintProperty(placeAreasFillLayerId, "fill-opacity", [
+        "case",
+        ["==", ["get", "active"], true],
+        isCityView ? 0.16 : 0.3,
+        isCityView ? 0.07 : 0.14,
+      ]);
+    }
+  }, [isCityView, mapReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+    const satellite = mapView === "satellite";
+    function onSatelliteError(event: { error: Error; sourceId?: string }) {
+      if (event.sourceId !== satelliteSourceId) return;
+      setSatelliteMessage("No se pudo cargar la vista satélite. Puedes volver a intentarlo.");
+      setMapView("map");
+    }
+    if (satellite) map.on("error", onSatelliteError);
+    try {
+      // A raster overlay keeps the camera, custom sources and drawing state intact.
+      if (satellite && !map.getSource(satelliteSourceId)) {
+        map.addSource(satelliteSourceId, {
+          type: "raster",
+          url: "mapbox://mapbox.satellite",
+          tileSize: 256,
+        });
+      }
+      if (satellite && !map.getLayer(satelliteLayerId)) {
+        const layers = map.getStyle().layers ?? [];
+        const lastBaseGeometry = layers.reduce((lastIndex, layer, index) =>
+          layer.type !== "symbol" && !layer.id.startsWith("pickyalo-") ? index : lastIndex, -1);
+        // Keep street labels, without painting the vector roads over the imagery.
+        const beforeLayer = layers.slice(lastBaseGeometry + 1).find(
+          (layer) => layer.type === "symbol" || layer.id === placeAreasFillLayerId,
+        )?.id;
+        map.addLayer({
+          id: satelliteLayerId,
+          type: "raster",
+          source: satelliteSourceId,
+          paint: { "raster-fade-duration": 0 },
+        }, beforeLayer);
+      }
+      if (map.getLayer(satelliteLayerId)) {
+        map.setLayoutProperty(satelliteLayerId, "visibility", satellite ? "visible" : "none");
+      }
+      for (const layerId of [placeAreasLineLayerId, discoveryAreaLineLayerId]) {
+        if (map.getLayer(layerId)) {
+          map.setPaintProperty(layerId, "line-color", satellite ? "#FDE3AD" : "#741314");
+        }
+      }
+    } catch {
+      setSatelliteMessage("No se pudo cargar la vista satélite. Puedes volver a intentarlo.");
+      setMapView("map");
+    }
+    return () => { map.off("error", onSatelliteError); };
+  }, [mapReady, mapView]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current) return;
@@ -714,6 +966,121 @@ export function VenuesMap({
   }, [mapReady, selection, visiblePlaces]);
 
   useEffect(() => {
+    if (!guidedDiscovery || !mapReady || !mapRef.current) return;
+    const source = mapRef.current.getSource(discoveryAreaSourceId) as
+      | { setData: (data: ReturnType<typeof createDiscoveryAreaData>) => void }
+      | undefined;
+    source?.setData(createDiscoveryAreaData(selectedGeometry));
+  }, [guidedDiscovery, mapReady, selectedGeometry]);
+
+  useEffect(() => {
+    if (!guidedDiscovery || !drawingMode || !mapReady || !mapRef.current) return;
+    const map = mapRef.current;
+    const canvas = map.getCanvas();
+    const previousCursor = canvas.style.cursor;
+    const previousTouchAction = canvas.style.touchAction;
+    let activePointerId: number | null = null;
+    let startCoordinate: MapCoordinate | null = null;
+    let polygonCoordinates: MapCoordinate[] = [];
+    let lastPoint: { x: number; y: number } | null = null;
+
+    map.dragPan.disable();
+    map.touchZoomRotate.disable();
+    map.doubleClickZoom.disable();
+    map.scrollZoom.disable();
+    canvas.style.cursor = "crosshair";
+    canvas.style.touchAction = "none";
+
+    const getCoordinate = (event: PointerEvent): MapCoordinate => {
+      const bounds = canvas.getBoundingClientRect();
+      const point = map.unproject([
+        event.clientX - bounds.left,
+        event.clientY - bounds.top,
+      ]);
+      return [point.lng, point.lat];
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button !== 0 || activePointerId !== null) return;
+      event.preventDefault();
+      event.stopPropagation();
+      activePointerId = event.pointerId;
+      canvas.setPointerCapture(event.pointerId);
+      const coordinate = getCoordinate(event);
+      startCoordinate = coordinate;
+      polygonCoordinates = [coordinate];
+      lastPoint = { x: event.clientX, y: event.clientY };
+      setSelection(null);
+      setMobileSelectionOpen(false);
+      setGuidedResultsExpanded(false);
+      setLocationMessage(null);
+      setSelectedGeometry(
+        drawingMode === "circle"
+          ? createCircleGeometry(coordinate, coordinate)
+          : null,
+      );
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (event.pointerId !== activePointerId || !startCoordinate) return;
+      event.preventDefault();
+      const coordinate = getCoordinate(event);
+
+      if (drawingMode === "circle") {
+        setSelectedGeometry(createCircleGeometry(startCoordinate, coordinate));
+        return;
+      }
+
+      const movedEnough =
+        !lastPoint ||
+        Math.hypot(event.clientX - lastPoint.x, event.clientY - lastPoint.y) >= 8;
+      if (!movedEnough) return;
+      polygonCoordinates = [...polygonCoordinates, coordinate];
+      lastPoint = { x: event.clientX, y: event.clientY };
+      setSelectedGeometry(createPolygonGeometry(polygonCoordinates));
+    };
+
+    const finishDrawing = (event: PointerEvent) => {
+      if (event.pointerId !== activePointerId) return;
+      event.preventDefault();
+      if (canvas.hasPointerCapture(event.pointerId)) {
+        canvas.releasePointerCapture(event.pointerId);
+      }
+
+      if (drawingMode === "polygon") {
+        const polygon = createPolygonGeometry(polygonCoordinates);
+        if (!polygon) {
+          setSelectedGeometry(null);
+          setLocationMessage("Dibuja una zona un poco más amplia.");
+        } else {
+          setSelectedGeometry(polygon);
+        }
+      }
+
+      setDrawingMode(null);
+      activePointerId = null;
+    };
+
+    canvas.addEventListener("pointerdown", handlePointerDown);
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerup", finishDrawing);
+    canvas.addEventListener("pointercancel", finishDrawing);
+
+    return () => {
+      canvas.removeEventListener("pointerdown", handlePointerDown);
+      canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("pointerup", finishDrawing);
+      canvas.removeEventListener("pointercancel", finishDrawing);
+      canvas.style.cursor = previousCursor;
+      canvas.style.touchAction = previousTouchAction;
+      map.dragPan.enable();
+      map.touchZoomRotate.enable();
+      map.doubleClickZoom.enable();
+      map.scrollZoom.enable();
+    };
+  }, [drawingMode, guidedDiscovery, mapReady]);
+
+  useEffect(() => {
     if (!mapReady || !mapRef.current) return;
     let cancelled = false;
     let removeZoomListener: (() => void) | null = null;
@@ -726,7 +1093,7 @@ export function VenuesMap({
       const markers: Marker[] = [];
 
       visibleVenues.forEach((venue) => {
-        const element = createVenueMarkerElement();
+        const element = createVenueMarkerElement(venue);
         const nearbyMeta = filter === "nearby" ? nearbyPointMeta.get(`venue:${venue.id}`) : null;
         const planMeta = quickPlanPointMeta.get(`venue:${venue.id}`);
         const markerCoordinates: [number, number] = getMapboxVenueCoordinates(map, venue)
@@ -756,7 +1123,7 @@ export function VenuesMap({
       });
 
       visiblePlaces.forEach((place) => {
-        const element = createPlaceMarkerElement(place);
+        const element = createPlaceMarkerElement(place, guidedDiscoveryStandalone);
         const nearbyMeta = filter === "nearby" ? nearbyPointMeta.get(`place:${place.id}`) : null;
         const planMeta = quickPlanPointMeta.get(`place:${place.id}`);
         element.setAttribute("aria-label", `Ver ${place.name}`);
@@ -784,7 +1151,7 @@ export function VenuesMap({
         );
       });
       markersRef.current = markers;
-      const handleZoom = () => updateMarkerSizes(map, markers);
+      const handleZoom = () => updateMarkerSizes(map, markers, guidedDiscoveryStandalone);
       handleZoom();
       map.on("zoom", handleZoom);
       removeZoomListener = () => map.off("zoom", handleZoom);
@@ -796,7 +1163,7 @@ export function VenuesMap({
       markersRef.current.forEach(removeMapMarker);
       markersRef.current = [];
     };
-  }, [demoMode, filter, mapReady, nearbyPointMeta, places, quickPlanPointMeta, selection, venues, visiblePlaces, visibleVenues]);
+  }, [demoMode, filter, guidedDiscoveryStandalone, mapReady, nearbyPointMeta, places, quickPlanPointMeta, selection, venues, visiblePlaces, visibleVenues]);
 
   useEffect(() => {
     if (!mapReady || !mapRef.current || !userLocation) return;
@@ -922,6 +1289,44 @@ export function VenuesMap({
     });
   }
 
+  function toggleCityView() {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!isCityView) {
+      const center = map.getCenter();
+      cityViewReturnRef.current = {
+        center: [center.lng, center.lat],
+        zoom: map.getZoom(),
+        pitch: map.getPitch(),
+        bearing: map.getBearing(),
+      };
+      setIsCityView(true);
+      map.easeTo({
+        center: talaveraCityViewCenter,
+        zoom: 14.45,
+        pitch: 56,
+        bearing: -18,
+        duration: reduceMotion ? 0 : 850,
+        essential: false,
+      });
+      return;
+    }
+
+    const previousCamera = cityViewReturnRef.current;
+    cityViewReturnRef.current = null;
+    setIsCityView(false);
+    map.easeTo({
+      center: previousCamera?.center ?? map.getCenter(),
+      zoom: previousCamera?.zoom ?? map.getZoom(),
+      pitch: previousCamera?.pitch ?? 0,
+      bearing: previousCamera?.bearing ?? 0,
+      duration: reduceMotion ? 0 : 700,
+      essential: false,
+    });
+  }
+
   function selectMapFilter(nextFilter: MapFilter) {
     setQuickPlanOpen(false);
     setMobileSelectionOpen(false);
@@ -939,6 +1344,50 @@ export function VenuesMap({
         essential: true,
       });
     }
+  }
+
+  function startGuidedDrawing(mode: Exclude<GuidedDrawingMode, null>) {
+    setDrawingMode(mode);
+    setGuidedResultsExpanded(false);
+    setSelection(null);
+    setMobileSelectionOpen(false);
+    setQuickPlanOpen(false);
+  }
+
+  function clearGuidedGeometry() {
+    setSelectedGeometry(null);
+    setDrawingMode(null);
+    setGuidedResultsExpanded(false);
+    setSelection(null);
+    setMobileSelectionOpen(false);
+  }
+
+  function clearGuidedIntent() {
+    setSelectedIntent(null);
+    setGuidedResultsExpanded(false);
+    setSelection(null);
+    setMobileSelectionOpen(false);
+  }
+
+  function selectGuidedResult(result: GuidedDiscoveryResult) {
+    const selected =
+      result.type === "venue"
+        ? venues.find((venue) => venue.id === result.id)
+        : places.find((place) => place.id === result.id);
+    if (!selected) return;
+
+    const nextSelection: Selection =
+      result.type === "venue"
+        ? { type: "venue", item: selected as VenueMapItem }
+        : { type: "place", item: selected as PublicMapPlace };
+    setSelection(nextSelection);
+    setMobileSelectionOpen(true);
+    setGuidedResultsExpanded(false);
+    mapRef.current?.flyTo({
+      center: [selected.longitude, selected.latitude],
+      zoom: Math.max(mapRef.current.getZoom(), result.type === "venue" ? 15 : 16),
+      essential: true,
+    });
   }
 
   const selectedDistance = selection && userLocation
@@ -990,55 +1439,19 @@ export function VenuesMap({
   }, [openPlace, venues]);
 
   return (
-    <main className={`min-h-screen bg-[#FFF7E8] px-3 pb-8 text-[#381932] sm:px-6 lg:px-10 ${withSiteHeader ? "pt-8 sm:pt-10" : "pt-24 sm:pt-28"}`}>
-      <section className="mx-auto w-full max-w-7xl">
-        <header className="grid items-center gap-7 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,23rem)] lg:gap-10">
-          <div className="relative z-10">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#741314]">Explora cerca</p>
-              {demoMode ? (
-                <span className="rounded-full border border-[#741314] bg-[#FFF7E8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#741314]">
-                  Demo visual · sin publicar
-                </span>
-              ) : null}
-            </div>
-            <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[0.95] tracking-[-0.045em] text-[#381932] sm:text-6xl">Un mapa para salir y descubrir.</h1>
-            <p className="mt-4 max-w-2xl text-sm font-medium leading-6 text-[#381932]/82 sm:text-base">
-              {demoMode
-                ? "Una muestra de cómo convivirían locales, parques, mesas y servicios en el explorador."
-                : "Puntos de recogida, parques, monumentos y lugares útiles marcados y revisados por Pickyalo."}
-            </p>
-          </div>
-          <div className="group relative mx-auto flex w-full max-w-[21rem] flex-col items-center lg:mx-0 lg:ml-auto">
-            <div
-              aria-hidden="true"
-              className="absolute bottom-[4.5rem] left-1/2 h-8 w-[72%] -translate-x-1/2 rounded-[50%] bg-[#741314]/14 blur-xl"
-            />
-            <Image
-              src={heroImageUrl}
-              alt="Maqueta isométrica de Talavera de la Reina"
-              width={500}
-              height={500}
-              sizes="(max-width: 1023px) 240px, 336px"
-              className="relative h-auto w-[15rem] select-none object-contain drop-shadow-[0_20px_20px_rgba(56,25,50,0.18)] transition-transform duration-500 ease-out motion-safe:group-hover:-translate-y-2 motion-safe:group-hover:scale-[1.025] lg:w-[21rem]"
-            />
-            <button
-              type="button"
-              onClick={() => void locateUser()}
-              disabled={locating}
-              className="relative mt-1 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#741314] bg-white/80 px-4 py-2.5 text-sm font-bold text-[#741314] shadow-[0_10px_26px_rgba(116,19,20,0.08)] backdrop-blur-sm transition hover:bg-white disabled:opacity-55 sm:w-auto"
-            >
-              <LocateFixed className="h-4 w-4" aria-hidden="true" />
-              {locating ? "Localizando..." : userLocation ? "Centrar en mí" : "Usar mi ubicación"}
-            </button>
-            {userLocation ? (
-              <p className="mt-2 flex max-w-[21rem] items-center justify-center gap-1.5 text-center text-xs font-semibold leading-5 text-[#381932]/70" aria-live="polite">
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-[#741314]" aria-hidden="true" />
-                {userLocationLabel ?? "Tu ubicación aproximada"}
-              </p>
-            ) : null}
-          </div>
-        </header>
+    <main className={`min-h-screen bg-[#FFF7E8] text-[#381932] ${guidedDiscoveryStandalone ? "px-2 pb-2 pt-3 sm:px-4 sm:pb-4" : `px-3 pb-8 sm:px-6 lg:px-10 ${withSiteHeader ? "pt-8 sm:pt-10" : "pt-24 sm:pt-28"}`}`}>
+      <section className={`mx-auto w-full ${guidedDiscoveryStandalone ? "max-w-[100rem]" : "max-w-7xl"}`}>
+        {!guidedDiscoveryStandalone ? (
+          <>
+        <WeatherMapHero
+          weather={weather}
+          heroImageUrl={heroImageUrl}
+          demoMode={demoMode}
+          locating={locating}
+          located={Boolean(userLocation)}
+          locationLabel={userLocationLabel}
+          onLocate={() => void locateUser()}
+        />
 
         <div className="mt-6 grid grid-cols-3 border-y border-[#741314]/12 py-4 sm:max-w-2xl">
           <MapSummaryItem icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Recogida" />
@@ -1069,6 +1482,8 @@ export function VenuesMap({
           </span>
           <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-[#741314]" aria-hidden="true" />
         </button>
+          </>
+        ) : null}
 
         {locationMessage ? <p className="mt-2 text-sm text-[#741314]" role="status">{locationMessage}</p> : null}
 
@@ -1077,12 +1492,15 @@ export function VenuesMap({
         ) : !hasContent ? (
           <EmptyMapState title="El mapa está listo" description="Los lugares aparecerán cuando se publiquen desde el panel." />
         ) : (
-          <div className="relative mt-4">
+          <div className={`relative ${guidedDiscoveryStandalone ? "mt-0" : "mt-4"}`}>
             <div
+              data-city-view={isCityView ? "true" : "false"}
               className={`pickyalo-map-viewport overflow-hidden bg-[#eadfca] transition-[border-radius] duration-200 ${
                 isImmersive
                   ? "fixed inset-0 z-[110] h-[100svh] min-h-0 rounded-none border-0 shadow-none"
-                  : "relative h-[60svh] min-h-[460px] rounded-[1.6rem] border border-[#741314]/55 shadow-[0_28px_80px_rgba(56,25,50,0.14)] sm:h-[68svh] lg:h-[calc(100svh-11rem)] lg:max-h-[780px]"
+                  : guidedDiscoveryStandalone
+                    ? "relative h-[calc(100svh-6.5rem)] min-h-[36rem] rounded-[1.35rem] border border-[#741314]/55 shadow-[0_22px_65px_rgba(56,25,50,0.16)]"
+                    : "relative h-[60svh] min-h-[460px] rounded-[1.6rem] border border-[#741314]/55 shadow-[0_28px_80px_rgba(56,25,50,0.14)] sm:h-[68svh] lg:h-[calc(100svh-11rem)] lg:max-h-[780px]"
               }`}
             >
               <div className="absolute inset-0 z-[1]">
@@ -1094,9 +1512,69 @@ export function VenuesMap({
                 }`}
               >
                 <span className="h-2 w-2 rounded-full bg-[#741314]" />
-                {activeFilterLabel} · {visibleVenues.length + visiblePlaces.length} puntos visibles
+                {guidedDiscovery && guidedPanelOpen
+                  ? selectedGeometry
+                    ? `${visibleVenues.length + visiblePlaces.length} ${visibleVenues.length + visiblePlaces.length === 1 ? "punto" : "puntos"} dentro de la zona`
+                    : selectedIntent
+                      ? `${visibleVenues.length + visiblePlaces.length} ${visibleVenues.length + visiblePlaces.length === 1 ? "punto visible" : "puntos visibles"}`
+                      : "Elige qué quieres encontrar"
+                  : `${activeFilterLabel} · ${visibleVenues.length + visiblePlaces.length} puntos visibles`}
               </div>
-              {isImmersive ? (
+              <div className={`pickyalo-map-view-switch absolute left-3 z-[6] max-w-[calc(100%-5rem)] sm:left-4 ${isImmersive ? "top-[7rem] sm:top-[7.3rem]" : "top-[3.9rem] sm:top-[4.2rem]"}`}>
+                <div role="group" aria-label="Vista del mapa" className="inline-flex rounded-xl border border-[#741314] bg-[#FFF7E8] p-1 text-[#741314] shadow-sm">
+                  {([
+                    { value: "map", label: "Mapa", Icon: MapIcon },
+                    { value: "satellite", label: "Satélite", Icon: Satellite },
+                  ] as const).map(({ value, label, Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      disabled={!mapReady}
+                      aria-label={`Vista ${label.toLowerCase()}`}
+                      aria-pressed={mapView === value}
+                      title={label}
+                      onClick={() => { setSatelliteMessage(null); setMapView(value); }}
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] disabled:opacity-50 ${mapView === value ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
+                    >
+                      <Icon size={18} aria-hidden="true" />
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    disabled={!mapReady}
+                    aria-label={isCityView ? "Volver a vista plana" : "Activar vista ciudad"}
+                    aria-pressed={isCityView}
+                    title={isCityView ? "Vista plana" : "Vista ciudad"}
+                    onClick={toggleCityView}
+                    className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] disabled:opacity-50 ${isCityView ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
+                  >
+                    <Building2 size={18} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={legendOpen ? "Cerrar leyenda" : "Abrir leyenda"}
+                    aria-expanded={legendOpen}
+                    title="Leyenda"
+                    onClick={() => setLegendOpen((current) => !current)}
+                    className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] ${legendOpen ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
+                  >
+                    <Info size={18} aria-hidden="true" />
+                  </button>
+                </div>
+                {legendOpen ? (
+                  <div className="mt-2 w-[min(17rem,calc(100vw-2rem))] rounded-xl border border-[#741314]/16 bg-[#FFF7E8]/96 p-3 text-[#381932] shadow-[0_16px_38px_rgba(36,17,14,0.18)] backdrop-blur-md">
+                    <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#741314]">Leyenda</p>
+                    <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-semibold">
+                      <span className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border-2 border-[#741314] bg-[#FFF7E8]" /> Recogida</span>
+                      <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#28734b] text-[#28734b]"><Accessibility className="h-2.5 w-2.5" /></span> Accesible</span>
+                      <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#236b91] text-[#236b91]"><Clock3 className="h-2.5 w-2.5" /></span> Abierto 24 h</span>
+                      <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#a96b13] text-[#a96b13]"><Sparkles className="h-2.5 w-2.5" /></span> Historia o ruta</span>
+                    </div>
+                  </div>
+                ) : null}
+                {satelliteMessage ? <p role="status" className="mt-2 rounded-lg bg-[#FFF7E8] p-2 text-xs text-[#741314]">{satelliteMessage}</p> : null}
+              </div>
+              {isImmersive && !guidedPanelOpen ? (
                 <>
                   <button
                     type="button"
@@ -1157,18 +1635,58 @@ export function VenuesMap({
                 {isImmersive ? <Minimize2 className="h-4 w-4" aria-hidden="true" /> : <Maximize2 className="h-4 w-4" aria-hidden="true" />}
                 <span className="hidden sm:inline">{isImmersive ? "Salir" : "Ampliar"}</span>
               </button>
-              <div className="pointer-events-none absolute bottom-3 left-3 z-[3] hidden max-w-[15rem] rounded-xl border border-[#741314]/10 bg-[#FFF7E8]/88 px-3 py-2 text-[11px] leading-4 text-[#381932]/68 shadow-[0_10px_28px_rgba(56,25,50,0.1)] backdrop-blur-md sm:block">
-                Toca un icono para descubrir el lugar y calcular cómo llegar.
-              </div>
+              {!guidedDiscovery && !guidedPanelOpen ? (
+                <div className="pointer-events-none absolute bottom-3 left-3 z-[3] hidden max-w-[15rem] rounded-xl border border-[#741314]/10 bg-[#FFF7E8]/88 px-3 py-2 text-[11px] leading-4 text-[#381932]/68 shadow-[0_10px_28px_rgba(56,25,50,0.1)] backdrop-blur-md sm:block">
+                  Toca un icono para descubrir el lugar y calcular cómo llegar.
+                </div>
+              ) : null}
+              {guidedDiscovery && !guidedPanelOpen && !mobileSelectionOpen && !quickPlanOpen ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImmersiveFiltersOpen(false);
+                    setGuidedPanelOpen(true);
+                  }}
+                  className="absolute bottom-3 left-3 z-[7] inline-flex min-h-11 items-center gap-2 rounded-full border border-[#FFF7E8]/70 bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8] shadow-[0_14px_34px_rgba(36,17,14,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] sm:bottom-4 sm:left-4"
+                >
+                  <Shapes className="h-4 w-4" aria-hidden="true" />
+                  Buscar en una zona
+                </button>
+              ) : null}
               {!mapReady ? (
                 <div className="absolute inset-0 z-[2] grid place-items-center bg-[#FFF7E8]/70 text-sm font-semibold text-[#741314]">Preparando el mapa...</div>
               ) : null}
-              {!mobileSelectionOpen && !quickPlanOpen ? (
+              {!guidedPanelOpen && !mobileSelectionOpen && !quickPlanOpen && !guidedDiscovery ? (
                 <div className="pointer-events-none absolute inset-x-3 bottom-3 z-[4] flex justify-center md:hidden">
                   <p className="rounded-full border border-[#741314] bg-[#FFF7E8]/94 px-3.5 py-2 text-center text-[11px] font-semibold text-[#381932] shadow-[0_12px_32px_rgba(56,25,50,0.14)] backdrop-blur-md">
                     Toca un punto para ver sus datos
                   </p>
                 </div>
+              ) : null}
+              {guidedDiscovery && guidedPanelOpen && !mobileSelectionOpen && !quickPlanOpen ? (
+                <GuidedDiscoverySheet
+                  geometry={selectedGeometry}
+                  drawingMode={drawingMode}
+                  selectedIntent={selectedIntent}
+                  results={guidedResults}
+                  categories={availableCategories}
+                  expanded={guidedResultsExpanded}
+                  onStartDrawing={startGuidedDrawing}
+                  onCancelDrawing={() => setDrawingMode(null)}
+                  onClearGeometry={clearGuidedGeometry}
+                  onSelectIntent={(intent) => {
+                    setSelectedIntent(intent);
+                    setGuidedResultsExpanded(false);
+                  }}
+                  onClearIntent={clearGuidedIntent}
+                  onToggleResults={() => setGuidedResultsExpanded((current) => !current)}
+                  onSelectResult={selectGuidedResult}
+                  onClose={() => {
+                    clearGuidedGeometry();
+                    clearGuidedIntent();
+                    setGuidedPanelOpen(false);
+                  }}
+                />
               ) : null}
               {mobileSelectionOpen && selection && !quickPlanOpen ? (
                 <>
@@ -1178,7 +1696,10 @@ export function VenuesMap({
                   >
                     <button
                       type="button"
-                      onClick={() => setMobileSelectionOpen(false)}
+                      onClick={() => {
+                        setMobileSelectionOpen(false);
+                        if (guidedDiscovery) setSelection(null);
+                      }}
                       className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full border border-[#741314]/12 bg-white/70 text-[#741314]"
                       aria-label="Cerrar información del punto"
                     >
@@ -1211,8 +1732,21 @@ export function VenuesMap({
                   onClose={() => setQuickPlanOpen(false)}
                 />
               ) : null}
-              {!quickPlanOpen ? (
-                <aside className="absolute bottom-4 right-4 z-[4] hidden w-[min(22rem,calc(100%-2rem))] rounded-[1.25rem] border border-[#741314]/12 bg-[#FFF7E8]/95 p-5 shadow-[0_22px_65px_rgba(56,25,50,0.2)] backdrop-blur-xl md:block">
+              {!quickPlanOpen && (!guidedDiscovery || selection) ? (
+                <aside className="absolute bottom-4 right-4 z-[8] hidden w-[min(22rem,calc(100%-2rem))] rounded-[1.25rem] border border-[#741314]/12 bg-[#FFF7E8]/95 p-5 shadow-[0_22px_65px_rgba(56,25,50,0.2)] backdrop-blur-xl md:block">
+                  {guidedDiscovery && selection ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelection(null);
+                        setMobileSelectionOpen(false);
+                      }}
+                      className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-[#741314]/12 bg-white/80 text-[#741314]"
+                      aria-label="Cerrar información del punto"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  ) : null}
                   {selection?.type === "venue" ? (
                     <VenueSelection venue={selection.item} distance={selectedDistance} />
                   ) : selection?.type === "place" ? (
@@ -1229,33 +1763,36 @@ export function VenuesMap({
       </section>
 
       <style jsx global>{`
-        .pickyalo-map-marker { --marker-size:46px; position:absolute; display:grid; width:var(--marker-size); height:var(--marker-size); place-items:center; border-radius:15px 15px 15px 5px; cursor:pointer; transition:width 140ms ease,height 140ms ease,transform 180ms ease,background-color 180ms ease,color 180ms ease; box-shadow:0 12px 28px rgba(56,25,50,.22),0 0 0 3px rgba(255,247,232,.76); }
-        .pickyalo-map-marker::before { content:""; position:absolute; left:50%; bottom:-5px; width:10px; height:10px; transform:translateX(-50%) rotate(45deg); border-right:2px solid #741314; border-bottom:2px solid #741314; background:inherit; }
+        .pickyalo-map-marker { --marker-size:42px; --marker-fill:#FFF7E8; --marker-stroke:#741314; position:absolute; display:grid; width:var(--marker-size); height:var(--marker-size); place-items:center; border-radius:999px; cursor:pointer; transition:width 140ms ease,height 140ms ease,transform 180ms ease,background-color 180ms ease,color 180ms ease; box-shadow:0 8px 18px rgba(36,17,14,.18); }
+        .pickyalo-map-marker::before { display:none; }
         .pickyalo-map-marker::after { content:attr(data-label); position:absolute; left:50%; bottom:calc(100% + 9px); max-width:180px; transform:translate(-50%,5px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid rgba(116,19,20,.12); border-radius:999px; background:rgba(255,247,232,.96); padding:6px 10px; color:#381932; font:700 11px/1.1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 10px 28px rgba(56,25,50,.15); opacity:0; pointer-events:none; transition:opacity 160ms ease,transform 160ms ease; }
         .pickyalo-map-marker:hover,.pickyalo-map-marker:focus-visible,.pickyalo-map-marker.is-active { transform:translateY(-4px) scale(1.07); z-index:3; }
-        .pickyalo-map-marker.is-active { animation:pickyalo-map-marker-select 320ms cubic-bezier(.2,.8,.2,1); box-shadow:0 14px 32px rgba(56,25,50,.28),0 0 0 3px rgba(255,247,232,.92),0 0 0 8px rgba(116,19,20,.18); }
+        .pickyalo-map-marker.is-active { animation:pickyalo-map-marker-select 320ms cubic-bezier(.2,.8,.2,1); box-shadow:0 12px 28px rgba(56,25,50,.26),0 0 0 5px rgba(116,19,20,.18); }
         .pickyalo-map-marker:hover::after,.pickyalo-map-marker:focus-visible::after,.pickyalo-map-marker.is-active::after { opacity:1; transform:translate(-50%,0); }
-        .pickyalo-map-marker--venue { border:2px solid #741314; background:#FFF7E8; color:#741314; }
-        .pickyalo-map-marker--venue img { width:calc(var(--marker-size) - 14px); height:calc(var(--marker-size) - 14px); border-radius:9px; object-fit:cover; pointer-events:none; user-select:none; }
+        .pickyalo-map-marker--venue { border:2px solid #741314; background:var(--marker-fill); color:#741314; }
+        .pickyalo-map-marker--venue img { width:calc(var(--marker-size) - 9px); height:calc(var(--marker-size) - 9px); border-radius:999px; object-fit:contain; image-rendering:auto; pointer-events:none; user-select:none; }
         .pickyalo-map-marker--place svg { width:23px; height:23px; }
-        .pickyalo-map-marker--landmark { overflow:visible; border:3px solid #FFF7E8; border-radius:16px 16px 16px 5px; background:#741314; box-shadow:0 16px 34px rgba(56,25,50,.28),0 0 0 2px rgba(116,19,20,.92); }
-        .pickyalo-map-marker--landmark::before { border-color:#741314; background:#FFF7E8; }
-        .pickyalo-map-marker--landmark > img { width:100%; height:100%; border-radius:12px 12px 12px 3px; object-fit:cover; pointer-events:none; user-select:none; }
-        .pickyalo-map-marker-icon { position:absolute; right:-7px; bottom:-7px; display:grid; width:25px; height:25px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; box-shadow:0 6px 14px rgba(56,25,50,.24); }
+        .pickyalo-map-marker--landmark { --marker-stroke:#a96b13; overflow:visible; border:2px solid var(--marker-stroke); border-radius:999px; background:var(--marker-fill); box-shadow:0 10px 24px rgba(36,17,14,.22); }
+        .pickyalo-map-marker--landmark > img { width:100%; height:100%; border-radius:999px; object-fit:cover; pointer-events:none; user-select:none; }
+        .pickyalo-map-marker-icon { position:absolute; right:-4px; bottom:-4px; display:grid; width:20px; height:20px; place-items:center; border:1px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; box-shadow:0 4px 10px rgba(56,25,50,.2); }
         .pickyalo-map-marker-icon svg { width:13px!important; height:13px!important; }
         .pickyalo-map-marker--image-fallback .pickyalo-map-marker-icon { position:static; width:auto; height:auto; border:0; background:transparent; box-shadow:none; }
         .pickyalo-map-marker--image-fallback .pickyalo-map-marker-icon svg { width:23px!important; height:23px!important; }
         .pickyalo-map-marker.is-nearby { box-shadow:0 14px 34px rgba(56,25,50,.28),0 0 0 3px rgba(255,247,232,.94),0 0 0 8px rgba(116,19,20,.14); }
         .pickyalo-map-marker.is-plan-stop { box-shadow:0 14px 36px rgba(56,25,50,.3),0 0 0 3px rgba(255,247,232,.96),0 0 0 9px rgba(253,211,125,.72); }
         .pickyalo-map-rank { position:absolute; right:-7px; top:-8px; z-index:2; display:grid; width:21px; height:21px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; font:800 10px/1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 6px 14px rgba(56,25,50,.2); pointer-events:none; }
-        .pickyalo-map-marker--place { border:2px solid #741314; background:#FFF7E8; color:#741314; }
-        .pickyalo-map-marker--place[data-category="bench"] { border-color:#4f6954; background:#edf2e8; color:#405b46; }
-        .pickyalo-map-marker--place[data-category="bench"]::before { border-color:#4f6954; }
-        .pickyalo-map-marker--place[data-category="tables"] { border-color:#9d572f; background:#fde3ad; color:#71391f; }
-        .pickyalo-map-marker--place[data-category="tables"]::before { border-color:#9d572f; }
-        .pickyalo-map-marker--place.is-active { background:#741314; color:#FFF7E8; }
-        .pickyalo-map-marker--place.is-active::before { border-color:#741314; }
-        .pickyalo-map-marker--place.has-explore { box-shadow:0 14px 32px rgba(56,25,50,.24),0 0 0 3px rgba(255,247,232,.94),0 0 0 7px rgba(253,227,173,.88); }
+        .pickyalo-map-marker--place { border:1.5px solid var(--marker-stroke); background:var(--marker-fill); color:#741314; }
+        .pickyalo-map-marker--place.is-accessible { --marker-stroke:#28734b; border-color:var(--marker-stroke); color:#28734b; }
+        .pickyalo-map-marker--place.is-always-open { --marker-stroke:#236b91; border-color:var(--marker-stroke); color:#236b91; }
+        .pickyalo-map-marker--place.is-active { --marker-fill:#741314; --marker-stroke:#741314; background:var(--marker-fill); color:#FFF7E8; }
+        .pickyalo-map-marker--place.has-explore { border-color:#a96b13; color:#7b4b08; box-shadow:0 10px 24px rgba(36,17,14,.22),0 0 0 3px rgba(246,217,154,.72); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker { transform:translateY(-7px); filter:drop-shadow(0 10px 7px rgba(36,17,14,.22)); box-shadow:0 6px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.82); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker::before { content:""; position:absolute; left:50%; bottom:-5px; z-index:-1; display:block; width:12px; height:12px; transform:translateX(-50%) rotate(45deg); border-right:1.5px solid var(--marker-stroke); border-bottom:1.5px solid var(--marker-stroke); border-radius:0 0 2px 0; background:var(--marker-fill); box-shadow:none; }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker--venue { box-shadow:0 6px 0 #D9B86F,0 0 0 3px rgba(255,247,232,.88); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker--landmark { filter:drop-shadow(0 11px 8px rgba(36,17,14,.25)); box-shadow:0 6px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.92); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker:hover,.pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker:focus-visible,.pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-active { transform:translateY(-11px) scale(1.07); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-active { filter:drop-shadow(0 12px 9px rgba(36,17,14,.27)); box-shadow:0 7px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.96),0 0 0 9px rgba(116,19,20,.2); }
+        .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-plan-stop { filter:drop-shadow(0 12px 9px rgba(36,17,14,.26)); box-shadow:0 7px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.96),0 0 0 10px rgba(253,211,125,.76); }
         .pickyalo-map-user-marker { width:18px; height:18px; border:4px solid white; border-radius:999px; background:#741314; box-shadow:0 0 0 5px rgba(116,19,20,.2); }
         .mapboxgl-ctrl-group { display:grid; gap:6px; overflow:visible; border:0!important; background:transparent!important; box-shadow:none!important; }
         .mapboxgl-ctrl-group button { width:40px!important; height:40px!important; overflow:hidden; border:1px solid rgba(116,19,20,.16)!important; border-radius:999px!important; background-color:rgba(255,247,232,.96)!important; box-shadow:0 10px 26px rgba(56,25,50,.15)!important; transition:background-color 160ms ease,transform 160ms ease!important; }
@@ -1270,7 +1807,7 @@ export function VenuesMap({
         @keyframes pickyalo-map-sheet-in { from { opacity:0; transform:translateY(18px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes pickyalo-map-filter-in { from { opacity:0; transform:translateY(-8px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes pickyalo-map-marker-select { 0% { transform:translateY(0) scale(.9); } 65% { transform:translateY(-6px) scale(1.11); } 100% { transform:translateY(-4px) scale(1.07); } }
-        @media (prefers-reduced-motion: reduce) { .pickyalo-map-marker { transition:none; } .pickyalo-map-marker.is-active,.pickyalo-map-selection-sheet,.pickyalo-map-filter-panel { animation:none; } }
+        @media (prefers-reduced-motion: reduce) { .pickyalo-map-marker { transition:none; } .pickyalo-map-marker.is-active,.pickyalo-map-selection-sheet,.pickyalo-map-filter-panel,.pickyalo-weather-precipitation > span { animation:none; } }
       `}</style>
       {openPlace ? (
         <PlacePost
@@ -1423,7 +1960,7 @@ function MapFilterControls({
           <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
             Categorías
           </p>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Categorías del mapa">
+          <div className="flex flex-wrap justify-center gap-2 sm:justify-start" role="group" aria-label="Categorías del mapa">
             {categories.map((category) => (
               <FilterChip
                 key={category.value}

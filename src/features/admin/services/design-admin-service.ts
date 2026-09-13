@@ -234,6 +234,12 @@ export async function updateHomeCampaignAction(formData: FormData) {
         "backgroundMediaOpacity",
         current.texts.homeCampaign.backgroundMediaOpacity,
       ),
+      featureImageEnabled: getCheckbox(formData, "featureImageEnabled"),
+      featureImageUrl: getCampaignMediaUrl(
+        formData,
+        "featureImageUrl",
+        "La imagen protagonista",
+      ),
       beamEnabled: getCheckbox(formData, "beamEnabled"),
       confettiEnabled: getCheckbox(formData, "confettiEnabled"),
       iconSvgUrl: getCampaignMediaUrl(formData, "iconSvgUrl", "El SVG"),

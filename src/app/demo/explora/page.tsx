@@ -29,6 +29,7 @@ const previewExperience: PublicExploreExperience = {
     audioDurationSeconds: 134,
     imageUrl: "/home/zonas/talavera-poster-local.webp",
     imageAlt: "Cerámica y patrimonio de Talavera de la Reina",
+    imageOverlayOpacity: 8,
     artisticMapUrl: "/zones/talavera/talavera_de_la_reina_emerald.svg",
     latitude: 39.956,
     longitude: -4.831,

@@ -57,6 +57,7 @@ export type VenueDetails = {
   id: string;
   slug: string;
   name: string;
+  discoveryCategory: string | null;
   description: string | null;
   coverUrl: string | null;
   logoUrl: string | null;
@@ -68,17 +69,32 @@ export type VenueDetails = {
   website: string | null;
   pickupNotes: string | null;
   pickupEtaMin: number | null;
+  qrEnabled: boolean;
+  qrHeroImageUrl: string | null;
+  qrShowNearby: boolean;
+  qrFavorites: VenueQrFavoritesCopy;
+  qrHostName: string | null;
+  qrHeroTagline: string | null;
+  qrStory: string | null;
+  qrStoryImageUrls: string[];
   isVerified: boolean;
   subscriptionActive: boolean;
   subscriptionTier: "basic" | "oro" | "titanio";
   pricesVisible: boolean;
   openingHours: OpeningHoursValue;
+  manualOpenStatus?: boolean | null;
   isOpenNow: boolean;
   city: {
     slug: string;
     name: string;
   };
   menuItems: VenueMenuItem[];
+};
+
+export type VenueQrFavoritesCopy = {
+  eyebrow: string;
+  title: string;
+  description: string;
 };
 
 export type HomeShowcaseItem = {

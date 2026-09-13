@@ -20,19 +20,19 @@ const pricingOffers: Array<{
 }> = [
   {
     key: "basic",
-    name: "Basic",
+    name: "Suave",
     description: "Cuidar la presencia del local",
     priceSuffix: "mensual",
   },
   {
     key: "oro",
-    name: "Destacado",
+    name: "Picante",
     description: "Llegar a más personas",
     priceSuffix: "mensual",
   },
   {
     key: "titanio",
-    name: "Socio",
+    name: "Fuego",
     description: "Crecer acompañado",
     priceSuffix: "mensual",
   },

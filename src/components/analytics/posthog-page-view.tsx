@@ -90,6 +90,7 @@ function getScreenContext(pathname: string) {
 function isInternalPath(pathname: string) {
   return (
     pathname.startsWith("/panel") ||
+    pathname.startsWith("/manage") ||
     pathname.startsWith("/demo") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next")

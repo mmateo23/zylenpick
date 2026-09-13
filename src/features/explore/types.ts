@@ -21,6 +21,7 @@ export type PublicExplorePoint = {
   audioDurationSeconds: number | null;
   imageUrl: string;
   imageAlt: string;
+  imageOverlayOpacity: number;
   artisticMapUrl: string | null;
   latitude: number;
   longitude: number;

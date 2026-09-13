@@ -1,4 +1,5 @@
 import { ArrowUpRight, CalendarDays, Sparkles } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
@@ -8,6 +9,8 @@ import type { HomeCampaignConfig } from "@/features/design/site-design-config";
 type HomeCampaignCtaProps = {
   campaign: HomeCampaignConfig;
   compact?: boolean;
+  feature?: boolean;
+  featureAssetUrl?: string;
   preview?: boolean;
 };
 
@@ -156,6 +159,44 @@ function CampaignBackgroundMedia({ campaign }: { campaign: HomeCampaignConfig })
   );
 }
 
+function CampaignFeatureMedia({ campaign }: { campaign: HomeCampaignConfig }) {
+  if (
+    campaign.backgroundMediaType === "none" ||
+    !campaign.backgroundMediaUrl
+  ) {
+    return null;
+  }
+
+  const mediaClassName = "absolute inset-0 h-full w-full object-cover";
+  const mediaStyle = { opacity: campaign.backgroundMediaOpacity / 100 };
+
+  if (campaign.backgroundMediaType === "video") {
+    return (
+      <video
+        src={campaign.backgroundMediaUrl}
+        className={mediaClassName}
+        style={mediaStyle}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      />
+    );
+  }
+
+  return (
+    // The editor accepts arbitrary HTTPS and internal URLs.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={campaign.backgroundMediaUrl}
+      alt=""
+      className={mediaClassName}
+      style={mediaStyle}
+    />
+  );
+}
+
 export function HomeCampaignIconLink({ campaign }: HomeCampaignIconLinkProps) {
   const baseSurfaceStyle = getSurfaceStyle(campaign);
   const surfaceStyle = campaign.beamEnabled
@@ -229,7 +270,154 @@ export function HomeCampaignIconLink({ campaign }: HomeCampaignIconLinkProps) {
   );
 }
 
-export function HomeCampaignCta({ campaign, compact = false, preview = false }: HomeCampaignCtaProps) {
+function CampaignFeatureCta({
+  campaign,
+  featureAssetUrl,
+  preview,
+}: {
+  campaign: HomeCampaignConfig;
+  featureAssetUrl?: string;
+  preview: boolean;
+}) {
+  const hasBackgroundMedia =
+    campaign.backgroundMediaType !== "none" &&
+    Boolean(campaign.backgroundMediaUrl);
+  const className =
+    "group relative isolate block min-h-[14rem] overflow-visible rounded-[1.65rem] border border-[#741314]/30 px-5 py-6 text-left text-[#24110E] shadow-[0_28px_72px_rgba(116,19,20,0.16)] transition duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-4 sm:min-h-[16rem] sm:rounded-[2rem] sm:px-9 sm:py-8 motion-reduce:transform-none";
+  const content = (
+    <>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-20 translate-x-2 translate-y-2 rounded-[inherit] border border-[#741314]/20 bg-[#F6D99A] sm:translate-x-3 sm:translate-y-3"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#FFF7E8]"
+      >
+        {hasBackgroundMedia ? <CampaignFeatureMedia campaign={campaign} /> : null}
+        <span
+          className="absolute inset-0"
+          style={{
+            background: hasBackgroundMedia
+              ? "linear-gradient(90deg,rgba(255,247,232,0.98) 0%,rgba(255,247,232,0.94) 37%,rgba(255,247,232,0.62) 55%,rgba(255,247,232,0.08) 78%)"
+              : `radial-gradient(circle at 78% 34%, ${colorWithAlpha(campaign.accentColor, 0.2)}, transparent 35%)`,
+          }}
+        />
+        <span className="absolute -bottom-8 left-5 select-none font-black uppercase leading-none tracking-[0.08em] text-[#741314]/[0.035] text-[clamp(4rem,12vw,9rem)]">
+          Ahora
+        </span>
+      </span>
+
+      {campaign.beamEnabled ? (
+        <BorderBeam
+          duration={6}
+          size={520}
+          borderWidth={2.5}
+          colorFrom={campaign.accentColor}
+          colorTo={campaign.textColor}
+          glow
+          className="motion-reduce:hidden"
+        />
+      ) : null}
+
+      <span className="relative z-20 grid max-w-[66%] content-between gap-5 sm:max-w-[58%] sm:gap-7">
+        <span className="grid gap-2.5">
+          <span
+          className="flex items-center gap-2 text-[9px] font-extrabold uppercase tracking-[0.19em] sm:text-[10px]"
+            style={{ color: campaign.borderColor || "#741314" }}
+          >
+            <CampaignIcon campaign={campaign} compact />
+            {campaign.eyebrow || "Edición especial"}
+          </span>
+          <span className="block text-balance font-[var(--font-clash-grotesk-bold)] text-[clamp(1.75rem,5vw,3.45rem)] font-bold leading-[0.94] tracking-normal">
+            {campaign.title}
+          </span>
+          {campaign.description ? (
+            <span className="hidden max-w-[43ch] text-sm leading-5 opacity-75 sm:block">
+              {campaign.description}
+            </span>
+          ) : null}
+        </span>
+
+        <span
+          className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full border px-4 py-2 text-xs font-extrabold"
+          style={{
+            borderColor: campaign.borderColor || "#741314",
+            backgroundColor: campaign.backgroundColor || "#741314",
+            color: campaign.textColor || "#FFF7E8",
+          }}
+        >
+          {campaign.ctaLabel}
+          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transform-none" />
+        </span>
+      </span>
+
+      {featureAssetUrl ? (
+        <>
+          <Image
+            src={featureAssetUrl}
+            alt=""
+            aria-hidden="true"
+            width={1600}
+            height={1600}
+            sizes="(max-width: 639px) 250px, 430px"
+            className="pointer-events-none absolute -bottom-12 -right-16 z-10 h-auto w-[16.5rem] select-none object-contain drop-shadow-[-16px_26px_20px_rgba(36,17,14,0.3)] transition-transform duration-500 group-hover:-translate-x-1 group-hover:-translate-y-1 group-hover:scale-[1.02] sm:-bottom-20 sm:right-[1%] sm:w-[27rem] motion-reduce:transform-none"
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -bottom-5 right-2 z-0 h-12 w-[46%] rounded-full bg-[#24110E]/25 blur-2xl sm:right-[3%] sm:w-[40%]"
+          />
+        </>
+      ) : null}
+    </>
+  );
+
+  if (preview) {
+    return (
+      <div className={className}>{content}</div>
+    );
+  }
+
+  if (/^https?:\/\//.test(campaign.href)) {
+    return (
+      <a
+        href={campaign.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={campaign.href}
+      className={className}
+    >
+      {content}
+    </Link>
+  );
+}
+
+export function HomeCampaignCta({
+  campaign,
+  compact = false,
+  feature = false,
+  featureAssetUrl,
+  preview = false,
+}: HomeCampaignCtaProps) {
+  if (feature) {
+    return (
+      <CampaignFeatureCta
+        campaign={campaign}
+        featureAssetUrl={featureAssetUrl}
+        preview={preview}
+      />
+    );
+  }
+
   const content = (
     <>
       {!compact ? <CampaignBackgroundMedia campaign={campaign} /> : null}

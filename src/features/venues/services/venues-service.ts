@@ -1,5 +1,11 @@
-import { getOpeningStatus, normalizeOpeningHours } from "@/features/venues/opening-hours";
+import { cache } from "react";
+
+import { getVenueOpeningStatus, normalizeOpeningHours } from "@/features/venues/opening-hours";
 import { normalizePriceDisplayMode } from "@/features/pricing/price-display";
+import {
+  DEFAULT_VENUE_QR_FAVORITES_COPY,
+  normalizeVenueQrFavoritesCopy,
+} from "@/features/venues/qr-content";
 import type {
   HomeShowcaseItem,
   MenuItemAllergen,
@@ -32,6 +38,22 @@ function isMissingSubscriptionTierColumnError(message: string) {
 
 function isMissingPricesVisibleColumnError(message: string) {
   return message.toLowerCase().includes("prices_visible");
+}
+
+function isMissingVenueQrColumnError(message: string) {
+  const normalizedMessage = message.toLowerCase();
+
+  return (
+    normalizedMessage.includes("qr_enabled") ||
+    normalizedMessage.includes("qr_hero_image_url") ||
+    normalizedMessage.includes("qr_show_nearby") ||
+    normalizedMessage.includes("qr_favorites_eyebrow") ||
+    normalizedMessage.includes("qr_favorites_title") ||
+    normalizedMessage.includes("qr_favorites_description") ||
+    normalizedMessage.includes("qr_host_name") ||
+    normalizedMessage.includes("qr_hero_tagline") ||
+    normalizedMessage.includes("qr_story")
+  );
 }
 
 function isMissingPriceDisplayColumnError(message: string) {
@@ -347,7 +369,7 @@ export async function getVenuesByCitySlug(
 }
 
 export async function getVenueDetails(
-  citySlug: string,
+  citySlug: string | null,
   venueSlug: string,
 ): Promise<VenueDetails | null> {
   if (!isSupabaseConfigured()) {
@@ -355,32 +377,42 @@ export async function getVenueDetails(
   }
 
   const supabase = createSupabaseServerClient();
-  const { data: venue, error: venueError } = await supabase
+  let venueQuery = supabase
     .from("venues")
     .select(
-      "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug, name)",
+      "id, slug, name, discovery_category, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, manual_open_status, pickup_notes, pickup_eta_min, qr_enabled, qr_hero_image_url, qr_show_nearby, qr_favorites_eyebrow, qr_favorites_title, qr_favorites_description, qr_host_name, qr_hero_tagline, qr_story, qr_story_image_urls, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug, name)",
     )
     .eq("slug", venueSlug)
     .eq("is_active", true)
-    .eq("is_published", true)
-    .eq("cities.slug", citySlug)
-    .maybeSingle();
+    .eq("is_published", true);
+
+  if (citySlug) {
+    venueQuery = venueQuery.eq("cities.slug", citySlug);
+  }
+
+  const { data: venue, error: venueError } = await venueQuery.maybeSingle();
 
   if (
     venueError &&
     (isMissingSubscriptionTierColumnError(venueError.message) ||
-      isMissingPricesVisibleColumnError(venueError.message))
+      isMissingPricesVisibleColumnError(venueError.message) ||
+      isMissingVenueQrColumnError(venueError.message))
   ) {
-    const { data: fallbackVenue, error: fallbackVenueError } = await supabase
+    let fallbackVenueQuery = supabase
       .from("venues")
       .select(
-        "id, slug, name, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
+        "id, slug, name, discovery_category, description, cover_url, logo_url, address, latitude, longitude, email, phone, website, opening_hours, manual_open_status, pickup_notes, pickup_eta_min, is_verified, subscription_active, cities!inner(slug, name)",
       )
       .eq("slug", venueSlug)
       .eq("is_active", true)
-      .eq("is_published", true)
-      .eq("cities.slug", citySlug)
-      .maybeSingle();
+      .eq("is_published", true);
+
+    if (citySlug) {
+      fallbackVenueQuery = fallbackVenueQuery.eq("cities.slug", citySlug);
+    }
+
+    const { data: fallbackVenue, error: fallbackVenueError } =
+      await fallbackVenueQuery.maybeSingle();
 
     if (fallbackVenueError) {
       throw new Error(`Unable to load venue: ${fallbackVenueError.message}`);
@@ -422,12 +454,13 @@ export async function getVenueDetails(
       }
 
       const openingHours = normalizeOpeningHours(fallbackVenue.opening_hours);
-      const openingStatus = getOpeningStatus(openingHours);
+      const openingStatus = getVenueOpeningStatus(openingHours, fallbackVenue.manual_open_status);
 
       return {
         id: fallbackVenue.id,
         slug: fallbackVenue.slug,
         name: fallbackVenue.name,
+        discoveryCategory: fallbackVenue.discovery_category,
         description: fallbackVenue.description,
         coverUrl: fallbackVenue.cover_url,
         logoUrl: fallbackVenue.logo_url,
@@ -439,12 +472,21 @@ export async function getVenueDetails(
         website: fallbackVenue.website,
         pickupNotes: fallbackVenue.pickup_notes,
         pickupEtaMin: fallbackVenue.pickup_eta_min,
+        qrEnabled: true,
+        qrHeroImageUrl: null,
+        qrShowNearby: true,
+        qrFavorites: DEFAULT_VENUE_QR_FAVORITES_COPY,
+        qrHostName: null,
+        qrHeroTagline: null,
+        qrStory: null,
+        qrStoryImageUrls: [],
         isVerified: fallbackVenue.is_verified,
         subscriptionActive: fallbackVenue.subscription_active,
         subscriptionTier: "basic",
         pricesVisible: false,
         openingHours,
-        isOpenNow: openingStatus.isOpenNow,
+        manualOpenStatus: openingStatus.source === "manual" ? openingStatus.isOpenNow : null,
+    isOpenNow: openingStatus.isOpenNow,
         city: {
           slug: fallbackVenue.cities.slug,
           name: fallbackVenue.cities.name,
@@ -464,12 +506,13 @@ export async function getVenueDetails(
     }
 
     const openingHours = normalizeOpeningHours(fallbackVenue.opening_hours);
-    const openingStatus = getOpeningStatus(openingHours);
+    const openingStatus = getVenueOpeningStatus(openingHours, fallbackVenue.manual_open_status);
 
     return {
       id: fallbackVenue.id,
       slug: fallbackVenue.slug,
       name: fallbackVenue.name,
+      discoveryCategory: fallbackVenue.discovery_category,
       description: fallbackVenue.description,
       coverUrl: fallbackVenue.cover_url,
       logoUrl: fallbackVenue.logo_url,
@@ -481,12 +524,21 @@ export async function getVenueDetails(
       website: fallbackVenue.website,
       pickupNotes: fallbackVenue.pickup_notes,
       pickupEtaMin: fallbackVenue.pickup_eta_min,
+      qrEnabled: true,
+      qrHeroImageUrl: null,
+      qrShowNearby: true,
+      qrFavorites: DEFAULT_VENUE_QR_FAVORITES_COPY,
+      qrHostName: null,
+      qrHeroTagline: null,
+      qrStory: null,
+      qrStoryImageUrls: [],
       isVerified: fallbackVenue.is_verified,
       subscriptionActive: fallbackVenue.subscription_active,
       subscriptionTier: "basic",
       pricesVisible: false,
       openingHours,
-      isOpenNow: openingStatus.isOpenNow,
+      manualOpenStatus: openingStatus.source === "manual" ? openingStatus.isOpenNow : null,
+    isOpenNow: openingStatus.isOpenNow,
       city: {
         slug: fallbackVenue.cities.slug,
         name: fallbackVenue.cities.name,
@@ -537,12 +589,13 @@ export async function getVenueDetails(
     }
 
     const openingHours = normalizeOpeningHours(venue.opening_hours);
-    const openingStatus = getOpeningStatus(openingHours);
+    const openingStatus = getVenueOpeningStatus(openingHours, venue.manual_open_status);
 
     return {
       id: venue.id,
       slug: venue.slug,
       name: venue.name,
+      discoveryCategory: venue.discovery_category,
       description: venue.description,
       coverUrl: venue.cover_url,
       logoUrl: venue.logo_url,
@@ -554,12 +607,28 @@ export async function getVenueDetails(
       website: venue.website,
       pickupNotes: venue.pickup_notes,
       pickupEtaMin: venue.pickup_eta_min,
+      qrEnabled: venue.qr_enabled ?? true,
+      qrHeroImageUrl: venue.qr_hero_image_url,
+      qrShowNearby: venue.qr_show_nearby ?? true,
+      qrFavorites: normalizeVenueQrFavoritesCopy({
+        eyebrow: venue.qr_favorites_eyebrow,
+        title: venue.qr_favorites_title,
+        description: venue.qr_favorites_description,
+      }),
+      qrHostName: venue.qr_host_name?.trim() || null,
+      qrHeroTagline: venue.qr_hero_tagline?.trim() || null,
+      qrStory: venue.qr_story?.trim() || null,
+      qrStoryImageUrls: (venue.qr_story_image_urls ?? [])
+        .map((url) => url.trim())
+        .filter(Boolean)
+        .slice(0, 3),
       isVerified: venue.is_verified,
       subscriptionActive: venue.subscription_active,
       subscriptionTier: venue.subscription_tier ?? "basic",
       pricesVisible: venue.prices_visible ?? false,
       openingHours,
-      isOpenNow: openingStatus.isOpenNow,
+      manualOpenStatus: openingStatus.source === "manual" ? openingStatus.isOpenNow : null,
+    isOpenNow: openingStatus.isOpenNow,
       city: {
         slug: venue.cities.slug,
         name: venue.cities.name,
@@ -579,12 +648,13 @@ export async function getVenueDetails(
   }
 
   const openingHours = normalizeOpeningHours(venue.opening_hours);
-  const openingStatus = getOpeningStatus(openingHours);
+  const openingStatus = getVenueOpeningStatus(openingHours, venue.manual_open_status);
 
   return {
     id: venue.id,
     slug: venue.slug,
     name: venue.name,
+    discoveryCategory: venue.discovery_category,
     description: venue.description,
     coverUrl: venue.cover_url,
     logoUrl: venue.logo_url,
@@ -596,11 +666,27 @@ export async function getVenueDetails(
     website: venue.website,
     pickupNotes: venue.pickup_notes,
       pickupEtaMin: venue.pickup_eta_min,
+      qrEnabled: venue.qr_enabled ?? true,
+      qrHeroImageUrl: venue.qr_hero_image_url,
+      qrShowNearby: venue.qr_show_nearby ?? true,
+      qrFavorites: normalizeVenueQrFavoritesCopy({
+        eyebrow: venue.qr_favorites_eyebrow,
+        title: venue.qr_favorites_title,
+        description: venue.qr_favorites_description,
+      }),
+      qrHostName: venue.qr_host_name?.trim() || null,
+      qrHeroTagline: venue.qr_hero_tagline?.trim() || null,
+      qrStory: venue.qr_story?.trim() || null,
+      qrStoryImageUrls: (venue.qr_story_image_urls ?? [])
+        .map((url) => url.trim())
+        .filter(Boolean)
+        .slice(0, 3),
       isVerified: venue.is_verified,
       subscriptionActive: venue.subscription_active,
       subscriptionTier: venue.subscription_tier ?? "basic",
       pricesVisible: venue.prices_visible ?? false,
       openingHours,
+    manualOpenStatus: openingStatus.source === "manual" ? openingStatus.isOpenNow : null,
     isOpenNow: openingStatus.isOpenNow,
     city: {
       slug: venue.cities.slug,
@@ -611,6 +697,10 @@ export async function getVenueDetails(
     ),
   };
 }
+
+export const getVenueDetailsBySlug = cache(async (venueSlug: string) =>
+  getVenueDetails(null, venueSlug),
+);
 
 export async function getHomeShowcase(): Promise<{
   featuredItems: HomeShowcaseItem[];

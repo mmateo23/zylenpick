@@ -1044,6 +1044,17 @@ export function DemoHome({
                 Los platos aparecerán aquí cuando haya contenido visual.
               </div>
             )}
+            {heroPostItem ? (
+              <Image
+                src="/home/hero/pickyalo-sticker.png"
+                alt=""
+                aria-hidden="true"
+                width={1024}
+                height={1535}
+                sizes="(min-width: 1024px) 160px, (min-width: 640px) 128px, 96px"
+                className="pointer-events-none absolute -left-2 top-[25%] z-30 h-auto w-24 -rotate-[10deg] select-none drop-shadow-[2px_6px_3px_rgba(36,17,14,0.22)] sm:-left-12 sm:w-32 lg:-left-24 lg:w-40"
+              />
+            ) : null}
           </div>
         </div>
       </div>

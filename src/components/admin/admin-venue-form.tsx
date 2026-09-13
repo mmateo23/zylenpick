@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
 import { AdminOpeningHoursTable } from "@/components/admin/admin-opening-hours-table";
+import { AdminVenueMapMarkerField } from "@/components/admin/admin-venue-map-marker-field";
 import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import type {
   AdminCityOption,
@@ -44,6 +45,9 @@ function buildInitialValues(
       isVerified: false,
       pricesVisible: false,
       subscriptionActive: false,
+      showOnMap: false,
+      useCustomMapMarker: false,
+      mapMarkerLogoUrl: "",
       subscriptionTier: "basic",
       sortOrder: "",
       openingHours: {
@@ -114,9 +118,9 @@ function formatServiceType(value: string | null) {
 }
 
 const subscriptionTierOptions = [
-  { value: "basic", label: "Basic" },
-  { value: "oro", label: "Oro" },
-  { value: "titanio", label: "Titanio" },
+  { value: "basic", label: "Suave" },
+  { value: "oro", label: "Picante" },
+  { value: "titanio", label: "Fuego" },
 ];
 
 export function AdminVenueForm({
@@ -509,8 +513,14 @@ export function AdminVenueForm({
             <ToggleField
               name="subscriptionActive"
               label="Suscripción activa"
-              description="Habilita los beneficios del nivel interno y muestra el local como punto de recogida en el mapa público."
+              description="Habilita los beneficios del nivel interno y permite usar un isotipo propio en el mapa."
               defaultChecked={values.subscriptionActive}
+            />
+            <ToggleField
+              name="showOnMap"
+              label="Mostrar como punto de recogida"
+              description="Muestra el local en el mapa cuando está publicado, activo y tiene suscripción. Puedes ocultarlo sin cambiar el plan."
+              defaultChecked={values.showOnMap}
             />
             <label className="block">
               <span className="text-sm font-medium text-[#381932]">Nivel de suscripción</span>
@@ -538,6 +548,14 @@ export function AdminVenueForm({
                 placeholder="0"
               />
             </label>
+            {values.id ? (
+              <AdminVenueMapMarkerField
+                venueId={values.id}
+                subscriptionActive={values.subscriptionActive}
+                initialImageUrl={values.mapMarkerLogoUrl}
+                initialEnabled={values.useCustomMapMarker}
+              />
+            ) : null}
           </div>
         </AdminFormDisclosure>
 

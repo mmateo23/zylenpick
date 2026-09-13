@@ -218,7 +218,7 @@ export function DemoZonesOverview({
               fill
               priority
               sizes="100vw"
-              className="scale-[1.04] object-cover opacity-72 saturate-[1.05]"
+              className="scale-[1.04] object-cover opacity-70 saturate-[1.05]"
             />
           ) : (
             <video
@@ -227,12 +227,12 @@ export function DemoZonesOverview({
               loop
               playsInline
               preload="auto"
-              className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-72 saturate-[1.05]"
+              className="absolute inset-0 h-full w-full scale-[1.04] object-cover opacity-70 saturate-[1.05]"
             >
               <source src={zonesHeroMediaUrl} type="video/mp4" />
             </video>
           )}
-              <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(110deg,rgba(253,227,173,0.30)_0%,rgba(253,227,173,0)_100%)]" : "absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]"} />
+              <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(110deg,rgba(36,17,14,0.82)_0%,rgba(36,17,14,0.50)_100%)]" : "absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.06),transparent_20%),linear-gradient(180deg,rgba(6,18,13,0.62)_0%,rgba(5,8,22,0.82)_100%)]"} />
             </div>
             <div className={isLightTheme ? "zones-hero-glow absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(253,227,173,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(253,227,173,0.14),transparent_32%),linear-gradient(180deg,rgba(255,247,232,0.08),transparent_42%)]" : "zones-hero-glow absolute inset-y-0 left-[-12%] -z-10 w-[42%] bg-[radial-gradient(circle_at_center,rgba(116,19,20,0.12),transparent_62%)] blur-3xl"} />
 
@@ -254,13 +254,13 @@ export function DemoZonesOverview({
 
           </div>
 
-          <div className={isLightTheme ? "rounded-[1.9rem] border border-[#741314]/22 bg-[#FFF7E8]/86 p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-6" : "mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6"}>
+          <div className={isLightTheme ? "rounded-[1.9rem] border border-[#741314]/22 bg-[#FFF7E8] p-5 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-6" : "mt-6 rounded-[1.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.028))] p-5 shadow-[0_18px_70px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:mt-8 sm:p-6"}>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.3em] text-[#741314]" : "text-[10px] font-medium uppercase tracking-[0.3em] text-white/38"}>
                   Ciudades activas
                 </p>
-                <p className={isLightTheme ? "mt-2 text-sm text-[#24110E]/64" : "mt-2 text-sm text-white/58"}>
+                <p className={isLightTheme ? "mt-2 text-sm text-[#61433A]" : "mt-2 text-sm text-white/58"}>
                   Una lectura rápida de las ciudades disponibles ahora mismo.
                 </p>
               </div>
@@ -268,13 +268,14 @@ export function DemoZonesOverview({
 
             <div className="mt-5 flex flex-wrap gap-2.5">
               {heroCities.map((city) => (
-                <span
+                <Link
                   key={city.id}
-                  className={isLightTheme ? "zones-chip rounded-full border border-[#741314]/16 bg-[#FDE3AD]/70 px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#741314] backdrop-blur-xl" : "zones-chip rounded-full border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-white/72 backdrop-blur-xl"}
+                  href={`${cityHrefBase}/${city.slug}`}
+                  className={isLightTheme ? "zones-chip inline-flex min-h-11 items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#741314] border border-[#741314]/16 bg-[#FDE3AD] px-3.5 py-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#741314] backdrop-blur-xl" : "zones-chip inline-flex min-h-11 items-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#741314] border border-white/10 bg-white/[0.05] px-3.5 py-2 text-[11px] font-medium uppercase tracking-[0.22em] text-[#FFF7E8] backdrop-blur-xl"}
                 >
                   <MapPinned className={isLightTheme ? "mr-2 inline h-3.5 w-3.5 text-[#741314]" : "mr-2 inline h-3.5 w-3.5 text-[#FDE3AD]"} />
                   {city.name}
-                </span>
+                </Link>
               ))}
             </div>
           </div>
@@ -284,7 +285,7 @@ export function DemoZonesOverview({
               {["Zonas activas", "Locales reales", "Recogida cerca", "Talavera", "M\u00e1s ciudades"].map((label) => (
                 <span
                   key={label}
-                  className={isLightTheme ? "rounded-full border border-[#FDE3AD]/50 bg-[#741314]/24 px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs"}
+                  className={isLightTheme ? "rounded-full border border-[#FDE3AD]/50 bg-[#741314] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs"}
                 >
                   {label}
                 </span>
@@ -306,7 +307,7 @@ export function DemoZonesOverview({
             <div>
               <p
                 className={`text-[11px] font-medium uppercase tracking-[0.3em] ${
-                  isLightTheme ? "text-[#181816]/42" : "text-white/42"
+                  isLightTheme ? "text-[#61433A]" : "text-white/42"
                 }`}
               >
                 Selección visual
@@ -327,7 +328,7 @@ export function DemoZonesOverview({
               <Link
                 key={city.id}
                 href={`${cityHrefBase}/${city.slug}`}
-                className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border opacity-0 shadow-[0_18px_50px_rgba(0,0,0,0.24)] sm:rounded-[1.8rem] ${
+                className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border shadow-[0_18px_50px_rgba(0,0,0,0.24)] sm:rounded-[1.8rem] ${
                   isLightTheme
                     ? "border-black/8 bg-[#FFF7E8]"
                     : "border-white/10 bg-[#0b1211]"
@@ -358,11 +359,11 @@ export function DemoZonesOverview({
 
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,10,11,0.04),rgba(6,10,11,0.18)_42%,rgba(6,10,11,0.88)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-                    <span className="rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-white/72 backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD]/50 bg-[#741314] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#FFF7E8] backdrop-blur-xl">
                       {design?.zones.cardCtaLabel ??
                         getCityDecisionSignal(city, index)}
                     </span>
-                    <span className="rounded-full border border-[#FDE3AD]/30 bg-[#FDE3AD]/12 p-2 text-[#FDE3AD] backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD] bg-[#741314] p-2 text-[#FDE3AD] backdrop-blur-xl">
                       <ArrowUpRight className="h-4 w-4" />
                     </span>
                   </div>
@@ -382,7 +383,7 @@ export function DemoZonesOverview({
               <article
                 key={zone.id}
                 aria-label={`${zone.name}, próximamente`}
-                className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border opacity-0 shadow-[0_18px_50px_rgba(0,0,0,0.22)] sm:rounded-[1.8rem] ${
+                className={`zones-city-card group relative overflow-hidden rounded-[1.4rem] border shadow-[0_18px_50px_rgba(0,0,0,0.22)] sm:rounded-[1.8rem] ${
                   isLightTheme
                     ? "border-black/8 bg-[#e8e1d2]"
                     : "border-white/10 bg-[#0b1211]"
@@ -398,10 +399,10 @@ export function DemoZonesOverview({
                   />
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_18%,rgba(116,19,20,0.20),transparent_34%),linear-gradient(180deg,rgba(6,10,11,0.06),rgba(6,10,11,0.24)_42%,rgba(6,10,11,0.9)_100%)]" />
                   <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
-                    <span className="rounded-full border border-[#741314]/25 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#FDE3AD] backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD]/50 bg-[#741314] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.24em] text-[#FDE3AD] backdrop-blur-xl">
                       Próximamente
                     </span>
-                    <span className="rounded-full border border-white/10 bg-white/[0.05] p-2 text-[#FFF7E8] backdrop-blur-xl">
+                    <span className="rounded-full border border-[#FDE3AD]/50 bg-[#741314] p-2 text-[#FFF7E8] backdrop-blur-xl">
                       <Sparkles className="h-4 w-4" />
                     </span>
                   </div>
@@ -413,10 +414,10 @@ export function DemoZonesOverview({
                       Preparando una selección visual de locales en {zone.region}.
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
+                      <span className="rounded-full border border-white/10 bg-[#24110E] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
                         Zona futura
                       </span>
-                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
+                      <span className="rounded-full border border-white/10 bg-[#24110E] px-3 py-1.5 text-xs font-medium text-[#FFF7E8]">
                         Locales cercanos
                       </span>
                     </div>

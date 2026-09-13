@@ -14,21 +14,19 @@ export default async function JoinPage() {
       wideContent
       className="public-light-theme bg-page text-text-primary"
     >
-      <main className="min-h-[calc(100svh-5rem)] bg-page px-5 py-8 text-text-primary sm:px-8 sm:py-12 lg:px-12 lg:py-16">
-        <div className="mx-auto w-full max-w-7xl">
-          <JoinSupportFunnel
-            heroImageUrl={siteMedia.join_hero.imageUrl}
-            planImageUrls={{
-              free_presence: siteMedia.join_plan_free.imageUrl,
-              improve_presence: siteMedia.join_plan_presence.imageUrl,
-              more_visibility: siteMedia.join_plan_visibility.imageUrl,
-              guided_growth: siteMedia.join_plan_growth.imageUrl,
-            }}
-            showcaseImageUrl={siteMedia.join_showcase.imageUrl}
-            pricing={funnelSettings.pricing}
-          />
-        </div>
-      </main>
+      <div className="min-w-0">
+        <JoinSupportFunnel
+          heroImageUrl={siteMedia.join_hero.imageUrl}
+          planImageUrls={{
+            free_presence: siteMedia.join_plan_free.imageUrl,
+            improve_presence: siteMedia.join_plan_presence.imageUrl,
+            more_visibility: siteMedia.join_plan_visibility.imageUrl,
+            guided_growth: siteMedia.join_plan_growth.imageUrl,
+          }}
+          showcaseImageUrl={siteMedia.join_showcase.imageUrl}
+          pricing={funnelSettings.pricing}
+        />
+      </div>
     </SiteShell>
   );
 }

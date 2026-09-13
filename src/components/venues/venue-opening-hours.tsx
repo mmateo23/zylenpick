@@ -58,15 +58,15 @@ export function VenueOpeningHours({
   return (
     <section
       id="horarios"
-      className="scroll-mt-28 rounded-[1.2rem] border border-accent/45 bg-surface p-5 shadow-[var(--shadow-soft)] ring-1 ring-accent-soft"
+      className="scroll-mt-28 rounded-[22px] border border-[#741314]/20 bg-[#fffdf8] p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-muted">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#741314]">
             Cuándo ir
           </p>
-          <h3 className="mt-3 text-2xl font-semibold text-text-primary">
-            Consulta antes de acercarte.
+          <h3 className="mt-2 text-2xl font-bold tracking-[-0.04em] text-[#24110E]">
+            Horario.
           </h3>
         </div>
 
@@ -82,21 +82,21 @@ export function VenueOpeningHours({
             key={group.key}
             className={`flex items-center justify-between gap-4 rounded-[0.9rem] border px-3 py-2.5 ${
               group.isClosed
-                ? "border-danger/20 bg-danger/10"
-                : "border-border-subtle bg-surface-muted"
+                ? "border-[#741314]/15 bg-[#FFE2E5]"
+                : "border-[#741314]/15 bg-[#FFF7E8]"
             }`}
           >
             <div className="min-w-0">
               <p
                 className={`text-sm font-semibold ${
-                  group.isClosed ? "text-danger" : "text-text-primary"
+                  group.isClosed ? "text-[#741314]" : "text-[#24110E]"
                 }`}
               >
                 {group.label}
               </p>
               <p
                 className={`mt-1 text-sm ${
-                  group.isClosed ? "text-danger/70" : "text-text-muted"
+                  group.isClosed ? "text-[#741314]" : "text-[#61433A]"
                 }`}
               >
                 {group.formattedHours}

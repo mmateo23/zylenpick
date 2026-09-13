@@ -134,8 +134,13 @@ export function HomeCampaignEditor({
       visualStyle,
     }));
   };
-  const handleMediaUpload = async (file: File | null) => {
-    if (!file || campaign.backgroundMediaType === "none") return;
+  const handleMediaUpload = async (
+    file: File | null,
+    target: "background" | "feature" = "background",
+  ) => {
+    const mediaType =
+      target === "feature" ? "image" : campaign.backgroundMediaType;
+    if (!file || mediaType === "none") return;
 
     setIsUploadingMedia(true);
     setMediaFeedback(null);
@@ -144,7 +149,7 @@ export function HomeCampaignEditor({
       let uploadFile = file;
       let extension = "webp";
 
-      if (campaign.backgroundMediaType === "image") {
+      if (mediaType === "image") {
         const processed = await processScoutImage(file);
         uploadFile = processed.cover;
       } else {
@@ -158,14 +163,21 @@ export function HomeCampaignEditor({
       }
 
       const ticket = await prepareHomeCampaignMediaUploadAction(
-        campaign.backgroundMediaType,
+        mediaType,
         extension,
       );
       if (!ticket.ok) throw new Error(ticket.error);
 
       await uploadCampaignFile(ticket.signedUrl, uploadFile);
-      update("backgroundMediaUrl", ticket.publicUrl);
-      setMediaFeedback("Recurso subido. Guarda la campaña para publicarlo.");
+      update(
+        target === "feature" ? "featureImageUrl" : "backgroundMediaUrl",
+        ticket.publicUrl,
+      );
+      setMediaFeedback(
+        target === "feature"
+          ? "Imagen protagonista preparada. Guarda la campaña para publicarla."
+          : "Recurso subido. Guarda la campaña para publicarlo.",
+      );
     } catch (error) {
       setMediaFeedback(
         error instanceof Error ? error.message : "No se pudo subir el recurso.",
@@ -236,10 +248,73 @@ export function HomeCampaignEditor({
         </section>
 
         <section className="space-y-4 border-t border-[#741314]/12 pt-5">
+          <label className="flex min-h-12 items-center gap-3 rounded-[0.9rem] border border-[#741314]/14 bg-white px-4 text-sm font-semibold text-[#24110E]">
+            <input
+              name="featureImageEnabled"
+              type="checkbox"
+              checked={campaign.featureImageEnabled}
+              onChange={(event) =>
+                update("featureImageEnabled", event.target.checked)
+              }
+              className="h-5 w-5 accent-[#741314]"
+            />
+            Mostrar imagen protagonista en 3D
+          </label>
+
+          {campaign.featureImageEnabled ? (
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+              <label className="block text-sm font-semibold text-[#24110E]">
+                URL de la imagen protagonista
+                <input
+                  name="featureImageUrl"
+                  value={campaign.featureImageUrl}
+                  onChange={(event) =>
+                    update("featureImageUrl", event.target.value)
+                  }
+                  inputMode="url"
+                  placeholder="PNG o WebP con fondo transparente"
+                  className={fieldClassName}
+                />
+              </label>
+              <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-[#741314]/20 bg-white px-5 py-3 text-sm font-bold text-[#741314] transition hover:border-[#741314]/45 hover:bg-[#FFF7E8]">
+                {isUploadingMedia ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+                ) : (
+                  <Upload className="h-4 w-4" aria-hidden="true" />
+                )}
+                {isUploadingMedia ? "Subiendo" : "Cargar imagen"}
+                <input
+                  type="file"
+                  accept="image/*,.heic,.heif"
+                  disabled={isUploadingMedia}
+                  onChange={(event) => {
+                    void handleMediaUpload(
+                      event.target.files?.[0] ?? null,
+                      "feature",
+                    );
+                    event.currentTarget.value = "";
+                  }}
+                  className="sr-only"
+                />
+              </label>
+              <p className="text-xs leading-5 text-[#24110E]/55 sm:col-span-2">
+                Usa un PNG o WebP recortado. Para fotografías y texturas utiliza el fondo del banner.
+              </p>
+            </div>
+          ) : (
+            <input
+              type="hidden"
+              name="featureImageUrl"
+              value={campaign.featureImageUrl}
+            />
+          )}
+        </section>
+
+        <section className="space-y-4 border-t border-[#741314]/12 pt-5">
           <div>
             <p className="text-sm font-bold text-[#24110E]">Fondo del banner</p>
             <p className="mt-1 text-xs leading-5 text-[#24110E]/55">
-              Usa una imagen o un vídeo corto. El color elegido seguirá actuando como capa para mantener el texto legible.
+              Usa una fotografía, un monumento o una textura. La imagen se mantiene limpia y el contraste se refuerza solo detrás del texto.
             </p>
             <div className="mt-3 grid grid-cols-3 gap-2">
               {mediaOptions.map((option) => {
@@ -343,7 +418,7 @@ export function HomeCampaignEditor({
                   id="background-media-opacity-help"
                   className="block text-xs font-normal leading-5 text-[#24110E]/55"
                 >
-                  Ajusta solo la imagen o el vídeo. El texto mantiene su contraste.
+                  Al 100% el recurso se ve completo. El texto mantiene su contraste de forma independiente.
                 </span>
               </label>
             </div>
@@ -418,7 +493,16 @@ export function HomeCampaignEditor({
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#741314]/55">Vista previa en directo</p>
         <p className="mb-5 mt-2 text-sm leading-6 text-[#24110E]/58">Comprueba contraste, icono y movimiento antes de guardar.</p>
         <div className="rounded-[1.2rem] bg-[linear-gradient(145deg,#FDE3AD,#FFF7E8)] p-3 sm:p-5">
-          <HomeCampaignCta campaign={campaign} preview />
+          <HomeCampaignCta
+            campaign={campaign}
+            feature
+            featureAssetUrl={
+              campaign.featureImageEnabled
+                ? campaign.featureImageUrl
+                : undefined
+            }
+            preview
+          />
         </div>
       </aside>
     </form>

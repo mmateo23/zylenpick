@@ -6,7 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowUp,
@@ -36,6 +36,12 @@ import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
 import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { addItemToCart } from "@/features/cart/services/cart-storage";
 import type { SiteChip } from "@/features/chips/types";
+import {
+  curationOptions,
+  getFilteredItems,
+  getStableHash,
+  type CurationFilter,
+} from "@/features/chips/dish-curation";
 import {
   defaultSiteFunnelSettings,
   type SiteFunnelSettings,
@@ -170,23 +176,6 @@ const SHOT_PROMO_IDS = [
 
 const DISH_NAVIGATION_SHOT_THRESHOLDS = [5, 12] as const;
 
-type CurationFilter =
-  | "all"
-  | "worldCup"
-  | "finallyFriday"
-  | "raciones"
-  | "daniHome"
-  | "tapas"
-  | "quienNoApolla"
-  | "mojarPan"
-  | "bocatas"
-  | "veggano"
-  | "recommended"
-  | "city"
-  | "surprise"
-  | "premium"
-  | "hot"
-  | "cityStars";
 
 function formatPrice(item: HomeShowcaseItem) {
   return getPricePresentation({
@@ -779,11 +768,6 @@ function getHoverGlassClassName(item: HomeShowcaseItem) {
   return "pointer-events-none absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.015)_34%,rgba(6,10,12,0.1))] opacity-0 backdrop-blur-[5px] transition-opacity duration-500 ease-out group-hover:lg:opacity-100 group-focus-visible:lg:opacity-100 lg:block";
 }
 
-function getStableHash(value: string) {
-  return Array.from(value).reduce((accumulator, character) => {
-    return (accumulator * 31 + character.charCodeAt(0)) >>> 0;
-  }, 7);
-}
 
 function getMostCommonCity(items: HomeShowcaseItem[]) {
   const cityMap = new Map<string, { slug: string; name: string; count: number }>();
@@ -814,17 +798,6 @@ function getMostCommonCity(items: HomeShowcaseItem[]) {
   );
 }
 
-function getItemSearchBlob(item: HomeShowcaseItem) {
-  return [
-    item.name,
-    item.description ?? "",
-    item.categoryName ?? "",
-    item.venue.name,
-    item.venue.cityName,
-  ]
-    .join(" ")
-    .toLocaleLowerCase("es");
-}
 
 function getCurationInfoText(filter: CurationFilter, cityName?: string | null) {
   switch (filter) {
@@ -874,9 +847,9 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#0f4fff]/12 bg-[linear-gradient(145deg,rgba(255,255,255,0.88),rgba(240,245,255,0.82),rgba(255,246,214,0.92))] shadow-[0_18px_42px_rgba(21,62,158,0.08)] backdrop-blur-xl",
           line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.34),rgba(116,19,20,0.42),transparent)]",
           badge: "mt-2 inline-flex rounded-full border border-[#0f4fff]/12 bg-[linear-gradient(135deg,rgba(15,79,255,0.08),rgba(116,19,20,0.18))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#1840a8]",
-          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#153b8d]/56",
+          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#153b8d]",
           body: "mt-3 text-sm leading-6 text-black/64",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-white/72 text-[#153b8d]/44 transition hover:text-[#153b8d]/72",
+          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-[#FFF7E8] text-[#153b8d] transition hover:text-[#153b8d]/72",
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#4f86ff]/18 bg-[linear-gradient(160deg,rgba(18,28,58,0.84),rgba(10,26,44,0.9),rgba(65,52,18,0.72))] shadow-[0_18px_42px_rgba(0,0,0,0.24)] backdrop-blur-xl",
@@ -894,15 +867,15 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#ffd766]/16 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,249,236,0.82))] shadow-[0_16px_36px_rgba(0,0,0,0.05)] backdrop-blur-xl",
           line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,161,47,0.24),rgba(116,19,20,0.42),transparent)]",
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/18 bg-[linear-gradient(135deg,rgba(255,186,73,0.12),rgba(255,236,174,0.2))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#8b5d10]",
-          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-black/34",
+          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#61433A]",
           body: "mt-3 text-sm leading-6 text-black/62",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white/72 text-black/40 transition hover:text-black/70",
+          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#ffd766]/14 bg-[linear-gradient(180deg,rgba(49,33,8,0.52),rgba(255,255,255,0.04))] backdrop-blur-xl",
           line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(255,190,88,0.28),rgba(116,19,20,0.44),transparent)]",
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/14 bg-[linear-gradient(135deg,rgba(255,183,66,0.12),rgba(255,240,187,0.06))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#ffe2a6]",
-          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/38",
+          eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#FDE3AD]",
           body: "mt-3 text-sm leading-6 text-white/64",
           close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/40 transition hover:text-white/70",
         };
@@ -913,9 +886,9 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
         panel: "overflow-hidden rounded-[1.15rem] border border-black/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(255,255,255,0.6))] shadow-[0_16px_36px_rgba(0,0,0,0.06)] backdrop-blur-xl",
         line: "h-px w-full bg-[linear-gradient(90deg,transparent,rgba(15,79,255,0.22),rgba(116,19,20,0.32),transparent)]",
         badge: "mt-2 inline-flex rounded-full border border-black/8 bg-black/[0.03] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-black/62",
-        eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-black/34",
+        eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#61433A]",
         body: "mt-3 text-sm leading-6 text-black/62",
-        close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white/72 text-black/40 transition hover:text-black/70",
+        close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
       }
     : {
         panel: "overflow-hidden rounded-[1.15rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.035))] backdrop-blur-xl",
@@ -965,210 +938,6 @@ function getCurationInfoBadge(filter: CurationFilter) {
   }
 }
 
-function getFilteredItems(
-  items: HomeShowcaseItem[],
-  curationFilter: CurationFilter,
-  categoryFilter: string,
-  primaryCitySlug: string | null,
-  searchQuery: string,
-) {
-  const matchesAny = (item: HomeShowcaseItem, needles: string[]) => {
-    const blob = getItemSearchBlob(item);
-    return needles.some((needle) => blob.includes(needle));
-  };
-
-  const curatedItems =
-    curationFilter === "worldCup"
-      ? [...items]
-          .filter(
-            (item) =>
-              item.venue.subscriptionActive ||
-              item.isFeatured ||
-              item.isHomeFeatured ||
-              item.isPickupMonthHighlight,
-          )
-          .sort((left, right) => {
-            const leftScore =
-              (left.venue.subscriptionActive ? 4 : 0) +
-              (left.isFeatured || left.isHomeFeatured ? 2 : 0) +
-              (left.isPickupMonthHighlight ? 1 : 0);
-            const rightScore =
-              (right.venue.subscriptionActive ? 4 : 0) +
-              (right.isFeatured || right.isHomeFeatured ? 2 : 0) +
-              (right.isPickupMonthHighlight ? 1 : 0);
-
-            return rightScore - leftScore;
-          })
-      : curationFilter === "finallyFriday"
-        ? items.filter(
-            (item) =>
-              item.venue.subscriptionActive ||
-              item.isFeatured ||
-              item.isHomeFeatured ||
-              matchesAny(item, [
-                "burger",
-                "pizza",
-                "nachos",
-                "bocata",
-                "croqueta",
-                "tapa",
-                "raci\u00f3n",
-                "cerveza",
-              ]),
-          )
-      : curationFilter === "raciones"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "raci\u00f3n",
-              "racion",
-              "para compartir",
-              "croqueta",
-              "croquetas",
-              "nachos",
-              "alitas",
-              "patatas",
-              "tapa",
-              "tapas",
-            ]),
-          )
-      : curationFilter === "daniHome"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "casero",
-              "casera",
-              "casa",
-              "tradicional",
-              "de la abuela",
-              "guiso",
-              "cuchara",
-            ]),
-          )
-      : curationFilter === "tapas"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "tapa",
-              "tapas",
-              "pincho",
-              "pinchos",
-              "montadito",
-              "montaditos",
-              "croqueta",
-              "croquetas",
-            ]),
-          )
-      : curationFilter === "quienNoApolla"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "pollo",
-              "alitas",
-              "crispy",
-              "finger",
-              "nugget",
-              "kebab",
-            ]),
-          )
-      : curationFilter === "mojarPan"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "salsa",
-              "guiso",
-              "huevo",
-              "tomate",
-              "caldo",
-              "crema",
-              "queso",
-              "boletus",
-            ]),
-          )
-      : curationFilter === "bocatas"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "bocata",
-              "bocadillo",
-              "s\u00e1ndwich",
-              "mollete",
-              "panini",
-            ]),
-          )
-      : curationFilter === "veggano"
-        ? items.filter((item) =>
-            matchesAny(item, [
-              "vegano",
-              "vegana",
-              "veggie",
-              "vegetal",
-              "falafel",
-              "tofu",
-              "ensalada",
-            ]),
-          )
-      : curationFilter === "recommended"
-      ? items.filter(
-          (item) =>
-            item.isFeatured ||
-            item.isHomeFeatured ||
-            item.isPickupMonthHighlight,
-        )
-      : curationFilter === "premium"
-        ? items.filter(
-            (item) =>
-              item.venue.subscriptionActive &&
-              (item.isFeatured ||
-                item.isHomeFeatured ||
-                item.isPickupMonthHighlight),
-          )
-        : curationFilter === "hot"
-          ? items.filter(
-              (item) => item.isPickupMonthHighlight || item.isHomeFeatured,
-            )
-      : curationFilter === "city" && primaryCitySlug
-        ? items.filter((item) => item.venue.citySlug === primaryCitySlug)
-        : curationFilter === "cityStars" && primaryCitySlug
-          ? items.filter(
-              (item) =>
-                item.venue.citySlug === primaryCitySlug &&
-                (item.venue.subscriptionActive ||
-                  item.isFeatured ||
-                  item.isHomeFeatured),
-            )
-        : curationFilter === "surprise"
-          ? [...items].sort(
-              (left, right) => getStableHash(left.id) - getStableHash(right.id),
-            )
-          : items;
-
-  if (categoryFilter === "all") {
-    if (!searchQuery.trim()) {
-      return curatedItems;
-    }
-
-    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("es");
-
-    return curatedItems.filter((item) =>
-      [
-        item.name,
-        item.categoryName ?? "",
-        item.venue.name,
-        item.venue.cityName,
-      ].some((value) => value.toLocaleLowerCase("es").includes(normalizedQuery)),
-    );
-  }
-
-  const categoryItems = curatedItems.filter(
-    (item) => item.categoryName === categoryFilter,
-  );
-
-  if (!searchQuery.trim()) {
-    return categoryItems;
-  }
-
-  const normalizedQuery = searchQuery.trim().toLocaleLowerCase("es");
-
-  return categoryItems.filter((item) =>
-    [item.name, item.categoryName ?? "", item.venue.name, item.venue.cityName]
-      .some((value) => value.toLocaleLowerCase("es").includes(normalizedQuery)),
-  );
-}
 
 export function DemoDishesCarousel({
   items,
@@ -1178,6 +947,8 @@ export function DemoDishesCarousel({
   heroImageUrl = "https://images.unsplash.com/photo-1778048840966-04589f37c525?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
 }: DemoDishesCarouselProps) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const content = {
     ...defaultTemplate,
     ...template,
@@ -1208,9 +979,27 @@ export function DemoDishesCarousel({
   const touchStartYRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
-  const [curationFilter, setCurationFilter] = useState<CurationFilter>("all");
+  const curationFilter: CurationFilter = curationOptions.find(
+    (option) => option.id === searchParams.get("filter"),
+  )?.id ?? "all";
+  const setCurationFilter = (filter: CurationFilter) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (filter === "all") params.delete("filter");
+    else params.set("filter", filter);
+    const query = params.toString();
+    router.push(`${pathname}${query ? `?${query}` : ""}${window.location.hash}`, { scroll: false });
+  };
   const [activeCurationInfo, setActiveCurationInfo] = useState<CurationFilter | null>(null);
-  const [activeChipSlug, setActiveChipSlug] = useState<string | null>(null);
+  const activeChipSlug = searchParams.get("chip");
+  const setActiveChipSlug = useCallback((slug: string | null, replace = false) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (slug) params.set("chip", slug);
+    else params.delete("chip");
+    const query = params.toString();
+    const href = `${pathname}${query ? `?${query}` : ""}${window.location.hash}`;
+    if (replace) router.replace(href, { scroll: false });
+    else router.push(href, { scroll: false });
+  }, [pathname, router, searchParams]);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
@@ -1417,6 +1206,12 @@ export function DemoDishesCarousel({
   );
   const hasActiveVenueNavigation = activeVenueItems.length > 1;
   const isLightTheme = true;
+  const filterChipClass = (active: boolean) => `inline-flex min-h-11 items-center justify-center rounded-full border px-3.5 py-2 text-[11px] font-bold tracking-[0.06em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] ${
+    active
+      ? isLightTheme ? "border-[#741314] bg-[#741314] text-[#FFF7E8] shadow-[0_3px_0_#4e1011]" : "border-[#FDE3AD] bg-[#FDE3AD] text-[#741314] shadow-[0_3px_0_#b59460]"
+      : isLightTheme ? "border-[#741314]/25 bg-[#FFF7E8] text-[#741314] hover:bg-[#FDE3AD]" : "border-[#FDE3AD]/50 bg-[#24110E] text-[#FDE3AD] hover:bg-[#741314]"
+  }`;
+
   const activeLogoSrc = isLightTheme
     ? content.logoLightSrc ?? content.logoSrc
     : content.logoDarkSrc ?? content.logoSrc;
@@ -1494,9 +1289,9 @@ export function DemoDishesCarousel({
 
   useEffect(() => {
     if (activeChipSlug && !activeChip) {
-      setActiveChipSlug(null);
+      setActiveChipSlug(null, true);
     }
-  }, [activeChip, activeChipSlug]);
+  }, [activeChip, activeChipSlug, setActiveChipSlug]);
 
   const handleLocationRequest = async () => {
     await activateNearMode();
@@ -2444,7 +2239,7 @@ export function DemoDishesCarousel({
                             <Link
                               href={getDishHref(heroDishPostItem)}
                               aria-label="Añadir para recoger"
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#FDE3AD]"
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#541011]"
                             >
                               <CartIcon size={24} />
                             </Link>
@@ -2478,7 +2273,7 @@ export function DemoDishesCarousel({
                   {["R\u00e1pido", "Selección visual", "Para recoger", "Locales reales"].map((label) => (
                     <span
                       key={label}
-                      className={isLightTheme ? "rounded-full border border-[#FDE3AD]/82 bg-[#FDE3AD]/92 px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md transition hover:border-[#741314]/30 hover:bg-[#741314]/10 hover:text-[#FDE3AD] sm:px-3 sm:py-2 sm:text-xs"}
+                      className={isLightTheme ? "rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md transition hover:border-[#741314]/30 hover:bg-[#741314]/10 hover:text-[#FDE3AD] sm:px-3 sm:py-2 sm:text-xs"}
                     >
                       {label}
                     </span>
@@ -2543,54 +2338,23 @@ export function DemoDishesCarousel({
 
               <div className="mt-7 space-y-5 pb-4 sm:mt-9 sm:space-y-6 sm:pb-5">
                 <div className="space-y-2">
-                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
                     Qué plan llevas hoy
                   </p>
                   <div className="flex flex-wrap gap-2 pb-1">
-                  {[
-                    { id: "all", label: "Todo" },
-                    { id: "worldCup", label: "\uD83C\uDFC6\u26BD #EspecialMundial26" },
-                    { id: "finallyFriday", label: "\uD83C\uDF89 #PorFinViernes" },
-                    { id: "raciones", label: "\uD83C\uDF7B #RacionesConLosColegas" },
-                    { id: "daniHome", label: "\uD83C\uDFE0 #EnCasaDeDani" },
-                    { id: "tapas", label: "\uD83C\uDF62 #EspecialTapas" },
-                    { id: "quienNoApolla", label: "\uD83D\uDC14 #QuienNoApolla" },
-                    { id: "mojarPan", label: "\uD83E\uDD56 #ParaMojarPan" },
-                    { id: "bocatas", label: "\uD83E\uDD6A #Bocatas" },
-                    { id: "veggano", label: "\uD83C\uDF31 #VegganoHermano" },
-                    { id: "recommended", label: "\u2B50 #Recomendados" },
-                    { id: "premium", label: "\uD83D\uDC51 #MuyTOP" },
-                    { id: "hot", label: "\uD83D\uDD25 #NoTeLoPierdas" },
-                    { id: "cityStars", label: primaryCity ? "Top de tu zona" : "Top de tu zona" },
-                    { id: "city", label: primaryCity ? "Lo mejor de tu zona" : "Lo mejor de tu zona" },
-                    { id: "surprise", label: "\uD83C\uDFB2 Sorpr\u00E9ndete" },
-                  ].map((filterOption) => {
+                  {curationOptions.map((filterOption) => {
                     const isActive = curationFilter === filterOption.id;
-                    const isEventFilter = filterOption.id === "worldCup";
                     return (
                       <button
                         key={filterOption.id}
                         type="button"
+                        aria-pressed={isActive}
                         onClick={() => {
                           const nextFilter = filterOption.id as CurationFilter;
                           setCurationFilter(nextFilter);
                           setActiveCurationInfo(nextFilter === "all" ? null : nextFilter);
                         }}
-                        className={
-                          isEventFilter
-                            ? isActive
-                              ? "rounded-full border border-[#741314]/55 bg-[linear-gradient(135deg,rgba(14,88,255,0.24),rgba(116,19,20,0.16),rgba(116,19,20,0.26))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#fff3c4] shadow-[0_10px_30px_rgba(0,86,255,0.18)] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                              : isLightTheme
-                                ? "rounded-full border border-[#741314]/28 bg-[linear-gradient(135deg,rgba(34,93,255,0.08),rgba(116,19,20,0.1))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#1742b0] transition hover:border-[#741314]/45 hover:bg-[linear-gradient(135deg,rgba(34,93,255,0.12),rgba(116,19,20,0.14))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#741314]/32 bg-[linear-gradient(135deg,rgba(33,74,196,0.22),rgba(116,19,20,0.12))] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#dce6ff] transition hover:border-[#741314]/48 hover:bg-[linear-gradient(135deg,rgba(33,74,196,0.28),rgba(116,19,20,0.18))] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                            : isActive
-                              ? isLightTheme
-                                ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                              : isLightTheme
-                                ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                        }
+                        className={filterChipClass(isActive)}
                       >
                         {filterOption.label}
                       </button>
@@ -2631,22 +2395,15 @@ export function DemoDishesCarousel({
 
                 {visibleChips.length > 0 ? (
                   <div className="space-y-2">
-                    <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                    <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
                       Destacados ahora
                     </p>
                     <div className="flex flex-wrap gap-2 pb-1">
                     <button
                       type="button"
                       onClick={() => setActiveChipSlug(null)}
-                      className={
-                        activeChipSlug === null
-                          ? isLightTheme
-                            ? "rounded-full border border-[#741314]/42 bg-[#141414] px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-white transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                            : "rounded-full border border-[#741314]/42 bg-white px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#07100d] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                          : isLightTheme
-                            ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                            : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                      }
+                      aria-pressed={activeChipSlug === null}
+                      className={filterChipClass(activeChipSlug === null)}
                     >
                       Todos los platos
                     </button>
@@ -2658,19 +2415,12 @@ export function DemoDishesCarousel({
                           key={chip.id}
                           type="button"
                           onClick={() =>
-                            setActiveChipSlug((current) =>
-                              current === chip.slug ? null : chip.slug,
+                            setActiveChipSlug(
+                              activeChipSlug === chip.slug ? null : chip.slug,
                             )
                           }
-                          className={
-                            isActive
-                              ? isLightTheme
-                                ? "rounded-full border border-[#741314]/28 bg-[#741314]/12 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#A9402A] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[#741314] transition sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                              : isLightTheme
-                                ? "rounded-full border border-[#741314]/22 bg-white/54 px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-black/58 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                                : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3.5 py-1.5 text-[11px] font-medium tracking-[0.08em] text-white/54 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-4 sm:py-2 sm:text-xs sm:tracking-[0.12em]"
-                          }
+                          aria-pressed={isActive}
+                          className={filterChipClass(isActive)}
                         >
                           {chip.name}
                         </button>
@@ -2681,17 +2431,17 @@ export function DemoDishesCarousel({
                 ) : null}
 
                 <div className="space-y-2">
-                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-black/38" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-white/38"}>
+                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
                     Busca por antojo
                   </p>
                   <div className="flex flex-wrap gap-2 pb-1">
-                  <button type="button" onClick={() => setCategoryFilter("all")} className={categoryFilter === "all" ? (isLightTheme ? "rounded-full border border-[#741314]/42 bg-[#141414] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-white transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/42 bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#07100d] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-[#741314]/22 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
+                  <button type="button" onClick={() => setCategoryFilter("all")} aria-pressed={categoryFilter === "all"} className={filterChipClass(categoryFilter === "all")}>
                     Todas
                   </button>
                   {categoryOptions.map((category) => {
                     const isActive = categoryFilter === category;
                     return (
-                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} className={isActive ? (isLightTheme ? "rounded-full border border-[#741314]/40 bg-[#741314]/12 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#A9402A] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/40 bg-[#741314]/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#741314] transition sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]") : (isLightTheme ? "rounded-full border border-[#741314]/22 bg-white/54 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-black/52 transition hover:border-[#741314]/38 hover:bg-white/78 sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]" : "rounded-full border border-[#741314]/26 bg-white/[0.04] px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.14em] text-white/52 transition hover:border-[#741314]/42 hover:bg-white/[0.07] sm:shrink-0 sm:px-3.5 sm:py-2 sm:text-[11px] sm:tracking-[0.2em]")}>
+                      <button key={category} type="button" onClick={() => setCategoryFilter(category)} aria-pressed={isActive} className={filterChipClass(isActive)}>
                         {category}
                       </button>
                     );
@@ -2710,7 +2460,7 @@ export function DemoDishesCarousel({
 
           {filteredItems.length > 0 ? (
             <>
-              <div id="platos-feed" className="-mx-1.5 mt-5 grid grid-cols-2 auto-rows-[8.8rem] gap-1.5 sm:mx-0 sm:mt-8 sm:auto-rows-[9.6rem] sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
+              <div id="platos-feed" className="-mx-1.5 mt-5 grid scroll-mt-28 grid-cols-2 auto-rows-[8.8rem] gap-1.5 sm:mx-0 sm:mt-8 sm:auto-rows-[9.6rem] sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
                 {feedEntries.map((entry, index) => {
                 if (entry.type === "promo") {
                   const promo = getPromoTileConfig(entry.id, content.promoHrefs);
@@ -2820,12 +2570,12 @@ export function DemoDishesCarousel({
                           />
                           <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
                         </button>
-                        <div className="pointer-events-none absolute left-2 top-2 z-[2] inline-flex rounded-full border border-white/16 bg-black/24 px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/82 backdrop-blur-xl sm:left-2.5 sm:top-2.5 sm:px-2.5">
+                        <div className="pointer-events-none absolute left-2 top-2 z-[2] inline-flex rounded-full border border-[#FDE3AD]/80 bg-[#741314] px-2.5 py-1.5 text-[10px] font-extrabold uppercase leading-none tracking-[0.11em] text-[#FDE3AD] shadow-[0_6px_16px_rgba(36,17,14,0.38)] sm:left-2.5 sm:top-2.5 sm:px-3">
                           Destacado
                         </div>
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
                           <div className="ml-auto max-w-[84%]">
-                            <p className="line-clamp-2 text-[0.82rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
+                            <p className="line-clamp-2 text-[0.875rem] font-extrabold leading-[1.18] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
                               {getDishDisplayName(item)}
                             </p>
                             <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
@@ -2857,7 +2607,7 @@ export function DemoDishesCarousel({
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                         className="transition duration-500 group-hover:scale-[1.035]"
                       />
-                      <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.34))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.28))]"} />
+                      <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.82))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.82))]"} />
                       <div className={getHoverGlassClassName(item)} />
                       <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-2 py-1 text-[0.6rem] font-bold leading-none text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.28)] sm:hidden">
                         {getPickupDistanceBadgeLabel(item, userLocation)}
@@ -2878,7 +2628,7 @@ export function DemoDishesCarousel({
                       </div>
                       <div className="absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
                         <div className="ml-auto max-w-[84%]">
-                          <p className="line-clamp-2 text-[0.82rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
+                          <p className="line-clamp-2 text-[0.875rem] font-extrabold leading-[1.18] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
                             {getDishDisplayName(item)}
                           </p>
                           <div className="mt-2 flex min-w-0 items-center justify-end gap-2">
@@ -2908,7 +2658,7 @@ export function DemoDishesCarousel({
           )}
 
           <div className="mt-6 flex justify-center sm:mt-10">
-            <button type="button" onClick={handleScrollTop} className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-white/72 text-black/70 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/76 backdrop-blur-xl transition hover:bg-white/[0.09]"} aria-label="Subir arriba">
+            <button type="button" onClick={handleScrollTop} className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/70 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/76 backdrop-blur-xl transition hover:bg-white/[0.09]"} aria-label="Subir arriba">
               <ArrowUp className="h-6 w-6" />
             </button>
           </div>
@@ -3266,14 +3016,14 @@ export function DemoDishesCarousel({
                   className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex justify-center"
                   role="status"
                 >
-                  <span className="inline-flex max-w-full flex-col items-center rounded-2xl border border-[#FDE3AD]/55 bg-[#381932]/92 px-4 py-2.5 text-center text-[#FFF7E8] shadow-[0_12px_32px_rgba(0,0,0,0.34)] backdrop-blur-md">
+                  <span className="inline-flex max-w-full flex-col items-center rounded-2xl border border-[#FDE3AD]/55 bg-[#381932] px-4 py-2.5 text-center text-[#FFF7E8] shadow-[0_12px_32px_rgba(0,0,0,0.34)] backdrop-blur-md">
                     <span className="flex items-center gap-2 text-[11px] font-extrabold">
                       <ChevronUp className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
                       <span className="sm:hidden">Desliza para ver otro plato</span>
                       <span className="hidden sm:inline">Usa ↑ ↓ o la rueda</span>
                       <ChevronDown className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
                     </span>
-                    <span className="mt-1 text-[9px] font-semibold text-[#FFF7E8]/72">
+                    <span className="mt-1 text-[10px] font-semibold text-[#FFF7E8]">
                       Arriba: siguiente · Abajo: anterior
                     </span>
                   </span>
@@ -3469,7 +3219,7 @@ export function DemoDishesCarousel({
                   href={getVenueHref(activeItem)}
                   className={
                     isLightTheme
-                      ? "rounded-full border border-black/10 bg-white/82 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white"
+                      ? "rounded-full border border-black/10 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white"
                       : "rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-xl transition hover:bg-black/28"
                   }
                 >
@@ -3482,7 +3232,7 @@ export function DemoDishesCarousel({
                 onClick={() => setActiveIndex(null)}
                 className={
                   isLightTheme
-                    ? "absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white/82 text-black/72 backdrop-blur-xl transition hover:bg-white"
+                    ? "absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-[#FFF7E8] text-black/72 backdrop-blur-xl transition hover:bg-white"
                     : "absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/18 text-white/72 backdrop-blur-xl transition hover:bg-black/28"
                 }
                 aria-label="Cerrar"
@@ -3497,8 +3247,8 @@ export function DemoDishesCarousel({
                   onTouchEnd={handleMobileSheetTouchEnd}
                   className={
                     isLightTheme
-                      ? "dish-overlay-copy-mobile rounded-[1.6rem] border border-black/10 bg-white/68 shadow-[0_18px_44px_rgba(0,0,0,0.12)] backdrop-blur-2xl"
-                      : "dish-overlay-copy-mobile rounded-[1.6rem] border border-white/10 bg-black/28 shadow-[0_18px_44px_rgba(0,0,0,0.26)] backdrop-blur-2xl"
+                      ? "dish-overlay-copy-mobile rounded-[1.6rem] border border-black/10 bg-[#FFF7E8] shadow-[0_18px_44px_rgba(0,0,0,0.12)] backdrop-blur-2xl"
+                      : "dish-overlay-copy-mobile rounded-[1.6rem] border border-white/10 bg-[#24110E] shadow-[0_18px_44px_rgba(0,0,0,0.26)] backdrop-blur-2xl"
                   }
                 >
                   <button
@@ -3513,7 +3263,7 @@ export function DemoDishesCarousel({
                   >
                     <span className={isLightTheme ? "h-1.5 w-12 rounded-full bg-black/14" : "h-1.5 w-12 rounded-full bg-white/16"} />
                     {!isMobileSheetExpanded ? (
-                      <span className={isLightTheme ? "mt-2 inline-flex items-center text-black/34" : "mt-2 inline-flex items-center text-white/34"}>
+                      <span className={isLightTheme ? "mt-2 inline-flex items-center text-[#61433A]" : "mt-2 inline-flex items-center text-white/34"}>
                         <ChevronUp className="h-3.5 w-3.5 animate-bounce" />
                       </span>
                     ) : null}
@@ -3656,7 +3406,7 @@ export function DemoDishesCarousel({
                 <div className="absolute left-6 top-6 flex items-center gap-2">
                   <Link
                     href={getVenueHref(activeItem)}
-                    className={isLightTheme ? "rounded-full border border-black/10 bg-white/82 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white" : "rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-xl transition hover:bg-black/28"}
+                    className={isLightTheme ? "rounded-full border border-black/10 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white" : "rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-xl transition hover:bg-black/28"}
                   >
                     {activeItem.venue.name}
                   </Link>
@@ -3672,7 +3422,7 @@ export function DemoDishesCarousel({
                           current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
                         );
                       }}
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-[#FFF7E8] text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
                       aria-label="Plato anterior"
                     >
                       <MoveLeft className="h-7 w-7" />
@@ -3685,7 +3435,7 @@ export function DemoDishesCarousel({
                           current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
                         );
                       }}
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-white/82 text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
+                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-[#FFF7E8] text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
                       aria-label="Plato siguiente"
                     >
                       <MoveRight className="h-7 w-7" />
@@ -3697,7 +3447,7 @@ export function DemoDishesCarousel({
               <div className="dish-overlay-copy-desktop flex h-full min-h-0 flex-col overflow-y-auto p-7">
                 <div>
                   <div className="flex items-start justify-between gap-4">
-                    <p className={isLightTheme ? "text-[11px] font-medium uppercase tracking-[0.28em] text-black/38" : "text-[11px] font-medium uppercase tracking-[0.28em] text-white/38"}>
+                    <p className={isLightTheme ? "text-[11px] font-medium uppercase tracking-[0.28em] text-[#61433A]" : "text-[11px] font-medium uppercase tracking-[0.28em] text-[#FDE3AD]"}>
                       Plato
                     </p>
                     <button
@@ -3784,7 +3534,7 @@ export function DemoDishesCarousel({
                 <div className="mt-6 border-t border-black/8 pt-5 md:mt-auto md:pt-6">
                   <div className="flex items-center justify-end gap-4">
                     {hasActiveVenueNavigation ? (
-                      <p className={isLightTheme ? "text-[11px] uppercase tracking-[0.24em] text-black/34" : "text-[11px] uppercase tracking-[0.24em] text-white/34"}>
+                      <p className={isLightTheme ? "text-[11px] uppercase tracking-[0.24em] text-[#61433A]" : "text-[11px] uppercase tracking-[0.24em] text-white/34"}>
                         {activeVenuePosition + 1} / {activeVenueItems.length}
                       </p>
                     ) : null}

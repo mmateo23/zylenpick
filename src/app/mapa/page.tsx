@@ -8,6 +8,7 @@ import { getPublishedMapPlaces } from "@/features/map-places/services/map-places
 import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
+import { getCurrentWeather } from "@/features/weather/current-weather";
 import { getNoIndexMetadata } from "@/lib/seo";
 
 export const revalidate = 900;
@@ -22,12 +23,13 @@ type MapaPageProps = {
 };
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
-  const [venues, places, categories, siteMedia, exploreEntries] = await Promise.all([
+  const [venues, places, categories, siteMedia, exploreEntries, weather] = await Promise.all([
     getVenuesForMap(),
     getPublishedMapPlaces(),
     getPublishedMapPlaceCategories(),
     getSiteMediaAssetMap(),
     getPublishedExploreMapEntries(),
+    getCurrentWeather({ latitude: 39.9609, longitude: -4.8306 }),
   ]);
   const exploreByPlaceId = new Map(
     exploreEntries.map((entry) => [entry.mapPlaceId, entry]),
@@ -57,10 +59,12 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
         places={placesWithExplore}
         categories={categories}
         heroImageUrl={siteMedia.map_hero.imageUrl}
+        weather={weather}
         initialPlaceSlug={searchParams?.lugar}
         autoLocate={searchParams?.localizar === "1"}
         initialExploreOnly={searchParams?.explora === "1"}
         withSiteHeader
+        guidedDiscovery
       />
       <ZylenPickFooter theme="light" />
     </div>

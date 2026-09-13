@@ -62,6 +62,7 @@ export type AdminExplorePoint = {
   audioDurationSeconds: string;
   imageUrl: string;
   imageAlt: string;
+  imageOverlayOpacity: string;
   artisticMapUrl: string;
   latitude: string;
   longitude: string;
@@ -262,7 +263,7 @@ export async function getAdminExplorePoints(routeId: string): Promise<AdminExplo
   const { data, error } = await supabase
     .from("explore_route_points")
     .select(
-      "id, route_id, map_place_id, sponsor_id, slug, position, title, introduction, story, transcript, audio_url, audio_duration_seconds, image_url, image_alt, artistic_map_url, latitude, longitude, credits, is_active, is_published, public_token, reviewed_at, map_places!inner(name)",
+      "id, route_id, map_place_id, sponsor_id, slug, position, title, introduction, story, transcript, audio_url, audio_duration_seconds, image_url, image_alt, image_overlay_opacity, artistic_map_url, latitude, longitude, credits, is_active, is_published, public_token, reviewed_at, map_places!inner(name)",
     )
     .eq("route_id", routeId)
     .order("position");
@@ -282,6 +283,7 @@ export async function getAdminExplorePoints(routeId: string): Promise<AdminExplo
     audioDurationSeconds: point.audio_duration_seconds?.toString() ?? "",
     imageUrl: point.image_url ?? "",
     imageAlt: point.image_alt ?? "",
+    imageOverlayOpacity: String(point.image_overlay_opacity ?? 8),
     artisticMapUrl: point.artistic_map_url ?? "",
     latitude: point.latitude?.toString() ?? "",
     longitude: point.longitude?.toString() ?? "",
@@ -375,6 +377,7 @@ export async function getAdminExplorePreviewExperience(
         audioDurationSeconds,
         imageUrl: point.imageUrl,
         imageAlt: point.imageAlt,
+        imageOverlayOpacity: Number(point.imageOverlayOpacity),
         artisticMapUrl: point.artisticMapUrl,
         latitude,
         longitude,
@@ -494,6 +497,15 @@ export async function saveExplorePointAction(
     position = (last?.position ?? 0) + 1;
   }
 
+  const imageOverlayOpacity = parseInteger(
+    formData,
+    "imageOverlayOpacity",
+    8,
+  );
+  if (imageOverlayOpacity > 60) {
+    throw new Error("La opacidad de la fotografía debe estar entre 0 y 60.");
+  }
+
   const payload: Database["public"]["Tables"]["explore_route_points"]["Insert"] = {
     route_id: routeId,
     map_place_id: mapPlaceId,
@@ -510,6 +522,7 @@ export async function saveExplorePointAction(
       : null,
     image_url: optionalUrl(formData, "imageUrl", "La fotografía"),
     image_alt: optionalText(formData, "imageAlt", 320),
+    image_overlay_opacity: imageOverlayOpacity,
     artistic_map_url: optionalUrl(formData, "artisticMapUrl", "El mapa artístico"),
     latitude,
     longitude,

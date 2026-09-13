@@ -255,7 +255,7 @@ function getWarnings(
     warnings.push({
       code: "high_plan_without_visibility",
       message:
-        "Este local tiene plan oro/titanio, pero no esta usando visibilidad activa.",
+        "Este local tiene plan Picante/Fuego, pero no está usando visibilidad activa.",
     });
   }
 

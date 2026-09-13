@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { AdminVenueForm } from "@/components/admin/admin-venue-form";
+import { AdminVenueManageLink } from "@/components/admin/admin-venue-manage-link";
 import { SafeDeleteButton } from "@/components/admin/safe-delete-button";
 import {
   deleteVenueAction,
@@ -35,6 +36,7 @@ export default async function AdminVenueEditPage({
 
   return (
     <div className="space-y-6">
+      <AdminVenueManageLink venueId={params.venueId} />
       <section className="glass-panel rounded-[1.8rem] border border-[color:var(--border)] p-6 shadow-[var(--soft-shadow)]">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -50,12 +52,20 @@ export default async function AdminVenueEditPage({
             </p>
           </div>
 
-          <Link
-            href={`/panel/locales/${params.venueId}/platos`}
-            className="magnetic-button inline-flex rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)]"
-          >
-            Gestiónar platos
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/panel/locales/${params.venueId}/qr`}
+              className="inline-flex min-h-11 items-center rounded-full border border-[#741314]/18 bg-[#FFF7E8] px-5 text-sm font-semibold text-[#741314]"
+            >
+              Configurar QR
+            </Link>
+            <Link
+              href={`/panel/locales/${params.venueId}/platos`}
+              className="magnetic-button inline-flex min-h-11 items-center rounded-full bg-[color:var(--brand)] px-6 py-3.5 text-sm font-semibold text-white shadow-[var(--card-shadow)]"
+            >
+              Gestionar platos
+            </Link>
+          </div>
         </div>
       </section>
 

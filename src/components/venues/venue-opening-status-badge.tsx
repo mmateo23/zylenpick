@@ -45,6 +45,10 @@ export function VenueOpeningStatusBadge({
   );
 
   useEffect(() => {
+    if (initialStatus?.source === "manual") {
+      setStatus(initialStatus);
+      return;
+    }
     const updateStatus = () => setStatus(getOpeningStatus(openingHours));
     updateStatus();
     const interval = window.setInterval(updateStatus, 30_000);
@@ -54,7 +58,7 @@ export function VenueOpeningStatusBadge({
       window.clearInterval(interval);
       document.removeEventListener("visibilitychange", updateStatus);
     };
-  }, [openingHours]);
+  }, [openingHours, initialStatus]);
 
   const styles = statusStyles[status.state];
 

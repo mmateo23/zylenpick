@@ -196,6 +196,7 @@ export type Database = {
           audio_duration_seconds: number | null;
           image_url: string | null;
           image_alt: string | null;
+          image_overlay_opacity: number;
           artistic_map_url: string | null;
           latitude: number | null;
           longitude: number | null;
@@ -223,6 +224,7 @@ export type Database = {
           audio_duration_seconds?: number | null;
           image_url?: string | null;
           image_alt?: string | null;
+          image_overlay_opacity?: number;
           artistic_map_url?: string | null;
           latitude?: number | null;
           longitude?: number | null;
@@ -250,6 +252,7 @@ export type Database = {
           audio_duration_seconds?: number | null;
           image_url?: string | null;
           image_alt?: string | null;
+          image_overlay_opacity?: number;
           artistic_map_url?: string | null;
           latitude?: number | null;
           longitude?: number | null;
@@ -444,6 +447,7 @@ export type Database = {
           description: string | null;
           cover_url: string | null;
           logo_url: string | null;
+          map_marker_logo_url: string | null;
           website: string | null;
           address: string | null;
           latitude: number | null;
@@ -451,8 +455,19 @@ export type Database = {
           email: string | null;
           phone: string | null;
           opening_hours: Json | null;
+          manual_open_status: boolean | null;
           pickup_notes: string | null;
           pickup_eta_min: number | null;
+          qr_enabled: boolean;
+          qr_hero_image_url: string | null;
+          qr_show_nearby: boolean;
+          qr_favorites_eyebrow: string;
+          qr_favorites_title: string;
+          qr_favorites_description: string;
+          qr_host_name: string | null;
+          qr_hero_tagline: string | null;
+          qr_story: string | null;
+          qr_story_image_urls: string[];
           capture_method: "admin" | "scout";
           capture_status: "pending" | "complete";
           captured_by: string | null;
@@ -465,6 +480,8 @@ export type Database = {
           is_verified: boolean;
           prices_visible: boolean;
           subscription_active: boolean;
+          show_on_map: boolean;
+          use_custom_map_marker: boolean;
           subscription_tier: "basic" | "oro" | "titanio";
           is_published: boolean;
           sort_order: number | null;
@@ -481,6 +498,7 @@ export type Database = {
           description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
+          map_marker_logo_url?: string | null;
           website?: string | null;
           address?: string | null;
           latitude?: number | null;
@@ -488,8 +506,19 @@ export type Database = {
           email?: string | null;
           phone?: string | null;
           opening_hours?: Json | null;
+          manual_open_status?: boolean | null;
           pickup_notes?: string | null;
           pickup_eta_min?: number | null;
+          qr_enabled?: boolean;
+          qr_hero_image_url?: string | null;
+          qr_show_nearby?: boolean;
+          qr_favorites_eyebrow?: string;
+          qr_favorites_title?: string;
+          qr_favorites_description?: string;
+          qr_host_name?: string | null;
+          qr_hero_tagline?: string | null;
+          qr_story?: string | null;
+          qr_story_image_urls?: string[];
           capture_method?: "admin" | "scout";
           capture_status?: "pending" | "complete";
           captured_by?: string | null;
@@ -502,6 +531,8 @@ export type Database = {
           is_verified?: boolean;
           prices_visible?: boolean;
           subscription_active?: boolean;
+          show_on_map?: boolean;
+          use_custom_map_marker?: boolean;
           subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;
           sort_order?: number | null;
@@ -518,6 +549,7 @@ export type Database = {
           description?: string | null;
           cover_url?: string | null;
           logo_url?: string | null;
+          map_marker_logo_url?: string | null;
           website?: string | null;
           address?: string | null;
           latitude?: number | null;
@@ -525,8 +557,19 @@ export type Database = {
           email?: string | null;
           phone?: string | null;
           opening_hours?: Json | null;
+          manual_open_status?: boolean | null;
           pickup_notes?: string | null;
           pickup_eta_min?: number | null;
+          qr_enabled?: boolean;
+          qr_hero_image_url?: string | null;
+          qr_show_nearby?: boolean;
+          qr_favorites_eyebrow?: string;
+          qr_favorites_title?: string;
+          qr_favorites_description?: string;
+          qr_host_name?: string | null;
+          qr_hero_tagline?: string | null;
+          qr_story?: string | null;
+          qr_story_image_urls?: string[];
           capture_method?: "admin" | "scout";
           capture_status?: "pending" | "complete";
           captured_by?: string | null;
@@ -539,6 +582,8 @@ export type Database = {
           is_verified?: boolean;
           prices_visible?: boolean;
           subscription_active?: boolean;
+          show_on_map?: boolean;
+          use_custom_map_marker?: boolean;
           subscription_tier?: "basic" | "oro" | "titanio";
           is_published?: boolean;
           sort_order?: number | null;
@@ -1039,6 +1084,66 @@ export type Database = {
           },
         ];
       };
+      venue_qr_promotions: {
+        Row: {
+          id: string;
+          venue_id: string;
+          is_enabled: boolean;
+          brand_name: string;
+          headline: string;
+          description: string;
+          image_url: string | null;
+          related_menu_item_id: string | null;
+          starts_at: string | null;
+          ends_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          venue_id: string;
+          is_enabled?: boolean;
+          brand_name?: string;
+          headline?: string;
+          description?: string;
+          image_url?: string | null;
+          related_menu_item_id?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          venue_id?: string;
+          is_enabled?: boolean;
+          brand_name?: string;
+          headline?: string;
+          description?: string;
+          image_url?: string | null;
+          related_menu_item_id?: string | null;
+          starts_at?: string | null;
+          ends_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "venue_qr_promotions_related_menu_item_id_fkey";
+            columns: ["related_menu_item_id"];
+            isOneToOne: false;
+            referencedRelation: "menu_items";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "venue_qr_promotions_venue_id_fkey";
+            columns: ["venue_id"];
+            isOneToOne: true;
+            referencedRelation: "venues";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       posts: {
         Row: {
           id: string;
@@ -1185,6 +1290,18 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      admin_venue_manage_link: {
+        Args: { p_venue_id: string; p_regenerate?: boolean };
+        Returns: string;
+      };
+      read_venue_management: {
+        Args: { p_token: string };
+        Returns: Json;
+      };
+      update_venue_management: {
+        Args: { p_token: string; p_change: Json };
+        Returns: Json;
+      };
       move_explore_route_point: {
         Args: {
           p_route_id: string;

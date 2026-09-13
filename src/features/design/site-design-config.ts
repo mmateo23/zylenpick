@@ -27,6 +27,8 @@ export type HomeCampaignConfig = {
   backgroundMediaType: HomeCampaignMediaType;
   backgroundMediaUrl: string;
   backgroundMediaOpacity: number;
+  featureImageEnabled: boolean;
+  featureImageUrl: string;
   beamEnabled: boolean;
   confettiEnabled: boolean;
   iconSvgUrl: string;
@@ -117,6 +119,8 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
       backgroundMediaType: "none",
       backgroundMediaUrl: "",
       backgroundMediaOpacity: 100,
+      featureImageEnabled: true,
+      featureImageUrl: "/qr/ceramica-junto-al-tajo-relieve.png",
       beamEnabled: true,
       confettiEnabled: true,
       iconSvgUrl: "",

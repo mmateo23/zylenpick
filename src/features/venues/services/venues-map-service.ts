@@ -8,6 +8,7 @@ export type VenueMapItem = {
   address: string | null;
   latitude: number;
   longitude: number;
+  markerLogoUrl: string | null;
   city: {
     slug: string;
     name: string;
@@ -21,6 +22,8 @@ type VenueMapRow = {
   address: string | null;
   latitude: number | null;
   longitude: number | null;
+  map_marker_logo_url: string | null;
+  use_custom_map_marker: boolean;
   cities: {
     slug: string;
     name: string;
@@ -183,6 +186,7 @@ async function mapVenueMapItem(row: VenueMapRow): Promise<VenueMapItem | null> {
     address: row.address,
     latitude: coordinates.latitude,
     longitude: coordinates.longitude,
+    markerLogoUrl: row.use_custom_map_marker ? row.map_marker_logo_url : null,
     city: {
       slug: row.cities.slug,
       name: row.cities.name,
@@ -199,11 +203,12 @@ export async function getVenuesForMap(): Promise<VenueMapItem[]> {
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, address, latitude, longitude, cities!inner(slug, name)",
+      "id, slug, name, address, latitude, longitude, map_marker_logo_url, use_custom_map_marker, cities!inner(slug, name)",
     )
     .eq("is_active", true)
     .eq("is_published", true)
     .eq("subscription_active", true)
+    .eq("show_on_map", true)
     .order("name", { ascending: true });
 
   if (error) {

@@ -3,7 +3,11 @@ import {
   updateVenueMonetizationAction,
   type VenueMonetizationAdminRow,
 } from "@/features/admin/services/monetization-admin-service";
-import { billingCycles, monetizationPlans } from "@/features/monetization/types";
+import {
+  billingCycles,
+  monetizationPlanLabels,
+  monetizationPlans,
+} from "@/features/monetization/types";
 
 const fieldClassName =
   "dark-form-field mt-3 w-full rounded-[1.2rem] border border-white/10 bg-[color:var(--surface-strong)] px-4 py-3.5 text-sm text-[color:var(--foreground)] outline-none transition placeholder:text-[color:var(--muted)] focus:border-[color:var(--brand)]";
@@ -148,7 +152,7 @@ function MonetizationForm({ row }: { row: VenueMonetizationAdminRow }) {
           <select name="plan" defaultValue={row.settings.plan} className={fieldClassName}>
             {monetizationPlans.map((plan) => (
               <option key={plan} value={plan}>
-                {plan}
+                {monetizationPlanLabels[plan]}
               </option>
             ))}
           </select>
@@ -270,9 +274,9 @@ export default async function AdminMonetizationPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-7">
         <SummaryCard label="Pagando" value={dashboard.summary.payingVenues} />
         <SummaryCard label="Free" value={dashboard.summary.free} />
-        <SummaryCard label="Basic" value={dashboard.summary.basic} />
-        <SummaryCard label="Oro" value={dashboard.summary.oro} />
-        <SummaryCard label="Titanio" value={dashboard.summary.titanio} />
+        <SummaryCard label="Suave" value={dashboard.summary.basic} />
+        <SummaryCard label="Picante" value={dashboard.summary.oro} />
+        <SummaryCard label="Fuego" value={dashboard.summary.titanio} />
         <SummaryCard
           label="Visibilidad"
           value={dashboard.summary.venuesWithActiveVisibility}
@@ -320,7 +324,7 @@ export default async function AdminMonetizationPage() {
                     </Pill>
                   </td>
                   <td className="px-5 py-4 text-[color:var(--foreground)]">
-                    {row.settings.plan}
+                    {monetizationPlanLabels[row.settings.plan]}
                   </td>
                   <td className="px-5 py-4 text-[color:var(--muted-strong)]">
                     {row.settings.billingCycle ?? "Sin ciclo"}
@@ -390,7 +394,7 @@ export default async function AdminMonetizationPage() {
             className="glass-panel rounded-[1.4rem] border border-[color:var(--border)] p-5 shadow-[var(--soft-shadow)]"
           >
             <summary className="cursor-pointer text-lg font-semibold text-[color:var(--foreground)]">
-              {row.venue.name} · {row.settings.plan} ·{" "}
+              {row.venue.name} · {monetizationPlanLabels[row.settings.plan]} ·{" "}
               {row.warnings.length > 0
                 ? `${row.warnings.length} avisos`
                 : "sin avisos"}

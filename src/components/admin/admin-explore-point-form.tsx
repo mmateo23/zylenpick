@@ -44,6 +44,9 @@ export function AdminExplorePointForm({
   const selectedPlace = routePlaces.find((place) => place.id === mapPlaceId);
   const [latitude, setLatitude] = useState(point?.latitude ?? "");
   const [longitude, setLongitude] = useState(point?.longitude ?? "");
+  const [imageOverlayOpacity, setImageOverlayOpacity] = useState(
+    point?.imageOverlayOpacity ?? "8",
+  );
 
   function selectPlace(id: string) {
     setMapPlaceId(id);
@@ -108,7 +111,31 @@ export function AdminExplorePointForm({
 
       <AdminExploreMediaField name="imageUrl" label="Fotografía principal" description="Fotografía documental de la parada. Se optimiza a WebP." kind="photo" scopeId={point?.id ?? routeId} initialUrl={point?.imageUrl} />
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">
-        <label className="block text-sm font-semibold text-[#381932]">Texto alternativo de la fotografía<input name="imageAlt" defaultValue={point?.imageAlt} className={fieldClassName} /></label>
+        <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_10rem] sm:items-end">
+          <label className="block text-sm font-semibold text-[#381932]">Texto alternativo de la fotografía<input name="imageAlt" defaultValue={point?.imageAlt} className={fieldClassName} /></label>
+          <label className="block text-sm font-semibold text-[#381932]">
+            Capa sobre la imagen
+            <span className="mt-2 flex min-h-11 items-center gap-3 rounded-xl border border-[#741314]/16 bg-white px-3.5">
+              <input
+                name="imageOverlayOpacity"
+                type="range"
+                min="0"
+                max="60"
+                step="1"
+                value={imageOverlayOpacity}
+                onChange={(event) => setImageOverlayOpacity(event.target.value)}
+                className="min-w-0 flex-1 accent-[#741314]"
+              />
+              <output className="w-9 text-right text-sm font-bold tabular-nums text-[#741314]">
+                {imageOverlayOpacity}%
+              </output>
+            </span>
+          </label>
+        </div>
+        <p className="mt-3 text-xs leading-5 text-[#381932]/62">
+          Usa 0% para mostrar la fotografía sin capa. Sube el valor solo si los
+          textos sobre la imagen necesitan más contraste.
+        </p>
       </section>
       <AdminExploreMediaField name="audioUrl" label="Historia narrada" description="MP3, M4A, OGG, WAV o WebM. Máximo 30 MB." kind="audio" scopeId={point?.id ?? routeId} initialUrl={point?.audioUrl} />
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 sm:p-7">

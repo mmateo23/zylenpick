@@ -13,10 +13,11 @@ import { getMenuItemDisplayImage } from "@/features/venues/menu-item-media";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
+import { getCurrentWeather } from "@/features/weather/current-weather";
 
 export const revalidate = 3600;
 
-const talaveraHeroImageSrc = "/home/zonas/talavera-poster-local.webp";
+const talaveraHeroImageSrc = "/home/zonas/badges/talavera_tile_house.png";
 
 type CityVenuesPageProps = {
   params: {
@@ -84,6 +85,11 @@ export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
     ...showcase.featuredItems,
   ]).filter((item) => item.venue.citySlug === city.slug);
 
+  const weatherLocation = venues.find((venue) => venue.latitude != null && venue.longitude != null);
+  const weather = weatherLocation?.latitude != null && weatherLocation.longitude != null
+    ? await getCurrentWeather({ latitude: weatherLocation.latitude, longitude: weatherLocation.longitude })
+    : null;
+
   return (
     <>
       <CityPreferenceSync city={{ slug: city.slug, name: city.name }} />
@@ -93,6 +99,7 @@ export default async function CityVenuesPage({ params }: CityVenuesPageProps) {
         mode="zonas"
         variant="public"
         zoneName={city.name}
+        weather={weather}
         zoneHeroImageUrl={
           city.slug === "talavera-de-la-reina"
             ? talaveraHeroImageSrc

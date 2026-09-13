@@ -1,0 +1,16 @@
+.eyebrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: #741314; font-size: 12px; font-weight: 700; line-height: 1.5; }
+.eyebrow > svg { width: 20px; height: 20px; }
+.floating { position: fixed; bottom: calc(5.75rem + env(safe-area-inset-bottom)); right: 12px; z-index: 35; }
+.popover { position: relative; width: min(350px, calc(100vw - 24px)); max-height: calc(100svh - 13rem); overflow-y: auto; border-radius: 18px; border: 1px solid rgba(116,19,20,.26); background: #FFF7E8; color: #24110E; box-shadow: 0 12px 32px rgba(36,17,14,.17); padding: 20px; }
+.popoverHeader { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.close { display: grid; place-items: center; height: 44px; width: 44px; flex-shrink: 0; background: #FDE3AD; border-radius: 50%; color: #741314; }
+.popoverTitle { font-family: var(--font-clash-grotesk-bold), sans-serif; font-size: 24px; line-height: 1.12; text-wrap: balance; margin: 0; }
+.popoverVisual { position: relative; display: block; height: 138px; margin: 12px 0; }
+.popoverVisual img { object-fit: contain; filter: drop-shadow(0 5px 3px rgba(36,17,14,.12)); }
+.date { display: flex; align-items: flex-start; gap: 10px; padding: 14px 0; margin: 0 0 4px; color: #5F0F10; font-size: 14px; line-height: 1.5; border-top: 1px solid rgba(116,19,20,.2); }
+.date svg { flex-shrink: 0; margin-top: 2px; }
+.trigger { position: relative; display: grid; place-items: center; height: 52px; width: 52px; border: 2px solid #FFF7E8; border-radius: 14px; color: #FFF7E8; background: #741314; box-shadow: 0 4px 12px rgba(36,17,14,.18); }
+.trigger::after { content: ''; position: absolute; top: -3px; right: -3px; width: 10px; height: 10px; border: 2px solid #FFF7E8; border-radius: 50%; background: #F6D99A; }
+.floating :is(button, a):focus-visible { outline: 2px solid #741314; outline-offset: 4px; }
+@media (min-width: 640px) { .floating { bottom: 20px; right: 20px; } }
+@media (prefers-reduced-motion: reduce) { .floating * { animation: none; transition: none; } }

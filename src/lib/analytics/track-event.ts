@@ -60,6 +60,8 @@ export function captureAnalyticsAttribution() {
     return;
   }
 
+  if (isInternalTrackingPath(window.location.pathname)) return;
+
   try {
     const searchParams = new URLSearchParams(window.location.search);
     const storedLandingPath = window.sessionStorage.getItem(
@@ -171,6 +173,7 @@ function isInternalTrackingPath(pathname: string) {
   return (
     pathname.startsWith("/demo") ||
     pathname.startsWith("/panel") ||
+    pathname.startsWith("/manage") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next")
   );

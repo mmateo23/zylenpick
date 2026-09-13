@@ -21,6 +21,7 @@ type CompletePointRow = Record<string, unknown> & {
   audio_duration_seconds: number | null;
   image_url: string;
   image_alt: string;
+  image_overlay_opacity: number;
   artistic_map_url: string | null;
   latitude: number;
   longitude: number;
@@ -106,6 +107,7 @@ function toPublicPoint(
     audioDurationSeconds: point.audio_duration_seconds,
     imageUrl: point.image_url,
     imageAlt: point.image_alt,
+    imageOverlayOpacity: point.image_overlay_opacity,
     artisticMapUrl: point.artistic_map_url,
     latitude: point.latitude,
     longitude: point.longitude,
@@ -163,7 +165,7 @@ export const getPublicExploreExperience = cache(
       supabase
         .from("explore_route_points")
         .select(
-          "id, route_id, map_place_id, sponsor_id, slug, position, title, introduction, story, transcript, audio_url, audio_duration_seconds, image_url, image_alt, artistic_map_url, latitude, longitude, credits, public_token",
+          "id, route_id, map_place_id, sponsor_id, slug, position, title, introduction, story, transcript, audio_url, audio_duration_seconds, image_url, image_alt, image_overlay_opacity, artistic_map_url, latitude, longitude, credits, public_token",
         )
         .eq("route_id", route.id)
         .eq("slug", pointSlug)

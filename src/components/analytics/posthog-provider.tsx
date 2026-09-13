@@ -1,6 +1,7 @@
 "use client";
 
 import posthog from "posthog-js";
+import { usePathname } from "next/navigation";
 import { PostHogProvider as PostHogReactProvider } from "posthog-js/react";
 import { useEffect, useState, type ReactNode } from "react";
 
@@ -24,6 +25,7 @@ const posthogKey = getPostHogKey();
 const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST ?? DEFAULT_POSTHOG_HOST;
 
 export function PostHogProvider({ children }: PostHogProviderProps) {
+  const privateRoute = usePathname().startsWith("/manage");
   const [isReady, setIsReady] = useState(isPostHogInitialized);
   const [consentStatus, setConsentStatus] =
     useState<AnalyticsConsentStatus>(null);
@@ -34,6 +36,10 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
   }, []);
 
   useEffect(() => {
+    if (privateRoute) {
+      if (isPostHogInitialized) posthog.opt_out_capturing();
+      return;
+    }
     const debugEnabled = isPostHogDebugEnabled();
 
     logPostHogDebug(debugEnabled, "PostHog key exists:", Boolean(posthogKey));
@@ -80,9 +86,9 @@ export function PostHogProvider({ children }: PostHogProviderProps) {
     }
 
     setIsReady(true);
-  }, [consentStatus]);
+  }, [consentStatus, privateRoute]);
 
-  if (!posthogKey || !isReady || consentStatus !== "accepted") {
+  if (privateRoute || !posthogKey || !isReady || consentStatus !== "accepted") {
     return <>{children}</>;
   }
 

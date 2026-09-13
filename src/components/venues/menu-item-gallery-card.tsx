@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Clock3, Info, MapPin, Store } from "lucide-react";
+import { AlertCircle, ArrowUpRight, Clock3, Info, MapPin, Store, Utensils } from "lucide-react";
 
 import { CloseIcon } from "@/components/icons/close-icon";
 import { FeaturedBadgeIcon } from "@/components/icons/featured-badge-icon";
@@ -25,6 +25,8 @@ import {
 import type { VenueMenuItem } from "@/features/venues/types";
 import { capturePlatoVisto } from "@/lib/analytics/posthog-events";
 import { trackEvent } from "@/lib/analytics/track-event";
+
+import profileStyles from "./venue-profile.module.css";
 
 type MenuItemGalleryCardProps = {
   item: VenueMenuItem;
@@ -168,6 +170,31 @@ export function MenuItemGalleryCard({
 
   return (
     <>
+      {isVenueCompact ? <article id={anchorId} className={`${profileStyles.menuCard} scroll-mt-28`}>
+        <button ref={openerButtonRef} type="button" onClick={handleOpenViewer} className={profileStyles.menuOpener} aria-label={`Ver ${item.name}`}>
+          <div className={profileStyles.menuPhoto}>
+            <div role="img" aria-label={item.name} className={profileStyles.menuPhotoImage} style={{ backgroundImage: primaryImage ? `url(${primaryImage})` : undefined }} />
+            {!primaryImage ? <div className="absolute inset-0 grid place-items-center text-[#741314]"><Utensils size={32} aria-hidden="true" /></div> : null}
+            {item.isFeatured || item.isPickupMonthHighlight ? <span className={profileStyles.featured}><FeaturedBadgeIcon size={13} />{item.isFeatured ? "Destacado" : "Selección del mes"}</span> : null}
+          </div>
+          <div className={profileStyles.menuCopy}>
+            <h3>{item.name}</h3>
+            {item.description ? <p>{item.description}</p> : null}
+            <div className={profileStyles.menuPrice}><ProductPriceBadge
+              priceAmount={item.priceAmount} currency={item.currency} priceDisplayMode={item.priceDisplayMode}
+              priceDisplayText={item.priceDisplayText} pricesVisible={venue.pricesVisible} compact
+            /></div>
+            <span className={profileStyles.detailsHint}>Detalles y alérgenos <ArrowUpRight size={15} aria-hidden="true" /></span>
+          </div>
+        </button>
+        {venue.pricesVisible ? <div className={profileStyles.menuOrder}><AddToCartButton
+          venue={venue}
+          item={{ id:item.id, name:item.name, description:item.description, priceAmount:item.priceAmount, currency:item.currency, priceDisplayMode:item.priceDisplayMode, priceDisplayText:item.priceDisplayText, imageUrl:primaryImage }}
+          className="mt-0" source="dish_card" label={labels?.addForPickup ?? "Añadir"}
+          buttonClassName="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#741314] px-3 py-2 text-xs font-bold text-[#FFF7E8] transition hover:bg-[#541011]"
+          feedbackClassName="mt-2 text-xs leading-5 text-[#61433A]"
+        /></div> : null}
+      </article> : (
       <article
         id={anchorId}
         className={`group relative h-full scroll-mt-28 overflow-hidden rounded-[0.9rem] border bg-surface-strong text-left shadow-[var(--shadow-soft)] transition-[border-color,box-shadow,transform] duration-300 hover:shadow-[var(--shadow-soft)] sm:rounded-[1.05rem] ${highlightClassName}`}
@@ -207,19 +234,19 @@ export function MenuItemGalleryCard({
           <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-3 sm:p-4">
             <div className="min-w-0 space-y-2">
               {!isVenueCompact ? (
-                <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-black/[0.45] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+                <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-white/30 bg-[#24110E] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em] text-white shadow-[0_8px_24px_rgba(0,0,0,0.24)] backdrop-blur-xl">
                   <Store aria-hidden="true" className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{venue.name}</span>
                 </span>
               ) : null}
               <div className="flex flex-wrap gap-1.5">
                 {item.categoryName ? (
-                  <span className="rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-xl">
+                  <span className="rounded-full border border-white/25 bg-[#24110E] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-xl">
                     {item.categoryName}
                   </span>
                 ) : null}
                 {!isVenueCompact ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-black/[0.38] px-2.5 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-xl">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-[#24110E] px-2.5 py-1 text-[9px] font-semibold text-white/90 backdrop-blur-xl">
                     <MapPin aria-hidden="true" className="h-3 w-3" />
                     {venue.cityName}
                   </span>
@@ -232,13 +259,13 @@ export function MenuItemGalleryCard({
                 <span
                   title="Destacado"
                   aria-label="Destacado"
-                  className="featured-badge-animated inline-flex h-9 w-9 items-center justify-center rounded-full border border-warning/40 bg-black/[0.45] text-warning backdrop-blur-xl"
+                  className="featured-badge-animated inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#FDE3AD]/70 bg-[#741314] text-[#FDE3AD] backdrop-blur-xl"
                 >
                   <FeaturedBadgeIcon size={22} />
                 </span>
               ) : null}
               {item.isPickupMonthHighlight ? (
-                <span className="inline-flex rounded-full border border-white/25 bg-black/[0.45] px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+                <span className="inline-flex rounded-full border border-white/25 bg-[#24110E] px-2.5 py-1.5 text-[9px] font-semibold uppercase tracking-[0.12em] text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl">
                   Muy elegido
                 </span>
               ) : null}
@@ -246,7 +273,7 @@ export function MenuItemGalleryCard({
           </div>
 
           <div className={`absolute inset-x-0 bottom-0 ${isVenueCompact ? "p-3 sm:p-4" : "p-4 sm:p-5"}`}>
-            <h3 className={`line-clamp-2 font-semibold leading-[0.98] tracking-[-0.04em] text-text-inverse ${
+            <h3 className={`line-clamp-2 font-semibold leading-[0.98] tracking-[-0.04em] text-white ${
               isVenueCompact ? "text-[1.12rem] sm:text-[1.45rem]" : "text-[1.45rem] sm:text-[1.7rem]"
             }`}>
               {item.name}
@@ -270,18 +297,18 @@ export function MenuItemGalleryCard({
                 compact
               />
               {!isVenueCompact ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-[#24110E] px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
                   <Clock3 aria-hidden="true" className="h-3.5 w-3.5" />
                   {venue.pickupEtaMin ? `${venue.pickupEtaMin} min` : "Recogida"}
                 </span>
               ) : null}
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-black/40 px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-[#24110E] px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-xl">
                 <AlertCircle aria-hidden="true" className="h-3.5 w-3.5" />
                 {item.allergens.length > 0
                   ? `${item.allergens.length} ${item.allergens.length === 1 ? "alérgeno" : "alérgenos"}`
                   : "Revisar alérgenos"}
               </span>
-              <span className={`${isVenueCompact ? "px-2.5 py-1 text-[10px]" : "ml-auto px-3.5 py-1.5 text-xs"} rounded-full border border-white/25 bg-black/[0.45] font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl`}>
+              <span className={`${isVenueCompact ? "px-2.5 py-1 text-[10px]" : "ml-auto px-3.5 py-1.5 text-xs"} rounded-full border border-white/25 bg-[#24110E] font-semibold text-white shadow-[0_6px_18px_rgba(0,0,0,0.24)] backdrop-blur-xl`}>
                 {labels?.viewDetail ?? "Ver detalle"}
               </span>
             </div>
@@ -334,7 +361,7 @@ export function MenuItemGalleryCard({
             />
           )}
         </div>
-      </article>
+      </article>)}
 
       {isViewerOpen ? (
         <div
@@ -402,12 +429,12 @@ export function MenuItemGalleryCard({
                 <div ref={viewerContentRef} className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain p-4 sm:gap-4 sm:p-6 lg:p-7">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#381932]/72">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#61433A]">
                         <Store aria-hidden="true" className="h-3.5 w-3.5" />
                         {venue.name}
                       </span>
                       {item.categoryName ? (
-                        <span className="rounded-full border border-[#381932]/12 bg-[#FFE9EC] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#381932]/72">
+                        <span className="rounded-full border border-[#381932]/12 bg-[#FFE9EC] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#61433A]">
                           {item.categoryName}
                         </span>
                       ) : null}
@@ -427,12 +454,12 @@ export function MenuItemGalleryCard({
                         pricesVisible={venue.pricesVisible}
                         className="px-3.5 py-2 text-sm sm:text-base"
                       />
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[11px] font-bold text-[#381932]/72">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#381932]/12 bg-white px-3 py-1.5 text-[11px] font-bold text-[#61433A]">
                         <Clock3 aria-hidden="true" className="h-3.5 w-3.5 text-[#C26157]" />
                         {venue.pickupEtaMin ? `${venue.pickupEtaMin} min aprox.` : "Recogida local"}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs leading-5 text-[#381932]/62 sm:text-sm">
+                    <p className="mt-1 text-xs leading-5 text-[#61433A] sm:text-sm">
                       Recogida en {venue.cityName}.
                     </p>
                   </div>
@@ -440,7 +467,7 @@ export function MenuItemGalleryCard({
                   {item.description ? (
                     <p
                       id={`product-dialog-description-${item.id}`}
-                      className="text-sm leading-5 text-[#381932]/78 sm:text-base sm:leading-6"
+                      className="text-sm leading-5 text-[#61433A] sm:text-base sm:leading-6"
                     >
                       {item.description}
                     </p>
@@ -469,7 +496,7 @@ export function MenuItemGalleryCard({
                         >
                           Alérgenos y trazas
                         </h5>
-                        <p className="mt-0.5 text-[11px] leading-4 text-[#381932]/64">
+                        <p className="mt-0.5 text-[11px] leading-4 text-[#61433A]">
                           {item.allergens.length > 0
                             ? "Datos facilitados por el establecimiento."
                             : "Pendiente de confirmar con el establecimiento."}
@@ -484,7 +511,7 @@ export function MenuItemGalleryCard({
                             <AllergenPictogram key={allergen} allergen={allergen} compact />
                           ))}
                         </div>
-                        <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-4 text-[#381932]/72">
+                        <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-4 text-[#61433A]">
                           Puede contener trazas de{" "}
                           {item.allergens
                             .map((allergen) => allergenLabels[allergen].toLocaleLowerCase("es"))
@@ -497,7 +524,7 @@ export function MenuItemGalleryCard({
                       </p>
                     )}
 
-                    <p className="mt-2 text-[10px] leading-4 text-[#381932]/58">
+                    <p className="mt-2 text-[10px] leading-4 text-[#61433A]">
                       Si tienes una alergia o intolerancia, consulta directamente con el local antes de pedir.
                     </p>
                   </section>
@@ -526,7 +553,7 @@ export function MenuItemGalleryCard({
                     className="mt-0"
                     source="dish_detail"
                     label={labels?.addForPickup ?? "Añadir para recoger"}
-                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-[#C26157] bg-[#C26157] px-5 py-3 text-sm font-bold text-white shadow-[0_10px_24px_rgba(194,97,87,0.2)] transition hover:bg-[#A94F47]"
+                    buttonClassName="magnetic-button inline-flex w-full justify-center rounded-full border border-[#741314] bg-[#741314] px-5 py-3 text-sm font-bold text-[#FFF7E8] shadow-[0_10px_24px_rgba(194,97,87,0.2)] transition hover:bg-[#541011]"
                     feedbackClassName="mt-3 text-sm leading-6 text-[#381932]/70"
                     disabled={!venue.pricesVisible}
                     disabledLabel="Aún no disponible para añadir"

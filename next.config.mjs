@@ -22,6 +22,16 @@ const nextConfig = {
 
     return [
       {
+        source: "/manage/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "Cache-Control", value: "private, no-store, max-age=0" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'; connect-src 'self'; form-action 'self'; base-uri 'self'" },
+        ],
+      },
+      {
         source: "/home/assets/:path*",
         headers: noIndexImageHeaders,
       },

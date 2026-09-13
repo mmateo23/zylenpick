@@ -65,6 +65,13 @@ export const monetizationPlans: VenueMonetizationPlan[] = [
   "titanio",
 ];
 
+export const monetizationPlanLabels: Record<VenueMonetizationPlan, string> = {
+  free: "Free",
+  basic: "Suave",
+  oro: "Picante",
+  titanio: "Fuego",
+};
+
 export const billingCycles: VenueBillingCycle[] = ["monthly", "annual"];
 
 export const defaultVenueMonetizationPrivileges: VenueMonetizationPrivileges = {

@@ -1,0 +1,120 @@
+.root {
+  --gap: 18px;
+}
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.controls button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: #741314;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.controls button:focus-visible {
+  outline: 2px solid #741314;
+  outline-offset: 3px;
+}
+
+.frame {
+  height: 610px;
+  overflow: hidden;
+  perspective: 1200px;
+  mask-image: linear-gradient(transparent, #000 6%, #000 94%, transparent);
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--gap);
+  width: min(92%, 1050px);
+  margin: -30px auto 0;
+  transform: rotateX(8deg) rotateY(-9deg) rotateZ(5deg);
+  transform-origin: 50% 0;
+}
+
+.column {
+  min-width: 0;
+}
+
+.track, .group, .copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.track {
+  animation: travel 80s linear infinite;
+  animation-play-state: paused;
+}
+
+.column:nth-child(even) .track {
+  animation-direction: reverse;
+  animation-duration: 90s;
+}
+
+.root[data-visible="true"] .track {
+  animation-play-state: running;
+}
+
+.frame:hover .track,
+.root:focus-within .track {
+  animation-play-state: paused;
+}
+
+/* Restore a fully readable grid when pausing or navigating to a product by keyboard. */
+.root[data-paused="true"] .frame,
+.frame:focus-within {
+  height: auto;
+  overflow: visible;
+  mask-image: none;
+  perspective: none;
+}
+
+.root[data-paused="true"] .stage,
+.frame:focus-within .stage {
+  width: 100%;
+  margin: 0;
+  transform: none;
+}
+
+.root[data-paused="true"] .track,
+.frame:focus-within .track {
+  animation: none;
+}
+
+.root[data-paused="true"] .copy,
+.frame:focus-within .copy {
+  display: none;
+}
+
+@keyframes travel {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(-25% - var(--gap) / 4)); }
+}
+
+@media (max-width: 699px) {
+  .root { --gap: 12px; }
+  .frame { height: 540px; }
+  .stage {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 94%;
+    margin-top: -14px;
+    transform: rotateX(4deg) rotateY(-4deg) rotateZ(3deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls, .copy { display: none; }
+  .frame { height: auto; overflow: visible; mask-image: none; perspective: none; }
+  .stage { width: 100%; margin: 0; transform: none; }
+  .root .track { animation: none; }
+}

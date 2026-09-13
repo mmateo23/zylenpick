@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
+import { PickyaloHome } from "@/components/home/pickyalo-home";
 import { getCities } from "@/features/cities/services/cities-service";
+import { getActiveSiteChips } from "@/features/chips/services/site-chips-service";
 import { getSiteDesignConfig } from "@/features/design/services/site-design-service";
 import { isHomeCampaignActive } from "@/features/design/site-design-config";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
@@ -8,7 +10,6 @@ import { getPublishedExploreMapEntries } from "@/features/explore/services/explo
 import { getHomeShowcase } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
-import { ServiceShowcaseHomeTemplate } from "@/templates/service-showcase/service-showcase-home-template";
 
 export const revalidate = 900;
 
@@ -21,7 +22,7 @@ export const metadata: Metadata = getBaseMetadata({
 
 export default async function HomePage() {
   const configured = isSupabaseConfigured();
-  const [cities, showcase, siteMedia, design, exploreEntries] = await Promise.all([
+  const [cities, showcase, siteMedia, design, exploreEntries, chips] = await Promise.all([
     configured ? getCities() : Promise.resolve([]),
     configured
       ? getHomeShowcase()
@@ -29,6 +30,7 @@ export default async function HomePage() {
     getSiteMediaAssetMap(),
     getSiteDesignConfig(),
     configured ? getPublishedExploreMapEntries() : Promise.resolve([]),
+    getActiveSiteChips(),
   ]);
   const homeDesign = {
     ...design,
@@ -44,7 +46,7 @@ export default async function HomePage() {
   };
 
   return (
-    <ServiceShowcaseHomeTemplate
+    <PickyaloHome
       cities={cities}
       heroImageUrl={siteMedia.home_hero.imageUrl}
       mapFeatureImageUrl={siteMedia.home_map_feature.imageUrl}
@@ -52,6 +54,7 @@ export default async function HomePage() {
       design={homeDesign}
       featuredItems={showcase.featuredItems}
       latestItems={showcase.latestItems}
+      chips={chips}
     />
   );
 }

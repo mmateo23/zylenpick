@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
@@ -58,6 +59,9 @@ export type AdminVenueFormValues = {
   isVerified: boolean;
   pricesVisible: boolean;
   subscriptionActive: boolean;
+  showOnMap: boolean;
+  useCustomMapMarker: boolean;
+  mapMarkerLogoUrl: string;
   subscriptionTier: "basic" | "oro" | "titanio";
   sortOrder: string;
   openingHours: OpeningHoursValue;
@@ -90,6 +94,8 @@ export type AdminCityOption = {
 type NormalizedVenueFormValues = Omit<AdminVenueFormValues, "id" | "openingHours"> & {
   openingHours: OpeningHoursValue;
 };
+
+const STORAGE_BUCKET = "pickyalo-media";
 
 function isMissingPricesVisibleColumnError(message: string) {
   return message.toLowerCase().includes("prices_visible");
@@ -133,6 +139,9 @@ function normalizeVenueFormValues(
     isVerified: formData.get("isVerified") === "on",
     pricesVisible: formData.get("pricesVisible") === "on",
     subscriptionActive: formData.get("subscriptionActive") === "on",
+    showOnMap: formData.get("showOnMap") === "on",
+    useCustomMapMarker: formData.get("useCustomMapMarker") === "on",
+    mapMarkerLogoUrl: String(formData.get("mapMarkerLogoUrl") ?? "").trim(),
     subscriptionTier:
       (String(formData.get("subscriptionTier") ?? "").trim() as
         | "basic"
@@ -320,10 +329,12 @@ function revalidatePublicVenuePaths(paths: Array<PublicVenuePathContext | null>)
     uniquePaths.add(
       `/zonas/${pathContext.citySlug}/venues/${pathContext.venueSlug}`,
     );
+    uniquePaths.add(`/q/${pathContext.venueSlug}`);
   }
 
   uniquePaths.add("/");
   uniquePaths.add("/zonas");
+  uniquePaths.add("/mapa");
 
   for (const path of Array.from(uniquePaths)) {
     revalidatePath(path);
@@ -382,6 +393,9 @@ export function buildVenueInitialValuesFromJoinRequest(
     isVerified: false,
     pricesVisible: false,
     subscriptionActive: false,
+    showOnMap: false,
+    useCustomMapMarker: false,
+    mapMarkerLogoUrl: "",
     subscriptionTier: "basic",
     sortOrder: "",
     openingHours: createDefaultOpeningHours(),
@@ -483,7 +497,7 @@ export async function getAdminVenueById(
   let { data, error } = await supabase
     .from("venues")
     .select(
-      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, sort_order, opening_hours, capture_status, scout_note, observed_hours",
+      "id, name, slug, city_id, discovery_category, description, address, latitude, longitude, email, phone, pickup_notes, pickup_eta_min, cover_url, is_active, is_published, is_verified, prices_visible, subscription_active, subscription_tier, show_on_map, use_custom_map_marker, map_marker_logo_url, sort_order, opening_hours, capture_status, scout_note, observed_hours",
     )
     .eq("id", venueId)
     .maybeSingle();
@@ -498,7 +512,13 @@ export async function getAdminVenueById(
       .maybeSingle();
 
     data = fallbackResult.data
-      ? { ...fallbackResult.data, prices_visible: false }
+      ? {
+          ...fallbackResult.data,
+          prices_visible: false,
+          show_on_map: false,
+          use_custom_map_marker: false,
+          map_marker_logo_url: null,
+        }
       : null;
     error = fallbackResult.error;
   }
@@ -531,6 +551,9 @@ export async function getAdminVenueById(
     isVerified: data.is_verified,
     pricesVisible: data.prices_visible,
     subscriptionActive: data.subscription_active,
+    showOnMap: data.show_on_map,
+    useCustomMapMarker: data.use_custom_map_marker,
+    mapMarkerLogoUrl: data.map_marker_logo_url ?? "",
     subscriptionTier: data.subscription_tier ?? "basic",
     sortOrder: data.sort_order?.toString() ?? "",
     openingHours: normalizeOpeningHours(data.opening_hours),
@@ -567,6 +590,10 @@ export async function createVenueAction(formData: FormData) {
     is_verified: values.isVerified,
     prices_visible: values.pricesVisible,
     subscription_active: values.subscriptionActive,
+    show_on_map: values.subscriptionActive && values.showOnMap,
+    use_custom_map_marker:
+      values.subscriptionActive && values.useCustomMapMarker && Boolean(values.mapMarkerLogoUrl),
+    map_marker_logo_url: values.mapMarkerLogoUrl || null,
     subscription_tier: values.subscriptionTier,
     sort_order: values.sortOrder ? Number(values.sortOrder) : null,
     opening_hours: values.openingHours,
@@ -653,6 +680,10 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
     is_verified: values.isVerified,
     prices_visible: values.pricesVisible,
     subscription_active: values.subscriptionActive,
+    show_on_map: values.subscriptionActive && values.showOnMap,
+    use_custom_map_marker:
+      values.subscriptionActive && values.useCustomMapMarker && Boolean(values.mapMarkerLogoUrl),
+    map_marker_logo_url: values.mapMarkerLogoUrl || null,
     subscription_tier: values.subscriptionTier,
     sort_order: values.sortOrder ? Number(values.sortOrder) : null,
     opening_hours: values.openingHours,
@@ -690,6 +721,107 @@ export async function updateVenueAction(venueId: string, formData: FormData) {
   ]);
 
   redirect("/panel/locales");
+}
+
+export async function prepareVenueMapMarkerUploadAction(
+  venueId: string,
+  mimeType: string,
+) {
+  "use server";
+
+  if (mimeType.toLowerCase() !== "image/png") {
+    return { ok: false as const, error: "El isotipo debe ser un PNG transparente." };
+  }
+
+  const supabase = await createAdminMutationClient();
+  const { data: venue, error: venueError } = await supabase
+    .from("venues")
+    .select("subscription_active")
+    .eq("id", venueId)
+    .maybeSingle();
+
+  if (venueError || !venue) {
+    return { ok: false as const, error: "No se pudo comprobar el local." };
+  }
+  if (!venue.subscription_active) {
+    return { ok: false as const, error: "El isotipo personalizado requiere una suscripción activa." };
+  }
+
+  const path = `venues/${venueId}/map-marker/${randomUUID()}.png`;
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .createSignedUploadUrl(path);
+
+  if (error || !data) {
+    return { ok: false as const, error: "No se pudo preparar la subida." };
+  }
+
+  return { ok: true as const, path, signedUrl: data.signedUrl };
+}
+
+export async function finalizeVenueMapMarkerUploadAction(
+  venueId: string,
+  path: string,
+) {
+  "use server";
+
+  const expectedPrefix = `venues/${venueId}/map-marker/`;
+  if (!path.startsWith(expectedPrefix) || path.includes("..") || !path.endsWith(".png")) {
+    return { ok: false as const, error: "La ruta del isotipo no es válida." };
+  }
+
+  const supabase = await createAdminMutationClient();
+  const { data: venue, error: venueError } = await supabase
+    .from("venues")
+    .select("subscription_active, map_marker_logo_url")
+    .eq("id", venueId)
+    .maybeSingle();
+
+  if (venueError || !venue?.subscription_active) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    return { ok: false as const, error: "El local no tiene una suscripción activa." };
+  }
+
+  const { data: file, error: fileError } = await supabase.storage
+    .from(STORAGE_BUCKET)
+    .download(path);
+  if (fileError || !file || file.type !== "image/png" || file.size > 2 * 1024 * 1024) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    return { ok: false as const, error: "El PNG no es válido o supera 2 MB." };
+  }
+
+  const { data: publicData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+  const imageUrl = publicData.publicUrl;
+  const { error: updateError } = await supabase
+    .from("venues")
+    .update({ map_marker_logo_url: imageUrl })
+    .eq("id", venueId);
+  if (updateError) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([path]);
+    return { ok: false as const, error: "No se pudo guardar el isotipo." };
+  }
+
+  const previousPath = venue.map_marker_logo_url?.split(
+    `/storage/v1/object/public/${STORAGE_BUCKET}/`,
+  )[1];
+  if (previousPath?.startsWith(expectedPrefix) && previousPath !== path) {
+    await supabase.storage.from(STORAGE_BUCKET).remove([previousPath]);
+  }
+
+  revalidatePath("/mapa");
+  return { ok: true as const, imageUrl };
+}
+
+export async function discardVenueMapMarkerUploadAction(
+  venueId: string,
+  path: string,
+) {
+  "use server";
+
+  const expectedPrefix = `venues/${venueId}/map-marker/`;
+  if (!path.startsWith(expectedPrefix) || path.includes("..")) return;
+  const supabase = await createAdminMutationClient();
+  await supabase.storage.from(STORAGE_BUCKET).remove([path]);
 }
 
 export async function deleteVenueAction(venueId: string) {
