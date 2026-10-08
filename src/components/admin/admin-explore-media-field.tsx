@@ -21,6 +21,7 @@ type AdminExploreMediaFieldProps = {
   initialUrl?: string;
   required?: boolean;
   onInsert?: (url: string, description: string) => void;
+  onBusyChange?: (busy: boolean) => void;
 };
 
 function uploadWithProgress(
@@ -75,6 +76,7 @@ export function AdminExploreMediaField({
   initialUrl = "",
   required = false,
   onInsert,
+  onBusyChange,
 }: AdminExploreMediaFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [url, setUrl] = useState(initialUrl);
@@ -93,6 +95,7 @@ export function AdminExploreMediaField({
 
   async function handleFile(file: File) {
     setBusy(true);
+    onBusyChange?.(true);
     setError(null);
     setProgress(0);
     let nextPath: string | null = null;
@@ -114,6 +117,7 @@ export function AdminExploreMediaField({
       setProgress(0);
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
       if (inputRef.current) inputRef.current.value = "";
     }
   }
@@ -182,10 +186,11 @@ export function AdminExploreMediaField({
           </label> : <input
             id={`${name}-url`}
             name={onInsert ? undefined : name}
-            type="url"
+            type={url.startsWith("/") ? "text" : "url"}
             inputMode="url"
             required={required}
             value={url}
+            readOnly={busy}
             onChange={(event) => setUrl(event.target.value)}
             placeholder="https://..."
             className="min-h-11 w-full rounded-xl border border-[#741314]/16 bg-white px-3.5 text-sm text-[#381932] outline-none focus:border-[#741314] focus:ring-2 focus:ring-[#741314]/10"
@@ -199,6 +204,7 @@ export function AdminExploreMediaField({
         {url ? (
           <button
             type="button"
+            disabled={busy}
             title="Quitar archivo"
             aria-label={`Quitar ${label.toLowerCase()}`}
             onClick={() => {

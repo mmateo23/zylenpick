@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 
 import { AdminFormDisclosure } from "@/components/admin/admin-form-disclosure";
+import { AdminExploreMediaField } from "@/components/admin/admin-explore-media-field";
 import { AdminPreviewLink } from "@/components/admin/admin-preview-link";
 import type { MapPlaceCategoryDefinition } from "@/features/map-places/categories";
 import { MapPlaceIcon } from "@/features/map-places/icons";
@@ -157,6 +158,7 @@ export function AdminMapPlaceForm({
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>(
     initialValues ? initialValues.category : categories[0]?.value ?? "",
   );
@@ -376,7 +378,7 @@ export function AdminMapPlaceForm({
   }
 
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} onSubmit={(event) => { if (uploadingImage) event.preventDefault(); }} className="space-y-6">
       <section className="rounded-2xl border border-[#741314]/12 bg-[#FFF7E8] p-5 shadow-[0_16px_45px_rgba(116,19,20,0.07)] sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -547,6 +549,16 @@ export function AdminMapPlaceForm({
         </div>
       </section>
 
+      <AdminExploreMediaField
+        name="coverImageUrl"
+        label="Imagen principal del lugar"
+        description="Elige una foto de tu móvil u ordenador. Se reduce y optimiza a WebP antes de subirla. Después, guarda el lugar para aplicar el cambio."
+        kind="photo"
+        scopeId={initialValues?.id || "map-place-draft"}
+        initialUrl={initialValues?.coverImageUrl ?? ""}
+        onBusyChange={setUploadingImage}
+      />
+
       <div className={showAdvanced ? "block" : "hidden"}>
         <AdminFormDisclosure
           title="Historia e información para la visita"
@@ -554,15 +566,6 @@ export function AdminMapPlaceForm({
           defaultOpen
         >
           <div className="grid gap-5 md:grid-cols-2">
-          <label className="block md:col-span-2">
-            <span className="text-sm font-semibold text-[#381932]">Imagen principal</span>
-            <input
-              name="coverImageUrl"
-              defaultValue={initialValues?.coverImageUrl ?? ""}
-              className={fieldClassName}
-              placeholder="https://... o /ruta-del-proyecto.webp"
-            />
-          </label>
           <label className="block md:col-span-2">
             <span className="text-sm font-semibold text-[#381932]">Relato breve</span>
             <textarea
@@ -879,7 +882,7 @@ export function AdminMapPlaceForm({
       </div>
 
       <div className="sticky bottom-3 z-30 flex justify-end rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]/95 p-2 shadow-[0_16px_40px_rgba(56,25,50,0.12)] backdrop-blur-md">
-        <button type="submit" className="min-h-11 w-full rounded-full bg-[#741314] px-6 py-3 text-sm font-bold text-[#FFF7E8] sm:w-auto">
+        <button type="submit" disabled={uploadingImage} className="min-h-11 w-full rounded-full bg-[#741314] px-6 py-3 text-sm font-bold text-[#FFF7E8] disabled:opacity-50 sm:w-auto">
           {formMode === "edit"
             ? "Guardar cambios"
             : formMode === "duplicate"
