@@ -55,7 +55,7 @@ async function decodeWithHeicFallback(file: File) {
   }
 }
 
-export async function processScoutImage(file: File) {
+export async function processScoutImage(file: File, options: { preserveTransparency?: boolean } = {}) {
   if (!file.type.startsWith("image/") && !isHeic(file)) {
     throw new Error("El archivo seleccionado no es una imagen compatible.");
   }
@@ -71,7 +71,7 @@ export async function processScoutImage(file: File) {
     const canvas = document.createElement("canvas");
     canvas.width = Math.max(1, Math.round(sourceWidth * scale));
     canvas.height = Math.max(1, Math.round(sourceHeight * scale));
-    const context = canvas.getContext("2d", { alpha: false });
+    const context = canvas.getContext("2d", { alpha: options.preserveTransparency ?? false });
     if (!context) throw new Error("No se pudo preparar la imagen.");
     context.drawImage(source, 0, 0, canvas.width, canvas.height);
 
@@ -92,7 +92,7 @@ export async function processScoutImage(file: File) {
   const thumbnailCanvas = document.createElement("canvas");
   thumbnailCanvas.width = Math.max(1, Math.round(sourceWidth * thumbnailScale));
   thumbnailCanvas.height = Math.max(1, Math.round(sourceHeight * thumbnailScale));
-  const thumbnailContext = thumbnailCanvas.getContext("2d", { alpha: false });
+  const thumbnailContext = thumbnailCanvas.getContext("2d", { alpha: options.preserveTransparency ?? false });
   if (!thumbnailContext) {
     if (source instanceof ImageBitmap) source.close();
     throw new Error("No se pudo preparar la miniatura.");

@@ -57,7 +57,7 @@ export function VenueRouteModal({
             <button
               type="button"
               onClick={onClose}
-              className="magnetic-button inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
+              className="pickyalo-light-control magnetic-button inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
               aria-label="Cerrar"
             >
               <CloseIcon size={26} />

@@ -277,7 +277,7 @@ export function VenueQrInteractionProvider({
                 ref={closeButtonRef}
                 type="button"
                 onClick={requestClose}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#741314]/22 text-[#741314] outline-none transition hover:bg-[#FDE3AD]/45 focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+                className="pickyalo-light-control inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#741314]/22 text-[#741314] outline-none transition hover:bg-[#FDE3AD]/45 focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
                 aria-label={photoExpanded ? "Volver al plato" : "Cerrar ficha"}
               >
                 <X aria-hidden="true" className="h-5 w-5" />

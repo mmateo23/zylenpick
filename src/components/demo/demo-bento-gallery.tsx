@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 import { DemoSiteHeader } from "@/components/demo/demo-site-header";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -97,7 +98,13 @@ export function DemoBentoGallery({
   weather = null,
 }: DemoBentoGalleryProps) {
   const rootRef = useRef<HTMLElement>(null);
-  const isLightTheme = variant === "public";
+  const { resolvedTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+  const isLightTheme = variant === "public" && (!themeReady || resolvedTheme !== "dark");
+
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
   const selectedItems = useMemo(() => pickBentoItems(items), [items]);
   const galleryItems = useMemo(() => pickBentoItems(items), [items]);
   const activeVenueCount = selectedItems.length;
@@ -199,7 +206,7 @@ export function DemoBentoGallery({
     <main
       ref={rootRef}
       className={`min-h-screen transition-colors ${
-        isLightTheme ? "overflow-x-clip bg-[#FFF7E8] text-[#24110E]" : "bg-[#050816] text-white"
+        isLightTheme ? "public-light-theme pickyalo-public-canvas overflow-x-clip text-[#24110E]" : "bg-[#050816] text-white"
       }`}
     >
       {variant === "public" ? (

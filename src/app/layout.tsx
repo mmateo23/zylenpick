@@ -6,7 +6,6 @@ import { GoogleAnalyticsConsent } from "@/components/analytics/google-analytics-
 import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import { PostHogPageView } from "@/components/analytics/posthog-page-view";
 import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner";
-import { FloatingHomeCampaign } from "@/components/home/floating-home-campaign";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { PickyaloStructuredData } from "@/components/seo/pickyalo-structured-data";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
@@ -42,11 +41,11 @@ export const metadata: Metadata = {
   applicationName: "Pickyalo",
   manifest: "/manifest.webmanifest",
   title: {
-    default: "Pickyalo | Descubre cerca. Recoge fácil.",
+    default: "Pickyalo | Talavera, con otros ojos.",
     template: "%s | Pickyalo",
   },
   description:
-    "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
+    "Comercio cercano, productos y lugares por descubrir. Vive Talavera con una selección visual de Pickyalo.",
   authors: [{ name: "Pickyalo", url: "/" }],
   creator: "Pickyalo",
   publisher: "Pickyalo",
@@ -71,7 +70,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: "Pickyalo | Descubre cerca. Recoge fácil.",
+    title: "Pickyalo | Talavera, con otros ojos.",
     description:
       "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
     url: "/",
@@ -89,7 +88,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Pickyalo | Descubre cerca. Recoge fácil.",
+    title: "Pickyalo | Talavera, con otros ojos.",
     description:
       "Descubre productos y platos de locales cercanos, elige visualmente y recógelos sin complicaciones.",
     images: ["/opengraph-image"],
@@ -133,7 +132,6 @@ export default function RootLayout({
             <PostHogPageView />
             <TooltipProvider>
               {children}
-              <FloatingHomeCampaign />
               <InstallPrompt />
               <PickyaloToaster />
               <CookieConsentBanner />

@@ -7,9 +7,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="light"
-      forcedTheme="light"
-      enableSystem={false}
+      defaultTheme="system"
+      storageKey="pickyalo-theme"
+      enableSystem
+      enableColorScheme
       disableTransitionOnChange
     >
       {children}

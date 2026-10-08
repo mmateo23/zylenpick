@@ -20,6 +20,7 @@ type AdminExploreMediaFieldProps = {
   scopeId: string;
   initialUrl?: string;
   required?: boolean;
+  onInsert?: (url: string, description: string) => void;
 };
 
 function uploadWithProgress(
@@ -73,6 +74,7 @@ export function AdminExploreMediaField({
   scopeId,
   initialUrl = "",
   required = false,
+  onInsert,
 }: AdminExploreMediaFieldProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [url, setUrl] = useState(initialUrl);
@@ -80,6 +82,7 @@ export function AdminExploreMediaField({
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [imageDescription, setImageDescription] = useState("");
 
   const accept =
     kind === "audio"
@@ -119,7 +122,7 @@ export function AdminExploreMediaField({
     <div className="rounded-2xl border border-[#741314]/12 bg-white/60 p-4 sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <label htmlFor={`${name}-url`} className="text-sm font-semibold text-[#381932]">
+          <label htmlFor={onInsert ? `${name}-file` : `${name}-url`} className="text-sm font-semibold text-[#381932]">
             {label}
           </label>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-[#381932]/60">{description}</p>
@@ -137,12 +140,14 @@ export function AdminExploreMediaField({
           ) : (
             <UploadCloud aria-hidden="true" className="h-4 w-4" />
           )}
-          {busy ? `Subiendo ${progress}%` : "Subir archivo"}
+          {busy ? `Subiendo ${progress}%` : onInsert ? "Subir imagen" : "Subir archivo"}
         </button>
       </div>
 
       <input
         ref={inputRef}
+        id={`${name}-file`}
+        aria-label={label}
         type="file"
         accept={accept}
         className="sr-only"
@@ -171,9 +176,12 @@ export function AdminExploreMediaField({
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <input
+          {onInsert ? <label className="block text-xs font-semibold text-[#381932]">
+            Descripción de la imagen
+            <input id={`${name}-description`} value={imageDescription} onChange={(event) => setImageDescription(event.target.value)} maxLength={240} placeholder="Qué aparece en la fotografía" className="mt-2 min-h-11 w-full rounded-xl border border-[#741314]/16 bg-white px-3.5 text-sm outline-none focus:border-[#741314] focus:ring-2 focus:ring-[#741314]/10" />
+          </label> : <input
             id={`${name}-url`}
-            name={name}
+            name={onInsert ? undefined : name}
             type="url"
             inputMode="url"
             required={required}
@@ -181,7 +189,7 @@ export function AdminExploreMediaField({
             onChange={(event) => setUrl(event.target.value)}
             placeholder="https://..."
             className="min-h-11 w-full rounded-xl border border-[#741314]/16 bg-white px-3.5 text-sm text-[#381932] outline-none focus:border-[#741314] focus:ring-2 focus:ring-[#741314]/10"
-          />
+          />}
           {kind === "audio" && url ? (
             <audio className="mt-3 h-10 w-full" controls preload="metadata" src={url}>
               Tu navegador no puede reproducir este audio.
@@ -206,6 +214,7 @@ export function AdminExploreMediaField({
           </button>
         ) : null}
       </div>
+      {onInsert && url ? <button type="button" disabled={busy} onClick={() => { onInsert(url, imageDescription); setUploadedPath(null); setUrl(""); setImageDescription(""); }} className="mt-3 min-h-11 rounded-xl bg-[#741314] px-4 text-sm font-bold text-[#FFF7E8] disabled:opacity-50">Insertar en el relato</button> : null}
       {error ? <p role="alert" className="mt-3 text-sm font-semibold text-rose-700">{error}</p> : null}
     </div>
   );

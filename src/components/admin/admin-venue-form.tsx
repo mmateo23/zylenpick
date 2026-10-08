@@ -152,7 +152,7 @@ export function AdminVenueForm({
       {previewHref ? (
         <AdminPreviewLink
           href={previewHref}
-          description="Este formulario modifica la ficha pública del local: presentación, contacto, recogida, horarios y visibilidad."
+          description="Este formulario modifica la ficha pública del local: presentación, contacto, horarios y visibilidad."
           label="Ver ficha pública"
         />
       ) : null}
@@ -380,7 +380,7 @@ export function AdminVenueForm({
           eyebrow="Atención al cliente"
           title="Recogida y contacto"
           description="Añade instrucciones y tiempos solo cuando el local ya los haya confirmado."
-          defaultOpen={Boolean(values.email || values.pickupNotes || values.pickupEtaMin)}
+          defaultOpen={false}
         >
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block">
@@ -424,7 +424,7 @@ export function AdminVenueForm({
         <AdminFormDisclosure
           title="Ubicación precisa"
           description="Las coordenadas permiten calcular distancias. Si no están confirmadas, pueden completarse más adelante."
-          defaultOpen={Boolean(values.latitude || values.longitude)}
+          defaultOpen={false}
         >
           <div className="grid gap-5 md:grid-cols-2">
             <label className="block">
@@ -471,7 +471,7 @@ export function AdminVenueForm({
                 Decide qué puede ver el público
               </h2>
               <p className="mt-1 text-sm leading-6 text-[#381932]/62">
-                Estos controles afectan directamente a la ficha y a la posibilidad de recoger pedidos.
+                Estos controles afectan a la ficha, su visibilidad y los precios publicados.
               </p>
             </div>
           </div>
@@ -479,8 +479,8 @@ export function AdminVenueForm({
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <ToggleField
               name="pricesVisible"
-              label="Mostrar precios y permitir pedidos"
-              description="Actívalo solo cuando el local haya confirmado sus precios. Mientras esté apagado, la web mostrará Precio pendiente y no permitirá añadir productos nuevos a la cesta."
+              label="Mostrar precios"
+              description="Muestra los precios confirmados por el local, respetando el modo de cada producto."
               defaultChecked={values.pricesVisible}
             />
             <ToggleField
@@ -498,6 +498,12 @@ export function AdminVenueForm({
           </div>
         </section>
 
+        {values.id ? <>
+          {(["isVerified", "subscriptionActive", "showOnMap", "useCustomMapMarker"] as const).map((key) => <input key={key} type="hidden" name={key} value={values[key] ? "on" : ""} />)}
+          <input type="hidden" name="subscriptionTier" value={values.subscriptionTier} />
+          <input type="hidden" name="sortOrder" value={values.sortOrder} />
+          <input type="hidden" name="mapMarkerLogoUrl" value={values.mapMarkerLogoUrl} />
+        </> : <>
         <AdminFormDisclosure
           eyebrow="Configuración interna"
           title="Verificación, suscripción y orden"
@@ -559,6 +565,10 @@ export function AdminVenueForm({
           </div>
         </AdminFormDisclosure>
 
+        </>}
+        {values.id ? Object.entries(values.openingHours).map(([day, hours]) =>
+          Object.entries(hours).map(([field, value]) => <input key={`${day}.${field}`} type="hidden" name={`openingHours.${day}.${field}`} value={typeof value === "boolean" ? (value ? "on" : "") : value} />)
+        ) : <>
         <AdminFormDisclosure
           eyebrow="Disponibilidad"
           title="Horario semanal"
@@ -567,6 +577,8 @@ export function AdminVenueForm({
         >
           <AdminOpeningHoursTable initialValue={values.openingHours} />
         </AdminFormDisclosure>
+
+        </>}
 
         <div className="sticky bottom-3 z-30 flex flex-wrap gap-3 rounded-2xl border border-[#741314]/12 bg-[#FFF7E8]/95 p-2 shadow-[0_16px_40px_rgba(56,25,50,0.12)] backdrop-blur-md">
           <button

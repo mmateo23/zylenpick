@@ -169,7 +169,7 @@ export function FloatingHomeCampaign() {
               type="button"
               onClick={() => { setIsExpanded(false); setIsDismissed(true); }}
               aria-label="Cerrar evento destacado"
-              className={styles.close}
+              className={"pickyalo-light-control " + (styles.close)}
             >
               <X size={20} aria-hidden="true" />
             </button>

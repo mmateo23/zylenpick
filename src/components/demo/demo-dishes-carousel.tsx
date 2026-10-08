@@ -7,20 +7,19 @@ import { gsap } from "gsap";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   ArrowLeft,
+  ArrowRight,
   ArrowUp,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   ChevronUp,
   Clock3,
   Info,
   LocateFixed,
   MapPin,
-  MoreHorizontal,
-  MoveLeft,
-  MoveRight,
+  MapPinned,
   Phone,
   Search,
   Send,
@@ -29,12 +28,15 @@ import {
   X,
 } from "lucide-react";
 
-import { CartIcon } from "@/components/icons/cart-icon";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
+import { ManualLocationPicker } from "@/components/location/manual-location-picker";
 import { ProductPriceBadge } from "@/components/pricing/product-price-badge";
-import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
-import { addItemToCart } from "@/features/cart/services/cart-storage";
+import { DiscoveryVenueCard } from "@/components/venues/discovery-venue-card";
+import type { DiscoveryVenue, DiscoveryShot } from "@/features/discovery/discovery-content";
+import { matchesIntent, productCategory, discoveryDistance, getDiscoveryJourney, type DiscoveryIntent } from "@/features/discovery/discovery-filters";
+import { resolveVenueCategory } from "@/features/venues/venue-meta";
+import explorerStyles from "./discovery-explorer.module.css";
 import type { SiteChip } from "@/features/chips/types";
 import {
   curationOptions,
@@ -59,25 +61,43 @@ import {
   getPricePresentation,
   isDefinitivePrice,
 } from "@/features/pricing/price-display";
-import type { CartVenue } from "@/features/cart/types";
 import type { HomeShowcaseItem } from "@/features/venues/types";
 import { resolveVenueCoordinates } from "@/features/venues/venue-meta";
 import {
-  captureAddToCart,
   capturePlatoVisto,
   captureShotVisto,
 } from "@/lib/analytics/posthog-events";
-import { trackEvent } from "@/lib/analytics/track-event";
-import { showCartToast, showErrorToast } from "@/lib/ui/toast";
+
+const editorialTagFilters: CurationFilter[] = [
+  "raciones",
+  "tapas",
+  "daniHome",
+  "bocatas",
+  "mojarPan",
+  "veggano",
+  "quienNoApolla",
+  "recommended",
+  "hot",
+  "finallyFriday",
+  "surprise",
+];
+
+function getEditorialTagLabel(filter: CurationFilter) {
+  return curationOptions.find((option) => option.id === filter)?.label ?? "";
+}
 
 gsap.registerPlugin(useGSAP);
 
 type DemoDishesCarouselProps = {
   items: HomeShowcaseItem[];
+  venues?: DiscoveryVenue[];
+  shots?: DiscoveryShot[];
   template?: DemoDishesTemplate;
   funnelSettings?: SiteFunnelSettings;
   chips?: SiteChip[];
   heroImageUrl?: string;
+  mapboxAccessToken: string;
+  locationPickerCenter: { latitude: number; longitude: number };
 };
 
 export type DemoDishesTemplate = {
@@ -124,21 +144,21 @@ const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
   compactLogoClassName: "h-11 w-11 rounded-[0.8rem] object-cover opacity-95 drop-shadow-[0_10px_22px_rgba(0,0,0,0.28)] sm:h-12 sm:w-12",
   homeHref: "/",
   emptyEyebrow: "Platos",
-  emptyTitle: "No hay platos disponibles",
+  emptyTitle: "La selección estará aquí pronto",
   emptyDescription:
-    "En cuanto haya platos con imagen en el showcase, esta demo usara ese contenido real para construir el explorador visual.",
+    "Estamos preparando productos y propuestas de los locales de Talavera.",
   backLabel: "Volver al inicio",
   backCompactLabel: "Inicio",
   heroEyebrow: "Decide rapido",
   heroTitle: "¿Qué nos apetece hoy?",
   heroDescription:
     "Un laboratorio visual para descubrir platos como si fuera un explorador social: foto primero, contexto justo y detalle solo al abrir.",
-  searchLabel: "Buscar platos",
+  searchLabel: "Buscar productos",
   searchInputId: "demo-platos-search",
-  searchPlaceholder: "Buscar plato, local o categoria",
+  searchPlaceholder: "Buscar producto, pack o local",
   noResultsEyebrow: "Sin coincidencias",
   noResultsDescription:
-    "Prueba otra categoria o cambia la seleccion curada para ver mas platos.",
+    "Prueba otro producto, local o categoría.",
   footerVariant: "zylenpick",
   promoHrefs: {
     "mira-que-pollo": "/platos",
@@ -149,6 +169,7 @@ const defaultTemplate: Required<Omit<DemoDishesTemplate, "promoHrefs">> & {
 };
 
 type FeedEntry =
+  | { type: "venue"; venue: DiscoveryVenue }
   | {
       type: "dish";
       item: HomeShowcaseItem;
@@ -167,12 +188,6 @@ type PromoTileId =
   | "simpre-fit"
   | "huelaa-bbq"
   | "sabor-en-video";
-
-const SHOT_PROMO_IDS = [
-  "sabor-en-video",
-  "simpre-fit",
-  "huelaa-bbq",
-] as const satisfies readonly PromoTileId[];
 
 const DISH_NAVIGATION_SHOT_THRESHOLDS = [5, 12] as const;
 
@@ -249,45 +264,6 @@ function getVenueHref(item: HomeShowcaseItem) {
   return `/zonas/${item.venue.citySlug}/venues/${item.venue.slug}`;
 }
 
-function getDishHref(item: HomeShowcaseItem) {
-  return `${getVenueHref(item)}#plato-${item.id}`;
-}
-
-function shouldIgnorePostNavigation(target: EventTarget | null) {
-  return (
-    target instanceof HTMLElement &&
-    Boolean(target.closest("a, button, input, textarea, select, [role='button']"))
-  );
-}
-
-function getCartVenueFromShowcaseItem(item: HomeShowcaseItem): CartVenue {
-  return {
-    id: item.venue.id,
-    slug: item.venue.slug,
-    name: item.venue.name,
-    citySlug: item.venue.citySlug,
-    cityName: item.venue.cityName,
-    address: item.venue.address,
-    phone: item.venue.phone,
-    coverUrl: item.venue.coverUrl,
-    pickupEtaMin: item.pickupEtaMin,
-    pricesVisible: item.venue.pricesVisible,
-  };
-}
-
-function getCartItemFromShowcaseItem(item: HomeShowcaseItem) {
-  return {
-    id: item.id,
-    name: item.name,
-    description: item.description,
-    priceAmount: item.priceAmount,
-    currency: item.currency,
-    priceDisplayMode: item.priceDisplayMode,
-    priceDisplayText: item.priceDisplayText,
-    imageUrl: item.imageUrl,
-  };
-}
-
 function getVenueDistanceLabel(
   item: HomeShowcaseItem,
   userLocation: UserLocation | null,
@@ -344,95 +320,13 @@ function getVenueDistanceInKm(
   );
 }
 
-function getPickupDistanceBadgeLabel(
-  item: HomeShowcaseItem,
-  userLocation: UserLocation | null,
-) {
-  const venueCoordinates = resolveVenueCoordinates({
-    slug: item.venue.slug,
-    latitude: item.venue.latitude,
-    longitude: item.venue.longitude,
-  });
-
-  if (!userLocation || !venueCoordinates) {
-    return "Distancia no disponible";
-  }
-
-  return `A ${getVenueDistanceLabel(item, userLocation)}`;
-}
-
 function getShortDescription(item: HomeShowcaseItem) {
   return item.description?.trim() || "Plato real de un local cercano.";
-}
-
-function isPolloKatsuHeroDish(item: HomeShowcaseItem) {
-  const searchableText = [
-    item.name,
-    item.description ?? "",
-    item.categoryName ?? "",
-  ]
-    .join(" ")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("es");
-
-  return searchableText.includes("pollo katsu") || searchableText.includes("katsu");
 }
 
 function getVenueAvatarLabel(item: HomeShowcaseItem) {
   return item.venue.name.trim().slice(0, 1).toLocaleUpperCase("es");
 }
-
-const demoDishVideoUrls = [
-  "https://cdn.pixabay.com/video/2024/08/18/227128_large.mp4",
-  "https://cdn.pixabay.com/video/2024/08/18/227137_large.mp4",
-  "https://cdn.pixabay.com/video/2023/03/08/153818-806178220_large.mp4",
-];
-
-const PLATOS_HERO_BURST_LAYERS = [
-  {
-    src: "/home/assets/asset_pollo_katsu_explosion_transparent.png",
-    className: "absolute hidden sm:block",
-    height: 460,
-    style: {
-      right: -116,
-      top: -118,
-    },
-    width: 460,
-    initialTransform: "translate3d(-52px, 82px, 0) scale(0.5) rotate(-10deg)",
-    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(10deg)",
-    hoverOpacity: 1,
-    delay: 0,
-  },
-  {
-    src: "/home/assets/asset_arroz_katsu_explosion_transparent.png",
-    className: "absolute hidden sm:block",
-    height: 300,
-    style: {
-      left: -92,
-      top: 26,
-    },
-    width: 300,
-    initialTransform: "translate3d(70px, 38px, 0) scale(0.52) rotate(-8deg)",
-    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(-13deg)",
-    hoverOpacity: 0.96,
-    delay: 90,
-  },
-  {
-    src: "/home/assets/asset_salsa_katsu_explosion_transparent.png",
-    className: "absolute hidden sm:block",
-    height: 260,
-    style: {
-      bottom: -58,
-      right: -82,
-    },
-    width: 260,
-    initialTransform: "translate3d(-56px, -60px, 0) scale(0.52) rotate(8deg)",
-    hoverTransform: "translate3d(0, 0, 0) scale(1) rotate(14deg)",
-    hoverOpacity: 0.94,
-    delay: 160,
-  },
-];
 
 function DishVisualMedia({
   item,
@@ -612,99 +506,11 @@ function getPromoCardClassName(
         ? "lg:row-span-2"
         : "lg:row-span-1";
 
-  return `explore-card group block w-full overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:h-full ${sizeClassName} ${
+  return `pickyalo-media-card explore-card group block w-full overflow-hidden rounded-none text-left row-span-3 active:scale-[0.992] sm:rounded-[1rem] lg:h-full ${sizeClassName} ${
     isLightTheme
       ? "bg-[linear-gradient(135deg,rgba(255,250,240,0.96),rgba(245,255,248,0.94),rgba(255,245,214,0.96))] shadow-[0_18px_40px_rgba(0,0,0,0.08)]"
       : "bg-[linear-gradient(135deg,rgba(19,30,24,0.96),rgba(11,23,18,0.96),rgba(64,48,18,0.82))] shadow-[0_18px_40px_rgba(0,0,0,0.24)]"
   }`;
-}
-
-function getPromoTileConfig(
-  id: PromoTileId,
-  promoHrefs: Record<PromoTileId, string>,
-) {
-  switch (id) {
-    case "sabor-en-video":
-      return {
-        href: promoHrefs["sabor-en-video"],
-        label: "#VideoPick",
-        dish: "Selección en movimiento",
-        imageUrl: null,
-        videoUrl: demoDishVideoUrls[0],
-        variant: "standard" as const,
-      };
-    case "simpre-fit":
-      return {
-        href: promoHrefs["simpre-fit"],
-        label: "#ChefLive",
-        dish: "Cocina real",
-        imageUrl: null,
-        videoUrl: demoDishVideoUrls[1],
-        variant: "standard" as const,
-      };
-    case "huelaa-bbq":
-      return {
-        href: promoHrefs["huelaa-bbq"],
-        label: "#AhoraSeVe",
-        dish: "Local en movimiento",
-        imageUrl: null,
-        videoUrl: demoDishVideoUrls[2],
-        variant: "standard" as const,
-      };
-    case "mira-que-pollo":
-    default:
-      return {
-        href: promoHrefs["mira-que-pollo"],
-        label: "\uD83C\uDF57 #MiraQuePollo",
-        dish: "Pollo Asado Entero",
-        imageUrl:
-          "https://images.unsplash.com/photo-1518492104633-130d0cc84637?auto=format&fit=crop&w=1600&q=80",
-        videoUrl: null,
-        variant: "wide" as const,
-      };
-  }
-}
-
-function getPromoShotMetadata(id: PromoTileId) {
-  switch (id) {
-    case "sabor-en-video":
-      return {
-        title: "Selección en movimiento",
-        venueName: "Pickyalo Shots",
-        locationLabel: "Formato vídeo",
-        description:
-          "Un producto destacado en movimiento para decidir rápido y recoger en local.",
-        priceLabel: "Demo",
-      };
-    case "simpre-fit":
-      return {
-        title: "Cocina real",
-        venueName: "Local destacado",
-        locationLabel: "Recogida local",
-        description:
-          "Una escena breve para ver mejor el producto antes de abrir el detalle real.",
-        priceLabel: "Shot",
-      };
-    case "huelaa-bbq":
-      return {
-        title: "Local en movimiento",
-        venueName: "Escaparate visual",
-        locationLabel: "Cerca de ti",
-        description:
-          "Vídeo corto pensado para productos y platos que necesitan verse en acción.",
-        priceLabel: "Nuevo",
-      };
-    case "mira-que-pollo":
-    default:
-      return {
-        title: "Pollo Asado Entero",
-        venueName: "Pickyalo",
-        locationLabel: "Para recoger",
-        description:
-          "Post visual de producto destacado para abrir después como detalle.",
-        priceLabel: "Ver",
-      };
-  }
 }
 
 function getExploreCardClassName(
@@ -724,18 +530,18 @@ function getExploreCardClassName(
     contentScore >= 76 && getStableHash(`${item.id}:${index}:feed`) % 4 === 0;
 
   if (isPromoted) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName} ring-1 ring-white/14`;
+    return `pickyalo-media-card explore-card featured-feed-glow group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
   }
 
   if (item.isFeatured || item.isHomeFeatured) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
+    return `pickyalo-media-card explore-card featured-feed-glow group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
   }
 
   if (item.isPickupMonthHighlight) {
-    return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
+    return `pickyalo-media-card explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] lg:row-span-2 lg:h-full ${surfaceClassName}`;
   }
 
-  return `explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] ${
+  return `pickyalo-media-card explore-card group block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 active:scale-[0.992] sm:rounded-[1rem] ${
     shouldUseTallCard ? "lg:row-span-2" : "lg:row-span-1"
   } lg:h-full ${surfaceClassName}`;
 }
@@ -849,7 +655,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           badge: "mt-2 inline-flex rounded-full border border-[#0f4fff]/12 bg-[linear-gradient(135deg,rgba(15,79,255,0.08),rgba(116,19,20,0.18))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#1840a8]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#153b8d]",
           body: "mt-3 text-sm leading-6 text-black/64",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-[#FFF7E8] text-[#153b8d] transition hover:text-[#153b8d]/72",
+          close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#0f4fff]/10 bg-[#FFF7E8] text-[#153b8d] transition hover:text-[#153b8d]/72",
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#4f86ff]/18 bg-[linear-gradient(160deg,rgba(18,28,58,0.84),rgba(10,26,44,0.9),rgba(65,52,18,0.72))] shadow-[0_18px_42px_rgba(0,0,0,0.24)] backdrop-blur-xl",
@@ -857,7 +663,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           badge: "mt-2 inline-flex rounded-full border border-[#4f86ff]/16 bg-[linear-gradient(135deg,rgba(57,95,196,0.28),rgba(116,19,20,0.14))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#dfe7ff]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/42",
           body: "mt-3 text-sm leading-6 text-white/68",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/44 transition hover:text-white/74",
+          close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/44 transition hover:text-white/74",
         };
   }
 
@@ -869,7 +675,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/18 bg-[linear-gradient(135deg,rgba(255,186,73,0.12),rgba(255,236,174,0.2))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#8b5d10]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#61433A]",
           body: "mt-3 text-sm leading-6 text-black/62",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
+          close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
         }
       : {
           panel: "overflow-hidden rounded-[1.15rem] border border-[#ffd766]/14 bg-[linear-gradient(180deg,rgba(49,33,8,0.52),rgba(255,255,255,0.04))] backdrop-blur-xl",
@@ -877,7 +683,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
           badge: "mt-2 inline-flex rounded-full border border-[#ffd766]/14 bg-[linear-gradient(135deg,rgba(255,183,66,0.12),rgba(255,240,187,0.06))] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-[#ffe2a6]",
           eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#FDE3AD]",
           body: "mt-3 text-sm leading-6 text-white/64",
-          close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/40 transition hover:text-white/70",
+          close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/40 transition hover:text-white/70",
         };
   }
 
@@ -888,7 +694,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
         badge: "mt-2 inline-flex rounded-full border border-black/8 bg-black/[0.03] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-black/62",
         eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-[#61433A]",
         body: "mt-3 text-sm leading-6 text-black/62",
-        close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
+        close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black/8 bg-[#FFF7E8] text-black/40 transition hover:text-black/70",
       }
     : {
         panel: "overflow-hidden rounded-[1.15rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.06),rgba(255,255,255,0.035))] backdrop-blur-xl",
@@ -896,7 +702,7 @@ function getCurationInfoSurface(filter: CurationFilter, isLightTheme: boolean) {
         badge: "mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium tracking-[0.04em] text-white/62",
         eyebrow: "text-[10px] font-semibold uppercase tracking-[0.24em] text-white/34",
         body: "mt-3 text-sm leading-6 text-white/62",
-        close: "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/40 transition hover:text-white/70",
+        close: "pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/40 transition hover:text-white/70",
       };
 }
 
@@ -941,11 +747,20 @@ function getCurationInfoBadge(filter: CurationFilter) {
 
 export function DemoDishesCarousel({
   items,
+  venues = [],
+  shots = [],
   template,
   funnelSettings = defaultSiteFunnelSettings,
   chips = [],
-  heroImageUrl = "https://images.unsplash.com/photo-1778048840966-04589f37c525?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  mapboxAccessToken,
+  locationPickerCenter,
 }: DemoDishesCarouselProps) {
+  const { resolvedTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -964,8 +779,6 @@ export function DemoDishesCarousel({
   const searchShellRef = useRef<HTMLDivElement>(null);
   const searchFieldRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const heroVisualRef = useRef<HTMLDivElement>(null);
-  const mobileSheetRef = useRef<HTMLDivElement>(null);
   const shotPanelRef = useRef<HTMLElement>(null);
   const shotTouchStartRef = useRef<{ x: number; y: number } | null>(null);
   const shotWheelTimestampRef = useRef(0);
@@ -976,16 +789,21 @@ export function DemoDishesCarousel({
   const mobileOverlayTouchStartRef = useRef<{ x: number; y: number } | null>(
     null,
   );
-  const touchStartYRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(null);
   const curationFilter: CurationFilter = curationOptions.find(
     (option) => option.id === searchParams.get("filter"),
   )?.id ?? "all";
-  const setCurationFilter = (filter: CurationFilter) => {
+  const selectTag = (selection: { filter: CurationFilter } | { chip: string } | null) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (filter === "all") params.delete("filter");
-    else params.set("filter", filter);
+    params.delete("filter");
+    params.delete("chip");
+    if (selection && "filter" in selection && selection.filter !== curationFilter) {
+      params.set("filter", selection.filter);
+    } else if (selection && "chip" in selection && selection.chip !== activeChipSlug) {
+      params.set("chip", selection.chip);
+    }
+    setActiveCurationInfo(null);
     const query = params.toString();
     router.push(`${pathname}${query ? `?${query}` : ""}${window.location.hash}`, { scroll: false });
   };
@@ -1001,12 +819,17 @@ export function DemoDishesCarousel({
     else router.push(href, { scroll: false });
   }, [pathname, router, searchParams]);
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [browseMode, setBrowseMode] = useState<"products" | "venues">(
+    searchParams.get("modo") === "locales" ? "venues" : "products",
+  );
+  const [intent, setIntent] = useState<DiscoveryIntent>("all");
+  const shotIds = useMemo(() => shots.map(shot => shot.slot), [shots]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isMobileSheetExpanded, setIsMobileSheetExpanded] = useState(false);
   const [isPostImageFullscreen, setIsPostImageFullscreen] = useState(false);
   const [activePostImageIndex, setActivePostImageIndex] = useState(0);
   const [showDishSwipeHint, setShowDishSwipeHint] = useState(false);
+  const [isManualLocationOpen, setIsManualLocationOpen] = useState(false);
   const dishSwipeHintShownForOpenRef = useRef(false);
   const [postFeedback, setPostFeedback] = useState<string | null>(null);
   const [activeShotId, setActiveShotId] = useState<PromoTileId | null>(null);
@@ -1022,7 +845,15 @@ export function DemoDishesCarousel({
     feedback: locationFeedback,
     activate: activateNearMode,
   } = useNearMode();
-  const [isHeroDishBurstActive, setIsHeroDishBurstActive] = useState(false);
+
+  const selectBrowseMode = (mode: "products" | "venues") => {
+    setBrowseMode(mode);
+    const params = new URLSearchParams(window.location.search);
+    if (mode === "venues") params.set("modo", "locales");
+    else params.delete("modo");
+    const query = params.toString();
+    window.history.replaceState({}, "", `${pathname}${query ? `?${query}` : ""}${window.location.hash}`);
+  };
 
   const cityScopedItems = useMemo(() => {
     if (!selectedCitySlug) {
@@ -1039,55 +870,34 @@ export function DemoDishesCarousel({
     () => distributeShowcaseItems(cityScopedItems),
     [cityScopedItems],
   );
-  const heroPreviewItems = useMemo(
-    () => displayItems.filter((item) => Boolean(item.imageUrl)).slice(0, 3),
-    [displayItems],
-  );
-  const heroDishPostItem = useMemo(
-    () =>
-      displayItems.find(
-        (item) => Boolean(item.imageUrl) && isPolloKatsuHeroDish(item),
-      ) ??
-      heroPreviewItems[0] ??
-      null,
-    [displayItems, heroPreviewItems],
-  );
   const primaryCity = useMemo(() => getMostCommonCity(displayItems), [displayItems]);
-  const categoryOptions = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          displayItems
-            .map((item) => item.categoryName?.trim())
-            .filter((category): category is string => Boolean(category)),
-        ),
-      ).sort((left, right) => left.localeCompare(right, "es")),
-    [displayItems],
-  );
-  const baseFilteredItems = useMemo(
-    () =>
-      getFilteredItems(
-        displayItems,
-        curationFilter,
-        categoryFilter,
-        primaryCity?.slug ?? null,
-        searchQuery,
-      ),
-    [categoryFilter, curationFilter, displayItems, primaryCity, searchQuery],
-  );
+  const scopedVenues = useMemo(() => venues.filter(venue => !selectedCitySlug || venue.citySlug === selectedCitySlug), [venues, selectedCitySlug]);
+  const categoryOptions = useMemo(() => Array.from(new Set([
+    ...displayItems.filter(item => matchesIntent(item.categoryName, intent)).map(productCategory),
+    ...(browseMode === "venues" ? scopedVenues.map(venue => resolveVenueCategory(venue.slug, venue.discoveryCategory)).filter(category => matchesIntent(category, intent)) : []),
+  ])).sort((a,b) => a.localeCompare(b, "es")), [displayItems, scopedVenues, intent, browseMode]);
+  const tagCandidateItems = useMemo(() => getFilteredItems(
+    displayItems.filter(item => matchesIntent(item.categoryName, intent)),
+    "all", "all", primaryCity?.slug ?? null, searchQuery,
+  ).filter(item => categoryFilter === "all" || productCategory(item) === categoryFilter), [categoryFilter, displayItems, primaryCity, searchQuery, intent]);
+  const baseFilteredItems = useMemo(() => getFilteredItems(
+    tagCandidateItems, curationFilter, "all", primaryCity?.slug ?? null, "",
+  ), [tagCandidateItems, curationFilter, primaryCity]);
+  const visibleEditorialTags = useMemo(() => curationOptions.filter(option =>
+    option.id !== "all" && (option.id === curationFilter || (
+      editorialTagFilters.includes(option.id) && getFilteredItems(
+        tagCandidateItems, option.id, "all", primaryCity?.slug ?? null, "",
+      ).length > 0
+    )),
+  ), [curationFilter, tagCandidateItems, primaryCity]);
   const visibleChips = useMemo(() => {
-    const availableItemIds = new Set(baseFilteredItems.map((item) => item.id));
+    const availableItemIds = new Set(tagCandidateItems.map((item) => item.id));
 
-    return chips
-      .map((chip) => ({
-        ...chip,
-        itemIds: chip.itemIds.filter((itemId) => availableItemIds.has(itemId)),
-      }))
-      .filter((chip) => chip.itemIds.length > 0);
-  }, [baseFilteredItems, chips]);
+    return chips.filter(chip => chip.slug === activeChipSlug || chip.itemIds.some(itemId => availableItemIds.has(itemId)));
+  }, [tagCandidateItems, chips, activeChipSlug]);
   const activeChip = useMemo(
-    () => visibleChips.find((chip) => chip.slug === activeChipSlug) ?? null,
-    [activeChipSlug, visibleChips],
+    () => chips.find((chip) => chip.slug === activeChipSlug) ?? null,
+    [activeChipSlug, chips],
   );
   const filteredItems = useMemo(() => {
     let nextItems = baseFilteredItems;
@@ -1112,6 +922,21 @@ export function DemoDishesCarousel({
       return leftDistance - rightDistance;
     });
   }, [activeChip, baseFilteredItems, userLocation]);
+  const filteredVenues = useMemo(() => {
+    const matchingIds = new Set(filteredItems.map(item => item.venue.id));
+    const q = searchQuery.trim().toLocaleLowerCase("es");
+    const results = scopedVenues.filter(venue => {
+      const category = resolveVenueCategory(venue.slug, venue.discoveryCategory);
+      const directMatch = matchesIntent(category, intent) && (categoryFilter === "all" || categoryFilter === category)
+        && (!q || [venue.name, venue.description, category].some(text => text?.toLocaleLowerCase("es").includes(q)));
+      if (activeChipSlug || curationFilter !== "all") return matchingIds.has(venue.id);
+      return directMatch || matchingIds.has(venue.id);
+    });
+    if (!userLocation) return results;
+    const distance = (venue: DiscoveryVenue) => venue.latitude !== null && venue.longitude !== null
+      ? getDistanceInKm(userLocation.latitude, userLocation.longitude, venue.latitude, venue.longitude) : Infinity;
+    return [...results].sort((a,b) => distance(a) - distance(b));
+  }, [filteredItems, scopedVenues, searchQuery, intent, categoryFilter, activeChipSlug, curationFilter, userLocation]);
   const feedEntries = useMemo<FeedEntry[]>(() => {
     const featuredConfig = funnelSettings.platos.featuredFeed;
     const featuredItem =
@@ -1122,7 +947,7 @@ export function DemoDishesCarousel({
       (item) => item.id !== featuredItem?.id,
     );
     const entries = feedItems.map<FeedEntry>((item) => ({ type: "dish", item }));
-    const promoEntries: FeedEntry[] = SHOT_PROMO_IDS.map((id) => ({
+    const promoEntries: FeedEntry[] = shotIds.slice(0, Math.floor(feedItems.length / 4)).map((id) => ({
       type: "promo",
       id,
     }));
@@ -1148,28 +973,24 @@ export function DemoDishesCarousel({
     });
 
     return entries;
-  }, [filteredItems, funnelSettings]);
+  }, [filteredItems, funnelSettings, shotIds]);
+  const visibleFeed = useMemo<FeedEntry[]>(() => {
+    if (browseMode === "products") return feedEntries;
+    const entries: FeedEntry[] = filteredVenues.map(venue => ({type:"venue",venue}));
+    shotIds.slice(0, Math.floor(filteredVenues.length / 4)).forEach((id,index) => entries.splice(4 + index * 5,0,{type:"promo",id}));
+    return entries;
+  }, [browseMode, feedEntries, filteredVenues, shotIds]);
   const itemIndexById = useMemo(
     () =>
       new Map(filteredItems.map((item, index) => [item.id, index] as const)),
     [filteredItems],
   );
   const activeShot = useMemo(() => {
-    if (!activeShotId) {
-      return null;
-    }
-
-    const promo = getPromoTileConfig(activeShotId, content.promoHrefs);
-    const metadata = getPromoShotMetadata(activeShotId);
-
-    return {
-      ...promo,
-      ...metadata,
-    };
-  }, [activeShotId, content.promoHrefs]);
-  const activeShotPosition = activeShotId
-    ? SHOT_PROMO_IDS.findIndex((id) => id === activeShotId)
-    : -1;
+    const shot = shots.find(shot => shot.slot === activeShotId);
+    if (!shot) return null;
+    return { ...shot, venueName: shot.label, locationLabel: discoveryDistance(shot, userLocation) ?? "Talavera de la Reina", priceLabel: shot.dateLabel ?? "Una parada por descubrir" };
+  }, [activeShotId, shots, userLocation]);
+  const activeShotPosition = activeShotId ? shotIds.findIndex(id => id === activeShotId) : -1;
 
   useEffect(() => {
     if (!activeShot || !activeShotId || !activeShotOrigin) {
@@ -1205,8 +1026,8 @@ export function DemoDishesCarousel({
     [activeItem, activeVenueItems],
   );
   const hasActiveVenueNavigation = activeVenueItems.length > 1;
-  const isLightTheme = true;
-  const filterChipClass = (active: boolean) => `inline-flex min-h-11 items-center justify-center rounded-full border px-3.5 py-2 text-[11px] font-bold tracking-[0.06em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] ${
+  const isLightTheme = !themeReady || resolvedTheme !== "dark";
+  const filterChipClass = (active: boolean) => `relative inline-flex min-h-10 items-center justify-center rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-[0.025em] transition after:absolute after:-inset-y-1 after:inset-x-0 after:content-[''] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ${isLightTheme ? "focus-visible:outline-[#741314]" : "focus-visible:outline-[#FDE3AD]"} ${
     active
       ? isLightTheme ? "border-[#741314] bg-[#741314] text-[#FFF7E8] shadow-[0_3px_0_#4e1011]" : "border-[#FDE3AD] bg-[#FDE3AD] text-[#741314] shadow-[0_3px_0_#b59460]"
       : isLightTheme ? "border-[#741314]/25 bg-[#FFF7E8] text-[#741314] hover:bg-[#FDE3AD]" : "border-[#FDE3AD]/50 bg-[#24110E] text-[#FDE3AD] hover:bg-[#741314]"
@@ -1227,18 +1048,6 @@ export function DemoDishesCarousel({
     () => getCurationInfoSurface(activeCurationInfo ?? "all", isLightTheme),
     [activeCurationInfo, isLightTheme],
   );
-
-  const openDishPost = (item: HomeShowcaseItem) => {
-    const targetIndex = filteredItems.findIndex(
-      (candidate) => candidate.id === item.id,
-    );
-
-    if (targetIndex >= 0) {
-      setOverlayDirection(1);
-      setActiveIndex(targetIndex);
-      setPostFeedback(null);
-    }
-  };
 
   useEffect(() => {
     const requestedPostId =
@@ -1292,10 +1101,6 @@ export function DemoDishesCarousel({
       setActiveChipSlug(null, true);
     }
   }, [activeChip, activeChipSlug, setActiveChipSlug]);
-
-  const handleLocationRequest = async () => {
-    await activateNearMode();
-  };
 
   useEffect(() => {
     const syncSelectedCity = () => {
@@ -1381,7 +1186,7 @@ export function DemoDishesCarousel({
       return;
     }
 
-    const href = `${window.location.origin}/platos`;
+    const href = new URL(activeShot.href, window.location.origin).href;
     const shareText = `Mira este Shot: ${activeShot.title} — Pickyalo`;
 
     if (navigator.share) {
@@ -1398,99 +1203,9 @@ export function DemoDishesCarousel({
       }
     }
 
-    await navigator.clipboard?.writeText(`${shareText}\n${href}`);
-    setShotFeedback("Enlace copiado");
+    try { await navigator.clipboard.writeText(`${shareText}\n${href}`); setShotFeedback("Enlace copiado"); } catch { setShotFeedback("No se ha podido copiar el enlace."); }
   };
 
-  const handleAddPostToCart = (item: HomeShowcaseItem) => {
-    if (!item.venue.pricesVisible) {
-      setPostFeedback("El local todavía está confirmando sus precios.");
-      return;
-    }
-
-    const venue = getCartVenueFromShowcaseItem(item);
-    const cartItem = getCartItemFromShowcaseItem(item);
-    const trackedItemPrice = getTrackedItemPrice(item);
-    const result = addItemToCart({
-      venue,
-      item: cartItem,
-    });
-
-    if (result.status === "conflict") {
-      setPostFeedback(`Tu cesta pertenece a ${result.conflictingVenueName}.`);
-      showErrorToast({
-        title: "Cesta de otro local",
-        description: result.conflictingVenueName,
-      });
-      return;
-    }
-
-    captureAddToCart({
-      city_slug: venue.citySlug,
-      venue_id: venue.id,
-      venue_slug: venue.slug,
-      venue_name: venue.name,
-      item_id: cartItem.id,
-      item_name: cartItem.name,
-      item_price: trackedItemPrice,
-      item_category: item.categoryName,
-      currency: cartItem.currency,
-      quantity: 1,
-      cart_total_items: result.cart.items.reduce(
-        (totalItems, resultItem) => totalItems + resultItem.quantity,
-        0,
-      ),
-      source: "platos_post_modal",
-    });
-
-    trackEvent("add_to_cart", {
-      city_slug: venue.citySlug,
-      city_name: venue.cityName,
-      venue_id: venue.id,
-      venue_slug: venue.slug,
-      venue_name: venue.name,
-      item_id: cartItem.id,
-      item_name: cartItem.name,
-      source: "platos_post_modal",
-      item_price: trackedItemPrice,
-      currency: cartItem.currency,
-    });
-
-    setPostFeedback("A\u00f1adido para recoger.");
-    showCartToast({
-      title: "Añadido a tu cesta",
-      description: cartItem.name,
-    });
-  };
-
-  const handleMobileSheetTouchStart = (
-    event: React.TouchEvent<HTMLDivElement>,
-  ) => {
-    touchStartYRef.current = event.touches[0]?.clientY ?? null;
-  };
-
-  const handleMobileSheetTouchEnd = (
-    event: React.TouchEvent<HTMLDivElement>,
-  ) => {
-    const startY = touchStartYRef.current;
-    const endY = event.changedTouches[0]?.clientY ?? null;
-
-    touchStartYRef.current = null;
-
-    if (startY === null || endY === null) {
-      return;
-    }
-
-    const deltaY = endY - startY;
-
-    if (deltaY <= -36) {
-      setIsMobileSheetExpanded(true);
-    }
-
-    if (deltaY >= 36) {
-      setIsMobileSheetExpanded(false);
-    }
-  };
 
   const handleMobileOverlayTouchStart = (
     event: React.TouchEvent<HTMLElement>,
@@ -1519,10 +1234,10 @@ export function DemoDishesCarousel({
       const nextThreshold =
         DISH_NAVIGATION_SHOT_THRESHOLDS[injectedShotCountRef.current];
 
-      if (!nextThreshold || navigationCount < nextThreshold) return;
+      if (!nextThreshold || navigationCount < nextThreshold || shotIds.length === 0) return;
 
       const nextShotId =
-        SHOT_PROMO_IDS[injectedShotCountRef.current % SHOT_PROMO_IDS.length];
+        shotIds[injectedShotCountRef.current % shotIds.length];
       injectedShotCountRef.current += 1;
       setActiveShotOrigin("interstitial");
       setShotFeedback(null);
@@ -1531,7 +1246,7 @@ export function DemoDishesCarousel({
       setShowShotSwipeHint(true);
       setActiveShotId(nextShotId);
     },
-    [activeIndex, filteredItems],
+    [activeIndex, filteredItems, shotIds],
   );
   const activePostImages = useMemo(() => {
     if (!activeItem) return [];
@@ -1572,14 +1287,14 @@ export function DemoDishesCarousel({
       return;
     }
 
-    const deltaY = endY - start.y;
     const deltaX = endX - start.x;
+    const deltaY = endY - start.y;
 
-    if (Math.abs(deltaY) < 58 || Math.abs(deltaY) <= Math.abs(deltaX) * 1.2) {
+    if (Math.abs(deltaX) < 58 || Math.abs(deltaX) <= Math.abs(deltaY) * 1.2) {
       return;
     }
 
-    navigateDish(deltaY < 0 ? 1 : -1);
+    navigateDish(deltaX < 0 ? 1 : -1);
   };
 
   const handleDishWheel = (event: React.WheelEvent<HTMLDivElement>) => {
@@ -1613,14 +1328,14 @@ export function DemoDishesCarousel({
     setActiveShotId((current) => {
       if (!current) return current;
 
-      const currentIndex = SHOT_PROMO_IDS.findIndex((id) => id === current);
+      const currentIndex = shotIds.findIndex((id) => id === current);
       const safeIndex = currentIndex >= 0 ? currentIndex : 0;
       const nextIndex =
-        (safeIndex + direction + SHOT_PROMO_IDS.length) % SHOT_PROMO_IDS.length;
+        (safeIndex + direction + shotIds.length) % shotIds.length;
 
-      return SHOT_PROMO_IDS[nextIndex];
+      return shotIds[nextIndex] ?? null;
     });
-  }, [activeShotOrigin]);
+  }, [activeShotOrigin, shotIds]);
 
   const handleShotTouchStart = (event: React.TouchEvent<HTMLElement>) => {
     shotTouchStartRef.current = {
@@ -1718,7 +1433,6 @@ export function DemoDishesCarousel({
     if (activeIndex === null) {
       dishSwipeHintShownForOpenRef.current = false;
       setShowDishSwipeHint(false);
-      setIsMobileSheetExpanded(false);
       setIsPostImageFullscreen(false);
       return;
     }
@@ -1892,36 +1606,6 @@ export function DemoDishesCarousel({
 
   useGSAP(
     () => {
-      if (!mobileSheetRef.current || activeIndex === null) {
-        return;
-      }
-
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      if (reduceMotion) {
-        gsap.set(mobileSheetRef.current, {
-          y: 0,
-        });
-        return;
-      }
-
-      gsap.to(mobileSheetRef.current, {
-        y: 0,
-        duration: 0.28,
-        ease: "power3.out",
-      });
-    },
-    {
-      scope: rootRef,
-      dependencies: [activeIndex, isMobileSheetExpanded],
-      revertOnUpdate: true,
-    },
-  );
-
-  useGSAP(
-    () => {
       if (!searchFieldRef.current) {
         return;
       }
@@ -1952,44 +1636,6 @@ export function DemoDishesCarousel({
     },
   );
 
-  useGSAP(
-    () => {
-      if (!heroVisualRef.current || heroPreviewItems.length === 0) {
-        return;
-      }
-
-      const cards = heroVisualRef.current.querySelectorAll(
-        "[data-hero-preview-card]",
-      );
-      const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
-
-      if (reduceMotion) {
-        gsap.set(cards, { autoAlpha: 1, y: 0 });
-        return;
-      }
-
-      gsap.fromTo(
-        cards,
-        { autoAlpha: 0, y: 18 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.54,
-          ease: "power3.out",
-          stagger: 0.09,
-          delay: 0.08,
-        },
-      );
-    },
-    {
-      scope: heroVisualRef,
-      dependencies: [heroPreviewItems.length],
-      revertOnUpdate: true,
-    },
-  );
-
   useEffect(() => {
     if (!shouldKeepSearchOpen) {
       return;
@@ -2004,7 +1650,7 @@ export function DemoDishesCarousel({
     };
   }, [shouldKeepSearchOpen]);
 
-  if (displayItems.length === 0) {
+  if (displayItems.length === 0 && venues.length === 0) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#050816] px-6 text-white">
         <div className="max-w-lg text-center">
@@ -2034,7 +1680,7 @@ export function DemoDishesCarousel({
       ref={rootRef}
       className={
         isLightTheme
-          ? "min-h-screen bg-[#f6f2ea] text-[#141414]"
+          ? "public-light-theme pickyalo-public-canvas min-h-screen text-[#141414]"
           : "zylen-visual-skin min-h-screen text-white"
       }
     >
@@ -2067,255 +1713,32 @@ export function DemoDishesCarousel({
       `}</style>
       <SiteHeader />
       <section className="relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9">
-        <div
-          className={
-            isLightTheme
-              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(255,180,93,0.10),transparent_22%),linear-gradient(180deg,rgba(7,16,13,0.68)_0%,rgba(5,7,12,0.76)_100%)]"
-          }
-        />
-
         <div className="relative z-10 mx-auto max-w-[1600px]">
           <div className="flex min-h-[min(52svh,31rem)] flex-col">
             <div className="mt-4 flex flex-1 flex-col justify-center sm:mt-6">
-              <div className="relative -mx-2 overflow-visible rounded-[2rem] px-4 py-8 sm:-mx-4 sm:px-7 sm:py-9 lg:px-10 lg:py-10">
-                <div className="absolute inset-0 -z-10 overflow-hidden rounded-[inherit] bg-[#06100d]">
-                  <Image
-                    src={heroImageUrl}
-                    alt=""
-                    aria-hidden="true"
-                    fill
-                    sizes="100vw"
-                    className="object-cover opacity-72 saturate-[1.05]"
-                    priority
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(253,227,173,0.30)_0%,rgba(253,227,173,0)_100%)]" />
+              <header className={explorerStyles.header}>
+                <p className={explorerStyles.eyebrow}>Pickyalo · Lo bueno de aquí</p>
+                <h1>Déjate llevar.<em>Lo tienes cerca.</em></h1>
+                <p>Encuentra <strong>algo que te apetezca</strong> o descubre los locales que tienes <em>aquí al lado.</em></p>
+                <Image src="/home/hero/pickyalo-sticker.png" alt="" width={180} height={180} className={explorerStyles.mascot} />
+              </header>
+              <div className={explorerStyles.controls}>
+                <div className={explorerStyles.modes} role="group" aria-label="Explorar por productos o locales">
+                  <button type="button" aria-pressed={browseMode === "products"} onClick={() => selectBrowseMode("products")}>Productos</button>
+                  <button type="button" aria-pressed={browseMode === "venues"} onClick={() => selectBrowseMode("venues")}>Locales</button>
                 </div>
-                <div className="absolute inset-0 -z-10 rounded-[inherit] bg-[radial-gradient(circle_at_18%_18%,rgba(253,227,173,0.18),transparent_34%),radial-gradient(circle_at_84%_28%,rgba(253,227,173,0.14),transparent_32%),linear-gradient(180deg,rgba(255,247,232,0.08),transparent_42%)]" />
-                <div className="absolute inset-0 -z-10 rounded-[inherit] opacity-[0.18] [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.28)_1px,transparent_0)] [background-size:22px_22px]" />
-                <div className="absolute inset-x-6 bottom-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#741314]/35 to-transparent" />
-
-                <div className="relative z-10 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] lg:grid-cols-[minmax(0,1fr)_minmax(21rem,27rem)] lg:gap-12">
-                <div className="max-w-[42rem]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#741314]">
-                    {"CERCA DE TI"}
-                  </p>
-                  <h1 className="mt-3 max-w-[11ch] text-[clamp(2.75rem,9vw,6.35rem)] font-semibold leading-[0.86] tracking-[-0.08em] text-white drop-shadow-[0_18px_48px_rgba(0,0,0,0.45)] sm:max-w-[10ch]">
-                    {"Elige qu\u00e9 te apetece"}
-                  </h1>
-                  <p className="mt-5 inline-flex max-w-[31rem] rounded-[1.35rem] border border-[#FDE3AD] bg-[#FDE3AD] px-4 py-2.5 text-lg font-semibold leading-7 text-[#741314] shadow-[0_14px_34px_rgba(0,0,0,0.18)] sm:px-5 sm:py-3 sm:text-xl sm:leading-8">
-                    {"Mira una selección visual de productos y platos destacados para recoger."}
-                  </p>
+                <p className={explorerStyles.question}>¿Qué buscas hoy?</p>
+                <div className={explorerStyles.chips}>
+                  {([{id:"all",label:"Ver todo"},{id:"food",label:"Algo para comer"},{id:"local",label:"Otros productos"}] as const).map(option => <button key={option.id} type="button" className={filterChipClass(intent === option.id)} aria-pressed={intent === option.id} onClick={() => { setIntent(option.id); setCategoryFilter("all"); }}>{option.label}</button>)}
                 </div>
-
-                <div
-                  ref={heroVisualRef}
-                  className="relative mx-auto min-h-[30rem] w-full max-w-[21rem] overflow-visible md:min-h-[24rem] md:max-w-none lg:min-h-[27rem]"
-                >
-                  {heroDishPostItem ? (
-                    <div
-                      className="group absolute right-5 top-1/2 isolate w-full max-w-[19rem] -translate-y-1/2 overflow-visible md:right-8 lg:right-10 lg:max-w-[21rem]"
-                      onMouseEnter={() => setIsHeroDishBurstActive(true)}
-                      onMouseLeave={() => setIsHeroDishBurstActive(false)}
-                      onPointerEnter={() => setIsHeroDishBurstActive(true)}
-                      onPointerLeave={() => setIsHeroDishBurstActive(false)}
-                    >
-                      <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(116,19,20,0.16),rgba(169,64,42,0.10)_38%,transparent_72%)] blur-3xl" />
-                      {PLATOS_HERO_BURST_LAYERS.map((layer) => (
-                        <Image
-                          key={layer.src}
-                          src={layer.src}
-                          alt=""
-                          aria-hidden="true"
-                          width={layer.width}
-                          height={layer.height}
-                          className={`pointer-events-none z-0 origin-center object-contain blur-[0.1px] drop-shadow-[0_28px_62px_rgba(0,0,0,0.36)] transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:hidden motion-reduce:transition-none ${layer.className}`}
-                          style={{
-                            opacity: isHeroDishBurstActive ? layer.hoverOpacity : 0,
-                            transitionDelay: `${layer.delay}ms`,
-                            transform: isHeroDishBurstActive
-                              ? layer.hoverTransform
-                              : layer.initialTransform,
-                            ...layer.style,
-                          }}
-                        />
-                      ))}
-
-                      <article
-                        role="link"
-                        tabIndex={0}
-                        aria-label={`Ver ficha de ${getDishDisplayName(heroDishPostItem)}`}
-                        onClick={(event) => {
-                          if (shouldIgnorePostNavigation(event.target)) {
-                            return;
-                          }
-
-                          openDishPost(heroDishPostItem);
-                        }}
-                        onKeyDown={(event) => {
-                          if (event.key !== "Enter" && event.key !== " ") {
-                            return;
-                          }
-
-                          if (shouldIgnorePostNavigation(event.target)) {
-                            return;
-                          }
-
-                          event.preventDefault();
-                          openDishPost(heroDishPostItem);
-                        }}
-                        className="relative z-10 flex w-full cursor-pointer flex-col overflow-hidden rounded-[1.8rem] bg-[#f8f7f3] text-[#111111] shadow-[0_34px_84px_rgba(0,0,0,0.52),0_0_70px_rgba(116,19,20,0.12)] transition duration-500 hover:scale-[1.035] motion-safe:animate-[heroPlateFloat_9s_ease-in-out_infinite]"
-                      >
-                        <header className="flex items-center justify-between gap-3 px-3.5 py-3">
-                          <Link
-                            href={getVenueHref(heroDishPostItem)}
-                            className="flex min-w-0 items-center gap-3"
-                          >
-                            <span className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
-                              {heroDishPostItem.venue.logoUrl ? (
-                                <Image
-                                  src={heroDishPostItem.venue.logoUrl}
-                                  alt={heroDishPostItem.venue.name}
-                                  fill
-                                  sizes="40px"
-                                  className="object-cover"
-                                />
-                              ) : (
-                                getVenueAvatarLabel(heroDishPostItem)
-                              )}
-                            </span>
-                            <span className="min-w-0">
-                              <span className="block truncate text-sm font-semibold leading-4">
-                                {heroDishPostItem.venue.name}
-                              </span>
-                              <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
-                                {getVenueDistanceLabel(heroDishPostItem, userLocation)}
-                              </span>
-                            </span>
-                          </Link>
-                          <Link
-                            href={getVenueHref(heroDishPostItem)}
-                            aria-label="Ver local"
-                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
-                          >
-                            <MoreHorizontal className="h-5 w-5" />
-                          </Link>
-                        </header>
-
-                        <Link
-                          href={getDishHref(heroDishPostItem)}
-                          className="block shrink-0"
-                        >
-                          <div className="relative h-[12rem] overflow-hidden bg-[#141414] lg:h-[13.5rem]">
-                            <Image
-                              src={heroDishPostItem.imageUrl ?? ""}
-                              alt={heroDishPostItem.name}
-                              fill
-                              sizes="(max-width: 1024px) 19rem, 21rem"
-                              className="object-cover object-center transition duration-700 hover:scale-[1.025]"
-                              priority
-                            />
-                          </div>
-                        </Link>
-
-                        <section className="space-y-2.5 px-3.5 pb-4 pt-3">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-1.5">
-                              <Link
-                                href={getDishHref(heroDishPostItem)}
-                                aria-label="Ver detalle del plato"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
-                              >
-                                <Info className="h-5 w-5" />
-                              </Link>
-                              <Link
-                                href={getDishHref(heroDishPostItem)}
-                                aria-label="Compartir plato"
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#252525] transition hover:bg-black/[0.06]"
-                              >
-                                <Send className="h-5 w-5" />
-                              </Link>
-                            </div>
-                            <Link
-                              href={getDishHref(heroDishPostItem)}
-                              aria-label="Añadir para recoger"
-                              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#541011]"
-                            >
-                              <CartIcon size={24} />
-                            </Link>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <div className="flex items-start justify-between gap-3">
-                              <h2 className="line-clamp-2 min-w-0 text-lg font-semibold leading-5 tracking-[-0.04em] text-[#111111]">
-                                {getDishDisplayName(heroDishPostItem)}
-                              </h2>
-                              <span className="shrink-0 rounded-full bg-[#741314] px-3 py-1.5 text-sm font-bold text-[#FDE3AD]">
-                                {formatPrice(heroDishPostItem)}
-                              </span>
-                            </div>
-                            <p className="line-clamp-2 text-sm leading-5 text-[#5f5f5f]">
-                              {getShortDescription(heroDishPostItem)}
-                            </p>
-                            <span className="inline-flex rounded-full bg-[#111111]/[0.06] px-3 py-1.5 text-xs font-medium text-[#4a4a4a]">
-                              {heroDishPostItem.pickupEtaMin
-                                ? `Listo en ${heroDishPostItem.pickupEtaMin} min`
-                                : "Listo para recoger"}
-                            </span>
-                          </div>
-                        </section>
-                      </article>
-                    </div>
-                  ) : null}
+                <div className={explorerStyles.locationActions}>
+                  <button type="button" className={explorerStyles.near} onClick={() => void activateNearMode()} disabled={isLocating}><LocateFixed size={16} />{isLocating ? "Buscando tu ubicación…" : userLocation ? "Actualizar GPS" : "Usar GPS"}</button>
+                  <button type="button" className={explorerStyles.manualLocation} onClick={() => setIsManualLocationOpen(true)}><MapPinned size={16} aria-hidden="true" />Elegir mi punto</button>
+                  <Link href="/mapa" className={explorerStyles.mapLink}><MapPin size={16} aria-hidden="true" />Ver mapa</Link>
                 </div>
-                </div>
-                <div className="relative z-10 mt-8 flex flex-wrap items-center gap-2.5 border-t border-white/10 pt-5 sm:mt-9 sm:pt-6">
-                  {["R\u00e1pido", "Selección visual", "Para recoger", "Locales reales"].map((label) => (
-                    <span
-                      key={label}
-                      className={isLightTheme ? "rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.16)] backdrop-blur-md sm:px-3 sm:py-2 sm:text-xs" : "rounded-full border border-white/12 bg-white/[0.055] px-2.5 py-1.5 text-[10px] font-bold text-[#FDE3AD] shadow-[0_8px_18px_rgba(0,0,0,0.14)] backdrop-blur-md transition hover:border-[#741314]/30 hover:bg-[#741314]/10 hover:text-[#FDE3AD] sm:px-3 sm:py-2 sm:text-xs"}
-                    >
-                      {label}
-                    </span>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={handleLocationRequest}
-                    disabled={isLocating}
-                    aria-pressed={Boolean(userLocation)}
-                    aria-describedby={locationFeedback ? "location-status" : undefined}
-                    className={`inline-flex min-h-9 items-center gap-2 rounded-full border px-3 py-1.5 text-[10px] font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FDE3AD] focus-visible:ring-offset-2 focus-visible:ring-offset-[#741314] disabled:cursor-wait disabled:opacity-70 sm:min-h-10 sm:px-4 sm:py-2 sm:text-xs ${
-                      userLocation
-                        ? "border-[#B9DFC5] bg-[#E7F4EA] text-[#245C38] hover:bg-[#DDF0E3]"
-                        : "border-[#FDE3AD] bg-[#FFF7E8] text-[#741314] hover:bg-white"
-                    }`}
-                  >
-                    <LocateFixed aria-hidden="true" className="h-4 w-4 shrink-0" />
-                    {isLocating
-                      ? "Calculando distancia…"
-                      : userLocation
-                        ? "Más cerca primero"
-                        : "Ordenar por cercanía"}
-                    {userLocation && !isLocating ? (
-                      <span className="sr-only">
-                        . Pulsa para actualizar tu ubicación
-                      </span>
-                    ) : null}
-                  </button>
-                  {locationFeedback ? (
-                    <p
-                      id="location-status"
-                      className="basis-full text-xs font-semibold leading-5 text-white/85"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      {locationFeedback}
-                    </p>
-                  ) : null}
-                </div>
+                {locationFeedback ? <p role="status" className={explorerStyles.status}>{locationFeedback}</p> : null}
               </div>
-
-              <div className="mt-8 sm:mt-10 lg:mt-12">
+              <div className="mx-auto mt-5 flex w-full max-w-xl justify-center">
                 <label className="sr-only" htmlFor={content.searchInputId}>{content.searchLabel}</label>
                 <div
                   ref={searchShellRef}
@@ -2327,7 +1750,7 @@ export function DemoDishesCarousel({
                       : `flex h-12 items-center overflow-hidden rounded-[1.15rem] border border-white/10 bg-white/[0.04] backdrop-blur-xl transition-[width] duration-500 ease-out ${shouldKeepSearchOpen ? "w-full sm:w-[24rem]" : "w-12"}`
                   }
                 >
-                  <button type="button" onClick={handleSearchToggle} aria-label={"Abrir b\u00FAsqueda"} className={isLightTheme ? "inline-flex h-12 w-12 shrink-0 items-center justify-center text-black/40 transition hover:text-black/72" : "inline-flex h-12 w-12 shrink-0 items-center justify-center text-white/40 transition hover:text-white/72"}>
+                  <button type="button" onClick={handleSearchToggle} aria-label={"Abrir b\u00FAsqueda"} className={isLightTheme ? "inline-flex h-12 w-12 shrink-0 items-center justify-center text-[#741314] transition hover:text-[#5F0F10]" : "inline-flex h-12 w-12 shrink-0 items-center justify-center text-[#FDE3AD] transition hover:text-[#FFF7E8]"}>
                     <Search className="h-4 w-4" />
                   </button>
                   <div ref={searchFieldRef} className="flex min-w-0 flex-1 items-center pr-4 opacity-0">
@@ -2336,32 +1759,24 @@ export function DemoDishesCarousel({
                 </div>
               </div>
 
-              <div className="mt-7 space-y-5 pb-4 sm:mt-9 sm:space-y-6 sm:pb-5">
-                <div className="space-y-2">
-                  <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
-                    Qué plan llevas hoy
-                  </p>
-                  <div className="flex flex-wrap gap-2 pb-1">
-                  {curationOptions.map((filterOption) => {
-                    const isActive = curationFilter === filterOption.id;
-                    return (
-                      <button
-                        key={filterOption.id}
-                        type="button"
-                        aria-pressed={isActive}
-                        onClick={() => {
-                          const nextFilter = filterOption.id as CurationFilter;
-                          setCurationFilter(nextFilter);
-                          setActiveCurationInfo(nextFilter === "all" ? null : nextFilter);
-                        }}
-                        className={filterChipClass(isActive)}
-                      >
-                        {filterOption.label}
+              <div className="mx-auto mt-4 w-full max-w-4xl space-y-5 pb-4 text-center sm:pb-5">
+                {visibleEditorialTags.length > 0 || visibleChips.length > 0 ? (
+                  <div role="group" aria-label="Filtrar por etiquetas" className="flex flex-wrap justify-center gap-1.5 px-1 pb-1">
+                    <button type="button" onClick={() => selectTag(null)} aria-pressed={curationFilter === "all" && !activeChipSlug} className={filterChipClass(curationFilter === "all" && !activeChipSlug)}>
+                      Todos
+                    </button>
+                    {visibleEditorialTags.map(option => (
+                      <button key={option.id} type="button" onClick={() => selectTag({ filter: option.id })} aria-pressed={curationFilter === option.id} className={filterChipClass(curationFilter === option.id)}>
+                        {getEditorialTagLabel(option.id)}
                       </button>
-                    );
-                  })}
+                    ))}
+                    {visibleChips.map(chip => (
+                      <button key={chip.id} type="button" onClick={() => selectTag({ chip: chip.slug })} aria-pressed={activeChipSlug === chip.slug} className={filterChipClass(activeChipSlug === chip.slug)}>
+                        {chip.name}
+                      </button>
+                    ))}
                   </div>
-                </div>
+                ) : null}
 
                 {activeCurationInfoText ? (
                   <div
@@ -2393,48 +1808,12 @@ export function DemoDishesCarousel({
                   </div>
                 ) : null}
 
-                {visibleChips.length > 0 ? (
-                  <div className="space-y-2">
-                    <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
-                      Destacados ahora
-                    </p>
-                    <div className="flex flex-wrap gap-2 pb-1">
-                    <button
-                      type="button"
-                      onClick={() => setActiveChipSlug(null)}
-                      aria-pressed={activeChipSlug === null}
-                      className={filterChipClass(activeChipSlug === null)}
-                    >
-                      Todos los platos
-                    </button>
-                    {visibleChips.map((chip) => {
-                      const isActive = activeChipSlug === chip.slug;
-
-                      return (
-                        <button
-                          key={chip.id}
-                          type="button"
-                          onClick={() =>
-                            setActiveChipSlug(
-                              activeChipSlug === chip.slug ? null : chip.slug,
-                            )
-                          }
-                          aria-pressed={isActive}
-                          className={filterChipClass(isActive)}
-                        >
-                          {chip.name}
-                        </button>
-                      );
-                    })}
-                    </div>
-                  </div>
-                ) : null}
-
+                {intent !== "all" || categoryFilter !== "all" ? <>
                 <div className="space-y-2">
                   <p className={isLightTheme ? "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#61433A]" : "text-[10px] font-semibold uppercase tracking-[0.22em] text-[#FDE3AD]"}>
-                    Busca por antojo
+                    ¿Qué te apetece descubrir?
                   </p>
-                  <div className="flex flex-wrap gap-2 pb-1">
+                  <div className="flex flex-wrap justify-center gap-1.5 pb-1">
                   <button type="button" onClick={() => setCategoryFilter("all")} aria-pressed={categoryFilter === "all"} className={filterChipClass(categoryFilter === "all")}>
                     Todas
                   </button>
@@ -2449,6 +1828,7 @@ export function DemoDishesCarousel({
                   </div>
                 </div>
 
+                </> : null}
                 <div className="flex justify-center pt-1.5 sm:pt-2">
                   <div className={isLightTheme ? "inline-flex items-center gap-1.5 text-black/32" : "inline-flex items-center gap-1.5 text-white/28"}>
                     <ChevronDown className="h-4 w-4 animate-bounce" />
@@ -2458,12 +1838,15 @@ export function DemoDishesCarousel({
             </div>
           </div>
 
-          {filteredItems.length > 0 ? (
+          {(browseMode === "products" ? filteredItems.length : filteredVenues.length) > 0 ? (
             <>
               <div id="platos-feed" className="-mx-1.5 mt-5 grid scroll-mt-28 grid-cols-2 auto-rows-[8.8rem] gap-1.5 sm:mx-0 sm:mt-8 sm:auto-rows-[9.6rem] sm:gap-2.5 md:grid-cols-3 md:auto-rows-[7.2rem] lg:auto-rows-[10.2rem] lg:grid-flow-dense lg:gap-3 xl:auto-rows-[11.4rem]">
-                {feedEntries.map((entry, index) => {
+                {visibleFeed.map((entry, index) => {
+                if (entry.type === "venue") return <DiscoveryVenueCard key={entry.venue.id} venue={entry.venue} items={displayItems} presentation={funnelSettings.platos.discovery?.venues[entry.venue.id]} location={userLocation} />;
                 if (entry.type === "promo") {
-                  const promo = getPromoTileConfig(entry.id, content.promoHrefs);
+                  const shot = shots.find(shot => shot.slot === entry.id);
+                  if (!shot) return null;
+                  const promo = { ...shot, dish: shot.title, variant: "standard" as const };
 
                   return (
                     <button
@@ -2488,19 +1871,20 @@ export function DemoDishesCarousel({
                             muted
                             loop
                             playsInline
-                            autoPlay
-                            preload="metadata"
+                            preload="none"
+                            poster={promo.imageUrl ?? undefined}
                             className="absolute inset-0 h-full w-full object-cover"
                           />
                         ) : null}
                         {promo.imageUrl ? (
                           <Image
                             src={promo.imageUrl}
+                            unoptimized
                             alt=""
                             aria-hidden="true"
                             fill
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 24vw"
-                            className={`absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-500 ease-out group-hover:lg:scale-[1.03] ${promo.videoUrl ? "opacity-0 group-hover:lg:opacity-100" : "opacity-0 group-hover:lg:opacity-100"}`}
+                            className={`absolute inset-0 h-full w-full object-cover transition-[transform,opacity] duration-500 ease-out group-hover:lg:scale-[1.03] ${promo.videoUrl ? "opacity-100" : "opacity-100"}`}
                           />
                         ) : null}
                         <div
@@ -2521,16 +1905,14 @@ export function DemoDishesCarousel({
                         </div>
                         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.16),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(116,19,20,0.14),transparent_36%)] transition-opacity duration-500 ease-out group-hover:lg:opacity-0" />
                         <div className={isLightTheme ? "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)_34%,rgba(20,16,8,0.06))] transition-opacity duration-500 ease-out group-hover:lg:opacity-0" : "pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)_32%,rgba(0,0,0,0.12))] transition-opacity duration-500 ease-out group-hover:lg:opacity-0"}/>
-                        {promo.videoUrl ? (
-                          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.04),rgba(4,7,11,0.1)_42%,rgba(4,7,11,0.48))]" />
-                        ) : null}
+                        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.02),rgba(4,7,11,0.05)_35%,rgba(4,7,11,0.85))]" />
                         <div className="relative z-[1] flex h-full w-full flex-col justify-end px-1 py-1 text-left transition-opacity duration-400 ease-out">
                           <div>
                             <p className="line-clamp-2 text-[0.82rem] font-bold leading-[1.04] tracking-[-0.035em] text-white sm:text-[1rem]">
                               {promo.dish}
                             </p>
-                            <p className="mt-1.5 text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#741314]">
-                              {promo.label}
+                            <p className="mt-1.5 text-[0.68rem] font-black uppercase tracking-[0.12em] text-[#FFF7E8]">
+                              {promo.sponsored ? "Patrocinado" : discoveryDistance(promo, userLocation) ?? promo.dateLabel ?? promo.label}
                             </p>
                           </div>
                         </div>
@@ -2542,6 +1924,18 @@ export function DemoDishesCarousel({
 
                 const item = entry.item;
                 const itemIndex = itemIndexById.get(item.id);
+                const itemVenueCoordinates = resolveVenueCoordinates({
+                  slug: item.venue.slug,
+                  latitude: item.venue.latitude,
+                  longitude: item.venue.longitude,
+                });
+                const itemJourney = getDiscoveryJourney(
+                  {
+                    latitude: itemVenueCoordinates?.latitude ?? null,
+                    longitude: itemVenueCoordinates?.longitude ?? null,
+                  },
+                  userLocation,
+                );
 
                 if (itemIndex === undefined) {
                   return null;
@@ -2549,30 +1943,23 @@ export function DemoDishesCarousel({
 
                 if (entry.type === "featured") {
                   return (
-                    <article
-                      key={`featured-${item.id}`}
-                      className={getExploreCardClassName(item, index, isLightTheme, true)}
-                    >
+                    <button type="button" key={`featured-${item.id}`} className={getExploreCardClassName(item, index, isLightTheme, true)} onClick={() => { setOverlayDirection(1); setActiveIndex(itemIndex); }} aria-label={`Abrir ${item.name}${itemJourney ? `. ${itemJourney.timeLabel}. ${itemJourney.quip}.` : ""}`}>
                       <div className="relative h-full overflow-hidden rounded-[inherit]">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOverlayDirection(1);
-                            setActiveIndex(itemIndex);
-                          }}
-                          className="absolute inset-0"
-                          aria-label={`Abrir ${item.name}`}
-                        >
+                        <div className="absolute inset-0">
                           <DishVisualMedia
                             item={item}
                             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                             className="transition duration-500 group-hover:scale-[1.035]"
                           />
                           <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_30%,rgba(12,14,16,0.54))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.08)_34%,rgba(4,7,11,0.48))]"} />
-                        </button>
+                        </div>
                         <div className="pointer-events-none absolute left-2 top-2 z-[2] inline-flex rounded-full border border-[#FDE3AD]/80 bg-[#741314] px-2.5 py-1.5 text-[10px] font-extrabold uppercase leading-none tracking-[0.11em] text-[#FDE3AD] shadow-[0_6px_16px_rgba(36,17,14,0.38)] sm:left-2.5 sm:top-2.5 sm:px-3">
                           Destacado
                         </div>
+                        {itemJourney ? <div className="pointer-events-none absolute right-2 top-2 z-[3] flex flex-col items-end rounded-xl border border-[#FDE3AD]/75 bg-[#24110E]/88 px-2 py-1.5 text-right text-[#FFF7E8] shadow-[0_8px_22px_rgba(36,17,14,0.34)] backdrop-blur-md sm:right-2.5 sm:top-2.5">
+                          <span className="inline-flex items-center gap-1 whitespace-nowrap text-[0.58rem] font-extrabold leading-none"><Clock3 className="h-3 w-3 text-[#FDE3AD]" aria-hidden="true" />{itemJourney.timeLabel}</span>
+                          <span className="mt-1 whitespace-nowrap font-serif text-[0.56rem] font-semibold italic leading-none text-[#FDE3AD]">{itemJourney.quip}</span>
+                        </div> : null}
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[3] p-2.5 text-right sm:hidden">
                           <div className="ml-auto max-w-[84%]">
                             <p className="line-clamp-2 text-[0.875rem] font-extrabold leading-[1.18] tracking-[-0.035em] text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.55)]">
@@ -2592,15 +1979,12 @@ export function DemoDishesCarousel({
                           </div>
                         </div>
                       </div>
-                    </article>
+                    </button>
                   );
                 }
 
                 return (
-                  <button key={item.id} type="button" onClick={() => {
-                    setOverlayDirection(1);
-                    setActiveIndex(itemIndex);
-                  }} className={getExploreCardClassName(item, index, isLightTheme)} aria-label={`Abrir ${item.name}`}>
+                  <button type="button" key={item.id} className={getExploreCardClassName(item, index, isLightTheme)} onClick={() => { setOverlayDirection(1); setActiveIndex(itemIndex); }} aria-label={`Abrir ${item.name}${itemJourney ? `. ${itemJourney.timeLabel}. ${itemJourney.quip}.` : ""}`}>
                     <div className="relative h-full overflow-hidden rounded-[inherit]">
                       <DishVisualMedia
                         item={item}
@@ -2609,9 +1993,12 @@ export function DemoDishesCarousel({
                       />
                       <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_38%,rgba(12,14,16,0.82))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_40%,rgba(4,7,11,0.82))]"} />
                       <div className={getHoverGlassClassName(item)} />
-                      <div className="pointer-events-none absolute left-2 top-2 z-[3] rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-2 py-1 text-[0.6rem] font-bold leading-none text-[#FDE3AD] shadow-[0_8px_20px_rgba(116,19,20,0.28)] sm:hidden">
-                        {getPickupDistanceBadgeLabel(item, userLocation)}
+                      {itemJourney ? <>
+                      <div className="pointer-events-none absolute left-2 top-2 z-[3] flex flex-col items-start rounded-xl border border-[#FDE3AD]/70 bg-[#741314]/92 px-2 py-1.5 text-[#FFF7E8] shadow-[0_8px_20px_rgba(116,19,20,0.32)] backdrop-blur-md">
+                        <span className="inline-flex items-center gap-1 whitespace-nowrap text-[0.58rem] font-extrabold leading-none"><Clock3 className="h-3 w-3 text-[#FDE3AD]" aria-hidden="true" />{itemJourney.timeLabel}</span>
+                        <span className="mt-1 whitespace-nowrap font-serif text-[0.56rem] font-semibold italic leading-none text-[#FDE3AD]">{itemJourney.quip}</span>
                       </div>
+                      </> : null}
                       <div className="pointer-events-none absolute inset-0 z-[1] hidden items-center justify-center p-6 opacity-0 transition-opacity duration-500 ease-out group-hover:lg:flex group-hover:lg:opacity-100 group-focus-visible:lg:flex group-focus-visible:lg:opacity-100 lg:flex">
                         <div className="flex max-w-[88%] flex-col items-center">
                           {renderHoverTitle(item)}
@@ -2697,6 +2084,7 @@ export function DemoDishesCarousel({
             ) : activeShot.imageUrl ? (
               <Image
                 src={activeShot.imageUrl}
+                unoptimized
                 alt={activeShot.title}
                 fill
                 priority
@@ -2718,7 +2106,7 @@ export function DemoDishesCarousel({
                     Pickyalo
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FFF7E8]/62">
-                    {activeShotOrigin === "interstitial" ? "Shot recomendado" : "Shot"}
+                    {activeShot.sponsored ? "Patrocinado" : "Pickyalo · Descubre"}
                   </p>
                 </div>
               </div>
@@ -2730,7 +2118,7 @@ export function DemoDishesCarousel({
                   setActiveShotOrigin(null);
                   setIsShotMuted(true);
                 }}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/90 text-[#741314] shadow-[0_10px_32px_rgba(0,0,0,0.2)] backdrop-blur-md transition hover:bg-[#FFF7E8] motion-reduce:transition-none"
+                className="pickyalo-light-control inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/90 text-[#741314] shadow-[0_10px_32px_rgba(0,0,0,0.2)] backdrop-blur-md transition hover:bg-[#FFF7E8] motion-reduce:transition-none"
                 aria-label="Cerrar Shot"
               >
                 <X className="h-7 w-7" />
@@ -2740,9 +2128,9 @@ export function DemoDishesCarousel({
             {activeShotOrigin !== "interstitial" && activeShotPosition >= 0 ? (
               <div
                 className="absolute left-1/2 top-[max(1.25rem,env(safe-area-inset-top))] z-[5] flex w-24 -translate-x-1/2 gap-1.5 sm:w-32"
-                aria-label={`Shot ${activeShotPosition + 1} de ${SHOT_PROMO_IDS.length}`}
+                aria-label={`Shot ${activeShotPosition + 1} de ${shotIds.length}`}
               >
-                {SHOT_PROMO_IDS.map((id, index) => (
+                {shotIds.map((id, index) => (
                   <span
                     key={id}
                     className={`h-1 flex-1 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.2)] transition-colors motion-reduce:transition-none ${
@@ -2783,18 +2171,7 @@ export function DemoDishesCarousel({
                 <span className="rounded-full border border-[#FDE3AD]/38 bg-[#741314]/90 px-3 py-1.5 text-xs font-black text-[#FDE3AD] backdrop-blur-md">
                   {activeShot.priceLabel}
                 </span>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShotFeedback(
-                      "La ficha completa estará disponible cuando este Shot se conecte desde el panel.",
-                    )
-                  }
-                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/12 px-4 text-xs font-bold text-[#FFF7E8] backdrop-blur-md transition hover:bg-[#FFF7E8]/20 motion-reduce:transition-none"
-                >
-                  <Info className="h-4 w-4" />
-                  Ver detalle
-                </button>
+                <Link href={activeShot.href} className="inline-flex min-h-12 items-center gap-2 rounded-full bg-[#FFF7E8] px-5 text-sm font-bold text-[#741314]">{activeShot.ctaLabel} <ChevronRight size={18} /></Link>
               </div>
               {shotFeedback ? (
                 <p
@@ -2807,23 +2184,7 @@ export function DemoDishesCarousel({
             </div>
 
             <div className="absolute bottom-[max(1.1rem,env(safe-area-inset-bottom))] right-2.5 z-[4] flex w-[4.4rem] flex-col items-center gap-3 sm:bottom-[max(2rem,env(safe-area-inset-bottom))] sm:right-5 sm:w-[5rem] sm:gap-4">
-              <button
-                type="button"
-                onClick={() =>
-                  setShotFeedback(
-                    "La cesta se activará cuando este Shot esté conectado a un producto real.",
-                  )
-                }
-                className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
-                aria-label="Añadir a cesta"
-              >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/34 bg-[#741314] text-[#FDE3AD] shadow-[0_12px_34px_rgba(0,0,0,0.28)] transition group-hover:scale-105 motion-reduce:transition-none sm:h-14 sm:w-14">
-                  <CartIcon className="h-7 w-7 sm:h-8 sm:w-8" />
-                </span>
-                <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
-                  Cesta
-                </span>
-              </button>
+
               <button
                 type="button"
                 onClick={() => void handleShareShot()}
@@ -2837,23 +2198,7 @@ export function DemoDishesCarousel({
                   Compartir
                 </span>
               </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setShotFeedback(
-                    "La ficha completa estará disponible cuando este Shot se conecte desde el panel.",
-                  )
-                }
-                className="group flex min-h-[3.7rem] w-full flex-col items-center justify-center gap-1 text-[#FFF7E8]"
-                aria-label="Ver información del Shot"
-              >
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[#FDE3AD]/32 bg-[#FFF7E8]/14 text-[#FFF7E8] shadow-[0_12px_34px_rgba(0,0,0,0.24)] backdrop-blur-md transition group-hover:scale-105 group-hover:bg-[#FFF7E8]/22 motion-reduce:transition-none sm:h-14 sm:w-14">
-                  <Info className="h-6 w-6 sm:h-7 sm:w-7" />
-                </span>
-                <span className="text-[9px] font-bold leading-none text-[#FFF7E8]/82 sm:text-[10px]">
-                  Detalle
-                </span>
-              </button>
+
               {activeShot.videoUrl ? (
                 <button
                   type="button"
@@ -2881,7 +2226,7 @@ export function DemoDishesCarousel({
 
       {activeItem ? (
         <div
-          className="dish-overlay fixed inset-0 z-50 flex touch-pan-x items-center justify-center bg-black/72 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:p-6"
+          className="dish-overlay fixed inset-0 z-50 flex touch-pan-x items-center justify-center bg-[#18090a]/82 px-3 py-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl sm:p-6"
           role="dialog"
           aria-modal="true"
           aria-label={`Detalle de ${getDishDisplayName(activeItem)}`}
@@ -2892,17 +2237,41 @@ export function DemoDishesCarousel({
           <button
             type="button"
             className="dish-overlay-backdrop absolute inset-0"
-            aria-label="Cerrar plato"
+            aria-label="Cerrar producto"
             onClick={() => setActiveIndex(null)}
           />
 
-          <article className="dish-overlay-panel relative z-10 mx-auto flex h-[min(94svh,52rem)] w-full max-w-[29rem] flex-col overflow-hidden rounded-[1.65rem] bg-white text-[#111111] shadow-[0_28px_90px_rgba(0,0,0,0.34)] md:max-w-[31rem]">
-            <header className="flex items-center justify-between gap-3 border-b border-black/8 bg-white px-4 py-3">
+          <article className="dish-overlay-panel relative z-10 mx-auto h-[min(94svh,52rem)] w-full max-w-[29rem] overflow-hidden rounded-[2rem] border border-[#FFF7E8]/22 bg-[#24110E] text-[#FFF7E8] shadow-[0_34px_110px_rgba(0,0,0,0.56)] md:h-[min(88dvh,46rem)] md:max-w-[72rem] md:rounded-[2.4rem]">
+            <button
+              type="button"
+              onClick={() => setIsPostImageFullscreen(true)}
+              className="absolute inset-0 w-full md:right-auto md:w-[56%]"
+              aria-label="Ver imagen del producto en grande"
+            >
+              {activePostImage ? (
+                <DishVisualMedia
+                  item={activeItem}
+                  src={activePostImage}
+                  sizes="(max-width: 767px) 100vw, 56vw"
+                  className="scale-[1.01] transition-transform duration-700 ease-out hover:scale-[1.035] motion-reduce:transition-none motion-reduce:hover:scale-[1.01]"
+                  priority
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center px-6 text-sm text-[#FFF7E8]/70">
+                  Imagen no disponible
+                </span>
+              )}
+            </button>
+
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(20,7,7,0.42)_0%,rgba(20,7,7,0.04)_25%,rgba(20,7,7,0.10)_42%,rgba(25,8,9,0.92)_73%,rgba(18,6,7,0.99)_100%)] md:w-[56%] md:bg-[linear-gradient(90deg,rgba(16,5,6,0.08)_0%,rgba(16,5,6,0.02)_72%,rgba(18,6,7,0.32)_100%)]" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-[radial-gradient(circle_at_50%_120%,rgba(116,19,20,0.42),transparent_72%)] md:inset-y-0 md:left-auto md:h-auto md:w-[56%] md:bg-[radial-gradient(circle_at_110%_50%,rgba(116,19,20,0.40),transparent_72%)]" />
+
+            <header className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 p-4 md:p-6">
               <Link
                 href={getVenueHref(activeItem)}
-                className="flex min-w-0 items-center gap-3"
+                className="flex min-w-0 items-center gap-2.5 rounded-full border border-[#FFF7E8]/20 bg-[#16090a]/42 py-1.5 pl-1.5 pr-3 text-[#FFF7E8] shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl transition hover:bg-[#16090a]/62 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
               >
-                <span className="relative inline-flex h-10 w-10 shrink-0 overflow-hidden rounded-full bg-[#111111] text-sm font-semibold text-white">
+                <span className="relative inline-flex h-10 w-10 shrink-0 overflow-hidden rounded-full border border-[#FFF7E8]/24 bg-[#741314] text-sm font-semibold text-[#FFF7E8]">
                   {(activeItem.venue.logoUrl ?? activeItem.venue.coverUrl) ? (
                     <Image
                       src={activeItem.venue.logoUrl ?? activeItem.venue.coverUrl ?? ""}
@@ -2918,136 +2287,94 @@ export function DemoDishesCarousel({
                   )}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold leading-5 text-[#111111]">
+                  <span className="block max-w-[10.5rem] truncate text-xs font-extrabold leading-4 text-[#FFF7E8] sm:max-w-[16rem] sm:text-sm">
                     {activeItem.venue.name}
                   </span>
-                  <span className="block truncate text-xs leading-4 text-[#6f6f6f]">
+                  <span className="block max-w-[10.5rem] truncate text-[10px] font-medium leading-4 text-[#FFF7E8]/72 sm:max-w-[16rem] sm:text-xs">
                     {getVenueDistanceLabel(activeItem, userLocation)}
                   </span>
                 </span>
               </Link>
 
-              <div className="flex items-center gap-1.5">
-                <Link
-                  href={getVenueHref(activeItem)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
-                  aria-label="Ver local"
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => void handleShareDish(activeItem)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#FFF7E8]/20 bg-[#16090a]/42 text-[#FFF7E8] shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl transition hover:bg-[#16090a]/62 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
+                  aria-label="Compartir producto"
                 >
-                  <MoreHorizontal className="h-6 w-6" />
-                </Link>
+                  <Send className="h-5 w-5" aria-hidden="true" />
+                </button>
                 <button
                   type="button"
                   onClick={() => setActiveIndex(null)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#4b4b4b] transition hover:bg-black/[0.06]"
+                  className="pickyalo-light-control inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#FFF7E8]/20 bg-[#16090a]/42 text-[#FFF7E8] shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur-xl transition hover:bg-[#16090a]/62 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
                   aria-label="Cerrar"
                 >
-                  <X className="h-6 w-6" />
+                  <X className="h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
             </header>
 
-            <div className="dish-overlay-image relative min-h-0 w-full flex-1 overflow-hidden bg-[#101010]">
-              <button
-                type="button"
-                onClick={() => setIsPostImageFullscreen(true)}
-                className="absolute inset-0 w-full"
-                aria-label="Ver imagen del plato en grande"
-              >
-                {activePostImage ? (
-                  <DishVisualMedia
-                    item={activeItem}
-                    src={activePostImage}
-                    sizes="(max-width: 640px) 100vw, 31rem"
-                    className=""
-                    priority
-                  />
-                ) : (
-                  <span className="flex h-full w-full items-center justify-center px-6 text-sm text-white/70">
-                    Imagen no disponible
-                  </span>
-                )}
-              </button>
-
-              {activePostImages.length > 1 ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActivePostImageIndex((current) =>
-                        getWrappedIndex(activePostImages.length, current - 1),
-                      )
-                    }
-                    className="absolute left-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] transition hover:scale-110 hover:text-[#FDE3AD] focus-visible:rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] motion-reduce:hover:scale-100"
-                    aria-label="Ver imagen anterior"
-                  >
-                    <ChevronLeft className="h-7 w-7 stroke-[1.8]" aria-hidden="true" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setActivePostImageIndex((current) =>
-                        getWrappedIndex(activePostImages.length, current + 1),
-                      )
-                    }
-                    className="absolute right-1 top-1/2 z-10 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] transition hover:scale-110 hover:text-[#FDE3AD] focus-visible:rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] motion-reduce:hover:scale-100"
-                    aria-label="Ver imagen siguiente"
-                  >
-                    <ChevronRight className="h-7 w-7 stroke-[1.8]" aria-hidden="true" />
-                  </button>
-                  <div className="absolute inset-x-0 bottom-3 z-10 flex items-center justify-center gap-1.5" aria-label={`Imagen ${activePostImageIndex + 1} de ${activePostImages.length}`}>
-                    {activePostImages.map((image, index) => (
-                      <button
-                        key={`${activeItem.id}-${image}`}
-                        type="button"
-                        onClick={() => setActivePostImageIndex(index)}
-                        className={`h-2.5 w-2.5 rounded-full border border-white/80 shadow-[0_1px_4px_rgba(0,0,0,0.65)] transition-[background-color,transform] ${
-                          index === activePostImageIndex
-                            ? "scale-110 bg-[#FDE3AD]"
-                            : "bg-white/35 hover:bg-white/75"
-                        }`}
-                        aria-label={`Ver imagen ${index + 1}`}
-                        aria-current={index === activePostImageIndex ? "true" : undefined}
-                      />
-                    ))}
-                  </div>
-                </>
-              ) : showDishSwipeHint ? (
-                <span
-                  className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex justify-center"
-                  role="status"
+            {activePostImages.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActivePostImageIndex((current) =>
+                      getWrappedIndex(activePostImages.length, current - 1),
+                    )
+                  }
+                  className="absolute left-3 top-[43%] z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#FFF7E8] drop-shadow-[0_4px_12px_rgba(0,0,0,0.72)] transition hover:-translate-x-1 hover:text-[#FDE3AD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] md:left-6"
+                  aria-label="Ver imagen anterior"
                 >
-                  <span className="inline-flex max-w-full flex-col items-center rounded-2xl border border-[#FDE3AD]/55 bg-[#381932] px-4 py-2.5 text-center text-[#FFF7E8] shadow-[0_12px_32px_rgba(0,0,0,0.34)] backdrop-blur-md">
-                    <span className="flex items-center gap-2 text-[11px] font-extrabold">
-                      <ChevronUp className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
-                      <span className="sm:hidden">Desliza para ver otro plato</span>
-                      <span className="hidden sm:inline">Usa ↑ ↓ o la rueda</span>
-                      <ChevronDown className="h-4 w-4 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
-                    </span>
-                    <span className="mt-1 text-[10px] font-semibold text-[#FFF7E8]">
-                      Arriba: siguiente · Abajo: anterior
-                    </span>
-                  </span>
-                </span>
-              ) : null}
-            </div>
+                  <ArrowLeft className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setActivePostImageIndex((current) =>
+                      getWrappedIndex(activePostImages.length, current + 1),
+                    )
+                  }
+                  className="absolute right-3 top-[43%] z-20 inline-flex h-12 w-12 -translate-y-1/2 items-center justify-center text-[#FFF7E8] drop-shadow-[0_4px_12px_rgba(0,0,0,0.72)] transition hover:translate-x-1 hover:text-[#FDE3AD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] md:left-[50.5%] md:right-auto"
+                  aria-label="Ver imagen siguiente"
+                >
+                  <ArrowRight className="h-7 w-7" strokeWidth={1.8} aria-hidden="true" />
+                </button>
+                <p className="absolute inset-x-0 top-[52%] z-20 text-center text-[11px] font-extrabold tabular-nums tracking-[0.18em] text-[#FFF7E8] drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)] md:bottom-7 md:left-[8%] md:right-auto md:top-auto md:w-[40%]" aria-label={`Imagen ${activePostImageIndex + 1} de ${activePostImages.length}`}>
+                  {activePostImageIndex + 1} / {activePostImages.length}
+                </p>
+              </>
+            ) : null}
 
-            <section className="dish-overlay-copy-desktop shrink-0 bg-white px-4 pb-4 pt-3">
+            <section className="absolute inset-x-0 bottom-0 z-20 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6 md:left-auto md:flex md:h-full md:w-[44%] md:flex-col md:justify-center md:border-l md:border-[#FFF7E8]/12 md:bg-[#180809]/94 md:p-7 md:pt-24 md:backdrop-blur-xl lg:p-9 lg:pt-24">
+              {showDishSwipeHint ? (
+                <div className="pointer-events-none mb-3 flex justify-center md:justify-start" role="status">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#FDE3AD]/26 bg-[#16090a]/44 px-3 py-2 text-[10px] font-bold text-[#FFF7E8]/84 shadow-[0_8px_24px_rgba(0,0,0,0.22)] backdrop-blur-lg">
+                    <ArrowLeft className="h-3.5 w-3.5 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
+                    Desliza o usa las flechas
+                    <ArrowRight className="h-3.5 w-3.5 text-[#FED47D] motion-safe:animate-pulse" aria-hidden="true" />
+                  </span>
+                </div>
+              ) : null}
+
               <div className="flex flex-wrap items-center gap-2">
                 {activeItem.categoryName ? (
-                  <span className="inline-flex min-h-8 items-center rounded-full border border-[#741314]/24 bg-[#FFF7E8] px-3 text-[11px] font-extrabold text-[#741314]">
+                  <span className="inline-flex min-h-8 items-center rounded-full border border-[#FDE3AD]/28 bg-[#FFF7E8]/13 px-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[#FFF7E8] backdrop-blur-lg">
                     {activeItem.categoryName}
                   </span>
                 ) : null}
                 {activeItem.pickupEtaMin ? (
-                  <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#381932]/10 bg-[#F7F4F1] px-3 text-[11px] font-semibold text-[#381932]/72">
+                  <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[#FFF7E8]/18 bg-[#16090a]/28 px-3 text-[10px] font-bold text-[#FFF7E8]/82 backdrop-blur-lg">
                     <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
                     {activeItem.pickupEtaMin} min
                   </span>
                 ) : null}
               </div>
 
-              <div className="mt-3 flex items-start justify-between gap-3">
-                <h2 className="min-w-0 text-xl font-semibold leading-6 text-[#111111]">
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <h2 className="min-w-0 text-[clamp(1.75rem,8vw,2.65rem)] font-black leading-[0.96] tracking-[-0.045em] text-[#FFF7E8] md:text-[clamp(2.3rem,4vw,3.8rem)]">
                   {getDishDisplayName(activeItem)}
                 </h2>
                 <ProductPriceBadge
@@ -3056,70 +2383,74 @@ export function DemoDishesCarousel({
                   priceDisplayMode={activeItem.priceDisplayMode}
                   priceDisplayText={activeItem.priceDisplayText}
                   pricesVisible={activeItem.venue.pricesVisible}
-                  className="shrink-0 shadow-none"
+                  className="shrink-0 border-[#FDE3AD]/22 bg-[#FDE3AD] text-[#24110E] shadow-[0_10px_28px_rgba(0,0,0,0.22)]"
                 />
               </div>
 
               {activeItem.description ? (
-                <p className="mt-2 line-clamp-3 text-sm leading-5 text-[#5f5f5f]">
+                <p className="mt-3 line-clamp-2 text-sm font-medium leading-5 text-[#FFF7E8]/74 md:max-w-[36rem] md:text-base md:leading-6">
                   {getShortDescription(activeItem)}
                 </p>
               ) : null}
 
+              <Link
+                href={getVenueHref(activeItem)}
+                className="mt-3 flex min-h-11 items-center gap-2.5 rounded-2xl border border-[#FFF7E8]/14 bg-[#FFF7E8]/8 px-3 text-xs font-semibold text-[#FFF7E8]/88 backdrop-blur-lg transition hover:bg-[#FFF7E8]/13 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
+              >
+                <MapPin className="h-4 w-4 shrink-0 text-[#FED47D]" aria-hidden="true" />
+                <span className="min-w-0 truncate">{activeItem.venue.name}</span>
+                <span className="ml-auto shrink-0 text-[#FFF7E8]/60">{getVenueDistanceLabel(activeItem, userLocation)}</span>
+              </Link>
+
               {postFeedback ? (
-                <p className="mt-3 rounded-[0.65rem] bg-[#381932]/6 px-3 py-2 text-xs font-medium leading-4 text-[#303030]" role="status">
+                <p className="mt-3 rounded-xl border border-[#FDE3AD]/22 bg-[#16090a]/40 px-3 py-2 text-xs font-semibold leading-4 text-[#FFF7E8] backdrop-blur-lg" role="status">
                   {postFeedback}
                 </p>
               ) : null}
 
-              <div className="mt-3 flex items-center justify-between gap-2 border-t border-black/8 pt-3">
-                <div className="flex items-center gap-1">
-                  <Link
-                    href={getVenueHref(activeItem)}
-                    aria-label="Ver ficha del local e información completa del plato"
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-3 text-xs font-bold text-[#381932] transition hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
-                  >
-                    <Info className="h-4 w-4" aria-hidden="true" />
-                    Detalles
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => void handleShareDish(activeItem)}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[#381932] transition hover:bg-black/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
-                    aria-label="Compartir plato"
-                  >
-                    <Send className="h-5 w-5" />
-                  </button>
-                </div>
-                {activeItem.venue.pricesVisible ? (
-                  <button
-                    type="button"
-                    onClick={() => handleAddPostToCart(activeItem)}
-                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
-                    aria-label="Añadir para recoger"
-                  >
-                    <CartIcon className="h-5 w-5" />
-                    Añadir
-                  </button>
-                ) : activeItem.venue.phone ? (
+              <div className="mt-3 flex items-center gap-2">
+                <Link
+                  href={getVenueHref(activeItem)}
+                  aria-label="Ver ficha del local e información completa del producto"
+                  className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#fff4df] px-5 text-sm font-black text-[#531013] shadow-[0_14px_34px_rgba(0,0,0,0.28)] transition hover:bg-[#f9d99e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#24110E]"
+                >
+                  <Info className="h-4 w-4" aria-hidden="true" />
+                  Ver el local
+                </Link>
+                {activeItem.venue.phone ? (
                   <a
                     href={`tel:${activeItem.venue.phone}`}
-                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
+                    className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#FDE3AD]/26 bg-[#741314] text-[#FDE3AD] shadow-[0_14px_34px_rgba(0,0,0,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D] focus-visible:ring-offset-2 focus-visible:ring-offset-[#24110E]"
                     aria-label={`Llamar a ${activeItem.venue.name}`}
                   >
                     <Phone className="h-5 w-5" aria-hidden="true" />
-                    Llamar
                   </a>
-                ) : (
-                  <Link
-                    href={getVenueHref(activeItem)}
-                    className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-[#741314] px-4 text-xs font-bold text-[#FDE3AD] shadow-[0_10px_24px_rgba(116,19,20,0.24)] transition hover:bg-[#5F0F10] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
-                  >
-                    <Info className="h-5 w-5" aria-hidden="true" />
-                    Ver local
-                  </Link>
-                )}
+                ) : null}
               </div>
+
+              {hasActiveVenueNavigation ? (
+                <div className="mt-3 flex items-center justify-between gap-3 text-[10px] font-bold uppercase tracking-[0.1em] text-[#FFF7E8]/58">
+                  <button
+                    type="button"
+                    onClick={() => navigateDish(-1)}
+                    className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[#FFF7E8]/78 transition hover:text-[#FDE3AD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
+                    aria-label="Producto anterior del local"
+                  >
+                    <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                    Anterior
+                  </button>
+                  <span>{activeVenuePosition + 1} / {activeVenueItems.length}</span>
+                  <button
+                    type="button"
+                    onClick={() => navigateDish(1)}
+                    className="inline-flex min-h-11 items-center gap-1 rounded-full px-2 text-[#FFF7E8]/78 transition hover:text-[#FDE3AD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FED47D]"
+                    aria-label="Producto siguiente del local"
+                  >
+                    Siguiente
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                </div>
+              ) : null}
             </section>
           </article>
 
@@ -3128,7 +2459,7 @@ export function DemoDishesCarousel({
               <button
                 type="button"
                 onClick={() => setIsPostImageFullscreen(false)}
-                className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
+                className="pickyalo-light-control absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/12 text-white backdrop-blur-md transition hover:bg-white/18"
                 aria-label="Cerrar imagen"
               >
                 <X className="h-6 w-6" />
@@ -3164,386 +2495,13 @@ export function DemoDishesCarousel({
           ) : null}
         </div>
       ) : null}
-      {activeItem ? (
-        <div className="hidden">
-          <button
-            type="button"
-            className={
-              isLightTheme
-                ? "dish-overlay-backdrop absolute inset-0 bg-[#f6f2ea]/82 backdrop-blur-md"
-                : "dish-overlay-backdrop absolute inset-0 bg-black/72 backdrop-blur-md"
-            }
-            aria-label="Cerrar plato"
-            onClick={() => setActiveIndex(null)}
-          />
-
-          <div
-            className={
-              isLightTheme
-                ? "dish-overlay-panel relative z-10 w-full overflow-hidden rounded-[1.75rem] border border-black/10 bg-[#fffdf8]/96 shadow-[0_30px_100px_rgba(0,0,0,0.12)] backdrop-blur-2xl md:h-[min(86vh,52rem)] md:max-w-6xl md:rounded-[2rem] md:bg-[#fffdf8]/92"
-                : "dish-overlay-panel relative z-10 w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0a0f13]/94 shadow-[0_30px_100px_rgba(0,0,0,0.42)] backdrop-blur-2xl md:h-[min(86vh,52rem)] md:max-w-6xl md:rounded-[2rem] md:bg-[#0a0f13]/88"
-            }
-          >
-            <div
-              className="relative min-h-[calc(100svh-max(1.5rem,env(safe-area-inset-top)+env(safe-area-inset-bottom)))] md:hidden"
-              onTouchStart={handleMobileOverlayTouchStart}
-              onTouchEnd={handleMobileOverlayTouchEnd}
-            >
-              <Image
-                src={activeItem.imageUrl ?? ""}
-                alt=""
-                aria-hidden="true"
-                fill
-                sizes="100vw"
-                className="dish-overlay-image-backdrop absolute inset-0 object-cover opacity-34 blur-xl saturate-[1.15]"
-              />
-              <div className="absolute inset-x-0 top-[max(2.75rem,calc(env(safe-area-inset-top)+1.6rem))] bottom-[9.25rem] overflow-hidden">
-                <Image
-                  src={activeItem.imageUrl ?? ""}
-                  alt={activeItem.name}
-                  fill
-                  sizes="100vw"
-                  className="dish-overlay-image dish-overlay-image-focus object-cover object-center"
-                />
-              </div>
-              <div
-                className={
-                  isLightTheme
-                    ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02)_30%,rgba(18,18,18,0.18)_56%,rgba(18,18,18,0.72)_100%)]"
-                    : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.08),rgba(4,7,11,0.04)_30%,rgba(4,7,11,0.26)_56%,rgba(4,7,11,0.82)_100%)]"
-                }
-              />
-
-              <div className="absolute left-4 top-[max(1rem,env(safe-area-inset-top))] flex items-center gap-2">
-                <Link
-                  href={getVenueHref(activeItem)}
-                  className={
-                    isLightTheme
-                      ? "rounded-full border border-black/10 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white"
-                      : "rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-xl transition hover:bg-black/28"
-                  }
-                >
-                  {activeItem.venue.name}
-                </Link>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setActiveIndex(null)}
-                className={
-                  isLightTheme
-                    ? "absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-[#FFF7E8] text-black/72 backdrop-blur-xl transition hover:bg-white"
-                    : "absolute right-4 top-[max(1rem,env(safe-area-inset-top))] inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/18 text-white/72 backdrop-blur-xl transition hover:bg-black/28"
-                }
-                aria-label="Cerrar"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              <div className="absolute inset-x-0 bottom-0 z-10 px-4 pb-[calc(max(1rem,env(safe-area-inset-bottom))+0.25rem)]">
-                <div
-                  ref={mobileSheetRef}
-                  onTouchStart={handleMobileSheetTouchStart}
-                  onTouchEnd={handleMobileSheetTouchEnd}
-                  className={
-                    isLightTheme
-                      ? "dish-overlay-copy-mobile rounded-[1.6rem] border border-black/10 bg-[#FFF7E8] shadow-[0_18px_44px_rgba(0,0,0,0.12)] backdrop-blur-2xl"
-                      : "dish-overlay-copy-mobile rounded-[1.6rem] border border-white/10 bg-[#24110E] shadow-[0_18px_44px_rgba(0,0,0,0.26)] backdrop-blur-2xl"
-                  }
-                >
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileSheetExpanded((current) => !current)}
-                    className="flex w-full flex-col items-center justify-center pt-3"
-                    aria-label={
-                      isMobileSheetExpanded
-                        ? "Mostrar menos informaci\u00f3n"
-                        : "Mostrar m\u00e1s informaci\u00f3n"
-                    }
-                  >
-                    <span className={isLightTheme ? "h-1.5 w-12 rounded-full bg-black/14" : "h-1.5 w-12 rounded-full bg-white/16"} />
-                    {!isMobileSheetExpanded ? (
-                      <span className={isLightTheme ? "mt-2 inline-flex items-center text-[#61433A]" : "mt-2 inline-flex items-center text-white/34"}>
-                        <ChevronUp className="h-3.5 w-3.5 animate-bounce" />
-                      </span>
-                    ) : null}
-                  </button>
-
-                  <div className="px-4 pb-4 pt-3">
-                    <p className={isLightTheme ? "text-[10px] font-medium uppercase tracking-[0.28em] text-black/40" : "text-[10px] font-medium uppercase tracking-[0.28em] text-white/42"}>
-                      Plato
-                    </p>
-                    <h2 className={isLightTheme ? "mt-2 text-[1.95rem] font-semibold leading-[0.94] tracking-[-0.06em] text-black" : "mt-2 text-[1.95rem] font-semibold leading-[0.94] tracking-[-0.06em] text-white"}>
-                      {getDishDisplayName(activeItem)}
-                    </h2>
-                    <div className="mt-3 flex flex-wrap items-center gap-2.5">
-                      <span className={isLightTheme ? "rounded-full border border-[#741314]/35 bg-[#741314]/10 px-3 py-1.5 text-sm font-bold text-[#741314]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3 py-1.5 text-sm font-bold text-[#741314]"}>
-                        {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
-                      </span>
-                      {activeItem.pickupEtaMin ? (
-                        <span className={isLightTheme ? "inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-black/[0.04] px-3 py-1.5 text-xs text-black/72" : "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/72"}>
-                          <Clock3 className="h-3.5 w-3.5" />
-                          {activeItem.pickupEtaMin} min
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className={isLightTheme ? "mt-4 flex items-center gap-2 text-sm text-black/62" : "mt-4 flex items-center gap-2 text-sm text-white/62"}>
-                      <MapPin className="h-4 w-4" />
-                      <span>{activeItem.venue.name} · {getVenueDistanceLabel(activeItem, userLocation)}</span>
-                    </div>
-                    <div className="mt-4 flex flex-col gap-2">
-                      <div className="flex items-center justify-between gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setIsMobileSheetExpanded(true)}
-                          className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
-                          aria-label="Ver informacion del plato"
-                        >
-                          <Info className="h-6 w-6" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => void handleShareDish(activeItem)}
-                          className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
-                          aria-label="Compartir plato"
-                        >
-                          <Send className="h-6 w-6" />
-                        </button>
-                      </div>
-                      {activeItem.venue.pricesVisible ? (
-                        <AddToCartButton
-                          venue={getCartVenueFromShowcaseItem(activeItem)}
-                          item={getCartItemFromShowcaseItem(activeItem)}
-                          label={"A\u00f1adir para recoger"}
-                          source="platos_modal"
-                          className="w-full"
-                          buttonClassName={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full bg-[#141414] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/92" : "inline-flex w-full items-center justify-center rounded-full bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#07100d] transition hover:bg-white/92"}
-                          feedbackClassName={isLightTheme ? "mt-2 text-xs leading-5 text-black/58" : "mt-2 text-xs leading-5 text-white/58"}
-                        />
-                      ) : activeItem.venue.phone ? (
-                        <a
-                          href={`tel:${activeItem.venue.phone}`}
-                          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-[#741314] px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
-                          aria-label={`Llamar a ${activeItem.venue.name}`}
-                        >
-                          <Phone className="h-5 w-5" aria-hidden="true" />
-                          Llamar
-                        </a>
-                      ) : null}
-                      <Link
-                        href={getVenueHref(activeItem)}
-                        className={isLightTheme ? "inline-flex w-full items-center justify-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-white/72 transition hover:bg-white/[0.09]"}
-                      >
-                        Ver más
-                      </Link>
-                    </div>
-                    <div
-                      className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${
-                        isMobileSheetExpanded ? "mt-4 max-h-52 opacity-100" : "mt-0 max-h-0 opacity-0"
-                      }`}
-                    >
-                      {activeItem.description ? (
-                        <p className={isLightTheme ? "text-sm leading-6 text-black/58" : "text-sm leading-6 text-white/58"}>
-                          {activeItem.description}
-                        </p>
-                      ) : null}
-                    </div>
-                    <div
-                      className={`overflow-hidden transition-[max-height,opacity,margin] duration-300 ease-out ${
-                        isMobileSheetExpanded ? "mt-4 max-h-24 opacity-100" : "mt-0 max-h-0 opacity-0"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        {hasActiveVenueNavigation ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setOverlayDirection(-1);
-                                setActiveIndex((current) =>
-                                  current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
-                                );
-                              }}
-                              className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
-                              aria-label="Plato anterior"
-                            >
-                              <MoveLeft className="h-6 w-6" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setOverlayDirection(1);
-                                setActiveIndex((current) =>
-                                  current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
-                                );
-                              }}
-                              className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/12 bg-black/[0.04] text-black/88 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.05] text-white/88 transition hover:bg-white/[0.09]"}
-                              aria-label="Plato siguiente"
-                            >
-                              <MoveRight className="h-6 w-6" />
-                            </button>
-                          </div>
-                        ) : null}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            </div>
-
-            <div className="hidden h-[min(86vh,52rem)] md:grid md:grid-cols-[minmax(0,1.05fr)_minmax(20rem,25rem)] lg:grid-cols-[minmax(0,1.1fr)_minmax(22rem,28rem)]">
-              <div className="relative h-full min-h-0 overflow-hidden">
-                <Image
-                  src={activeItem.imageUrl ?? ""}
-                  alt={activeItem.name}
-                  fill
-                  sizes="(max-width: 1280px) 58vw, 66vw"
-                  className="dish-overlay-image absolute inset-0 h-full w-full object-cover"
-                />
-                <div className={isLightTheme ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.02)_34%,rgba(20,20,20,0.12))]" : "absolute inset-0 bg-[linear-gradient(180deg,rgba(4,7,11,0.01),rgba(4,7,11,0.06)_34%,rgba(4,7,11,0.22))]"} />
-
-                <div className="absolute left-6 top-6 flex items-center gap-2">
-                  <Link
-                    href={getVenueHref(activeItem)}
-                    className={isLightTheme ? "rounded-full border border-black/10 bg-[#FFF7E8] px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-black/72 backdrop-blur-xl transition hover:bg-white" : "rounded-full border border-white/10 bg-black/18 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-white/72 backdrop-blur-xl transition hover:bg-black/28"}
-                  >
-                    {activeItem.venue.name}
-                  </Link>
-                </div>
-
-                {hasActiveVenueNavigation ? (
-                  <div className="absolute bottom-6 left-6 flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOverlayDirection(-1);
-                        setActiveIndex((current) =>
-                          current === null ? null : getContextualNavigationIndex(filteredItems, current, -1),
-                        );
-                      }}
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-[#FFF7E8] text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
-                      aria-label="Plato anterior"
-                    >
-                      <MoveLeft className="h-7 w-7" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOverlayDirection(1);
-                        setActiveIndex((current) =>
-                          current === null ? null : getContextualNavigationIndex(filteredItems, current, 1),
-                        );
-                      }}
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/12 bg-[#FFF7E8] text-black/88 backdrop-blur-xl transition hover:bg-white" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-black/18 text-white/88 backdrop-blur-xl transition hover:bg-black/28"}
-                      aria-label="Plato siguiente"
-                    >
-                      <MoveRight className="h-7 w-7" />
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-
-              <div className="dish-overlay-copy-desktop flex h-full min-h-0 flex-col overflow-y-auto p-7">
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <p className={isLightTheme ? "text-[11px] font-medium uppercase tracking-[0.28em] text-[#61433A]" : "text-[11px] font-medium uppercase tracking-[0.28em] text-[#FDE3AD]"}>
-                      Plato
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setActiveIndex(null)}
-                      className={isLightTheme ? "inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/72 transition hover:bg-white/[0.08]"}
-                      aria-label="Cerrar"
-                    >
-                      <X className="h-6 w-6" />
-                    </button>
-                  </div>
-
-                  <h2 className={isLightTheme ? "mt-4 text-[clamp(2.2rem,4vw,4.2rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-black" : "mt-4 text-[clamp(2.2rem,4vw,4.2rem)] font-semibold leading-[0.94] tracking-[-0.06em] text-white"}>
-                    {getDishDisplayName(activeItem)}
-                  </h2>
-
-                  <div className="mt-4 flex flex-wrap items-start gap-3">
-                    <button
-                      type="button"
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
-                      aria-label="Información del plato"
-                    >
-                      <Info className="h-7 w-7" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => void handleShareDish(activeItem)}
-                      className={isLightTheme ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-black/[0.04] text-black/72 transition hover:bg-black/[0.08]" : "inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-white/72 transition hover:bg-white/[0.09]"}
-                      aria-label="Compartir plato"
-                    >
-                      <Send className="h-7 w-7" />
-                    </button>
-                    {activeItem.venue.pricesVisible ? (
-                      <AddToCartButton
-                        venue={getCartVenueFromShowcaseItem(activeItem)}
-                        item={getCartItemFromShowcaseItem(activeItem)}
-                        label={"A\u00f1adir para recoger"}
-                        source="platos_modal"
-                        className="min-w-[13rem]"
-                        buttonClassName={isLightTheme ? "inline-flex items-center rounded-full bg-[#141414] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white transition hover:bg-black/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#07100d] transition hover:bg-white/92 lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
-                        feedbackClassName={isLightTheme ? "mt-2 max-w-[16rem] text-xs leading-5 text-black/58" : "mt-2 max-w-[16rem] text-xs leading-5 text-white/58"}
-                      />
-                    ) : activeItem.venue.phone ? (
-                      <a
-                        href={`tel:${activeItem.venue.phone}`}
-                        className="inline-flex min-h-11 min-w-[13rem] items-center justify-center gap-2 rounded-full bg-[#741314] px-5 py-3 text-sm font-semibold uppercase tracking-[0.08em] text-[#FDE3AD] transition hover:bg-[#5F0F10]"
-                        aria-label={`Llamar a ${activeItem.venue.name}`}
-                      >
-                        <Phone className="h-5 w-5" aria-hidden="true" />
-                        Llamar
-                      </a>
-                    ) : null}
-                    <Link
-                      href={getVenueHref(activeItem)}
-                      className={isLightTheme ? "inline-flex items-center rounded-full border border-black/10 bg-black/[0.04] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-black/72 transition hover:bg-black/[0.08] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]" : "inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] text-white/72 transition hover:bg-white/[0.09] lg:px-5 lg:py-3 lg:text-sm lg:tracking-[0.08em]"}
-                    >
-                      Ver más
-                    </Link>
-                  </div>
-
-                  <div className={isLightTheme ? "mt-5 flex flex-wrap items-center gap-3 text-sm text-black/74" : "mt-5 flex flex-wrap items-center gap-3 text-sm text-white/74"}>
-                    <span className={isLightTheme ? "rounded-full border border-[#741314]/35 bg-[#741314]/10 px-3.5 py-2 font-bold text-[#741314]" : "rounded-full border border-[#741314]/28 bg-[#741314]/10 px-3.5 py-2 font-bold text-[#741314]"}>
-                      {formatPrice(activeItem)} · {getDecisionSignal(activeItem)}
-                    </span>
-                    {activeItem.pickupEtaMin ? (
-                      <span className={isLightTheme ? "inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/[0.04] px-3.5 py-2" : "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2"}>
-                        <Clock3 className="h-4 w-4" />
-                        {activeItem.pickupEtaMin} min
-                      </span>
-                    ) : null}
-                    <span className="inline-flex items-center gap-2 rounded-full border border-[#FDE3AD]/70 bg-[#741314] px-3.5 py-2 text-[#FDE3AD]">
-                      <MapPin className="h-4 w-4" />
-                      {activeItem.venue.name} · {getVenueDistanceLabel(activeItem, userLocation)}
-                    </span>
-                  </div>
-
-                  {activeItem.description ? (
-                    <p className={isLightTheme ? "mt-6 text-sm leading-7 text-black/58 lg:text-base" : "mt-6 text-sm leading-7 text-white/58 lg:text-base"}>
-                      {activeItem.description}
-                    </p>
-                  ) : null}
-                </div>
-
-                <div className="mt-6 border-t border-black/8 pt-5 md:mt-auto md:pt-6">
-                  <div className="flex items-center justify-end gap-4">
-                    {hasActiveVenueNavigation ? (
-                      <p className={isLightTheme ? "text-[11px] uppercase tracking-[0.24em] text-[#61433A]" : "text-[11px] uppercase tracking-[0.24em] text-white/34"}>
-                        {activeVenuePosition + 1} / {activeVenueItems.length}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {isManualLocationOpen ? (
+        <ManualLocationPicker
+          accessToken={mapboxAccessToken}
+          center={locationPickerCenter}
+          currentLocation={userLocation}
+          onClose={() => setIsManualLocationOpen(false)}
+        />
       ) : null}
     </main>
   );

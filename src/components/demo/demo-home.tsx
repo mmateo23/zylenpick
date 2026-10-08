@@ -17,7 +17,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { CartIcon } from "@/components/icons/cart-icon";
 import {
   HotPlateIcon,
   PickyaloLocationIcon,
@@ -121,7 +120,7 @@ function getHomeGalleryCardClassName(item: HomeShowcaseItem, index: number) {
       ? "lg:col-span-2 lg:row-span-1"
       : "lg:row-span-1";
 
-  return `group relative block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 bg-[#FFF7E8] shadow-[0_16px_36px_rgba(116,19,20,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(116,19,20,0.16)] sm:rounded-[1rem] ${desktopSpan} lg:h-full`;
+  return `pickyalo-media-card group relative block w-full touch-manipulation overflow-hidden rounded-none text-left row-span-2 bg-[#FFF7E8] shadow-[0_16px_36px_rgba(116,19,20,0.12)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(116,19,20,0.16)] sm:rounded-[1rem] ${desktopSpan} lg:h-full`;
 }
 
 function shouldIgnorePostNavigation(target: EventTarget | null) {
@@ -1009,10 +1008,10 @@ export function DemoHome({
                     </div>
                     <Link
                       href={getPostModalHref(heroPostItem)}
-                      aria-label="Añadir para recoger"
+                      aria-label="Ver plato y local"
                       className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#741314] text-[#FDE3AD] shadow-[0_14px_30px_rgba(116,19,20,0.30)] transition hover:bg-[#5F0F10]"
                     >
-                      <CartIcon size={24} aria-hidden />
+                      <MapPin size={24} aria-hidden />
                     </Link>
                   </div>
 
@@ -1629,7 +1628,7 @@ export function DemoHome({
                   <Link
                     key={`home-explorer-preview-${item.id}`}
                     href={getPreviewItemHref(item)}
-                    className={`group relative block min-h-[15.5rem] overflow-hidden rounded-[1.35rem] bg-black/22 text-left shadow-[0_20px_70px_rgba(0,0,0,0.26)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(116,19,20,0.14)] motion-reduce:transition-none sm:min-h-[19rem] lg:min-h-[22rem] ${
+                    className={`pickyalo-media-card group relative block min-h-[15.5rem] overflow-hidden rounded-[1.35rem] bg-black/22 text-left shadow-[0_20px_70px_rgba(0,0,0,0.26)] transition duration-500 hover:-translate-y-1 hover:shadow-[0_28px_90px_rgba(116,19,20,0.14)] motion-reduce:transition-none sm:min-h-[19rem] lg:min-h-[22rem] ${
                       index === 0 ? "lg:col-span-2 lg:min-h-[28rem]" : ""
                     }`}
                   >
@@ -1934,7 +1933,7 @@ export function DemoHome({
                   label: "Recogida",
                   title: "Recoge",
                   text: "Ve al local y recógelo sin complicaciones.",
-                  Icon: CartIcon,
+                  Icon: MapPin,
                   lift: "lg:mt-12",
                   backgroundImage:
                     "https://images.unsplash.com/photo-1594225123631-2a4f14bd75fe?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -2078,7 +2077,7 @@ export function DemoHome({
                 text: "Aparece donde la gente ya está decidiendo qué recoger.",
               },
               {
-                Icon: CartIcon,
+                Icon: MapPin,
                 title: "Pedidos pensados para recoger",
                 text: "Sin prometer delivery: claro, directo y preparado para recoger.",
               },

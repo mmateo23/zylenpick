@@ -1,0 +1,60 @@
+.console { --pong-wine:#741314; --pong-cream:#fde3ad; --pong-paper:#fff7e8; position:relative; padding:13px; overflow:hidden; border:1px solid #fde3ad70; border-radius:21px; background:linear-gradient(145deg,#8a2021,#4a0b10); color:var(--pong-paper); box-shadow:inset 0 0 0 2px #3f090e,0 15px 36px #24110e45; }
+.console::after { position:absolute; inset:0; content:""; pointer-events:none; opacity:.12; background-image:linear-gradient(#fff 1px,transparent 1px); background-size:100% 4px; mix-blend-mode:overlay; }
+.consoleTop { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; min-height:24px; padding:0 4px 8px; }
+.gameLogo { width:86px; height:auto; object-fit:contain; object-position:left center; filter:drop-shadow(2px 2px 0 #3f090e); }
+.consoleActions { display:flex; align-items:center; gap:9px; }
+.power { width:7px; height:7px; border-radius:2px; background:#ffcb67; box-shadow:0 0 10px #ffcb67; }
+.power[data-online="false"] { background:#fff7e8; box-shadow:0 0 9px #fff7e8; }
+.expandButton { display:grid; width:32px; height:32px; place-items:center; border:1px solid #fde3ad59; border-radius:8px; color:#fde3ad; background:#26070a38; }
+.gameHeading { position:relative; z-index:1; display:flex; align-items:end; justify-content:space-between; padding:2px 4px 10px; }
+.gameHeading p { margin:0; color:#f6d99a; font:800 8px/1 var(--font-geist-mono),monospace; letter-spacing:.16em; }
+.gameHeading h3 { margin:4px 0 0; font:650 20px/1.05 Georgia,serif; letter-spacing:-.035em; }
+.gameHeading > span { display:grid; min-width:34px; height:25px; place-items:center; border:1px solid #fde3ad66; border-radius:6px; color:#fde3ad; font:800 10px/1 var(--font-geist-mono),monospace; }
+.screen { position:relative; z-index:1; overflow:hidden; border:4px solid #26070a; border-radius:12px; background:var(--pong-cream); box-shadow:inset 0 0 0 2px #a05a4d,0 6px 0 #26070a; }
+.canvas { display:block; width:100%; aspect-ratio:16/10; touch-action:none; cursor:crosshair; }
+.screenLogo { position:absolute; z-index:1; left:50%; top:52%; width:min(46%,170px); height:auto; pointer-events:none; opacity:.075; transform:translate(-50%,-50%); }
+.score { position:absolute; z-index:2; top:8px; left:50%; display:flex; min-width:66px; justify-content:center; gap:7px; color:var(--pong-wine); font:900 20px/1 var(--font-geist-mono),monospace; transform:translateX(-50%); }
+.score i { font-style:normal; opacity:.4; }
+.startOverlay { position:absolute; z-index:3; inset:0; display:grid; place-content:center; gap:5px; color:var(--pong-paper); text-align:center; background:#5f0f10d9; backdrop-filter:blur(2px); }
+.startOverlay strong { font:900 18px/1 var(--font-geist-mono),monospace; letter-spacing:-.06em; text-transform:uppercase; }
+.startOverlay span { color:#fde3ad; font-size:10px; }
+.status { position:absolute; z-index:4; left:50%; bottom:7px; max-width:calc(100% - 24px); overflow:hidden; border:1px solid #7413142e; border-radius:4px; padding:4px 7px; color:#741314; background:#fff7e8d9; font:800 7px/1 var(--font-geist-mono),monospace; letter-spacing:.04em; white-space:nowrap; text-overflow:ellipsis; transform:translateX(-50%); }
+.modeButtons { position:relative; z-index:1; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:13px; }
+.modeButtons button { display:grid; min-height:54px; grid-template-columns:22px minmax(0,1fr); align-items:center; gap:7px; padding:8px 9px; border:1px solid #fde3ad59; border-radius:10px; color:#fff7e8; background:#26070a48; text-align:left; }
+.modeButtons button > span { display:grid; gap:3px; }
+.modeButtons strong { font-size:10px; line-height:1.1; }
+.modeButtons small { color:#f6d99aad; font-size:7px; line-height:1.15; }
+.modeButtons button.selected { border-color:#fde3ad; color:#5f0f10; background:#fde3ad; box-shadow:0 4px 0 #321014; }
+.modeButtons button.selected small { color:#741314b5; }
+.gameControls { position:relative; z-index:1; display:flex; justify-content:center; gap:8px; margin-top:10px; }
+.gameControls button { display:flex; min-height:40px; align-items:center; gap:6px; padding:0 11px; border:1px solid #fde3ad4a; border-radius:999px; color:#fde3ad; font-size:9px; font-weight:750; }
+.gameControls button:disabled { opacity:.36; }
+.instructions { position:relative; z-index:1; margin:9px 0 0; color:#fff7e899; font:600 7px/1.4 var(--font-geist-mono),monospace; text-align:center; }
+.console button:focus-visible,.canvas:focus-visible { outline:3px solid #fff7e8; outline-offset:3px; }
+.consoleExpanded { position:fixed; z-index:2000; inset:0; display:flex; width:100%; height:100%; flex-direction:column; overflow:hidden; border:0; border-radius:0; padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left)); background:linear-gradient(145deg,#8a2021,#4a0b10); }
+.consoleExpanded .screen { min-height:0; flex:1; }
+.consoleExpanded .canvas { width:100%; height:100%; aspect-ratio:auto; }
+@media (max-width:599px) {
+  .canvas { aspect-ratio:4/5; }
+  .console { padding:12px; }
+  .gameHeading h3 { max-width:12ch; font-size:19px; }
+  .modeButtons { gap:6px; }
+  .modeButtons button { min-height:58px; padding-inline:8px; }
+  .consoleExpanded .consoleTop { min-height:38px; }
+  .consoleExpanded .gameHeading { flex:0 0 auto; }
+  .consoleExpanded .screen { min-height:300px; }
+  .consoleExpanded .modeButtons { flex:0 0 auto; }
+  .consoleExpanded .instructions { flex:0 0 auto; }
+}
+@media (min-width:600px) {
+  .console { padding:16px; }
+  .canvas { aspect-ratio:16/9; }
+  .gameHeading h3 { font-size:23px; }
+  .modeButtons strong { font-size:11px; }
+  .modeButtons small,.instructions { font-size:8px; }
+  .consoleExpanded { padding:24px; }
+  .consoleExpanded .screen { max-width:1100px; width:100%; align-self:center; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .console * { transition:none!important; }
+}

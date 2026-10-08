@@ -1,247 +1,42 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Headphones } from "lucide-react";
-import { useState, type ComponentType } from "react";
+import { ArrowUpRight } from "lucide-react";
 
-import {
-  HotPlateIcon,
-  PaperBagIcon,
-  PickyaloFavoriteIcon,
-  PickyaloLocationIcon,
-  type AnimatedIconProps,
-} from "@/components/icons/pickyalo";
+import styles from "./zylenpick-footer.module.css";
 
-type ZylenPickFooterProps = {
-  theme?: "dark" | "light";
-};
+type ZylenPickFooterProps = { theme?: "dark" | "light" | "auto" };
+const exploreLinks = [
+  { label: "Comercios", href: "/platos?modo=locales" },
+  { label: "Productos", href: "/platos" },
+  { label: "Descubrir", href: "/mapa?explora=1" },
+  { label: "Autobuses", href: "/autobuses" },
+  { label: "Eventos", href: "/eventos" },
+];
 
-function ExploreFooterIcon({
-  size = 24,
-  className,
-  strokeWidth = 2,
-}: AnimatedIconProps) {
-  return (
-    <Headphones
-      aria-hidden="true"
-      size={size}
-      className={className}
-      strokeWidth={strokeWidth}
-    />
-  );
-}
-
-const footerLinks = [
-  {
-    label: "Platos",
-    href: "/platos",
-    icon: HotPlateIcon,
-  },
-  {
-    label: "Zonas",
-    href: "/zonas",
-    icon: PickyaloLocationIcon,
-  },
-  {
-    label: "Explora",
-    href: "/mapa?explora=1",
-    icon: ExploreFooterIcon,
-  },
-  {
-    label: "Únete",
-    href: "/unete",
-    icon: PaperBagIcon,
-  },
-  {
-    label: "El proyecto",
-    href: "/el-proyecto",
-    icon: PickyaloFavoriteIcon,
-  },
-] satisfies Array<{
-  label: string;
-  href: string;
-  icon: ComponentType<AnimatedIconProps>;
-}>;
-
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-    >
-      <rect
-        x="3"
-        y="3"
-        width="18"
-        height="18"
-        rx="5"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
-      <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
-    </svg>
-  );
-}
-
-export function ZylenPickFooter({
-  theme = "light",
-}: ZylenPickFooterProps) {
-  const isLightTheme = theme === "light";
-  const [iconAnimation, setIconAnimation] = useState({
-    id: "",
-    triggerKey: 0,
-  });
-
-  const triggerIconAnimation = (id: string) => {
-    setIconAnimation((current) => ({
-      id,
-      triggerKey: current.triggerKey + 1,
-    }));
-  };
-
-  const stopIconAnimation = (id: string) => {
-    setIconAnimation((current) =>
-      current.id === id ? { ...current, id: "" } : current,
-    );
-  };
-
-  return (
-    <footer className="relative mt-0 overflow-hidden px-1.5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-0 sm:mt-4 sm:px-6 lg:px-8">
-      <div
-        className={
-          isLightTheme
-            ? "relative overflow-hidden rounded-[1.4rem] border-2 border-[#741314] bg-[linear-gradient(135deg,#FFF7E8,#FDE3AD)] shadow-[0_18px_54px_rgba(116,19,20,0.12)] sm:rounded-[2rem]"
-            : "relative overflow-hidden rounded-[1.4rem] border border-white/10 bg-[linear-gradient(135deg,rgba(10,14,16,0.96),rgba(7,10,13,0.92))] shadow-[0_18px_48px_rgba(0,0,0,0.24)] sm:rounded-[2rem]"
-        }
-      >
-        <div
-          className={
-            isLightTheme
-              ? "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(116,19,20,0.10),transparent_36%),radial-gradient(circle_at_bottom_right,rgba(116,19,20,0.08),transparent_28%)]"
-              : "pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(253,227,173,0.16),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(253,227,173,0.14),transparent_26%)]"
-          }
-        />
-
-        <div className="relative grid gap-8 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-          <div>
-            <div className="inline-flex items-center">
-              <Image
-                src="/icons/pickyalo-app.svg"
-                alt="Pickyalo"
-                width={64}
-                height={64}
-                className="h-14 w-14 rounded-[1rem] object-cover sm:h-16 sm:w-16"
-              />
-            </div>
-
-            <h2
-              className={
-                isLightTheme
-                  ? "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-[#741314]"
-                  : "mt-5 max-w-[12ch] text-[clamp(2.1rem,5vw,4.8rem)] font-semibold leading-[0.9] tracking-[-0.08em] text-white"
-              }
-            >
-              Descubre productos y platos destacados cerca de ti.
-            </h2>
-
-            <p
-              className={
-                isLightTheme
-                  ? "mt-4 max-w-[36rem] text-sm font-medium leading-7 text-[rgba(36,17,14,0.78)] sm:text-base"
-                  : "mt-4 max-w-[36rem] text-sm leading-7 text-white/56 sm:text-base"
-              }
-            >
-              Pickyalo te ayuda a elegir una selección visual en segundos y da más
-              visibilidad a locales cercanos, sin complicaciones.
-            </p>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-            {footerLinks.map((link) => {
-              const Icon = link.icon;
-
-              return (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onPointerEnter={() => triggerIconAnimation(link.label)}
-                  onPointerLeave={() => stopIconAnimation(link.label)}
-                  onFocus={() => triggerIconAnimation(link.label)}
-                  onBlur={() => stopIconAnimation(link.label)}
-                  className={
-                    isLightTheme
-                      ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 px-4 py-4 text-sm text-[#741314] backdrop-blur-xl transition hover:bg-[#FDE3AD]"
-                      : "group flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-white/72 backdrop-blur-xl transition hover:bg-white/[0.07]"
-                  }
-                >
-                  <span className="flex items-center gap-3">
-                    <Icon
-                      size={19}
-                      strokeWidth={2.25}
-                      animated={iconAnimation.id === link.label}
-                      active={
-                        link.label === "El proyecto"
-                          ? iconAnimation.id === link.label
-                          : undefined
-                      }
-                      loop={false}
-                      triggerKey={iconAnimation.triggerKey}
-                    />
-                    <span className="font-medium">{link.label}</span>
-                  </span>
-                  <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </Link>
-              );
-            })}
-
-            <Link
-              href="/zonas"
-              onPointerEnter={() => triggerIconAnimation("nearby")}
-              onPointerLeave={() => stopIconAnimation("nearby")}
-              onFocus={() => triggerIconAnimation("nearby")}
-              onBlur={() => stopIconAnimation("nearby")}
-              className={
-                isLightTheme
-                  ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314]/40 bg-cta px-4 py-4 text-sm text-cta-text transition hover:bg-cta-hover"
-                  : "group flex items-center justify-between rounded-[1.15rem] border border-[rgba(253,227,173,0.28)] bg-[rgba(253,227,173,0.10)] px-4 py-4 text-sm text-white transition hover:bg-[rgba(253,227,173,0.16)]"
-              }
-            >
-              <span className="flex items-center gap-3">
-                <PickyaloLocationIcon
-                  size={19}
-                  strokeWidth={2.25}
-                  animated={iconAnimation.id === "nearby"}
-                  triggerKey={iconAnimation.triggerKey}
-                />
-                <span className="font-medium">Buscar cerca de mí</span>
-              </span>
-              <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </Link>
-
-            <a
-              href="https://www.instagram.com/pickyalo/"
-              target="_blank"
-              rel="noreferrer"
-              className={
-                isLightTheme
-                  ? "group flex items-center justify-between rounded-[1.15rem] border border-[#741314] bg-[#FFF7E8]/88 px-4 py-4 text-sm text-[#741314] backdrop-blur-xl transition hover:bg-[#FDE3AD]"
-                  : "group flex items-center justify-between rounded-[1.15rem] border border-white/10 bg-white/[0.04] px-4 py-4 text-sm text-white/72 backdrop-blur-xl transition hover:bg-white/[0.07]"
-              }
-            >
-              <span className="flex items-center gap-3">
-                <InstagramIcon className="h-[19px] w-[19px] transition-transform duration-300 ease-out group-hover:rotate-6 group-hover:scale-110 group-focus-visible:rotate-6 group-focus-visible:scale-110 motion-reduce:transform-none motion-reduce:transition-none" />
-                <span className="font-medium">Instagram</span>
-              </span>
-              <ArrowUpRight className="h-4 w-4 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-            </a>
-          </div>
-        </div>
+export function ZylenPickFooter({ theme = "light" }: ZylenPickFooterProps) {
+  return <footer className={`${styles.footer} ${styles[theme]}`}>
+    <div className={styles.inner}>
+      <div className={styles.brand}>
+        <Link href="/" aria-label="Pickyalo · inicio" className={styles.logo}>
+          <Image className={styles.logoLight} src="/logo/LogoNuevo.svg" alt="Pickyalo" width={144} height={50} />
+          <Image className={styles.logoDark} src="/logo/LogoNuevo_Negativo.svg" alt="Pickyalo" width={144} height={50} />
+        </Link>
+        <p>Lo bueno de aquí,<br /><em>más cerca de ti.</em></p>
+        <Link className={styles.nearby} href="/mapa?localizar=1">Buscar cerca de mí<ArrowUpRight size={17} aria-hidden="true" /></Link>
       </div>
-    </footer>
-  );
+      <nav className={styles.links} aria-label="Explorar Pickyalo">
+        {exploreLinks.map((link) => <Link key={link.href} href={link.href}>{link.label}<ArrowUpRight size={16} aria-hidden="true" /></Link>)}
+      </nav>
+      <div className={styles.bottom}>
+        <span>Hecho para descubrir lo local.</span>
+        <nav aria-label="Sobre Pickyalo">
+          <Link href="/el-proyecto">El proyecto</Link>
+          <Link href="/unete">Únete</Link>
+          <a href="https://www.instagram.com/pickyalo/" target="_blank" rel="noreferrer">Instagram<ArrowUpRight size={12} aria-hidden="true" /></a>
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/cookies">Cookies</Link>
+        </nav>
+      </div>
+    </div>
+  </footer>;
 }
-

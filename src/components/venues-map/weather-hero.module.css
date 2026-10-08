@@ -47,3 +47,7 @@
 @media(max-width:1023px) { .hero { padding-top:30px; gap:20px; } .copy { max-width:620px; } .scene { width:min(100%,440px); margin:auto; min-height:350px; padding-top:95px; } .image { height:290px; } .hero[data-period="night"] { --sky-middle:#65778d; } .readout { top:0; right:6px; } .atmosphere .orb { top:47%; right:57%; width:120px; height:120px; } .cloud { top:50%; } }
 @media(max-width:480px) { .hero { padding-top:18px; min-height:calc(100svh - 75px); padding-bottom:75px; align-content:space-between; } .copy h1 { font-size:43px; max-width:360px; } .copy p:last-child { font-size:13px; max-width:320px; } .scene { min-height:310px; } .image { height:255px; } .temperature { font-size:64px; } .hero::before { bottom:-65px; background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-top) 25%,var(--sky-middle) 70%,#FFF7E8 99%); } }
 @media(prefers-reduced-motion:reduce) { .rain span { animation:none; } }
+:global(.dark) .hero::before { background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-top) 20%,var(--sky-middle) 57%,#2b0710 96%); }
+:global(.dark) .locate { border-color:#fde3ad; background:#3b0b14; color:#fde3ad; box-shadow:0 4px 0 #180309; }
+:global(.dark) .location { color:#fff7e8; }
+@media(max-width:480px) { :global(.dark) .hero::before { background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-top) 25%,var(--sky-middle) 70%,#2b0710 99%); } }

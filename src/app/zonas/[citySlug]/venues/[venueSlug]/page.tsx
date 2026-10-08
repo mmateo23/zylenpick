@@ -11,11 +11,12 @@ import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
 import { CityPreferenceSync } from "@/components/location/city-preference-sync";
 import { VenueLocalStructuredData } from "@/components/seo/local-seo-structured-data";
 import { MenuItemGalleryCard } from "@/components/venues/menu-item-gallery-card";
+import { VenueWrittenMenu } from "@/components/venues/venue-written-menu";
+import { getSiteFunnelSettings } from "@/features/funnel/services/site-funnel-service";
 import { VenueLocalInformation } from "@/components/venues/venue-local-information";
 import { VenueOpeningHours } from "@/components/venues/venue-opening-hours";
 import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
 import { VerifiedVenueBadge } from "@/components/venues/verified-venue-badge";
-import { VenueCartSummary } from "@/features/cart/components/venue-cart-summary";
 import { getVenueOpeningStatus } from "@/features/venues/opening-hours";
 import { getVenueDetails } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -73,24 +74,16 @@ export default async function VenuePage({ params }: VenuePageProps) {
     );
   }
 
-  const venue = await getVenueDetails(params.citySlug, params.venueSlug);
+  const [venue, settings] = await Promise.all([getVenueDetails(params.citySlug, params.venueSlug), getSiteFunnelSettings()]);
 
   if (!venue) {
     notFound();
   }
 
   const openingStatus = getVenueOpeningStatus(venue.openingHours, venue.manualOpenStatus);
-
-  const menuCategoryCounts = venue.menuItems.reduce<Record<string, number>>(
-    (accumulator, item) => {
-      const key = item.categoryName ?? "Otros";
-      accumulator[key] = (accumulator[key] ?? 0) + 1;
-      return accumulator;
-    },
-    {},
-  );
-  const menuCategories = Object.entries(menuCategoryCounts);
-  const totalMenuItems = venue.menuItems.length;
+  const writtenOnly = settings.platos.discovery?.venues[venue.id]?.menu === "written";
+  const visualItems = writtenOnly ? [] : venue.menuItems.filter(item => item.imageUrl);
+  const writtenItems = writtenOnly ? venue.menuItems : venue.menuItems.filter(item => !item.imageUrl);
 
   const cartVenue = {
     id: venue.id,
@@ -106,7 +99,7 @@ export default async function VenuePage({ params }: VenuePageProps) {
     pricesVisible: venue.pricesVisible,
   };
   return (
-    <div className={`public-light-theme ${styles.page}`}>
+    <div className={`public-light-theme pickyalo-public-canvas ${styles.page}`}>
       <SiteHeader />
       <CityPreferenceSync
         city={{ slug: venue.city.slug, name: venue.city.name }}
@@ -173,22 +166,15 @@ export default async function VenuePage({ params }: VenuePageProps) {
 
         <div className={styles.layout}>
           <section id="seleccion" className={styles.menu} aria-labelledby="venue-selection-title">
-            <div className={styles.sectionHeading}>
-              <div><p className={styles.eyebrow}>Elige tu próximo bocado</p><h2 id="venue-selection-title">La carta.</h2></div>
-              <p className={styles.count}>{totalMenuItems} {totalMenuItems === 1 ? "plato" : "platos"}</p>
-            </div>
-            {menuCategories.length > 1 ? <nav className={styles.categories} aria-label="Categorías de la carta">
-              {menuCategories.map(([name, count]) => <a key={name} href={`#plato-${venue.menuItems.find(item => (item.categoryName ?? "Otros") === name)?.id}`}>
-                {name} <small>{count}</small>
-              </a>)}
-            </nav> : null}
-            {venue.menuItems.length ? <div className={styles.dishGrid}>
-              {venue.menuItems.map(item => <MenuItemGalleryCard
+            <h2 id="venue-selection-title" className="sr-only">Platos y productos de {venue.name}</h2>
+            {visualItems.length ? <div className={styles.dishGrid}>
+              {visualItems.map(item => <MenuItemGalleryCard
                 key={item.id} item={item} venue={cartVenue} anchorId={`plato-${item.id}`}
                 variant="venueCompact" labels={{ viewDetail: "Detalles y alérgenos", addForPickup: "Añadir" }}
               />)}
-            </div> : <p className={styles.empty}>Estamos preparando la carta de este local. Mientras tanto, puedes consultar su información y contactar directamente.</p>}
-            {venue.pricesVisible ? <VenueCartSummary venueId={venue.id} /> : null}
+            </div> : null}
+            {writtenItems.length ? <div className="mt-7"><VenueWrittenMenu items={writtenItems} pricesVisible={venue.pricesVisible} /></div> : null}
+            {!venue.menuItems.length ? <p className={styles.empty}>Conoce el local, consulta sus horarios o contacta para descubrir qué ofrece.</p> : null}
           </section>
 
           <aside className={styles.sidebar} aria-label="Información del comercio">

@@ -1,0 +1,50 @@
+.header { position: relative; margin: 2rem auto 1rem; max-width: 850px; padding: 1rem; color: #741314; text-align: center; }
+.eyebrow { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .18em; }
+.header h1 { margin: 16px auto; font-size: clamp(2.9rem, 7.5vw, 6.5rem); font-weight: 700; line-height: .92; letter-spacing: -.065em; }
+.header h1 em { display: block; font-family: Georgia,serif; font-weight: 400; }
+.header p:last-of-type { max-width: 490px; margin: 20px auto; font-size: clamp(1rem,2vw,1.2rem); line-height: 1.6; color: #684237; }
+.mascot { position: absolute; width: 78px; height: auto; right: -30px; bottom: 30px; transform: rotate(9deg); }
+.controls { margin-inline: auto; max-width: 850px; text-align: center; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.modes { display: flex; justify-content: center; gap: 6px; margin: 0 auto 22px; }
+.modes button { min-height: 46px; min-width: 118px; padding: 10px 18px; border-radius: 999px; border: 1px solid #74131430; color: #741314; font-size: 15px; font-weight: 800; background: #fff7e8; transition: background .2s, color .2s; }
+.modes button[aria-pressed="true"] { background: #741314; color: #fff3d9; box-shadow: 0 4px 0 #511616; }
+.question { margin: 24px 0 12px; font-family: Georgia,serif; font-style: italic; color: #741314; font-size: 24px; }
+.locationActions { margin-top: 16px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; }
+.near,.manualLocation,.mapLink { display: inline-flex; min-height: 44px; align-items: center; gap: 6px; color: #741314; font-size: 12px; font-weight: 750; }
+.manualLocation { border-radius: 999px; border: 1px solid rgba(116,19,20,.18); background: rgba(255,247,232,.58); padding: 0 12px; box-shadow: 0 5px 14px rgba(116,19,20,.08); }
+.mapLink { text-decoration: underline; text-underline-offset: 4px; }
+.status { color: #684237; font-size: 13px; padding: 8px; }
+.venueCard { position: relative; display: block; isolation: isolate; grid-row: span 3; overflow: hidden; border: 1px solid rgba(253,227,173,.38); background: #741314; color: #fff7e8; border-radius: 26px; box-shadow: 0 22px 48px rgba(36,17,14,.24); transition: transform .28s ease,box-shadow .28s ease; }
+.venueImage { z-index: 0; object-fit: cover; transition: transform .55s cubic-bezier(.22,.8,.22,1); }
+.venueCard:hover { transform: translateY(-3px); box-shadow: 0 28px 60px rgba(36,17,14,.32); }
+.venueCard:hover .venueImage { transform: scale(1.045); }
+.venueShade { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg,rgba(18,12,8,.02) 15%,rgba(18,12,8,.08) 37%,rgba(25,12,8,.72) 65%,rgba(18,3,7,.97) 100%); }
+.venueInitial { display: grid; place-items: center; height: 100%; color: #fde3ad; font-family: Georgia,serif; font-size: 7rem; }
+.venueTag { position: absolute; z-index: 2; top: 14px; right: 14px; display: inline-flex; width: fit-content; max-width: calc(100% - 28px); align-items: center; border: 1px solid rgba(255,247,232,.22); border-radius: 999px; padding: 7px 10px; font-size: 10px; line-height: 1; font-weight: 850; color: #fff7e8; background: rgba(36,17,14,.7); box-shadow: 0 8px 22px rgba(18,3,7,.24); backdrop-filter: blur(12px); }
+.venueDistanceTime { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.venueDistanceQuip { flex: 0 0 auto; border-radius: 999px; padding: 5px 8px; font-family: Georgia,serif; font-size: 9px; font-style: italic; font-weight: 650; color: #fde3ad; background: rgba(255,247,232,.12); white-space: nowrap; backdrop-filter: blur(8px); }
+.venueCaption { position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; display: flex; flex-direction: column; padding: 16px; }
+.venueTitleRow { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+.venueCaption strong { display: block; min-width: 0; font-size: clamp(1.18rem,2.25vw,2rem); line-height: .98; letter-spacing: -.045em; text-wrap: balance; }
+.venueDescription { display: -webkit-box; overflow: hidden; margin-top: 9px; color: rgba(255,247,232,.72); font-size: 10px; line-height: 1.38; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.venueMeta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.venueMeta > span:not([role="status"]) { border: 1px solid rgba(255,247,232,.13); border-radius: 999px; padding: 5px 7px; color: #fff7e8; background: rgba(255,247,232,.1); font-size: 8px; font-weight: 800; line-height: 1; backdrop-filter: blur(8px); }
+.venueStatus { min-height:0!important; padding:5px 7px!important; font-size:8px!important; line-height:1!important; box-shadow:none!important; }
+.venueStatus > span:first-child { width:6px; height:6px; }
+.venueCta { display: flex; min-height: 42px; align-items: center; justify-content: center; gap: 7px; margin-top: 12px; border-radius: 999px; color: #24110e; background: #fff7e8; font-size: 11px; font-weight: 900; box-shadow: 0 10px 26px rgba(18,3,7,.24); transition: background .2s ease,transform .2s ease; }
+.venueCard:hover .venueCta { transform: translateY(-1px); background: #fde3ad; }
+.controls button:focus-visible,.mapLink:focus-visible,.venueCard:focus-visible { outline: 3px solid #bb6c2c; outline-offset: 4px; }
+@media(max-width:699px) { .header { margin-top: 1rem; padding: .5rem .75rem; } .header h1 { font-size: clamp(2.8rem,12vw,4.5rem); } .mascot { width: 44px; right: 2px; bottom: -5px; } .venueCard { border-radius: 22px; } .venueCaption { padding: 13px; } }
+@media(prefers-reduced-motion:reduce) { .venueImage,.modes button { transition: none; } }
+
+:global(.dark) .header { color:#fff7e8; }
+:global(.dark) .header p:last-of-type { color:rgba(255,247,232,.72); }
+:global(.dark) .modes button { border-color:rgba(253,227,173,.3); background:#3b0b14; color:#fde3ad; }
+:global(.dark) .modes button[aria-pressed="true"] { border-color:#fde3ad; background:#741314; color:#fff7e8; box-shadow:0 4px 0 #180309; }
+:global(.dark) .question,
+:global(.dark) .near,
+:global(.dark) .manualLocation,
+:global(.dark) .mapLink { color:#fde3ad; }
+:global(.dark) .manualLocation { border-color:rgba(253,227,173,.25); background:rgba(59,11,20,.64); box-shadow:0 5px 16px rgba(18,3,7,.24); }
+:global(.dark) .status { color:rgba(255,247,232,.7); }

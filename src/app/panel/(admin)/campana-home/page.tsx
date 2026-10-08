@@ -11,9 +11,9 @@ export default async function AdminHomeCampaignPage() {
   return (
     <section className="space-y-5">
       <AdminPageHeader
-        eyebrow="Contenido"
-        title="Campaña de Home"
-        description="Crea una pieza especial para un evento o colaboración y comprueba su aspecto antes de activarla."
+        eyebrow="Destacados"
+        title="Un evento en la portada."
+        description="La agenda entra en la cabecera cuando hay un evento activo. Elige la imagen, el texto y las fechas."
       />
       <HomeCampaignEditor
         action={updateHomeCampaignAction}

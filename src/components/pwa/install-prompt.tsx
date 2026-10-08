@@ -180,7 +180,7 @@ export function InstallPrompt() {
         type="button"
         onClick={dismiss}
         aria-label="Cerrar aviso de instalación"
-        className="absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full text-[#741314] hover:bg-[#FDE3AD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314]"
+        className="pickyalo-light-control absolute right-2 top-2 grid h-11 w-11 place-items-center rounded-full text-[#741314] hover:bg-[#FDE3AD] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314]"
       >
         <X size={20} aria-hidden="true" />
       </button>

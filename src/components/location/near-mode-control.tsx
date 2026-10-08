@@ -108,7 +108,7 @@ export function NearModeControl({
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-[#741314]/8"
+              className="pickyalo-light-control inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-[#741314]/8"
               aria-label="Cerrar"
             >
               <X aria-hidden="true" className="h-4 w-4" />

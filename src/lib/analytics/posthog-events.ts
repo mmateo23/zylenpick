@@ -33,7 +33,8 @@ export type PickyaloPostHogEventName =
   | "plato_visto"
   | "local_visto"
   | "add_to_cart"
-  | "pedido_confirmado";
+  | "pedido_confirmado"
+  | "eventos_vacio_visto";
 
 type PickyaloEventPropertyValue = string | number | boolean | null | undefined;
 type CaptureRetryOptions = {

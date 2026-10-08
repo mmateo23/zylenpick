@@ -5,6 +5,12 @@ import { AdminPageHeader } from "@/components/admin/admin-page-header";
 
 const contentAreas = [
   {
+    href: "/panel/destacados/escaparate",
+    icon: PanelTop,
+    title: "Shots y escaparate",
+    description: "Edita las piezas visuales y la presentación de los locales.",
+  },
+  {
     href: "/panel/campana-home",
     icon: Megaphone,
     title: "Campaña de Home",

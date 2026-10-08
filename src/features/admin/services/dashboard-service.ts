@@ -6,8 +6,6 @@ export type AdminDashboardSummary = {
   publishedVenuesCount: number | null;
   menuItemsCount: number | null;
   unavailableMenuItemsCount: number | null;
-  pendingJoinRequestsCount: number | null;
-  pendingScoutCount: number | null;
 };
 
 const emptySummary: AdminDashboardSummary = {
@@ -15,8 +13,6 @@ const emptySummary: AdminDashboardSummary = {
   publishedVenuesCount: null,
   menuItemsCount: null,
   unavailableMenuItemsCount: null,
-  pendingJoinRequestsCount: null,
-  pendingScoutCount: null,
 };
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
@@ -37,25 +33,6 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
       .from("menu_items")
       .select("*", { count: "exact", head: true })
       .eq("is_available", false),
-    supabase
-      .from("join_requests")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending"),
-    supabase
-      .from("map_places")
-      .select("id", { count: "exact", head: true })
-      .eq("capture_method", "scout")
-      .eq("status", "draft"),
-    supabase
-      .from("venues")
-      .select("id", { count: "exact", head: true })
-      .eq("capture_method", "scout")
-      .eq("capture_status", "pending"),
-    supabase
-      .from("menu_items")
-      .select("id", { count: "exact", head: true })
-      .eq("capture_method", "scout")
-      .eq("capture_status", "pending"),
   ]);
 
   const firstError = results.find((result) => result.error)?.error;
@@ -68,8 +45,6 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
     publishedVenuesCount: results[1].count ?? 0,
     menuItemsCount: results[2].count ?? 0,
     unavailableMenuItemsCount: results[3].count ?? 0,
-    pendingJoinRequestsCount: results[4].count ?? 0,
-    pendingScoutCount:
-      (results[5].count ?? 0) + (results[6].count ?? 0) + (results[7].count ?? 0),
+
   };
 }

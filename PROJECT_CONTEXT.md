@@ -1,5 +1,13 @@
 # Pickyalo — Project Context
 
+## Current direction — 14 September 2026
+
+The latest product decision supersedes the food-first ordering described below: **Lo local** and **Explora** are equal entry points in one editorial Home. Commerce includes local shops and hospitality; actual dishes remain valuable content within commerce. Exploration combines local history, tourism and the map. Events join the swipeable header as a third environment when active, as requested in the later voice clarification.
+
+Keep the existing iPost as the visual foundation. Switching or swiping changes the whole environment, including its selection below, without numbered steps or a ranked hierarchy. Reuse published venues, explore-route points, campaign configuration and existing Talavera assets.
+
+Public cart, checkout and orders are paused, not deleted. The internal panel's primary navigation is Fichas, Destacados, Horarios and Métricas. Preserve existing private tools and data for recovery without loading them into public discovery. See `docs/editorial-pivot.md` for the frozen boundary.
+
 ## What is Pickyalo?
 
 **Pickyalo** is a local discovery product being developed initially in **Talavera de la Reina**.

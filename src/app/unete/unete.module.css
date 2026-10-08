@@ -1,0 +1,50 @@
+.page {
+  background:
+    radial-gradient(circle at 8% 16%, rgba(190, 103, 87, .25), transparent 27rem),
+    linear-gradient(160deg, #fff7e8 0%, #f8e2b8 58%, #fff7e8 100%);
+}
+
+.main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 32px 0 76px; }
+.intro { display: grid; gap: 26px; }
+.copy { align-self: center; }
+.eyebrow { margin: 0; color: #741314; font: 850 10px/1.3 var(--font-geist-mono), monospace; letter-spacing: .2em; }
+.copy h1 { margin: 16px 0 0; color: #24110e; font: 500 clamp(45px, 12vw, 78px)/.9 Georgia, serif; letter-spacing: -.065em; }
+.copy h1 em { color: #741314; font-weight: 400; }
+.lead { max-width: 39rem; margin: 22px 0 0; color: rgba(36, 17, 14, .68); font-size: 15px; line-height: 1.7; }
+.copy ul { display: grid; gap: 10px; margin: 24px 0 0; padding: 0; list-style: none; }
+.copy li { display: flex; align-items: center; gap: 9px; min-height: 30px; font-size: 13px; font-weight: 750; }
+.copy li svg { color: #741314; }
+.image { position: relative; min-height: 310px; margin: 0; overflow: hidden; border-radius: 26px; background: #741314; box-shadow: 0 28px 70px rgba(95, 15, 16, .18); }
+.image img { object-fit: cover; }
+.image::after { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(36,17,14,.72)); content: ""; }
+.image figcaption { position: absolute; z-index: 1; right: 18px; bottom: 18px; left: 18px; color: #fff7e8; font: 800 10px/1.3 var(--font-geist-mono), monospace; letter-spacing: .12em; text-transform: uppercase; }
+.formSection { display: grid; gap: 28px; margin-top: 56px; }
+.formSection aside { align-self: start; padding: 8px 2px; }
+.formSection aside h2 { margin: 13px 0 0; color: #24110e; font: 600 clamp(31px, 7vw, 47px)/1 Georgia, serif; letter-spacing: -.05em; }
+.formSection aside > p:last-child { max-width: 34rem; margin: 17px 0 0; color: rgba(36,17,14,.65); font-size: 14px; line-height: 1.7; }
+
+@media (min-width: 800px) {
+  .main { padding-top: 48px; }
+  .intro { grid-template-columns: 1.05fr .95fr; align-items: stretch; }
+  .image { min-height: 480px; }
+  .formSection { grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); align-items: start; gap: 48px; margin-top: 78px; }
+  .formSection aside { position: sticky; top: 105px; padding-top: 25px; }
+}
+
+:global(.dark) .page {
+  background:
+    radial-gradient(circle at 8% 16%, rgba(184, 76, 50, .6), transparent 29rem),
+    linear-gradient(160deg, #410e19 0%, #741314 58%, #450f16 100%);
+}
+:global(.dark) .copy h1,
+:global(.dark) .formSection aside h2 { color: #fff7e8; }
+:global(.dark) .copy h1 em,
+:global(.dark) .eyebrow,
+:global(.dark) .copy li svg { color: #fde3ad; }
+:global(.dark) .lead,
+:global(.dark) .formSection aside > p:last-child { color: rgba(255,247,232,.7); }
+:global(.dark) .copy li { color: #fff7e8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page * { transition: none !important; }
+}

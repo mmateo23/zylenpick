@@ -122,3 +122,45 @@
 }
 @media (max-width: 350px) { .sticker { width: 72px; } .statusHeadline h2 { font-size: 47px; } .catalogueHeading { flex-wrap: wrap; } .itemMain { gap: 10px; } .itemPhoto { width: 86px; } }
 @media (prefers-reduced-motion: reduce) { .switchThumb, .switchOption { transition: none; } }
+
+:global(.dark) .page {
+  --wine:#741314;
+  --cream:#5f0f10;
+  background:#26060e;
+  color:#fff7e8;
+}
+:global(.dark) .page :is(button,a,input):focus-visible { outline-color:#fde3ad; }
+:global(.dark) .privateBadge,
+:global(.dark) .intro .eyebrow,
+:global(.dark) .publicLink,
+:global(.dark) .catalogueHeading,
+:global(.dark) .search,
+:global(.dark) .price,
+:global(.dark) .footer,
+:global(.dark) .sheetHeading,
+:global(.dark) .modes span,
+:global(.dark) .amountField,
+:global(.dark) .labelField,
+:global(.dark) .priceError { color:#fde3ad; border-color:rgba(253,227,173,.34); }
+:global(.dark) .city,
+:global(.dark) .unpublished,
+:global(.dark) .category,
+:global(.dark) .modes small { color:rgba(255,247,232,.66); }
+:global(.dark) .publicLink { background:#5f0f10; box-shadow:2px 3px 0 #180309; }
+:global(.dark) .count { background:#fde3ad; color:#741314; }
+:global(.dark) .notice { border-color:#fde3ad; background:rgba(116,19,20,.48); }
+:global(.dark) .item { border-color:rgba(253,227,173,.26); background:#3b0b14; box-shadow:3px 4px 0 rgba(18,3,7,.35); }
+:global(.dark) .itemPhoto { background:#5f0f10; color:#fde3ad; }
+:global(.dark) .photoStamp { border-color:#fde3ad; background:#5f0f10; }
+:global(.dark) .itemControls { border-color:rgba(253,227,173,.18); background:rgba(253,227,173,.18); }
+:global(.dark) .itemControls button { background:#3b0b14; color:#fde3ad; }
+:global(.dark) .itemControls .availability[aria-pressed="true"] { background:#5f0f10; }
+:global(.dark) .itemControls .availability[aria-pressed="false"] { background:repeating-linear-gradient(-45deg,#3b0b14,#3b0b14 5px,#fde3ad08 5px,#fde3ad08 7px); }
+:global(.dark) .itemControls .featured[aria-pressed="true"] { background:#fde3ad; color:#741314; }
+:global(.dark) .dialog { color:#fff7e8; background:#2b0710; border-color:#fde3ad; box-shadow:7px 8px 0 #180309; }
+:global(.dark) .close,
+:global(.dark) .modes label,
+:global(.dark) .labelField input { border-color:rgba(253,227,173,.28); background:#3b0b14; color:#fff7e8; }
+:global(.dark) .modes label[data-selected="true"] { border-color:#fde3ad; background:#5f0f10; box-shadow:2px 2px 0 #fde3ad; }
+:global(.dark) .amountControls button { border-color:#fde3ad; background:#5f0f10; box-shadow:0 3px 0 #180309; }
+:global(.dark) .amountControls input { border-color:#fde3ad; color:#fde3ad; }

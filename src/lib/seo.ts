@@ -24,9 +24,12 @@ export function getBaseMetadata({
   return {
     title,
     description,
+    keywords: ["Pickyalo", "Talavera de la Reina", "comercio local", "productos locales", "qué hacer en Talavera", "eventos en Talavera"],
     alternates: {
       canonical: canonicalUrl,
+      languages: { "es-ES": canonicalUrl },
     },
+    category: "descubrimiento local",
     openGraph: {
       title,
       description,
@@ -48,6 +51,17 @@ export function getBaseMetadata({
       title,
       description,
       images: [imageUrl],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
   };
 }

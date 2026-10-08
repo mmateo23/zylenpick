@@ -1,9 +1,7 @@
 import { ReactNode } from "react";
 
-import { MobileCartBar } from "@/components/cart/mobile-cart-bar";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
-import { ActiveOrderWidget } from "@/components/orders/active-order-widget";
 
 type SiteShellProps = {
   children: ReactNode;
@@ -23,7 +21,7 @@ export function SiteShell({
   return (
     <div
       className={[
-        "min-h-screen bg-[#fcfaf5] text-[#24110E]",
+        "pickyalo-public-canvas min-h-screen text-[#24110E]",
         className,
       ]
         .filter(Boolean)
@@ -39,8 +37,6 @@ export function SiteShell({
       >
         {children}
       </main>
-      <ActiveOrderWidget />
-      <MobileCartBar />
       {showBasicFooter ? (
         <ZylenPickFooter theme="light" />
       ) : null}

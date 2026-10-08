@@ -113,6 +113,13 @@ export function formatOpeningHoursDay(day: OpeningHoursDayValue) {
   return firstRange;
 }
 
+export function hasOpeningHoursData(openingHours: OpeningHoursValue) {
+  return openingHourDayOrder.some((dayKey) => {
+    const day = openingHours[dayKey];
+    return day.isOpen && Boolean(day.firstOpen && day.firstClose);
+  });
+}
+
 export function getVenueOpeningStatus(
   hours: OpeningHoursValue,
   manualOpenStatus?: boolean | null,

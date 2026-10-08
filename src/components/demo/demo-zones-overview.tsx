@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { ArrowUpRight, MapPinned, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 import { DemoSiteHeader } from "@/components/demo/demo-site-header";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -118,7 +119,13 @@ export function DemoZonesOverview({
 }: DemoZonesOverviewProps) {
   const rootRef = useRef<HTMLElement>(null);
   const heroCities = useMemo(() => buildHeroCities(cities), [cities]);
-  const isLightTheme = variant === "public";
+  const { resolvedTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+  const isLightTheme = variant === "public" && (!themeReady || resolvedTheme !== "dark");
+
+  useEffect(() => {
+    setThemeReady(true);
+  }, []);
   const cityHrefBase = variant === "public" ? "/zonas" : "/demo/zonas";
   const zonesHeroMediaType = design?.media.zonesHeroMediaType ?? "video";
   const zonesHeroMediaUrl = design?.media.zonesHeroMediaUrl || fallbackVideoSrc;
@@ -193,7 +200,7 @@ export function DemoZonesOverview({
     <main
       ref={rootRef}
       className={`min-h-screen transition-colors ${
-        isLightTheme ? "bg-[#fcfaf5] text-[#24110E]" : "bg-[#050816] text-white"
+        isLightTheme ? "public-light-theme pickyalo-public-canvas text-[#24110E]" : "bg-[#050816] text-white"
       }`}
     >
       {variant === "public" ? (
@@ -204,7 +211,7 @@ export function DemoZonesOverview({
 
       <section className={isLightTheme ? "relative overflow-hidden px-1.5 pb-6 pt-5 sm:px-6 sm:pb-8 sm:pt-7 lg:px-8 lg:pt-9" : "relative overflow-hidden border-b border-white/6"}>
         {isLightTheme ? (
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.10),transparent_24%),linear-gradient(180deg,#fcfaf5_0%,#f2ece1_100%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(116,19,20,0.11),transparent_30%),linear-gradient(180deg,rgba(255,247,232,0.48)_0%,rgba(253,227,173,0.10)_100%)]" />
         ) : null}
 
         <div className={isLightTheme ? "relative z-10 mx-auto max-w-[1600px]" : "relative mx-auto w-full max-w-7xl"}>

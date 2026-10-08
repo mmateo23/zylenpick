@@ -1,16 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { createRoot, type Root } from "react-dom/client";
-import type { Map as MapboxMap, Marker } from "mapbox-gl";
-import { Accessibility, ArrowUpRight, Building2, Clock3, Headphones, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Maximize2, Minimize2, Navigation, Route, Satellite, Shapes, ShoppingBag, Sparkles, X } from "lucide-react";
+import type { FilterSpecification, Map as MapboxMap, MapboxGeoJSONFeature, Marker } from "mapbox-gl";
+import { Accessibility, ArrowUpRight, BusFront, Clock3, Headphones, Info, ListFilter, LocateFixed, Map as MapIcon, MapPin, Maximize2, Minimize2, Navigation, Route, Shapes, ShoppingBag, Sparkles, X } from "lucide-react";
 
 import { WeatherMapHero } from "./weather-map-hero";
+import { TransitStopSheet } from "./transit-stop-sheet";
 import { PlacePost } from "@/components/map-places/place-post";
 import { NativeDirectionsLink } from "@/components/maps/native-directions-link";
+import { ManualLocationPicker } from "@/components/location/manual-location-picker";
 import {
   GuidedDiscoverySheet,
   type GuidedDiscoveryIntent,
@@ -50,6 +52,20 @@ import {
   type DiscoveryGeometry,
   type MapCoordinate,
 } from "@/features/map-discovery/geometry";
+import {
+  findTransitStopSchedules,
+  findDirectTransitJourneys,
+  getTransitLineRoutes,
+  getTransitLinePalette,
+  type TransitLineRoute,
+  type TransitStopSchedule,
+} from "@/features/transit/urbanos-talavera";
+import {
+  loadUrbanosTalaveraDataset,
+  loadUrbanosTalaveraMapStops,
+  loadTransitMappedRoute,
+  mapTransitRouteStops,
+} from "@/features/transit/urbanos-talavera-client";
 import { captureLugarVisto } from "@/lib/analytics/posthog-events";
 
 type VenuesMapProps = {
@@ -60,8 +76,13 @@ type VenuesMapProps = {
   heroImageUrl?: string;
   demoMode?: boolean;
   initialPlaceSlug?: string;
+  initialFilter?: string;
   autoLocate?: boolean;
   initialExploreOnly?: boolean;
+  initialTransitLine?: string;
+  initialTransitDirection?: string;
+  initialTransitFrom?: string;
+  initialTransitTo?: string;
   withSiteHeader?: boolean;
   guidedDiscovery?: boolean;
   guidedDiscoveryStandalone?: boolean;
@@ -104,6 +125,12 @@ const discoveryAreaExtrusionLayerId = `${discoveryAreaSourceId}-extrusion`;
 const discoveryAreaLineLayerId = `${discoveryAreaSourceId}-line`;
 const satelliteSourceId = "pickyalo-satellite";
 const satelliteLayerId = `${satelliteSourceId}-imagery`;
+const transitRouteSourceId = "pickyalo-transit-route";
+const transitRouteCasingLayerId = `${transitRouteSourceId}-casing`;
+const transitRouteLineLayerId = `${transitRouteSourceId}-line`;
+const transitRouteArrowsLayerId = `${transitRouteSourceId}-arrows`;
+const transitRouteStopsLayerId = `${transitRouteSourceId}-stops`;
+const transitRouteLabelsLayerId = `${transitRouteSourceId}-labels`;
 const placeMarkerRoots = new WeakMap<HTMLElement, Root>();
 
 function ensureMapboxStylesheet() {
@@ -150,27 +177,41 @@ function createPlaceAreasData(
   };
 }
 
-function applyPickyaloMapStyle(map: MapboxMap, gameAtlas = false) {
+type MapView = "map" | "satellite" | "game" | "period" | "city";
+
+function applyPickyaloMapStyle(map: MapboxMap, gameAtlas = false, period = false) {
   const layers = map.getStyle().layers ?? [];
+  const commercialPoiClasses = [
+    "commercial_services",
+    "food_and_drink",
+    "food_and_drink_stores",
+    "lodging",
+    "store_like",
+  ];
+  const keepUsefulPoiFilter = [
+    "!",
+    ["in", ["get", "class"], ["literal", commercialPoiClasses]],
+  ] as FilterSpecification;
 
   layers.forEach((layer) => {
     const id = layer.id.toLowerCase();
+    if (id.startsWith("pickyalo-")) return;
 
     try {
       if (layer.type === "background") {
-        map.setPaintProperty(layer.id, "background-color", gameAtlas ? "#EEECE5" : "#F4DFC0");
+        map.setPaintProperty(layer.id, "background-color", period ? "#EBD5A6" : gameAtlas ? "#EEECE5" : "#F4DFC0");
         return;
       }
 
       if (layer.type === "fill") {
         if (id.includes("water")) {
-          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#A9D2D1" : "#BFD9D1");
+          map.setPaintProperty(layer.id, "fill-color", period ? "#91AEB0" : gameAtlas ? "#A9D2D1" : "#BFD9D1");
         } else if (id.includes("park") || id.includes("landuse") || id.includes("landcover")) {
-          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#B8C9AD" : "#D9DDB5");
+          map.setPaintProperty(layer.id, "fill-color", period ? "#B5B183" : gameAtlas ? "#B8C9AD" : "#D9DDB5");
           map.setPaintProperty(layer.id, "fill-opacity", 0.78);
         } else if (id.includes("building")) {
-          map.setPaintProperty(layer.id, "fill-color", gameAtlas ? "#CBC6BD" : "#E8CDA7");
-          if (gameAtlas) map.setPaintProperty(layer.id, "fill-outline-color", "#B2AAA0");
+          map.setPaintProperty(layer.id, "fill-color", period ? "#C5A77D" : gameAtlas ? "#CBC6BD" : "#E8CDA7");
+          map.setPaintProperty(layer.id, "fill-outline-color", period ? "#8B7050" : gameAtlas ? "#B2AAA0" : "#E8CDA7");
           map.setPaintProperty(layer.id, "fill-opacity", 0.72);
         }
         return;
@@ -178,7 +219,7 @@ function applyPickyaloMapStyle(map: MapboxMap, gameAtlas = false) {
 
       if (layer.type === "line") {
         if (id.includes("road") || id.includes("street")) {
-          map.setPaintProperty(layer.id, "line-color", gameAtlas && id.includes("case") ? "#C1B8AB" : "#FFF9ED");
+          map.setPaintProperty(layer.id, "line-color", period ? (id.includes("case") ? "#8B7050" : "#F4E5C4") : gameAtlas && id.includes("case") ? "#C1B8AB" : "#FFF9ED");
         } else if (id.includes("water")) {
           map.setPaintProperty(layer.id, "line-color", "#9FC9C0");
         } else if (id.includes("boundary")) {
@@ -190,11 +231,21 @@ function applyPickyaloMapStyle(map: MapboxMap, gameAtlas = false) {
 
       if (layer.type === "symbol") {
         if (id.includes("poi")) {
-          map.setLayoutProperty(layer.id, "visibility", "none");
-          return;
+          // Keep orientation aids from the base map (monuments, parking,
+          // public services), while generic food, lodging and shops stay out.
+          const existingFilter = map.getFilter(layer.id);
+          map.setLayoutProperty(layer.id, "visibility", "visible");
+          map.setFilter(
+            layer.id,
+            existingFilter && !JSON.stringify(existingFilter).includes("commercial_services")
+              ? (["all", existingFilter, keepUsefulPoiFilter] as FilterSpecification)
+              : existingFilter ?? keepUsefulPoiFilter,
+          );
+          map.setPaintProperty(layer.id, "icon-opacity", gameAtlas ? 0.72 : 0.82);
+          map.setPaintProperty(layer.id, "text-opacity", gameAtlas ? 0.68 : 0.78);
         }
-        map.setPaintProperty(layer.id, "text-color", gameAtlas ? "#423C36" : "#4A263D");
-        map.setPaintProperty(layer.id, "text-halo-color", "#FFF7E8");
+        map.setPaintProperty(layer.id, "text-color", period ? "#493323" : gameAtlas ? "#423C36" : "#4A263D");
+        map.setPaintProperty(layer.id, "text-halo-color", period ? "#F4E5C4" : "#FFF7E8");
         map.setPaintProperty(layer.id, "text-halo-width", 1.35);
       }
     } catch {
@@ -378,6 +429,82 @@ function getMapboxVenueCoordinates(map: MapboxMap, venue: VenueMapItem): [number
   return [longitude, latitude];
 }
 
+function getRenderedTransitStopName(
+  features: MapboxGeoJSONFeature[],
+) {
+  for (const feature of features) {
+    if (feature.geometry.type !== "Point") continue;
+    const properties = feature.properties ?? {};
+    const name = [properties.name_es, properties.name]
+      .find((value): value is string => typeof value === "string" && value.trim().length > 1);
+    if (!name) continue;
+
+    const layer = feature.layer as (NonNullable<typeof feature.layer> & { "source-layer"?: string }) | undefined;
+    const signals = [
+      layer?.id,
+      layer?.["source-layer"],
+      properties.class,
+      properties.type,
+      properties.maki,
+      properties.mode,
+      properties.stop_type,
+      properties.network,
+    ]
+      .filter((value): value is string => typeof value === "string")
+      .join(" ")
+      .toLocaleLowerCase("es");
+
+    const explicitlyBus = /(^|[\s_-])(bus|bus_stop|coach)([\s_-]|$)/.test(signals);
+    const transitStopLayer = /transit.*stop|stop.*transit|public.*transport/.test(signals);
+    const explicitlyRail = /rail|tram|subway|metro/.test(signals);
+    if (explicitlyBus || (transitStopLayer && !explicitlyRail)) return name.trim();
+  }
+  return null;
+}
+
+function createTransitLinesMarkerElement(
+  stopName: string,
+  lines: string[],
+  onSelect: () => void,
+) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "pickyalo-transit-lines-marker";
+  button.setAttribute(
+    "aria-label",
+    `Ver horarios de ${stopName}. Líneas ${lines.join(", ")}`,
+  );
+
+  const lineBadges = document.createElement("span");
+  lineBadges.className = "pickyalo-transit-line-badges";
+  lines.forEach((line) => {
+    const palette = getTransitLinePalette(line);
+    const square = document.createElement("span");
+    square.className = "pickyalo-transit-line-square";
+    square.textContent = line;
+    square.setAttribute("aria-hidden", "true");
+    square.style.backgroundColor = palette.background;
+    square.style.color = palette.foreground;
+    square.style.setProperty("--transit-line-shadow", palette.shadow);
+    lineBadges.appendChild(square);
+  });
+  button.appendChild(lineBadges);
+
+  const stopPin = document.createElement("span");
+  stopPin.className = "pickyalo-transit-stop-pin";
+  button.appendChild(stopPin);
+  const root = createRoot(stopPin);
+  root.render(<BusFront aria-hidden="true" />);
+  placeMarkerRoots.set(button, root);
+
+  button.addEventListener("pointerdown", (event) => event.stopPropagation());
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    onSelect();
+  });
+  return button;
+}
+
 export function VenuesMap({
   accessToken,
   venues,
@@ -386,8 +513,13 @@ export function VenuesMap({
   heroImageUrl = "/home/zonas/badges/talavera_tile_letters.png",
   demoMode = false,
   initialPlaceSlug,
+  initialFilter,
   autoLocate = false,
   initialExploreOnly = false,
+  initialTransitLine,
+  initialTransitDirection,
+  initialTransitFrom,
+  initialTransitTo,
   withSiteHeader = false,
   guidedDiscovery = false,
   guidedDiscoveryStandalone = false,
@@ -402,23 +534,33 @@ export function VenuesMap({
     bearing: number;
   } | null>(null);
   const markersRef = useRef<Marker[]>([]);
+  const transitMarkersRef = useRef<Marker[]>([]);
   const userMarkerRef = useRef<Marker | null>(null);
+  const hasCenteredOnUserRef = useRef(false);
   const [mapReady, setMapReady] = useState(false);
-  const [mapView, setMapView] = useState<"map" | "satellite">("map");
+  const [mapView, setMapView] = useState<MapView>("map");
   const [isCityView, setIsCityView] = useState(false);
   const [satelliteMessage, setSatelliteMessage] = useState<string | null>(null);
   const hasExplorePoints = places.some((place) => Boolean(place.explore));
   const initialExplorePlace = initialExploreOnly
     ? places.find((place) => Boolean(place.explore))
     : undefined;
+  const initialCategoryPlace = initialFilter
+    ? places.find((place) => place.category === initialFilter)
+    : undefined;
+  const startingFilter: MapFilter = initialExplorePlace
+    ? "explora"
+    : initialCategoryPlace?.category ?? (initialFilter === "venues" ? "venues" : "all");
   const [filter, setFilter] = useState<MapFilter>(
-    initialExplorePlace ? "explora" : "all",
+    startingFilter,
   );
   const [selection, setSelection] = useState<Selection | null>(
     guidedDiscoveryStandalone
       ? null
       : initialExplorePlace
       ? { type: "place", item: initialExplorePlace }
+      : initialCategoryPlace
+      ? { type: "place", item: initialCategoryPlace }
       : venues[0]
       ? { type: "venue", item: venues[0] }
       : places[0]
@@ -429,8 +571,34 @@ export function VenuesMap({
   const [userLocationLabel, setUserLocationLabel] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
+  const [manualLocationOpen, setManualLocationOpen] = useState(false);
   const [openPlace, setOpenPlace] = useState<PublicMapPlace | null>(null);
+  const [transitStopName, setTransitStopName] = useState<string | null>(null);
+  const [transitRouteOptions, setTransitRouteOptions] = useState<TransitLineRoute[]>([]);
+  const [activeTransitRoute, setActiveTransitRoute] = useState<TransitLineRoute | null>(null);
+  const [transitRouteMappedStops, setTransitRouteMappedStops] = useState(0);
+  const [transitRouteFollowsStreets, setTransitRouteFollowsStreets] = useState(false);
+  const [transitBoardingStop, setTransitBoardingStop] = useState<{
+    name: string;
+    distanceKm: number;
+  } | null>(null);
   const lastTrackedOpenPlaceRef = useRef<string | null>(null);
+
+  const showTransitScheduleRoute = useCallback((schedule: TransitStopSchedule) => {
+    void loadUrbanosTalaveraDataset().then((dataset) => {
+      const routes = getTransitLineRoutes(dataset, schedule.line);
+      const signature = schedule.routeStops.join("\u0000");
+      const selected = routes.find((route) =>
+        route.direction === schedule.direction && route.stops.join("\u0000") === signature,
+      ) ?? routes.find((route) => route.direction === schedule.direction) ?? routes[0];
+      if (!selected) return;
+      setTransitRouteOptions(routes);
+      setActiveTransitRoute(selected);
+      setTransitStopName(null);
+      setSelection(null);
+      setMobileSelectionOpen(false);
+    });
+  }, []);
 
   useEffect(() => {
     if (!openPlace) {
@@ -448,7 +616,7 @@ export function VenuesMap({
       source: "mapa",
     });
   }, [openPlace]);
-  const [mobileSelectionOpen, setMobileSelectionOpen] = useState(Boolean(initialExplorePlace));
+  const [mobileSelectionOpen, setMobileSelectionOpen] = useState(Boolean(initialExplorePlace || initialCategoryPlace));
   const [isImmersive, setIsImmersive] = useState(false);
   const [immersiveFiltersOpen, setImmersiveFiltersOpen] = useState(false);
   const [legendOpen, setLegendOpen] = useState(false);
@@ -830,6 +998,7 @@ export function VenuesMap({
             const placeId = event.features?.[0]?.properties?.id;
             const place = places.find((candidate) => candidate.id === placeId);
             if (!place) return;
+            setTransitStopName(null);
             setQuickPlanOpen(false);
             setSelection({ type: "place", item: place });
             setMobileSelectionOpen(true);
@@ -838,6 +1007,20 @@ export function VenuesMap({
               zoom: Math.max(map.getZoom(), 16),
               essential: true,
             });
+          });
+          map.on("click", (event) => {
+            const radius = 12;
+            const features = map.queryRenderedFeatures([
+              [event.point.x - radius, event.point.y - radius],
+              [event.point.x + radius, event.point.y + radius],
+            ]);
+            const stopName = getRenderedTransitStopName(features);
+            if (!stopName) return;
+            setQuickPlanOpen(false);
+            setOpenPlace(null);
+            setSelection(null);
+            setMobileSelectionOpen(false);
+            setTransitStopName(stopName);
           });
           const points = [
             ...venues.map((venue) => [venue.longitude, venue.latitude] as [number, number]),
@@ -859,6 +1042,8 @@ export function VenuesMap({
       cancelled = true;
       markersRef.current.forEach(removeMapMarker);
       markersRef.current = [];
+      transitMarkersRef.current.forEach(removeMapMarker);
+      transitMarkersRef.current = [];
       userMarkerRef.current?.remove();
       userMarkerRef.current = null;
       mapRef.current?.remove();
@@ -879,6 +1064,248 @@ export function VenuesMap({
       map.off("pitchend", syncPerspective);
     };
   }, [mapReady]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+
+    let cancelled = false;
+    let refreshMarkers: (() => void) | null = null;
+
+    const clearTransitMarkers = () => {
+      transitMarkersRef.current.forEach(removeMapMarker);
+      transitMarkersRef.current = [];
+    };
+
+    void Promise.all([
+      import("mapbox-gl"),
+      loadUrbanosTalaveraDataset(),
+      loadUrbanosTalaveraMapStops(),
+    ]).then(([mapboxgl, dataset, mapStops]) => {
+      if (cancelled || mapRef.current !== map) return;
+
+      refreshMarkers = () => {
+        if (cancelled || mapRef.current !== map) return;
+        clearTransitMarkers();
+
+        const markers: Marker[] = [];
+        if (map.getZoom() < 15.2) return;
+        const bounds = map.getBounds();
+        if (!bounds) return;
+
+        mapStops.paradas.forEach((stop) => {
+          const coordinates: [number, number] = [stop.longitude, stop.latitude];
+          if (!bounds.contains(coordinates)) return;
+          const schedules = findTransitStopSchedules(dataset, stop.name);
+          const lines = Array.from(new Set(schedules.map((schedule) => schedule.line)))
+            .sort((left, right) => left.localeCompare(right, "es", { numeric: true }));
+          if (lines.length === 0) return;
+
+          const element = createTransitLinesMarkerElement(stop.name, lines, () => {
+            setQuickPlanOpen(false);
+            setOpenPlace(null);
+            setSelection(null);
+            setMobileSelectionOpen(false);
+            setTransitStopName(stop.name);
+          });
+          markers.push(
+            new mapboxgl.default.Marker({ element, anchor: "bottom", offset: [0, -3] })
+              .setLngLat(coordinates)
+              .addTo(map),
+          );
+        });
+
+        transitMarkersRef.current = markers;
+      };
+
+      refreshMarkers();
+      map.on("idle", refreshMarkers);
+    }).catch(() => {
+      // The base map remains usable if the optional timetable data cannot load.
+    });
+
+    return () => {
+      cancelled = true;
+      if (refreshMarkers) map.off("idle", refreshMarkers);
+      clearTransitMarkers();
+    };
+  }, [mapReady]);
+
+  useEffect(() => {
+    if (!initialTransitLine) return;
+    let cancelled = false;
+    void loadUrbanosTalaveraDataset().then((dataset) => {
+      if (cancelled) return;
+      const routes = getTransitLineRoutes(dataset, initialTransitLine);
+      if (routes.length === 0) return;
+      const journey = initialTransitFrom && initialTransitTo
+        ? findDirectTransitJourneys(dataset, initialTransitFrom, initialTransitTo).find((item) =>
+          item.line === initialTransitLine
+          && (!initialTransitDirection || item.direction === initialTransitDirection),
+        )
+        : null;
+      setTransitRouteOptions(routes);
+      setActiveTransitRoute(journey ?? routes.find((route) => route.direction === initialTransitDirection) ?? routes[0]);
+      setSelection(null);
+      setMobileSelectionOpen(false);
+    }).catch(() => {
+      // The map still works if the optional route data cannot load.
+    });
+    return () => { cancelled = true; };
+  }, [initialTransitDirection, initialTransitFrom, initialTransitLine, initialTransitTo]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+    let cancelled = false;
+
+    const clearRoute = () => {
+      if (map.getLayer(transitRouteLabelsLayerId)) map.removeLayer(transitRouteLabelsLayerId);
+      if (map.getLayer(transitRouteStopsLayerId)) map.removeLayer(transitRouteStopsLayerId);
+      if (map.getLayer(transitRouteArrowsLayerId)) map.removeLayer(transitRouteArrowsLayerId);
+      if (map.getLayer(transitRouteLineLayerId)) map.removeLayer(transitRouteLineLayerId);
+      if (map.getLayer(transitRouteCasingLayerId)) map.removeLayer(transitRouteCasingLayerId);
+      if (map.getSource(transitRouteSourceId)) map.removeSource(transitRouteSourceId);
+    };
+
+    clearRoute();
+    setTransitRouteMappedStops(0);
+    setTransitRouteFollowsStreets(false);
+    setTransitBoardingStop(null);
+    if (!activeTransitRoute) return clearRoute;
+
+    void Promise.all([import("mapbox-gl"), loadUrbanosTalaveraMapStops()]).then(async ([mapboxgl, mapStops]) => {
+      if (cancelled || mapRef.current !== map) return;
+      const mappedRoute = await loadTransitMappedRoute(activeTransitRoute);
+      if (cancelled || mapRef.current !== map) return;
+      const points = mappedRoute?.points ?? mapTransitRouteStops(activeTransitRoute.stops, mapStops.paradas);
+      if (points.length < 2) return;
+      setTransitRouteMappedStops(points.length);
+      const boardingDistanceKm = userLocation
+        ? getDistanceInKm(
+            userLocation.latitude,
+            userLocation.longitude,
+            points[0].latitude,
+            points[0].longitude,
+          )
+        : null;
+      setTransitBoardingStop(
+        boardingDistanceKm === null
+          ? null
+          : { name: points[0].routeName, distanceKm: boardingDistanceKm },
+      );
+      const coordinates = mappedRoute?.coordinates ?? [];
+      setTransitRouteFollowsStreets(Boolean(mappedRoute));
+      const palette = getTransitLinePalette(activeTransitRoute.line);
+      map.addSource(transitRouteSourceId, {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            ...(coordinates.length >= 2 ? [{
+              type: "Feature" as const,
+              properties: { kind: "route" },
+              geometry: { type: "LineString" as const, coordinates },
+            }] : []),
+            ...points.map((point, index) => ({
+              type: "Feature" as const,
+              properties: {
+                kind: "stop",
+                name: point.routeName,
+                order: point.order + 1,
+                endpoint: index === 0 ? "Sube" : index === points.length - 1 ? "Baja" : "",
+              },
+              geometry: { type: "Point" as const, coordinates: [point.longitude, point.latitude] },
+            })),
+          ],
+        },
+      });
+      map.addLayer({
+        id: transitRouteCasingLayerId,
+        type: "line",
+        source: transitRouteSourceId,
+        filter: ["==", ["get", "kind"], "route"],
+        paint: { "line-color": "#FFF7E8", "line-width": 10, "line-opacity": 0.92 },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+      map.addLayer({
+        id: transitRouteLineLayerId,
+        type: "line",
+        source: transitRouteSourceId,
+        filter: ["==", ["get", "kind"], "route"],
+        paint: {
+          "line-color": palette.background,
+          "line-width": 6,
+          "line-opacity": 0.95,
+        },
+        layout: { "line-cap": "round", "line-join": "round" },
+      });
+      map.addLayer({
+        id: transitRouteArrowsLayerId,
+        type: "symbol",
+        source: transitRouteSourceId,
+        filter: ["==", ["get", "kind"], "route"],
+        layout: {
+          "symbol-placement": "line",
+          "symbol-spacing": 105,
+          "text-field": "›",
+          "text-size": 23,
+          "text-rotation-alignment": "map",
+          "text-keep-upright": false,
+          "text-allow-overlap": true,
+        },
+        paint: {
+          "text-color": palette.foreground,
+          "text-halo-color": palette.background,
+          "text-halo-width": 1,
+        },
+      });
+      map.addLayer({
+        id: transitRouteStopsLayerId,
+        type: "circle",
+        source: transitRouteSourceId,
+        filter: ["==", ["get", "kind"], "stop"],
+        paint: {
+          "circle-radius": ["case", ["!=", ["get", "endpoint"], ""], 9, 5.5],
+          "circle-color": palette.background,
+          "circle-stroke-color": "#FFF7E8",
+          "circle-stroke-width": ["case", ["!=", ["get", "endpoint"], ""], 4, 2.5],
+        },
+      });
+      map.addLayer({
+        id: transitRouteLabelsLayerId,
+        type: "symbol",
+        source: transitRouteSourceId,
+        filter: ["all", ["==", ["get", "kind"], "stop"], ["!=", ["get", "endpoint"], ""]],
+        layout: {
+          "text-field": ["get", "endpoint"],
+          "text-size": 11,
+          "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+          "text-offset": [0, 1.8],
+          "text-anchor": "top",
+          "text-allow-overlap": true,
+        },
+        paint: {
+          "text-color": "#24110E",
+          "text-halo-color": "#FFF7E8",
+          "text-halo-width": 2.5,
+        },
+      });
+      const bounds = new mapboxgl.default.LngLatBounds();
+      points.forEach((point) => bounds.extend([point.longitude, point.latitude]));
+      if (userLocation && boardingDistanceKm !== null && boardingDistanceKm <= 12) {
+        bounds.extend([userLocation.longitude, userLocation.latitude]);
+      }
+      map.fitBounds(bounds, { padding: { top: 80, right: 55, bottom: 190, left: 55 }, maxZoom: 14.7, duration: 700 });
+    }).catch(() => {
+      setTransitRouteMappedStops(0);
+    });
+
+    return () => {
+      cancelled = true;
+      if (mapRef.current === map) clearRoute();
+    };
+  }, [accessToken, activeTransitRoute, mapReady, userLocation]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -907,6 +1334,7 @@ export function VenuesMap({
     const map = mapRef.current;
     if (!mapReady || !map) return;
     const satellite = mapView === "satellite";
+    applyPickyaloMapStyle(map, mapView === "game" || guidedDiscoveryStandalone, mapView === "period");
     function onSatelliteError(event: { error: Error; sourceId?: string }) {
       if (event.sourceId !== satelliteSourceId) return;
       setSatelliteMessage("No se pudo cargar la vista satélite. Puedes volver a intentarlo.");
@@ -950,6 +1378,30 @@ export function VenuesMap({
       setMapView("map");
     }
     return () => { map.off("error", onSatelliteError); };
+  }, [mapReady, mapView, guidedDiscoveryStandalone]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!mapReady || !map) return;
+    const terrain = mapView === "game" || mapView === "period";
+    const sourceId = "pickyalo-terrain";
+    function onTerrainError(event: { error: Error; sourceId?: string }) {
+      if (event.sourceId !== sourceId) return;
+      map?.setTerrain(null);
+      setSatelliteMessage("El relieve no está disponible. Puedes seguir usando el mapa.");
+    }
+    map.on("error", onTerrainError);
+    try {
+      if (terrain && !map.getSource(sourceId)) map.addSource(sourceId, {
+        type: "raster-dem", url: "mapbox://mapbox.mapbox-terrain-dem-v1", tileSize: 512, maxzoom: 14,
+      });
+      map.setTerrain(terrain ? { source: sourceId, exaggeration: 1 } : null);
+      if (mapView !== "city") map.easeTo({ pitch: terrain ? 45 : 0, duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600 });
+    } catch {
+      map.setTerrain(null);
+      setSatelliteMessage("El relieve no está disponible. Puedes seguir usando el mapa.");
+    }
+    return () => { map.off("error", onTerrainError); };
   }, [mapReady, mapView]);
 
   useEffect(() => {
@@ -1109,6 +1561,7 @@ export function VenuesMap({
           element.classList.add("is-active");
         }
         element.addEventListener("click", () => {
+          setTransitStopName(null);
           activateMarker(element);
           setQuickPlanOpen(false);
           setSelection({ type: "venue", item: venue });
@@ -1138,6 +1591,7 @@ export function VenuesMap({
           element.classList.add("is-active");
         }
         element.addEventListener("click", () => {
+          setTransitStopName(null);
           activateMarker(element);
           setQuickPlanOpen(false);
           setSelection({ type: "place", item: place });
@@ -1171,15 +1625,45 @@ export function VenuesMap({
     import("mapbox-gl").then((mapboxgl) => {
       if (cancelled || !mapRef.current) return;
       userMarkerRef.current?.remove();
-      const element = document.createElement("div");
+      const element = document.createElement("button");
+      element.type = "button";
       element.className = "pickyalo-map-user-marker";
       element.setAttribute("aria-label", "Tu ubicación aproximada");
-      userMarkerRef.current = new mapboxgl.default.Marker({ element })
+      element.title = "Tu ubicación aproximada";
+      element.innerHTML = '<span class="pickyalo-map-user-marker__pulse" aria-hidden="true"></span><span class="pickyalo-map-user-marker__dot" aria-hidden="true"></span><span class="pickyalo-map-user-marker__label" aria-hidden="true">Tú</span>';
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        mapRef.current?.flyTo({
+          center: [userLocation.longitude, userLocation.latitude],
+          zoom: Math.max(mapRef.current.getZoom(), 15),
+          essential: true,
+        });
+      });
+      userMarkerRef.current = new mapboxgl.default.Marker({ element, anchor: "center" })
         .setLngLat([userLocation.longitude, userLocation.latitude])
         .addTo(mapRef.current);
     });
     return () => { cancelled = true; };
   }, [mapReady, userLocation]);
+
+  useEffect(() => {
+    if (
+      !mapReady
+      || !mapRef.current
+      || !userLocation
+      || hasCenteredOnUserRef.current
+      || initialPlaceSlug
+      || initialTransitLine
+    ) return;
+
+    hasCenteredOnUserRef.current = true;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    mapRef.current.easeTo({
+      center: [userLocation.longitude, userLocation.latitude],
+      zoom: Math.max(mapRef.current.getZoom(), 14.5),
+      duration: reduceMotion ? 0 : 650,
+    });
+  }, [initialPlaceSlug, initialTransitLine, mapReady, userLocation]);
 
   useEffect(() => {
     if (!autoLocate || !mapReady || autoLocateHandledRef.current) return;
@@ -1249,9 +1733,22 @@ export function VenuesMap({
       setLocationMessage("Ubicación aproximada encontrada.");
     } catch (error) {
       setLocationMessage(getUserLocationErrorMessage(error));
+      setManualLocationOpen(true);
     } finally {
       setLocating(false);
     }
+  }
+
+  function focusUserLocation() {
+    if (!userLocation) {
+      void locateUser();
+      return;
+    }
+    mapRef.current?.flyTo({
+      center: [userLocation.longitude, userLocation.latitude],
+      zoom: Math.max(mapRef.current.getZoom(), 15),
+      essential: true,
+    });
   }
 
   function openQuickPlan() {
@@ -1447,14 +1944,15 @@ export function VenuesMap({
           weather={weather}
           heroImageUrl={heroImageUrl}
           demoMode={demoMode}
+          description={venues.length > 0 ? undefined : "Servicios útiles, monumentos y lugares para descubrir, marcados y revisados por Pickyalo."}
           locating={locating}
           located={Boolean(userLocation)}
           locationLabel={userLocationLabel}
           onLocate={() => void locateUser()}
         />
 
-        <div className="mt-6 grid grid-cols-3 border-y border-[#741314]/12 py-4 sm:max-w-2xl">
-          <MapSummaryItem icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Recogida" />
+        <div className={`mt-6 grid border-y border-[#741314]/12 py-4 sm:max-w-2xl ${venues.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+          {venues.length > 0 ? <MapSummaryItem icon={<ShoppingBag className="h-4 w-4" aria-hidden="true" />} value={venues.length} label="Recogida" /> : null}
           <MapSummaryItem icon={<MapPin className="h-4 w-4" aria-hidden="true" />} value={places.length} label="Lugares" />
           <MapSummaryItem icon={<Sparkles className="h-4 w-4" aria-hidden="true" />} value={activeFilterLabel} label="Viendo" />
         </div>
@@ -1468,7 +1966,7 @@ export function VenuesMap({
           className="mt-5"
         />
 
-        <button
+        {venues.length > 0 ? <button
           type="button"
           onClick={openQuickPlan}
           className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-[#741314]/16 bg-[#FFF7E8] px-4 py-3 text-left text-[#381932] shadow-[0_12px_30px_rgba(116,19,20,0.07)] transition hover:border-[#741314]/30 hover:bg-white sm:w-auto sm:min-w-[22rem]"
@@ -1481,7 +1979,7 @@ export function VenuesMap({
             <span className="mt-0.5 block text-xs leading-5 text-[#381932]/58">Local + descubrimiento + un lugar para disfrutar.</span>
           </span>
           <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-[#741314]" aria-hidden="true" />
-        </button>
+        </button> : null}
           </>
         ) : null}
 
@@ -1521,51 +2019,45 @@ export function VenuesMap({
                   : `${activeFilterLabel} · ${visibleVenues.length + visiblePlaces.length} puntos visibles`}
               </div>
               <div className={`pickyalo-map-view-switch absolute left-3 z-[6] max-w-[calc(100%-5rem)] sm:left-4 ${isImmersive ? "top-[7rem] sm:top-[7.3rem]" : "top-[3.9rem] sm:top-[4.2rem]"}`}>
-                <div role="group" aria-label="Vista del mapa" className="inline-flex rounded-xl border border-[#741314] bg-[#FFF7E8] p-1 text-[#741314] shadow-sm">
-                  {([
-                    { value: "map", label: "Mapa", Icon: MapIcon },
-                    { value: "satellite", label: "Satélite", Icon: Satellite },
-                  ] as const).map(({ value, label, Icon }) => (
-                    <button
-                      key={value}
-                      type="button"
+                <div role="group" aria-label="Vista del mapa" className="inline-flex items-center gap-1 rounded-[.8rem] border border-[#741314] bg-[#FFF7E8] p-1 text-[#741314] shadow-sm">
+                  <label className="flex min-h-11 items-center gap-2 px-2 text-xs font-semibold">
+                    <MapIcon size={16} aria-hidden="true" />
+                    <span className="sr-only">Estilo del mapa</span>
+                    <select
+                      aria-label="Estilo del mapa"
+                      value={mapView}
                       disabled={!mapReady}
-                      aria-label={`Vista ${label.toLowerCase()}`}
-                      aria-pressed={mapView === value}
-                      title={label}
-                      onClick={() => { setSatelliteMessage(null); setMapView(value); }}
-                      className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] disabled:opacity-50 ${mapView === value ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
+                      onChange={(event) => {
+                        const next = event.target.value as MapView;
+                        setSatelliteMessage(null);
+                        if ((next === "city") !== isCityView) toggleCityView();
+                        setMapView(next);
+                      }}
+                      className="min-h-11 max-w-36 rounded-md bg-transparent pr-2 text-sm font-semibold text-[#741314] outline-offset-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#741314] disabled:opacity-50"
                     >
-                      <Icon size={18} aria-hidden="true" />
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    disabled={!mapReady}
-                    aria-label={isCityView ? "Volver a vista plana" : "Activar vista ciudad"}
-                    aria-pressed={isCityView}
-                    title={isCityView ? "Vista plana" : "Vista ciudad"}
-                    onClick={toggleCityView}
-                    className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] disabled:opacity-50 ${isCityView ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
-                  >
-                    <Building2 size={18} aria-hidden="true" />
-                  </button>
+                      <option value="map">Mapa</option>
+                      <option value="satellite">Satélite</option>
+                      <option value="game">Videojuego</option>
+                      <option value="period">Época</option>
+                      <option value="city">Ciudad</option>
+                    </select>
+                  </label>
                   <button
                     type="button"
                     aria-label={legendOpen ? "Cerrar leyenda" : "Abrir leyenda"}
                     aria-expanded={legendOpen}
                     title="Leyenda"
                     onClick={() => setLegendOpen((current) => !current)}
-                    className={`inline-flex h-11 w-11 items-center justify-center rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] ${legendOpen ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
+                    className={`inline-flex h-9 w-9 items-center justify-center rounded-[.6rem] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#741314] ${legendOpen ? "bg-[#741314] text-[#FFF7E8]" : "hover:bg-[#FDE3AD]"}`}
                   >
-                    <Info size={18} aria-hidden="true" />
+                    <Info size={16} aria-hidden="true" />
                   </button>
                 </div>
                 {legendOpen ? (
                   <div className="mt-2 w-[min(17rem,calc(100vw-2rem))] rounded-xl border border-[#741314]/16 bg-[#FFF7E8]/96 p-3 text-[#381932] shadow-[0_16px_38px_rgba(36,17,14,0.18)] backdrop-blur-md">
                     <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#741314]">Leyenda</p>
                     <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-[11px] font-semibold">
-                      <span className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border-2 border-[#741314] bg-[#FFF7E8]" /> Recogida</span>
+                      {venues.length > 0 ? <span className="flex items-center gap-2"><span className="h-4 w-4 rounded-full border-2 border-[#741314] bg-[#FFF7E8]" /> Recogida</span> : null}
                       <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#28734b] text-[#28734b]"><Accessibility className="h-2.5 w-2.5" /></span> Accesible</span>
                       <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#236b91] text-[#236b91]"><Clock3 className="h-2.5 w-2.5" /></span> Abierto 24 h</span>
                       <span className="flex items-center gap-2"><span className="grid h-4 w-4 place-items-center rounded-full border-2 border-[#a96b13] text-[#a96b13]"><Sparkles className="h-2.5 w-2.5" /></span> Historia o ruta</span>
@@ -1600,7 +2092,7 @@ export function VenuesMap({
                         <button
                           type="button"
                           onClick={() => setImmersiveFiltersOpen(false)}
-                          className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#741314]/12 bg-white/70 text-[#741314]"
+                          className="pickyalo-light-control grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#741314]/12 bg-white/70 text-[#741314]"
                           aria-label="Cerrar filtros"
                         >
                           <X className="h-4 w-4" aria-hidden="true" />
@@ -1613,14 +2105,14 @@ export function VenuesMap({
                         hasExplorePoints={hasExplorePoints}
                         onSelect={selectMapFilter}
                       />
-                      <button
+                      {venues.length > 0 ? <button
                         type="button"
                         onClick={openQuickPlan}
                         className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#741314] px-4 py-3 text-sm font-bold text-[#FFF7E8]"
                       >
                         <Route className="h-4 w-4" aria-hidden="true" />
                         {demoMode ? "Ver plan de ejemplo" : "Crear plan cerca"}
-                      </button>
+                      </button> : null}
                     </div>
                   ) : null}
                 </>
@@ -1635,6 +2127,94 @@ export function VenuesMap({
                 {isImmersive ? <Minimize2 className="h-4 w-4" aria-hidden="true" /> : <Maximize2 className="h-4 w-4" aria-hidden="true" />}
                 <span className="hidden sm:inline">{isImmersive ? "Salir" : "Ampliar"}</span>
               </button>
+              <button
+                type="button"
+                onClick={focusUserLocation}
+                disabled={locating}
+                className="absolute right-3 top-[4rem] z-[6] inline-flex min-h-10 items-center gap-2 rounded-[.8rem] border border-[#741314]/20 bg-[#FFF7E8]/95 px-3 text-[11px] font-black text-[#741314] shadow-[0_12px_30px_rgba(36,17,14,.16)] backdrop-blur-md transition hover:bg-white disabled:opacity-60 sm:right-4 sm:top-[4.25rem]"
+                aria-label={userLocation ? "Volver a centrar el mapa en tu ubicación" : "Usar tu ubicación como punto de partida"}
+              >
+                <LocateFixed className="h-4 w-4" aria-hidden="true" />
+                <span>{locating ? "Buscando…" : userLocation ? "Volver a mí" : "Empezar aquí"}</span>
+              </button>
+              {activeTransitRoute ? (
+                <aside className="pickyalo-transit-route-card absolute inset-x-3 bottom-3 z-[9] rounded-[1.15rem] border border-[#741314]/20 bg-[#FFF7E8]/95 p-3.5 text-[#24110E] shadow-[0_20px_60px_rgba(36,17,14,.28)] backdrop-blur-xl sm:bottom-4 sm:left-4 sm:right-auto sm:w-[24rem]">
+                  <div className="flex items-start gap-3">
+                    <span
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-[.75rem] text-base font-black"
+                      style={{
+                        backgroundColor: getTransitLinePalette(activeTransitRoute.line).background,
+                        color: getTransitLinePalette(activeTransitRoute.line).foreground,
+                        boxShadow: `0 4px 0 ${getTransitLinePalette(activeTransitRoute.line).shadow}`,
+                      }}
+                    >
+                      L{activeTransitRoute.line}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="pickyalo-transit-route-eyebrow text-[9px] font-black uppercase tracking-[.14em] text-[#741314]/65">Recorrido por paradas</p>
+                      <strong className="pickyalo-transit-route-title mt-1 flex items-center gap-1.5 text-sm font-black leading-tight text-[#5F0F10]">
+                        <Navigation className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        {activeTransitRoute.origin} → {activeTransitRoute.destination}
+                      </strong>
+                      <p className="pickyalo-transit-route-meta mt-1.5 text-[10px] font-semibold leading-4 text-[#24110E]/58">
+                        {transitRouteMappedStops}/{activeTransitRoute.stops.length} paradas situadas · {transitRouteFollowsStreets ? "trazado de bus · OpenStreetMap" : "trazado pendiente; consulta el plano oficial"}
+                      </p>
+                      <a href={`https://www.urbanostalavera.com/lineas-y-horarios/linea-${activeTransitRoute.line}`} target="_blank" rel="noopener noreferrer" className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-[#741314] underline dark:text-[#FDE3AD]">Plano oficial de la línea</a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setActiveTransitRoute(null); setTransitRouteOptions([]); }}
+                      className="pickyalo-light-control grid h-10 w-10 shrink-0 place-items-center rounded-[.7rem] border border-[#741314]/15 bg-white/70 text-[#741314]"
+                      aria-label="Cerrar recorrido"
+                    >
+                      <X className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                  {transitBoardingStop ? (
+                    <button
+                      type="button"
+                      onClick={focusUserLocation}
+                      className="mt-3 flex min-h-11 w-full items-center gap-2.5 rounded-[.8rem] border border-[#741314]/14 bg-white/65 px-3 py-2 text-left text-[#24110E] transition hover:bg-white"
+                    >
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[.55rem] bg-[#741314] text-[#FFF7E8]">
+                        <LocateFixed className="h-3.5 w-3.5" aria-hidden="true" />
+                      </span>
+                      <span className="min-w-0 text-[11px] leading-4">
+                        <strong className="block font-black text-[#5F0F10]">Desde ti · {formatDistanceLabel(transitBoardingStop.distanceKm)}</strong>
+                        <span className="block truncate text-[#24110E]/62">Sube en {transitBoardingStop.name}</span>
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => void locateUser()}
+                      disabled={locating}
+                      className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[.8rem] border border-[#741314]/16 bg-white/65 px-3 text-[11px] font-black text-[#741314] transition hover:bg-white disabled:opacity-60"
+                    >
+                      <LocateFixed className="h-4 w-4" aria-hidden="true" />
+                      {locating ? "Buscando tu ubicación…" : "Empezar el recorrido desde mi ubicación"}
+                    </button>
+                  )}
+                  {transitRouteOptions.length > 1 ? (
+                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1" aria-label="Sentidos disponibles de la línea">
+                      {transitRouteOptions.map((route, index) => {
+                        const active = route.direction === activeTransitRoute.direction && route.stops.join("|") === activeTransitRoute.stops.join("|");
+                        return (
+                          <button
+                            key={`${route.direction}-${route.stops.join("|")}-${index}`}
+                            type="button"
+                            onClick={() => { if (!active) setActiveTransitRoute(route); }}
+                            aria-pressed={active}
+                            className={`min-h-10 shrink-0 rounded-full border px-3 text-[11px] font-black ${active ? "border-[#741314] bg-[#741314] text-[#FFF7E8]" : "border-[#741314]/18 bg-white/65 text-[#741314]"}`}
+                          >
+                            {route.origin} → {route.destination} · {route.stops.length} paradas · {route.days.join(" / ").toLocaleLowerCase("es")}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </aside>
+              ) : null}
               {!guidedDiscovery && !guidedPanelOpen ? (
                 <div className="pointer-events-none absolute bottom-3 left-3 z-[3] hidden max-w-[15rem] rounded-xl border border-[#741314]/10 bg-[#FFF7E8]/88 px-3 py-2 text-[11px] leading-4 text-[#381932]/68 shadow-[0_10px_28px_rgba(56,25,50,0.1)] backdrop-blur-md sm:block">
                   Toca un icono para descubrir el lugar y calcular cómo llegar.
@@ -1670,6 +2250,7 @@ export function VenuesMap({
                   selectedIntent={selectedIntent}
                   results={guidedResults}
                   categories={availableCategories}
+                  showCommerceIntents={venues.length > 0}
                   expanded={guidedResultsExpanded}
                   onStartDrawing={startGuidedDrawing}
                   onCancelDrawing={() => setDrawingMode(null)}
@@ -1700,7 +2281,7 @@ export function VenuesMap({
                         setMobileSelectionOpen(false);
                         if (guidedDiscovery) setSelection(null);
                       }}
-                      className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full border border-[#741314]/12 bg-white/70 text-[#741314]"
+                      className="pickyalo-light-control absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full border border-[#741314]/12 bg-white/70 text-[#741314]"
                       aria-label="Cerrar información del punto"
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
@@ -1741,7 +2322,7 @@ export function VenuesMap({
                         setSelection(null);
                         setMobileSelectionOpen(false);
                       }}
-                      className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-[#741314]/12 bg-white/80 text-[#741314]"
+                      className="pickyalo-light-control absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-[#741314]/12 bg-white/80 text-[#741314]"
                       aria-label="Cerrar información del punto"
                     >
                       <X className="h-4 w-4" aria-hidden="true" />
@@ -1763,8 +2344,8 @@ export function VenuesMap({
       </section>
 
       <style jsx global>{`
-        .pickyalo-map-marker { --marker-size:42px; --marker-fill:#FFF7E8; --marker-stroke:#741314; position:absolute; display:grid; width:var(--marker-size); height:var(--marker-size); place-items:center; border-radius:999px; cursor:pointer; transition:width 140ms ease,height 140ms ease,transform 180ms ease,background-color 180ms ease,color 180ms ease; box-shadow:0 8px 18px rgba(36,17,14,.18); }
-        .pickyalo-map-marker::before { display:none; }
+        .pickyalo-map-marker { --marker-size:42px; --marker-fill:#FFF7E8; --marker-stroke:#741314; position:absolute; z-index:2; display:grid; width:var(--marker-size); height:var(--marker-size); place-items:center; border-radius:999px; cursor:pointer; transition:width 140ms ease,height 140ms ease,transform 180ms ease,background-color 180ms ease,color 180ms ease; filter:drop-shadow(0 7px 7px rgba(36,17,14,.16)); box-shadow:0 5px 12px rgba(36,17,14,.14); }
+        .pickyalo-map-marker::before { content:""; position:absolute; left:50%; bottom:-5px; z-index:-1; display:block; width:12px; height:12px; transform:translateX(-50%) rotate(45deg); border-right:1.5px solid var(--marker-stroke); border-bottom:1.5px solid var(--marker-stroke); border-radius:0 0 2px 0; background:var(--marker-fill); }
         .pickyalo-map-marker::after { content:attr(data-label); position:absolute; left:50%; bottom:calc(100% + 9px); max-width:180px; transform:translate(-50%,5px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid rgba(116,19,20,.12); border-radius:999px; background:rgba(255,247,232,.96); padding:6px 10px; color:#381932; font:700 11px/1.1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 10px 28px rgba(56,25,50,.15); opacity:0; pointer-events:none; transition:opacity 160ms ease,transform 160ms ease; }
         .pickyalo-map-marker:hover,.pickyalo-map-marker:focus-visible,.pickyalo-map-marker.is-active { transform:translateY(-4px) scale(1.07); z-index:3; }
         .pickyalo-map-marker.is-active { animation:pickyalo-map-marker-select 320ms cubic-bezier(.2,.8,.2,1); box-shadow:0 12px 28px rgba(56,25,50,.26),0 0 0 5px rgba(116,19,20,.18); }
@@ -1793,7 +2374,22 @@ export function VenuesMap({
         .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker:hover,.pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker:focus-visible,.pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-active { transform:translateY(-11px) scale(1.07); }
         .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-active { filter:drop-shadow(0 12px 9px rgba(36,17,14,.27)); box-shadow:0 7px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.96),0 0 0 9px rgba(116,19,20,.2); }
         .pickyalo-map-viewport[data-city-view="true"] .pickyalo-map-marker.is-plan-stop { filter:drop-shadow(0 12px 9px rgba(36,17,14,.26)); box-shadow:0 7px 0 #5F0F10,0 0 0 3px rgba(255,247,232,.96),0 0 0 10px rgba(253,211,125,.76); }
-        .pickyalo-map-user-marker { width:18px; height:18px; border:4px solid white; border-radius:999px; background:#741314; box-shadow:0 0 0 5px rgba(116,19,20,.2); }
+        .pickyalo-map-user-marker { position:relative; z-index:7; display:grid; width:36px; height:36px; place-items:center; border:0; border-radius:999px; background:transparent; padding:0; cursor:pointer; filter:drop-shadow(0 8px 12px rgba(36,17,14,.24)); }
+        .pickyalo-map-user-marker__pulse { position:absolute; inset:2px; border:2px solid rgba(116,19,20,.32); border-radius:999px; background:rgba(255,247,232,.5); animation:pickyalo-user-location-pulse 2.2s ease-out infinite; }
+        .pickyalo-map-user-marker__dot { position:relative; z-index:1; width:19px; height:19px; border:4px solid #FFF7E8; border-radius:999px; background:#741314; box-shadow:0 0 0 2px #741314,0 5px 12px rgba(36,17,14,.22); }
+        .pickyalo-map-user-marker__label { position:absolute; left:50%; top:calc(100% + 3px); z-index:2; transform:translateX(-50%); border:1px solid rgba(116,19,20,.2); border-radius:7px; background:rgba(255,247,232,.96); padding:3px 7px; color:#5F0F10; font:900 10px/1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 5px 12px rgba(36,17,14,.14); white-space:nowrap; }
+        .pickyalo-map-user-marker:focus-visible { outline:3px solid #FDE3AD; outline-offset:3px; }
+        .pickyalo-transit-lines-marker { display:flex; min-width:28px; min-height:28px; flex-direction:column; align-items:center; justify-content:flex-end; gap:3px; border:0; background:transparent; padding:0; cursor:pointer; filter:drop-shadow(0 6px 7px rgba(36,17,14,.2)); transition:filter 150ms ease; }
+        .pickyalo-transit-lines-marker:hover,.pickyalo-transit-lines-marker:focus-visible { outline:3px solid rgba(253,227,173,.92); outline-offset:3px; border-radius:11px; filter:drop-shadow(0 9px 10px rgba(36,17,14,.3)); }
+        .pickyalo-transit-line-badges { display:flex; align-items:center; justify-content:center; gap:3px; border:1px solid rgba(95,15,16,.2); border-radius:10px; background:rgba(255,247,232,.96); padding:3px; box-shadow:0 4px 12px rgba(36,17,14,.16); backdrop-filter:blur(7px); }
+        .pickyalo-transit-line-square { display:grid; width:22px; height:22px; place-items:center; border:1px solid rgba(36,17,14,.12); border-radius:7px; font:900 11px/1 ui-sans-serif,system-ui,sans-serif; box-shadow:0 2px 0 var(--transit-line-shadow); pointer-events:none; }
+        .pickyalo-transit-stop-pin { position:relative; display:grid; width:28px; height:28px; place-items:center; border:2px solid #FFF7E8; border-radius:999px; background:#741314; color:#FFF7E8; box-shadow:0 3px 0 #5F0F10; pointer-events:none; }
+        .pickyalo-transit-stop-pin::after { content:""; position:absolute; left:50%; bottom:-4px; z-index:-1; width:9px; height:9px; transform:translateX(-50%) rotate(45deg); border-right:2px solid #FFF7E8; border-bottom:2px solid #FFF7E8; border-radius:0 0 2px 0; background:#741314; }
+        .pickyalo-transit-stop-pin svg { width:15px; height:15px; }
+        .dark .pickyalo-transit-route-card { border-color:rgba(253,227,173,.34)!important; }
+        .dark .pickyalo-transit-route-card .pickyalo-transit-route-eyebrow { color:#FDE3AD!important; }
+        .dark .pickyalo-transit-route-card .pickyalo-transit-route-title { color:#FFF7E8!important; }
+        .dark .pickyalo-transit-route-card .pickyalo-transit-route-meta { color:rgba(255,247,232,.7)!important; }
         .mapboxgl-ctrl-group { display:grid; gap:6px; overflow:visible; border:0!important; background:transparent!important; box-shadow:none!important; }
         .mapboxgl-ctrl-group button { width:40px!important; height:40px!important; overflow:hidden; border:1px solid rgba(116,19,20,.16)!important; border-radius:999px!important; background-color:rgba(255,247,232,.96)!important; box-shadow:0 10px 26px rgba(56,25,50,.15)!important; transition:background-color 160ms ease,transform 160ms ease!important; }
         .mapboxgl-ctrl-group button:hover { background-color:#FDE3AD!important; transform:translateY(-1px); }
@@ -1807,7 +2403,8 @@ export function VenuesMap({
         @keyframes pickyalo-map-sheet-in { from { opacity:0; transform:translateY(18px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes pickyalo-map-filter-in { from { opacity:0; transform:translateY(-8px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes pickyalo-map-marker-select { 0% { transform:translateY(0) scale(.9); } 65% { transform:translateY(-6px) scale(1.11); } 100% { transform:translateY(-4px) scale(1.07); } }
-        @media (prefers-reduced-motion: reduce) { .pickyalo-map-marker { transition:none; } .pickyalo-map-marker.is-active,.pickyalo-map-selection-sheet,.pickyalo-map-filter-panel,.pickyalo-weather-precipitation > span { animation:none; } }
+        @keyframes pickyalo-user-location-pulse { 0% { opacity:.78; transform:scale(.72); } 72%,100% { opacity:0; transform:scale(1.42); } }
+        @media (prefers-reduced-motion: reduce) { .pickyalo-map-marker,.pickyalo-transit-lines-marker { transition:none; } .pickyalo-map-marker.is-active,.pickyalo-map-selection-sheet,.pickyalo-map-filter-panel,.pickyalo-weather-precipitation > span,.pickyalo-map-user-marker__pulse { animation:none; } }
       `}</style>
       {openPlace ? (
         <PlacePost
@@ -1816,6 +2413,31 @@ export function VenuesMap({
           distance={openPlaceDistance}
           nearbyVenue={nearestVenue}
           onClose={() => setOpenPlace(null)}
+        />
+      ) : null}
+      {transitStopName ? (
+        <TransitStopSheet
+          stopName={transitStopName}
+          onClose={() => setTransitStopName(null)}
+          onViewRoute={showTransitScheduleRoute}
+        />
+      ) : null}
+      {manualLocationOpen ? (
+        <ManualLocationPicker
+          accessToken={accessToken}
+          center={{ latitude: defaultCenter[1], longitude: defaultCenter[0] }}
+          currentLocation={userLocation}
+          onClose={() => setManualLocationOpen(false)}
+          onConfirm={(location) => {
+            setUserLocation(location);
+            setLocationMessage("Tu punto de partida está marcado en el mapa.");
+            hasCenteredOnUserRef.current = true;
+            mapRef.current?.flyTo({
+              center: [location.longitude, location.latitude],
+              zoom: 15,
+              essential: true,
+            });
+          }}
         />
       ) : null}
     </main>
@@ -1845,7 +2467,7 @@ function QuickPlanCard({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-[#741314]/12 bg-white/75 text-[#741314]"
+        className="pickyalo-light-control absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full border border-[#741314]/12 bg-white/75 text-[#741314]"
         aria-label="Cerrar plan"
       >
         <X className="h-4 w-4" aria-hidden="true" />
@@ -1911,13 +2533,13 @@ function MapSummaryItem({
   label: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center justify-center gap-2 border-r border-[#741314]/12 px-2 last:border-r-0 sm:justify-start sm:px-4 first:pl-0">
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#741314]/[0.08] text-[#741314]">
+    <div className="flex min-w-0 items-center justify-center gap-2 border-r border-[color:var(--border-subtle)] px-2 last:border-r-0 sm:justify-start sm:px-4 first:pl-0">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--brand-accent-soft)] text-[color:var(--brand-accent)]">
         {icon}
       </span>
       <span className="min-w-0">
-        <strong className="block truncate text-sm font-semibold text-[#381932]">{value}</strong>
-        <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-[#741314]/55 sm:text-[10px]">{label}</span>
+        <strong className="block truncate text-sm font-semibold text-[color:var(--text-primary)]">{value}</strong>
+        <span className="block text-[9px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)] sm:text-[10px]">{label}</span>
       </span>
     </div>
   );
@@ -1941,7 +2563,7 @@ function MapFilterControls({
   return (
     <div className={`${className} space-y-3`}>
       <div>
-        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
+        <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--text-secondary)]">
           Cómo quieres explorar
         </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -1957,7 +2579,7 @@ function MapFilterControls({
       </div>
       {categories.length > 0 ? (
         <div>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#741314]/58">
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--text-secondary)]">
             Categorías
           </p>
           <div className="flex flex-wrap justify-center gap-2 sm:justify-start" role="group" aria-label="Categorías del mapa">
@@ -2005,8 +2627,8 @@ function FilterChip({
         iconOnly ? (active ? "w-auto px-4" : "w-12 px-0") : "w-full min-w-0 px-3 sm:px-3.5"
       } ${
         active
-          ? "border-[#741314] bg-[#741314] font-bold text-[#FFF7E8] shadow-[0_8px_20px_rgba(116,19,20,0.16)]"
-          : "border-[#741314] bg-white/72 font-semibold text-[#381932]/74 hover:bg-white"
+          ? "border-[color:var(--brand-accent)] bg-[color:var(--brand-accent)] font-bold text-[color:var(--cta-primary-text)] shadow-[0_8px_20px_var(--brand-accent-shadow)]"
+          : "border-[color:var(--brand-accent-border)] bg-[color:var(--bg-surface-strong)] font-semibold text-[color:var(--text-primary)] hover:bg-[color:var(--bg-page-alt)]"
       }`}
     >
       {icon ? <span className="grid h-5 w-5 shrink-0 place-items-center" aria-hidden="true">{icon}</span> : null}

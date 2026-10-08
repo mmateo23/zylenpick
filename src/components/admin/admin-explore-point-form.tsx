@@ -4,6 +4,7 @@ import { Save } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AdminExploreMediaField } from "@/components/admin/admin-explore-media-field";
+import { AdminExploreStoryEditor } from "@/components/admin/admin-explore-story-editor";
 import type {
   AdminExplorePoint,
   AdminExploreSponsor,
@@ -104,7 +105,7 @@ export function AdminExplorePointForm({
         <h2 className="text-xl font-semibold text-[#381932]">Historia accesible</h2>
         <div className="mt-5 space-y-5">
           <label className="block text-sm font-semibold text-[#381932]">Introducción corta<textarea name="introduction" defaultValue={point?.introduction} rows={3} className={fieldClassName} /></label>
-          <label className="block text-sm font-semibold text-[#381932]">Relato completo<textarea name="story" defaultValue={point?.story} rows={9} className={fieldClassName} /></label>
+          <AdminExploreStoryEditor initialValue={point?.story} scopeId={point?.id ?? routeId} />
           <label className="block text-sm font-semibold text-[#381932]">Transcripción<textarea name="transcript" defaultValue={point?.transcript} rows={12} className={fieldClassName} /></label>
         </div>
       </section>

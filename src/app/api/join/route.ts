@@ -25,7 +25,7 @@ type JoinRequestPayload = {
 };
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ALLOWED_SERVICE_TYPES = new Set(["pickup", "delivery", "both"]);
+const ALLOWED_SERVICE_TYPES = new Set(["pickup", "delivery", "both", "contact"]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -52,6 +52,8 @@ function getServiceLabel(serviceType: string) {
       return "Domicilio";
     case "both":
       return "Ambos";
+    case "contact":
+      return "Contacto inicial";
     default:
       return serviceType;
   }
@@ -82,25 +84,13 @@ function validatePayload(payload: JoinRequestPayload) {
   if (!payload.venueName) {
     return "El nombre del local es obligatorio.";
   }
-  if (!payload.businessType) {
-    return "El tipo de negocio es obligatorio.";
-  }
-  if (!payload.area) {
-    return "La ciudad o zona es obligatoria.";
-  }
-  if (!payload.address) {
-    return "La dirección es obligatoria.";
-  }
   if (!payload.contactName) {
     return "La persona de contacto es obligatoria.";
   }
-  if (!payload.contactPhone) {
-    return "El teléfono de contacto es obligatorio.";
+  if (!payload.contactPhone && !payload.contactEmail) {
+    return "Necesitamos un teléfono o un email para poder responderte.";
   }
-  if (!payload.contactEmail) {
-    return "El email de contacto es obligatorio.";
-  }
-  if (!EMAIL_PATTERN.test(payload.contactEmail)) {
+  if (payload.contactEmail && !EMAIL_PATTERN.test(payload.contactEmail)) {
     return "Introduce un email de contacto válido.";
   }
   if (payload.venueEmail && !EMAIL_PATTERN.test(payload.venueEmail)) {

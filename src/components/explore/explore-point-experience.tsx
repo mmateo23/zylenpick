@@ -18,6 +18,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PublicExploreExperience } from "@/features/explore/types";
 import { captureExploreEvent } from "@/lib/analytics/posthog-events";
 import styles from "./explore-point-experience.module.css";
+import { ExploreStoryContent } from "./explore-story-content";
 
 type Props = { experience: PublicExploreExperience; preview?: boolean };
 
@@ -232,7 +233,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
         </figure>
 
         <article className={styles.content}>
-          <div className="min-h-0">
+          <div className={styles.summary}>
             <p className={styles.eyebrow}>
               {route.name} · Parada {String(point.position).padStart(2, "0")}
             </p>
@@ -243,14 +244,6 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
               {point.introduction}
             </p>
           </div>
-
-          <dl className={styles.facts} aria-label="De un vistazo">
-            <div><dt>Dónde</dt><dd>{route.cityName}</dd></div>
-            <div><dt>En esta ruta</dt><dd>Parada {point.position} de {totalPoints}</dd></div>
-            {point.audioDurationSeconds ? (
-              <div><dt>Escucha</dt><dd>{formatTime(point.audioDurationSeconds)} min</dd></div>
-            ) : null}
-          </dl>
 
           {point.audioUrl ? (
             <audio
@@ -288,7 +281,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
             />
           ) : null}
 
-          <div className="mt-5">
+          <div className={styles.actions}>
             {point.audioUrl ? (
               <section
                 aria-label="Reproductor de la historia narrada"
@@ -340,7 +333,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                     )}
                   </button>
 
-                  <p className={styles.playerLabel}>
+                  <p className="sr-only">
                     <span>{audioError ? "Puedes leer la historia" : isLoading ? "Preparando el audio" : isPlaying ? "Ahora suena" : currentTime > 0 ? "Continúa escuchando" : "Escucha su historia"}</span>
                     <strong>{point.title}</strong>
                   </p>
@@ -395,7 +388,9 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
             <button
               type="button"
               onClick={openStory}
-              className="mt-2.5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-[#741314]/35 bg-transparent px-4 text-sm font-bold text-[#741314] transition-colors hover:bg-[#FDE3AD]/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] motion-reduce:transition-none"
+              aria-haspopup="dialog"
+              aria-expanded={storyOpen}
+              className={styles.readButton}
             >
               <BookOpen aria-hidden="true" className="h-4 w-4" />
               Leer historia
@@ -407,7 +402,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
               </p>
             ) : null}
 
-            <div className="mt-3 border-t border-[#741314]/20 pt-2.5">
+            <div className={styles.nextStop}>
               {nextPoint ? (
                 <Link
                   href={`/explora/${route.slug}/${nextPoint.slug}?unlock=${nextPoint.publicToken}`}
@@ -419,7 +414,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                       );
                     }
                   }}
-                  className="group flex min-h-11 items-center justify-between gap-4 text-[#741314] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
+                  className={styles.nextLink}
                 >
                   <span className="min-w-0">
                     <span className="block text-[9px] font-bold uppercase tracking-[0.15em] text-[#741314]/62">
@@ -438,7 +433,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                   />
                 </Link>
               ) : (
-                <div className="flex min-h-11 items-center gap-3 text-[#741314]">
+                <div className={styles.completed}>
                   <Check aria-hidden="true" className="h-5 w-5" />
                   <span className="text-sm font-semibold">
                     {totalPoints === 1 ? "Punto visitado" : "Ruta completada"}
@@ -448,7 +443,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
             </div>
 
             {sponsor ? (
-              <p className="mt-2 truncate text-[9px] font-semibold uppercase tracking-[0.12em] text-[#741314]/52">
+              <p className={styles.sponsor}>
                 Con el apoyo de {sponsor.name}
               </p>
             ) : null}
@@ -463,8 +458,8 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
             aria-labelledby="explore-story-title"
             className={styles.storyDialog}
           >
-            <header className="flex shrink-0 items-center justify-between border-b border-[#741314]/18 px-5 py-4 sm:px-9 lg:px-12">
-              <div className="flex min-w-0 items-center gap-3 text-[#741314]">
+            <header className={styles.storyHeader}>
+              <div className="flex min-w-0 items-center gap-3">
                 <BookOpen aria-hidden="true" className="h-5 w-5 shrink-0" />
                 <div className="min-w-0">
                   <p className="truncate text-[9px] font-bold uppercase tracking-[0.16em]">
@@ -472,7 +467,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                   </p>
                   <h2
                     id="explore-story-title"
-                    className="mt-0.5 truncate font-serif text-xl text-[#5F0F10]"
+                    className="mt-0.5 truncate font-serif text-xl text-[#5F0F10] dark:text-[#FDE3AD]"
                   >
                     {point.title}
                   </h2>
@@ -482,7 +477,7 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                 type="button"
                 onClick={() => setStoryOpen(false)}
                 aria-label="Cerrar historia"
-                className="ml-4 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#741314]/28 text-[#741314] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
+                className="pickyalo-light-control ml-4 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#741314]/28 text-[#741314] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314]"
               >
                 <X aria-hidden="true" className="h-5 w-5" />
               </button>
@@ -495,20 +490,20 @@ export function ExplorePointExperience({ experience, preview = false }: Props) {
                 <p className={styles.eyebrow}>La historia del lugar</p>
                 <p className={styles.storyLead}>{point.introduction}</p>
                 <div className={styles.storyText}>
-                  {point.story}
+                  <ExploreStoryContent text={point.story} />
                 </div>
                 {point.audioUrl ? (
                   <details className={styles.transcript}>
                     <summary>
                       Transcripción del audio
                     </summary>
-                    <div className="mt-4 whitespace-pre-line text-base leading-8 text-[#24110E]/80">
+                <div className={styles.transcriptText}>
                       {point.transcript}
                     </div>
                   </details>
                 ) : null}
                 {point.credits ? (
-                  <p className="mt-8 border-t border-[#741314]/18 pt-4 text-xs leading-5 text-[#741314]/62">
+                  <p className={styles.credits}>
                     {point.credits}
                   </p>
                 ) : null}

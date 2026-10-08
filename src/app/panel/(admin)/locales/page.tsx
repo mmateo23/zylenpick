@@ -7,10 +7,11 @@ import { AdminStatusBadge } from "@/components/admin/admin-status-badge";
 import { getAdminVenues } from "@/features/admin/services/venues-admin-service";
 
 type AdminVenuesPageProps = {
-  searchParams?: { q?: string; estado?: string; pagina?: string };
+  searchParams?: { q?: string; estado?: string; pagina?: string; vista?: string };
 };
 
 export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageProps) {
+  const hoursView = searchParams?.vista === "horarios";
   const query = searchParams?.q?.trim() ?? "";
   const status = searchParams?.estado ?? "";
   const requestedPage = Number(searchParams?.pagina ?? "1");
@@ -24,16 +25,11 @@ export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageP
     <section className="space-y-5">
       <AdminPageHeader
         eyebrow="Locales"
-        title="Locales y comercios"
+        title={hoursView ? "Horarios de los comercios" : "Fichas de los comercios"}
         description="Busca una ficha, comprueba su estado y entra directamente a editarla."
         action={
           <div className="flex flex-wrap gap-2">
-            <Link
-              href="/panel/scout?tipo=venue"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#741314]/18 bg-white px-5 text-sm font-bold text-[#741314]"
-            >
-              Scout local
-            </Link>
+
             <Link
               href="/panel/locales/nuevo"
               className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] focus-visible:ring-offset-2"
@@ -109,10 +105,10 @@ export default async function AdminVenuesPage({ searchParams }: AdminVenuesPageP
                 </div>
 
                 <Link
-                  href={`/panel/locales/${venue.id}`}
+                  href={`/panel/locales/${venue.id}${hoursView ? "?vista=horarios" : ""}`}
                   className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#741314]/18 bg-white px-5 text-sm font-bold text-[#741314] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#741314] md:justify-self-end"
                 >
-                  Editar
+                  {hoursView ? "Editar horario" : "Editar ficha"}
                 </Link>
               </article>
             ))}

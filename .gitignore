@@ -47,3 +47,7 @@ storybook-static
 /supabase/.temp/
 /*-audit.txt
 /tracking-audit.txt
+
+# Transit source downloads and Python bytecode stay in the local backup only.
+/scripts/.urbanos_tmp/
+__pycache__/

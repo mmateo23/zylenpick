@@ -68,6 +68,8 @@ export default async function AdminHighlightsPage({
 
   return (
     <section className="space-y-8">
+      <Link href="/panel/campana-home" className="inline-flex min-h-11 items-center rounded-full border border-[#741314]/20 bg-[#FFF7E8] px-5 text-sm font-bold text-[#741314]">Evento de la portada</Link>
+      <Link href="/panel/destacados/escaparate" className="ml-2 inline-flex min-h-11 items-center rounded-full bg-[#741314] px-5 text-sm font-bold text-[#FFF7E8]">Shots y presentación de locales</Link>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.22em] text-[color:var(--brand)]">

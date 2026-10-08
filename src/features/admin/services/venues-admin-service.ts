@@ -653,6 +653,31 @@ export async function createVenueAction(formData: FormData) {
   redirect("/panel/locales");
 }
 
+export async function updateVenueOpeningHoursAction(venueId: string, formData: FormData) {
+  "use server";
+  // Same administrator authorization as the existing venue editor.
+  const supabase = await createAdminMutationClient();
+  const hours = buildOpeningHoursFromFormData(formData);
+  const validTime = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+  for (const day of Object.values(hours)) {
+    if (!day.isOpen) continue;
+    if (!validTime.test(day.firstOpen) || !validTime.test(day.firstClose)) {
+      throw new Error("Completa la apertura y el cierre de cada día abierto.");
+    }
+    if ((day.secondOpen || day.secondClose) && (!validTime.test(day.secondOpen) || !validTime.test(day.secondClose))) {
+      throw new Error("Completa las dos horas del segundo tramo o déjalo vacío.");
+    }
+  }
+  const { data, error } = await supabase.from("venues")
+    .update({ opening_hours: hours }).eq("id", venueId).select("id").single();
+  if (error || !data) throw new Error("No se ha podido guardar el horario.");
+  const publicPath = await getPublicVenuePathContextById(venueId);
+  revalidatePublicVenuePaths([publicPath]);
+  revalidatePath(`/panel/locales/${venueId}`);
+  revalidatePath("/manage/[token]", "page");
+  redirect(`/panel/locales/${venueId}?vista=horarios&guardado=1`);
+}
+
 export async function updateVenueAction(venueId: string, formData: FormData) {
   "use server";
 

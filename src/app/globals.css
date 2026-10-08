@@ -91,17 +91,17 @@
 }
 
 .dark {
-  --bg-page: #050816;
-  --bg-page-alt: #160f0c;
-  --bg-surface: rgba(255, 255, 255, 0.06);
-  --bg-surface-strong: #0b1211;
-  --bg-surface-muted: rgba(255, 255, 255, 0.04);
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.64);
-  --text-muted: rgba(255, 255, 255, 0.44);
-  --text-inverse: #ffffff;
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.18);
+  --bg-page: #2b0710;
+  --bg-page-alt: #4a0d18;
+  --bg-surface: rgba(72, 14, 24, 0.88);
+  --bg-surface-strong: #3b0b14;
+  --bg-surface-muted: rgba(255, 247, 232, 0.06);
+  --text-primary: #fff7e8;
+  --text-secondary: rgba(255, 247, 232, 0.78);
+  --text-muted: rgba(255, 247, 232, 0.58);
+  --text-inverse: #24110e;
+  --border-subtle: rgba(253, 227, 173, 0.16);
+  --border-strong: rgba(253, 227, 173, 0.3);
   --overlay-hero-from: rgba(6, 18, 13, 0.66);
   --overlay-hero-to: rgba(5, 8, 22, 0.86);
   --overlay-card-from: rgba(6, 10, 11, 0.04);
@@ -111,12 +111,24 @@
   --status-danger: #ff6b70;
   --status-warning: #f3d58d;
 
-  --brand-accent: #741314;
-  --brand-accent-strong: #741314;
+  --brand-accent: #fde3ad;
+  --brand-accent-strong: #fff7e8;
   --brand-accent-bright: #FDE3AD;
-  --brand-accent-soft: rgba(116, 19, 20, 0.14);
-  --brand-accent-border: rgba(116, 19, 20, 0.32);
-  --brand-accent-shadow: rgba(116, 19, 20, 0.22);
+  --brand-accent-soft: rgba(253, 227, 173, 0.1);
+  --brand-accent-border: rgba(253, 227, 173, 0.28);
+  --brand-accent-shadow: rgba(0, 0, 0, 0.28);
+  --cta-primary-bg: #fde3ad;
+  --cta-primary-hover: #fff7e8;
+  --cta-primary-text: #741314;
+  --icon-highlight: #fde3ad;
+  --focus-ring: #fde3ad;
+  --selection-bg: rgba(253, 227, 173, 0.2);
+  --price-highlight: #fde3ad;
+  --floating-surface: rgba(59, 11, 20, 0.94);
+  --floating-surface-text: #fde3ad;
+  --floating-surface-border: rgba(253, 227, 173, 0.24);
+  --shadow-soft: 0 18px 60px rgba(18, 3, 7, 0.42);
+  --card-shadow: 0 10px 28px rgba(18, 3, 7, 0.34);
 }
 
 /* Public pages can opt into the light palette while the legacy app theme stays dark. */
@@ -137,6 +149,22 @@
   --status-warning: #a86f13;
 }
 
+/* Public and internal surfaces inherit the phone theme instead of forcing light. */
+.dark .public-light-theme {
+  --bg-page: #2b0710;
+  --bg-page-alt: #4a0d18;
+  --bg-surface: rgba(72, 14, 24, 0.88);
+  --bg-surface-strong: #3b0b14;
+  --bg-surface-muted: rgba(255, 247, 232, 0.06);
+  --text-primary: #fff7e8;
+  --text-secondary: rgba(255, 247, 232, 0.78);
+  --text-muted: rgba(255, 247, 232, 0.58);
+  --text-inverse: #24110e;
+  --border-subtle: rgba(253, 227, 173, 0.16);
+  --border-strong: rgba(253, 227, 173, 0.3);
+  --shadow-soft: 0 18px 60px rgba(18, 3, 7, 0.42);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -150,6 +178,27 @@ body {
   background: var(--background);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
+  overflow-x: clip;
+}
+
+/* A quiet, shared paper background lets the local imagery carry the colour. */
+.pickyalo-public-canvas {
+  min-height: 100svh;
+  color: #24110e;
+  background-color: #fff7e8;
+  background-image:
+    radial-gradient(ellipse 90% 640px at 100% 0, #f6d99a50, transparent 75%),
+    radial-gradient(ellipse 80% 520px at 0 600px, #fde3ad35, transparent 75%);
+  background-repeat: no-repeat;
+}
+
+.dark .pickyalo-public-canvas {
+  color: var(--text-primary);
+  background-color: #2b0710;
+  background-image:
+    radial-gradient(ellipse 90% 680px at 108% 0, rgba(169, 64, 42, 0.52), transparent 72%),
+    radial-gradient(ellipse 90% 620px at -15% 620px, rgba(116, 19, 20, 0.56), transparent 74%),
+    linear-gradient(165deg, #26060e 0%, #4a0d18 58%, #2b0710 100%);
 }
 
 .font-pickyalo-wordmark {
@@ -277,8 +326,22 @@ video {
     background-image:
       radial-gradient(circle at top left, rgba(116, 19, 20, 0.16), transparent 20%),
       radial-gradient(circle at 85% 0%, rgba(116, 19, 20, 0.12), transparent 24%),
-      linear-gradient(180deg, rgba(8, 12, 11, 0.92), rgba(13, 19, 18, 1));
+      linear-gradient(180deg, var(--bg-page), var(--bg-page-alt));
   }
+}
+
+.dark .zylen-visual-skin {
+  color: #fff7e8;
+  background:
+    radial-gradient(ellipse 90% 680px at 108% 0, rgba(169, 64, 42, 0.5), transparent 72%),
+    radial-gradient(ellipse 90% 620px at -15% 620px, rgba(116, 19, 20, 0.54), transparent 74%),
+    linear-gradient(165deg, #26060e 0%, #4a0d18 58%, #2b0710 100%);
+}
+
+.dark .zylen-visual-skin::before {
+  background-image:
+    linear-gradient(rgba(253, 227, 173, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(253, 227, 173, 0.035) 1px, transparent 1px);
 }
 
 @layer utilities {
@@ -300,6 +363,26 @@ video {
     --shadow: 0 18px 60px rgba(116, 19, 20, 0.1);
     --soft-shadow: 0 18px 60px rgba(116, 19, 20, 0.1);
     --card-shadow: 0 10px 24px rgba(116, 19, 20, 0.12);
+  }
+
+  .dark .admin-shell {
+    --background: #26060e;
+    --foreground: #fff7e8;
+    --surface: rgba(72, 14, 24, 0.9);
+    --surface-strong: #3b0b14;
+    --surface-dark: #741314;
+    --surface-dark-soft: #5f0f10;
+    --border: rgba(253, 227, 173, 0.16);
+    --border-strong: rgba(253, 227, 173, 0.28);
+    --brand: #fde3ad;
+    --brand-strong: #fff7e8;
+    --brand-soft: rgba(253, 227, 173, 0.1);
+    --accent: #fde3ad;
+    --muted: rgba(255, 247, 232, 0.5);
+    --muted-strong: rgba(255, 247, 232, 0.72);
+    --shadow: 0 18px 60px rgba(18, 3, 7, 0.42);
+    --soft-shadow: 0 18px 60px rgba(18, 3, 7, 0.42);
+    --card-shadow: 0 10px 28px rgba(18, 3, 7, 0.34);
   }
 
   .text-balance {
@@ -444,6 +527,30 @@ video {
     -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
   }
 
+  .dark .admin-shell .glass-panel {
+    border-color: rgba(253, 227, 173, 0.16);
+    background: rgba(59, 11, 20, 0.88);
+    box-shadow: 0 18px 48px rgba(18, 3, 7, 0.28);
+  }
+
+  .dark .admin-shell .dark-form-field {
+    color-scheme: dark;
+    border-color: rgba(253, 227, 173, 0.2) !important;
+    background-color: #3b0b14 !important;
+    color: #fff7e8 !important;
+  }
+
+  .dark .admin-shell .dark-form-field::placeholder {
+    color: rgba(255, 247, 232, 0.48) !important;
+  }
+
+  .dark .admin-shell .dark-form-field:-webkit-autofill,
+  .dark .admin-shell .dark-form-field:-webkit-autofill:hover,
+  .dark .admin-shell .dark-form-field:-webkit-autofill:focus {
+    -webkit-text-fill-color: #fff7e8;
+    -webkit-box-shadow: 0 0 0 1000px #3b0b14 inset;
+  }
+
   .project-light-ray {
     background: linear-gradient(
       180deg,
@@ -480,6 +587,72 @@ video {
     filter: blur(6px);
     animation: featured-badge-glow 2.8s ease-in-out infinite;
     pointer-events: none;
+  }
+
+  .featured-feed-glow {
+    --featured-border: rgba(116, 19, 20, 0.96);
+    --featured-ring: rgba(116, 19, 20, 0.48);
+    --featured-glow: rgba(116, 19, 20, 0.58);
+    --featured-depth: rgba(95, 15, 16, 0.24);
+    --featured-vignette-soft: rgba(116, 19, 20, 0.08);
+    --featured-vignette: rgba(116, 19, 20, 0.28);
+    --featured-inset: rgba(116, 19, 20, 0.86);
+    --featured-inset-glow: rgba(116, 19, 20, 0.2);
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    border: 1px solid var(--featured-border);
+    box-shadow:
+      0 0 0 2px var(--featured-ring),
+      0 0 30px var(--featured-glow),
+      0 18px 42px var(--featured-depth);
+  }
+
+  .featured-feed-glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at center,
+      transparent 56%,
+      var(--featured-vignette-soft) 72%,
+      var(--featured-vignette) 100%
+    );
+  }
+
+  .featured-feed-glow::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow:
+      inset 0 0 0 2px var(--featured-inset),
+      inset 0 0 30px var(--featured-inset-glow);
+  }
+
+  .featured-feed-glow:hover,
+  .featured-feed-glow:focus-visible {
+    border-color: var(--featured-border);
+    box-shadow:
+      0 0 0 2px var(--featured-ring),
+      0 0 38px var(--featured-glow),
+      0 22px 48px var(--featured-depth);
+  }
+
+  .dark .featured-feed-glow {
+    --featured-border: rgba(253, 227, 173, 0.92);
+    --featured-ring: rgba(253, 227, 173, 0.58);
+    --featured-glow: rgba(246, 217, 154, 0.66);
+    --featured-depth: rgba(18, 3, 7, 0.48);
+    --featured-vignette-soft: rgba(246, 217, 154, 0.08);
+    --featured-vignette: rgba(253, 227, 173, 0.28);
+    --featured-inset: rgba(253, 227, 173, 0.84);
+    --featured-inset-glow: rgba(246, 217, 154, 0.2);
   }
 
   .gold-spotlight-card {
@@ -528,14 +701,194 @@ video {
     opacity: 1;
   }
 
-  .gold-spotlight-content {
+.gold-spotlight-content {
     position: relative;
     z-index: 1;
   }
 
+/* Shared public discovery-card language: full-bleed media, warm depth and one clear action. */
+.pickyalo-media-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid rgba(253, 227, 173, 0.26);
+  background: #24110e;
+  color: #fff7e8;
+  box-shadow:
+    0 28px 80px rgba(36, 17, 14, 0.24),
+    0 0 0 1px rgba(255, 247, 232, 0.04) inset;
+}
+
+.pickyalo-media-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -18% -38% 34%;
+  z-index: -1;
+  height: 58%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(116, 19, 20, 0.44), transparent 70%);
+  filter: blur(22px);
+  pointer-events: none;
+}
+
+.pickyalo-media-gradient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 7, 7, 0.3) 0%,
+    rgba(20, 7, 7, 0.03) 34%,
+    rgba(25, 8, 9, 0.88) 76%,
+    rgba(18, 6, 7, 0.99) 100%
+  );
+}
+
+.pickyalo-media-chip {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border: 1px solid rgba(255, 247, 232, 0.2);
+  border-radius: 999px;
+  background: rgba(22, 9, 10, 0.42);
+  color: rgba(255, 247, 232, 0.9);
+  font-size: 11px;
+  font-weight: 750;
+  backdrop-filter: blur(12px);
+}
+
+.pickyalo-media-cta {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  background: #fff4df;
+  color: #531013;
+  font-size: 14px;
+  font-weight: 850;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+  transition: background-color 180ms ease, transform 180ms ease;
+}
+
+.pickyalo-media-cta:hover {
+  background: #f9d99e;
+  transform: translateY(-1px);
+}
+
+.pickyalo-media-cta:focus-visible {
+  outline: 2px solid #fed47d;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pickyalo-media-cta {
+    transition: none;
+  }
+
+  .pickyalo-media-cta:hover {
+    transform: none;
+  }
+}
+
 .dock-bubble-label {
   animation: dock-bubble-float 3.8s ease-in-out infinite;
   will-change: transform, opacity;
+}
+
+/* Bridge legacy fixed utility colours while components migrate to tokens. */
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) {
+  color: var(--text-primary) !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin)[class*="bg-[#F6EFE6]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#F6EFE6]"] {
+  background-color: #26060e !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin)[class*="bg-[#FFF7E8]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#FFF7E8]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#fff7e8]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#fffdf8]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#FFFDF7]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#FFF9F1]"] {
+  background-color: #3b0b14 !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#FDE3AD]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="bg-[#F6D99A]"] {
+  background-color: rgba(116, 19, 20, 0.72) !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin)[class*="text-[#24110E]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#24110E]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#24110e]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#141414]"] {
+  color: #fff7e8 !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#61433A]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#62463c]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#62463E]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#694b3d]"],
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#381932]"] {
+  color: rgba(255, 247, 232, 0.72) !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="text-[#741314]"] {
+  color: #fde3ad !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="border-[#741314]"] {
+  border-color: rgba(253, 227, 173, 0.3) !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin) [class*="ring-[#741314]"] {
+  --tw-ring-color: rgba(253, 227, 173, 0.72) !important;
+}
+
+/* Opaque white legacy controls keep their own readable ink in either theme.
+   Do not match translucent glass (bg-white/5), hover classes or dark surfaces. */
+:root :is(button, a, input, select, textarea, [role="button"])[class~="bg-white"]:not([class*="dark:bg-"]) {
+  color: #741314 !important;
+  color-scheme: light;
+}
+:root :is(button, a, span)[class~="bg-white/90"]:not([class*="dark:bg-"]),
+:root :is(button, a, span)[class~="bg-white/92"]:not([class*="dark:bg-"]),
+:root :is(button, a, span)[class~="bg-white/95"]:not([class*="dark:bg-"]),
+:root :is(button, a, span)[class~="bg-white/96"]:not([class*="dark:bg-"]) {
+  color: #741314 !important;
+}
+.dark :is(.public-light-theme, .admin-shell, .zylen-visual-skin)
+  :is(div, section, article, aside, label, fieldset, ul, nav, details)[class~="bg-white"] {
+  background-color: var(--bg-surface-strong) !important;
+  color: var(--text-primary);
+}
+:root :is(button, a)[class~="bg-white"]:not([class*="dark:bg-"]) :is(svg, span) {
+  color: inherit !important;
+}
+
+/* Close controls stay visible over photos, maps and theme-dependent panels. */
+:root .pickyalo-light-control[class] {
+  background-color: #fff7e8 !important;
+  color: #741314 !important;
+  border-color: rgba(116, 19, 20, .28) !important;
+  opacity: 1;
+}
+:root .pickyalo-light-control[class]:hover { background-color: #fde3ad !important; }
+:root .pickyalo-light-control[class] svg { color: inherit !important; }
+:root .pickyalo-light-control[class]:focus-visible {
+  outline: 3px solid #741314;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #fff7e8;
+}
+:root .pickyalo-light-control[class]:disabled { opacity: .6; }
+
+/* Native map controls render on a light panel even when the page is dark. */
+:root .mapboxgl-ctrl-group button { color: #741314; }
+
+/* Small administrative descriptions need solid enough ink on cream surfaces. */
+:root:not(.dark) .admin-shell :is(
+  [class~="text-[#741314]/55"],
+  [class~="text-[#381932]/55"],
+  [class~="text-[#24110E]/55"]
+) {
+  color: #741314;
 }
 
 .bubble-background-orb {

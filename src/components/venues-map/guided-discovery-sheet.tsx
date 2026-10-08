@@ -39,6 +39,7 @@ type GuidedDiscoverySheetProps = {
   selectedIntent: GuidedDiscoveryIntent | null;
   results: GuidedDiscoveryResult[];
   categories: MapPlaceCategoryDefinition[];
+  showCommerceIntents?: boolean;
   expanded: boolean;
   onStartDrawing: (mode: Exclude<GuidedDrawingMode, null>) => void;
   onCancelDrawing: () => void;
@@ -62,6 +63,7 @@ export function GuidedDiscoverySheet({
   selectedIntent,
   results,
   categories,
+  showCommerceIntents = true,
   expanded,
   onStartDrawing,
   onCancelDrawing,
@@ -84,7 +86,7 @@ export function GuidedDiscoverySheet({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full text-[#741314] transition hover:bg-[#FDE3AD]/50"
+        className="pickyalo-light-control absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full text-[#741314] transition hover:bg-[#FDE3AD]/50"
         aria-label="Cerrar búsqueda por zona"
       >
         <X className="h-4 w-4" aria-hidden="true" />
@@ -140,10 +142,10 @@ export function GuidedDiscoverySheet({
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="py-2 text-lg font-semibold leading-tight text-[#24110E]">
-                ¿Qué te apetece?
+                {showCommerceIntents ? "¿Qué te apetece?" : "Lugares en esta zona"}
               </h2>
             </div>
-            {selectedIntent ? (
+            {showCommerceIntents && selectedIntent ? (
               <button
                 type="button"
                 onClick={onClearIntent}
@@ -154,7 +156,7 @@ export function GuidedDiscoverySheet({
             ) : null}
           </div>
 
-          <div className="mt-1 grid grid-cols-3 gap-1.5" role="group" aria-label="Qué quieres encontrar">
+          {showCommerceIntents ? <div className="mt-1 grid grid-cols-3 gap-1.5" role="group" aria-label="Qué quieres encontrar">
             {intentOptions.map((option) => {
               const Icon = option.icon;
               const active = (selectedIntent ?? "all") === option.value;
@@ -175,7 +177,7 @@ export function GuidedDiscoverySheet({
                 </button>
               );
             })}
-          </div>
+          </div> : null}
 
           {
             <div className="mt-3 border-t border-[#741314]/12 pt-2" aria-live="polite">
@@ -232,10 +234,10 @@ export function GuidedDiscoverySheet({
             </summary>
             <div className="pb-3 text-sm text-[#24110E]">
               <ul className="grid grid-cols-2 gap-x-3 gap-y-3" aria-label="Iconos del mapa">
-                <li className="flex items-center gap-2">
+                {showCommerceIntents ? <li className="flex items-center gap-2">
                   <Image src="/icons/pickyalo-app.svg" alt="" width={28} height={28} className="shrink-0 rounded-full" />
                   <span>Local Pickyalo</span>
-                </li>
+                </li> : null}
                 {categories.map((category) => (
                   <li key={category.value} className="flex min-w-0 items-center gap-2">
                     <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border bg-[#FFF7E8] text-[#741314] ${category.value === "bench" ? "border-[#4f6954] !bg-[#edf2e8] !text-[#405b46]" : category.value === "tables" ? "border-[#9d572f] !bg-[#fde3ad] !text-[#71391f]" : "border-[#741314]"}`}>

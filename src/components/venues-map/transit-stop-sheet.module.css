@@ -1,0 +1,182 @@
+.backdrop {
+  background: rgba(36, 17, 14, 0.3);
+  backdrop-filter: blur(1.5px);
+}
+
+.sheet {
+  border: 1px solid rgba(116, 19, 20, 0.24);
+  background: #fff7e8;
+  color: #24110e;
+  box-shadow: 0 30px 100px rgba(36, 17, 14, 0.42);
+}
+
+.header {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(253, 227, 173, 0.2), transparent 34%),
+    linear-gradient(135deg, #741314 0%, #5f0f10 72%, #421016 100%);
+  color: #fff7e8;
+}
+
+.stopIcon {
+  border: 1px solid rgba(255, 247, 232, 0.24);
+  background: #fde3ad;
+  color: #741314;
+  box-shadow: 0 8px 20px rgba(36, 17, 14, 0.2);
+}
+
+.eyebrow {
+  color: #fde3ad;
+}
+
+.closeButton {
+  border: 1px solid rgba(255, 247, 232, 0.22);
+  background: rgba(255, 247, 232, 0.1);
+  color: #fff7e8;
+}
+
+.closeButton:hover {
+  background: rgba(255, 247, 232, 0.19);
+}
+
+.loading,
+.emptyState {
+  border: 1px solid rgba(116, 19, 20, 0.15);
+  background: rgba(253, 227, 173, 0.58);
+}
+
+.emptyTitle,
+.linesLabel,
+.timesLabel {
+  color: #741314;
+}
+
+.muted {
+  color: rgba(36, 17, 14, 0.66);
+}
+
+.lineButton {
+  --line-color: #741314;
+  --line-ink: #fff7e8;
+  --line-shadow: #5f0f10;
+  border: 2px solid color-mix(in srgb, var(--line-color) 78%, #24110e);
+  background: color-mix(in srgb, var(--line-color) 82%, #fff7e8);
+  color: var(--line-ink);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--line-shadow) 72%, transparent);
+  transition: transform 160ms ease, background-color 160ms ease, color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.lineButton:hover {
+  transform: translateY(-1px);
+  background: var(--line-color);
+}
+
+.lineButtonActive {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--line-color) 76%, #24110e);
+  background: var(--line-color);
+  color: var(--line-ink);
+  box-shadow: 0 7px 0 var(--line-shadow), 0 10px 20px rgba(36, 17, 14, 0.14);
+}
+
+.lineIndicator {
+  border: 1px solid color-mix(in srgb, var(--line-color) 78%, #24110e);
+  background: var(--line-color);
+  color: var(--line-ink);
+  box-shadow: 0 3px 0 var(--line-shadow);
+}
+
+.scheduleCard {
+  border: 1px solid rgba(116, 19, 20, 0.13);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.scheduleCardCurrent {
+  border-color: rgba(183, 121, 31, 0.48);
+  background: #fde3ad;
+  box-shadow: 0 12px 30px rgba(116, 19, 20, 0.12);
+}
+
+.direction {
+  color: #5f0f10;
+}
+
+.currentBadge {
+  background: #741314;
+  color: #fff7e8;
+}
+
+.serviceMeta {
+  color: rgba(36, 17, 14, 0.58);
+}
+
+.nextStops {
+  border: 1px solid rgba(116, 19, 20, 0.12);
+  background: rgba(255, 247, 232, 0.7);
+  color: rgba(36, 17, 14, 0.72);
+}
+
+.nextStopsLabel {
+  color: #741314;
+}
+
+.chevronBubble {
+  background: #fff7e8;
+  color: #741314;
+  box-shadow: 0 2px 8px rgba(36, 17, 14, 0.1);
+}
+
+.primaryTime {
+  background: #741314;
+  color: #fff7e8;
+  box-shadow: 0 6px 0 #5f0f10;
+}
+
+.secondaryTime {
+  border: 1px solid rgba(116, 19, 20, 0.15);
+  background: #fff7e8;
+  color: #5f0f10;
+}
+
+.routeButton {
+  border: 1px solid rgba(116, 19, 20, 0.2);
+  background: #741314;
+  color: #fff7e8;
+  box-shadow: 0 4px 0 #5f0f10;
+}
+
+.routeButton:hover { background: #5f0f10; }
+
+.expandedTimes {
+  border-top: 1px solid rgba(116, 19, 20, 0.15);
+}
+
+.expandedTime {
+  border: 1px solid rgba(116, 19, 20, 0.13);
+  background: rgba(255, 255, 255, 0.62);
+  color: rgba(36, 17, 14, 0.78);
+}
+
+.footer {
+  border-top: 1px solid rgba(116, 19, 20, 0.11);
+  color: rgba(36, 17, 14, 0.52);
+}
+
+.closeButton:focus-visible,
+.lineButton:focus-visible,
+.scheduleButton:focus-visible {
+  outline: 2px solid #741314;
+  outline-offset: 3px;
+}
+
+.routeButton:focus-visible { outline: 2px solid #741314; outline-offset: 3px; }
+
+.header .closeButton:focus-visible {
+  outline-color: #fde3ad;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lineButton {
+    transition: none;
+  }
+}

@@ -34,6 +34,8 @@ export type PublicExplorePoint = {
 };
 
 export type PublicExploreMapEntry = {
+  latitude?: number | null;
+  longitude?: number | null;
   mapPlaceId: string;
   pointSlug: string;
   pointTitle: string;

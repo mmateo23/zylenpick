@@ -18,7 +18,7 @@ export function PickyaloStructuredData() {
         name: "Pickyalo",
         url: siteUrl,
         description:
-          "Plataforma visual para descubrir productos y platos de locales cercanos y recogerlos en el establecimiento.",
+          "Escaparate local curado para descubrir productos, comercios, lugares y acontecimientos cercanos.",
         logo: {
           "@type": "ImageObject",
           url: logoUrl,
@@ -34,7 +34,7 @@ export function PickyaloStructuredData() {
         url: siteUrl,
         name: "Pickyalo",
         description:
-          "Descubre productos y platos destacados de locales cercanos para recoger.",
+          "Descubre productos, comercios, lugares y acontecimientos locales seleccionados por Pickyalo.",
         inLanguage: "es-ES",
         publisher: {
           "@id": organizationId,

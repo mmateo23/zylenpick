@@ -165,6 +165,14 @@ export const defaultSiteDesignConfig: SiteDesignConfig = {
   },
 };
 
+export function getHomeCampaignImage(campaign: HomeCampaignConfig, fallback: string) {
+  const image = ((campaign.featureImageEnabled && campaign.featureImageUrl) ||
+    (campaign.backgroundMediaType === "image" && campaign.backgroundMediaUrl) || "").trim();
+  if (image.startsWith("/") && !image.startsWith("//")) return image;
+  try { if (new URL(image).protocol === "https:") return image; } catch { /* An incomplete editor URL uses the fallback. */ }
+  return fallback;
+}
+
 export function isHomeCampaignActive(
   campaign: HomeCampaignConfig,
   now = new Date(),

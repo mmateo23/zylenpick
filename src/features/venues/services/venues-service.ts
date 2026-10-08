@@ -121,7 +121,10 @@ function mapVenueListItem(row: {
   subscription_active: boolean;
   prices_visible?: boolean;
   subscription_tier?: "basic" | "oro" | "titanio" | null;
+  opening_hours?: unknown;
+  manual_open_status?: boolean | null;
 }): VenueListItem {
+  const openingHours = normalizeOpeningHours(row.opening_hours);
   return {
     id: row.id,
     slug: row.slug,
@@ -138,6 +141,8 @@ function mapVenueListItem(row: {
     subscriptionActive: row.subscription_active,
     subscriptionTier: row.subscription_tier ?? "basic",
     pricesVisible: row.prices_visible ?? false,
+    openingHours,
+    manualOpenStatus: row.manual_open_status ?? null,
   };
 }
 
@@ -322,7 +327,7 @@ export async function getVenuesByCitySlug(
   const { data, error } = await supabase
     .from("venues")
     .select(
-      "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_featured, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug)",
+      "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, opening_hours, manual_open_status, is_featured, is_verified, prices_visible, subscription_active, subscription_tier, cities!inner(slug)",
     )
     .eq("is_active", true)
     .eq("is_published", true)
@@ -339,7 +344,7 @@ export async function getVenuesByCitySlug(
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("venues")
       .select(
-        "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, is_verified, subscription_active, cities!inner(slug)",
+        "id, slug, name, discovery_category, description, cover_url, address, latitude, longitude, pickup_eta_min, opening_hours, manual_open_status, is_verified, subscription_active, cities!inner(slug)",
       )
       .eq("is_active", true)
       .eq("is_published", true)

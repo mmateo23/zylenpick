@@ -1,0 +1,1092 @@
+{
+  "fuente": "OpenStreetMap / Overpass",
+  "extraido": "2026-10-07",
+  "paradas": [
+    {
+      "id": "5879103853",
+      "name": "Algodonera",
+      "longitude": -4.8431176,
+      "latitude": 39.9611993
+    },
+    {
+      "id": "5882076641",
+      "name": "Algodonera",
+      "longitude": -4.8429802,
+      "latitude": 39.9613302
+    },
+    {
+      "id": "5863135763",
+      "name": "Alvarado",
+      "longitude": -4.823598,
+      "latitude": 39.9700398
+    },
+    {
+      "id": "5857097052",
+      "name": "Ambulatorio M. Ortega",
+      "longitude": -4.8171523,
+      "latitude": 39.9651306
+    },
+    {
+      "id": "5857097053",
+      "name": "Ambulatorio M. Ortega",
+      "longitude": -4.8173828,
+      "latitude": 39.9653027
+    },
+    {
+      "id": "5878743128",
+      "name": "Ambulatorio Plaza del Pan",
+      "longitude": -4.8324959,
+      "latitude": 39.9569724
+    },
+    {
+      "id": "5878743133",
+      "name": "Ambulatorio Plaza del Pan",
+      "longitude": -4.8325957,
+      "latitude": 39.957097
+    },
+    {
+      "id": "5863122685",
+      "name": "Ambulatorio de Paseo del Muelle",
+      "latitude": 39.9689861,
+      "longitude": -4.8269899
+    },
+    {
+      "id": "5882076654",
+      "name": "Ambulatorio de Paseo del Muelle",
+      "longitude": -4.8277362,
+      "latitude": 39.9690113
+    },
+    {
+      "id": "5879103846",
+      "name": "Arroyo de Bárrago",
+      "longitude": -4.8657682,
+      "latitude": 39.9446607
+    },
+    {
+      "id": "5879103847",
+      "name": "Arroyo de Bárrago",
+      "longitude": -4.8649421,
+      "latitude": 39.9448746
+    },
+    {
+      "id": "1908747392",
+      "name": "Avenida Constitución",
+      "longitude": -4.8137305,
+      "latitude": 39.9648012
+    },
+    {
+      "id": "1908747433",
+      "name": "Avenida Constitución",
+      "longitude": -4.8139661,
+      "latitude": 39.9649128
+    },
+    {
+      "id": "5882076647",
+      "name": "Avenida Francisco Aguirre",
+      "longitude": -4.8299462,
+      "latitude": 39.9682303
+    },
+    {
+      "id": "5882076656",
+      "name": "Avenida Francisco Aguirre",
+      "longitude": -4.8302213,
+      "latitude": 39.9683755
+    },
+    {
+      "id": "5878743139",
+      "name": "Avenida Pío XII",
+      "longitude": -4.8293017,
+      "latitude": 39.9645794
+    },
+    {
+      "id": "5878743140",
+      "name": "Avenida Pío XII",
+      "longitude": -4.8291871,
+      "latitude": 39.9647937
+    },
+    {
+      "id": "5879103825",
+      "name": "Avenida de Extremadura",
+      "longitude": -4.8253258,
+      "latitude": 39.9618367
+    },
+    {
+      "id": "5882076638",
+      "name": "Avenida de Madrid",
+      "longitude": -4.8153481,
+      "latitude": 39.9624945
+    },
+    {
+      "id": "7815958099",
+      "name": "Avenida de Madrid con Calle Fundidores",
+      "longitude": -4.8048841,
+      "latitude": 39.9633677
+    },
+    {
+      "id": "12242476395",
+      "name": "Ayuntamiento",
+      "longitude": -4.8324862,
+      "latitude": 39.9586651
+    },
+    {
+      "id": "1761386987",
+      "name": "Barrio Nuestra Señora del Prado",
+      "longitude": -4.8525336,
+      "latitude": 39.9575168
+    },
+    {
+      "id": "5880181825",
+      "name": "Barrio Nuestra Señora del Prado",
+      "longitude": -4.8519172,
+      "latitude": 39.9573369
+    },
+    {
+      "id": "5878743146",
+      "name": "Barrio Santa María",
+      "longitude": -4.8256874,
+      "latitude": 39.9391517
+    },
+    {
+      "id": "6313176006",
+      "name": "Barrio Santa María",
+      "longitude": -4.8281853,
+      "latitude": 39.9388431
+    },
+    {
+      "id": "6138291331",
+      "name": "Barrio de la Piedad",
+      "longitude": -4.8377343,
+      "latitude": 39.9640234
+    },
+    {
+      "id": "5879103822",
+      "name": "Basílica",
+      "longitude": -4.8216041,
+      "latitude": 39.9618078
+    },
+    {
+      "id": "5879103823",
+      "name": "Basílica",
+      "longitude": -4.8216954,
+      "latitude": 39.9617006
+    },
+    {
+      "id": "5877191869",
+      "name": "Biblioteca José Hierro",
+      "longitude": -4.8250479,
+      "latitude": 39.963742
+    },
+    {
+      "id": "6133699424",
+      "name": "Biblioteca José Hierro",
+      "longitude": -4.8247456,
+      "latitude": 39.9637459
+    },
+    {
+      "id": "5877191874",
+      "name": "Calle Carnicerías",
+      "longitude": -4.8290446,
+      "latitude": 39.9595057
+    },
+    {
+      "id": "5879103850",
+      "name": "Calle Carpinteros",
+      "latitude": 39.956684,
+      "longitude": -4.8468704
+    },
+    {
+      "id": "1908747408",
+      "name": "Calle Cecería",
+      "longitude": -4.8340607,
+      "latitude": 39.9621913
+    },
+    {
+      "id": "5879103830",
+      "name": "Calle Cecería",
+      "longitude": -4.8341377,
+      "latitude": 39.9622545
+    },
+    {
+      "id": "5879103851",
+      "name": "Calle Federica Montseny",
+      "latitude": 39.9589785,
+      "longitude": -4.8468237
+    },
+    {
+      "id": "12264602120",
+      "name": "Calle Gutemberg",
+      "longitude": -4.9363946,
+      "latitude": 39.9550852
+    },
+    {
+      "id": "1908747460",
+      "name": "Calle Industrias",
+      "longitude": -4.8177991,
+      "latitude": 39.9620428
+    },
+    {
+      "id": "5879103824",
+      "name": "Calle Industrias",
+      "longitude": -4.8175471,
+      "latitude": 39.961947
+    },
+    {
+      "id": "5877191876",
+      "name": "Calle Palenque",
+      "longitude": -4.833588,
+      "latitude": 39.9600277
+    },
+    {
+      "id": "6035451900",
+      "name": "Calle Palenque",
+      "longitude": -4.8330345,
+      "latitude": 39.9600499
+    },
+    {
+      "id": "5880181796",
+      "name": "Campo de Fútbol",
+      "longitude": -4.8233292,
+      "latitude": 39.9658731
+    },
+    {
+      "id": "5878743122",
+      "name": "Capitán Luque",
+      "longitude": -4.8320239,
+      "latitude": 39.965307
+    },
+    {
+      "id": "5878743138",
+      "name": "Capitán Luque",
+      "longitude": -4.8322386,
+      "latitude": 39.9651207
+    },
+    {
+      "id": "5878743117",
+      "name": "Carretera de San Román",
+      "longitude": -4.8176812,
+      "latitude": 39.9692945
+    },
+    {
+      "id": "5878743144",
+      "name": "Carretera de San Román",
+      "longitude": -4.816818,
+      "latitude": 39.9688565
+    },
+    {
+      "id": "5878743124",
+      "name": "Cañada de la Sierra",
+      "longitude": -4.8384637,
+      "latitude": 39.9608144
+    },
+    {
+      "id": "5878743125",
+      "name": "Cañada de la Sierra",
+      "longitude": -4.8383548,
+      "latitude": 39.960811
+    },
+    {
+      "id": "5877217988",
+      "name": "Cementerio",
+      "longitude": -4.8493123,
+      "latitude": 39.9522289
+    },
+    {
+      "id": "5879103833",
+      "name": "Cementerio",
+      "longitude": -4.8493288,
+      "latitude": 39.9523704
+    },
+    {
+      "id": "1908760883",
+      "name": "Centro Comercial Los Alfares",
+      "longitude": -4.7989915,
+      "latitude": 39.9644604
+    },
+    {
+      "id": "5877217999",
+      "name": "Centro Salud Río Tajo",
+      "longitude": -4.8094084,
+      "latitude": 39.9659711
+    },
+    {
+      "id": "5882076649",
+      "name": "Centro Salud Río Tajo",
+      "longitude": -4.8096781,
+      "latitude": 39.9661765
+    },
+    {
+      "id": "12067076612",
+      "name": "Centro de formación N-Va",
+      "latitude": 39.9741358,
+      "longitude": -4.7531821
+    },
+    {
+      "id": "12067076613",
+      "name": "Centro de formación N-Va",
+      "latitude": 39.9733635,
+      "longitude": -4.7529574
+    },
+    {
+      "id": "5878743119",
+      "name": "Colegio Pablo Iglesias",
+      "longitude": -4.8253377,
+      "latitude": 39.969129
+    },
+    {
+      "id": "5878743143",
+      "name": "Colegio Pablo Iglesias",
+      "longitude": -4.8253859,
+      "latitude": 39.9689128
+    },
+    {
+      "id": "5882076639",
+      "name": "Comisaría",
+      "longitude": -4.8177323,
+      "latitude": 39.9588805
+    },
+    {
+      "id": "5863098101",
+      "name": "Comuneros de Castilla",
+      "longitude": -4.8393444,
+      "latitude": 39.9628857
+    },
+    {
+      "id": "5878743136",
+      "name": "Comuneros de Castilla",
+      "longitude": -4.839462,
+      "latitude": 39.9628474
+    },
+    {
+      "id": "5878743145",
+      "name": "Cruce Navalmorales",
+      "longitude": -4.8306532,
+      "latitude": 39.9500085
+    },
+    {
+      "id": "5880181810",
+      "name": "Cruce del Canal",
+      "longitude": -4.8885576,
+      "latitude": 39.9595846
+    },
+    {
+      "id": "12264602124",
+      "name": "Doctor Fleming",
+      "longitude": -4.9208474,
+      "latitude": 39.9627908
+    },
+    {
+      "id": "5880181811",
+      "name": "El Casar",
+      "longitude": -4.9177962,
+      "latitude": 39.9637685
+    },
+    {
+      "id": "5880181821",
+      "name": "El Casar",
+      "longitude": -4.9176068,
+      "latitude": 39.963554
+    },
+    {
+      "id": "5863135764",
+      "name": "El Lucero",
+      "latitude": 39.971241,
+      "longitude": -4.819368
+    },
+    {
+      "id": "5863135765",
+      "name": "El Potrero",
+      "longitude": -4.8165833,
+      "latitude": 39.971464
+    },
+    {
+      "id": "5877191880",
+      "name": "Escuela de Idiomas",
+      "longitude": -4.8403837,
+      "latitude": 39.954313
+    },
+    {
+      "id": "5877217993",
+      "name": "Escuela de Idiomas",
+      "longitude": -4.8402962,
+      "latitude": 39.9542058
+    },
+    {
+      "id": "5878743148",
+      "name": "Esperanza",
+      "longitude": -4.830853,
+      "latitude": 39.9524456
+    },
+    {
+      "id": "1908747439",
+      "name": "Estación Autobuses",
+      "longitude": -4.8253087,
+      "latitude": 39.9623457
+    },
+    {
+      "id": "5877191870",
+      "name": "Estación Autobuses",
+      "longitude": -4.8256318,
+      "latitude": 39.9621468
+    },
+    {
+      "id": "13274199535",
+      "name": "Estación de Autobuses de Talavera",
+      "latitude": 39.9625367,
+      "longitude": -4.8258537
+    },
+    {
+      "id": "12262701429",
+      "name": "Gamonal",
+      "longitude": -4.9577972,
+      "latitude": 39.9617981
+    },
+    {
+      "id": "5880181818",
+      "name": "Gamonal",
+      "longitude": -4.9582905,
+      "latitude": 39.9617083
+    },
+    {
+      "id": "5863098197",
+      "name": "Glorieta Tres Olivos",
+      "longitude": -4.8359451,
+      "latitude": 39.9655771
+    },
+    {
+      "id": "5878743123",
+      "name": "Glorieta Tres Olivos",
+      "longitude": -4.8355677,
+      "latitude": 39.9652488
+    },
+    {
+      "id": "5882076657",
+      "name": "Glorieta Tres Olivos",
+      "longitude": -4.8363605,
+      "latitude": 39.9656232
+    },
+    {
+      "id": "1908760882",
+      "name": "Hospital",
+      "longitude": -4.8062702,
+      "latitude": 39.9637992
+    },
+    {
+      "id": "4095058219",
+      "name": "Hospital",
+      "longitude": -4.8052892,
+      "latitude": 39.9641354
+    },
+    {
+      "id": "5882076642",
+      "name": "Huertas",
+      "longitude": -4.8406073,
+      "latitude": 39.9633302
+    },
+    {
+      "id": "5882076659",
+      "name": "Huertas",
+      "longitude": -4.8411715,
+      "latitude": 39.9633068
+    },
+    {
+      "id": "5877191866",
+      "name": "I.E.S. Padre Juan de Mariana",
+      "latitude": 39.9614822,
+      "longitude": -4.8046877
+    },
+    {
+      "id": "5880181808",
+      "name": "I.E.S. San Isidro",
+      "longitude": -4.8642146,
+      "latitude": 39.9569581
+    },
+    {
+      "id": "5880181824",
+      "name": "I.E.S. San Isidro",
+      "longitude": -4.8639043,
+      "latitude": 39.9567059
+    },
+    {
+      "id": "5863135762",
+      "name": "Instituto Politécnico",
+      "longitude": -4.832749,
+      "latitude": 39.9671326
+    },
+    {
+      "id": "5882076655",
+      "name": "Instituto Politécnico",
+      "longitude": -4.8326397,
+      "latitude": 39.9674249
+    },
+    {
+      "id": "5878743127",
+      "name": "Instituto Ribera del Tajo",
+      "longitude": -4.8371843,
+      "latitude": 39.9552362
+    },
+    {
+      "id": "5878743135",
+      "name": "Instituto Ribera del Tajo",
+      "longitude": -4.8377992,
+      "latitude": 39.9552108
+    },
+    {
+      "id": "1908747441",
+      "name": "Institutos",
+      "longitude": -4.8223243,
+      "latitude": 39.9639871
+    },
+    {
+      "id": "1908747484",
+      "name": "Institutos",
+      "longitude": -4.8221043,
+      "latitude": 39.964168
+    },
+    {
+      "id": "5878743115",
+      "name": "José López Brea",
+      "longitude": -4.8154083,
+      "latitude": 39.9677421
+    },
+    {
+      "id": "6131351479",
+      "name": "José López Brea",
+      "longitude": -4.8155282,
+      "latitude": 39.9675369
+    },
+    {
+      "id": "5857097058",
+      "name": "Juan Carlos I",
+      "longitude": -4.8228962,
+      "latitude": 39.9673991
+    },
+    {
+      "id": "5857097059",
+      "name": "Juan Carlos I",
+      "longitude": -4.8226972,
+      "latitude": 39.9675282
+    },
+    {
+      "id": "5877191879",
+      "name": "Juan de Mariana",
+      "longitude": -4.8391375,
+      "latitude": 39.9555516
+    },
+    {
+      "id": "5877217994",
+      "name": "Juan de Mariana",
+      "longitude": -4.8390725,
+      "latitude": 39.9560859
+    },
+    {
+      "id": "1908747476",
+      "name": "Lepanto",
+      "longitude": -4.8181293,
+      "latitude": 39.9633992
+    },
+    {
+      "id": "1908747481",
+      "name": "Lepanto",
+      "longitude": -4.8177913,
+      "latitude": 39.9634033
+    },
+    {
+      "id": "5878743137",
+      "name": "Mejorada",
+      "longitude": -4.8383139,
+      "latitude": 39.9644274
+    },
+    {
+      "id": "5882076658",
+      "name": "Mejorada",
+      "longitude": -4.8384127,
+      "latitude": 39.96464
+    },
+    {
+      "id": "5880181813",
+      "name": "Mercatalavera",
+      "longitude": -4.9400626,
+      "latitude": 39.9604894
+    },
+    {
+      "id": "5880181819",
+      "name": "Mercatalavera",
+      "longitude": -4.940082,
+      "latitude": 39.960323
+    },
+    {
+      "id": "5878743116",
+      "name": "Montecarlo",
+      "longitude": -4.807545,
+      "latitude": 39.9786038
+    },
+    {
+      "id": "6049727532",
+      "name": "Moreras",
+      "longitude": -4.8167623,
+      "latitude": 39.9579449
+    },
+    {
+      "id": "14056445710",
+      "name": "Navalcán",
+      "longitude": -4.8433387,
+      "latitude": 39.9581552
+    },
+    {
+      "id": "5880181798",
+      "name": "Navalcán",
+      "longitude": -4.843446,
+      "latitude": 39.9583604
+    },
+    {
+      "id": "5857097048",
+      "name": "Nuevo Centro",
+      "longitude": -4.8135616,
+      "latitude": 39.9659147
+    },
+    {
+      "id": "5857097049",
+      "name": "Nuevo Centro",
+      "longitude": -4.8138078,
+      "latitude": 39.9658184
+    },
+    {
+      "id": "5877191867",
+      "name": "Pablo Picasso",
+      "longitude": -4.8122868,
+      "latitude": 39.9646363
+    },
+    {
+      "id": "5880181809",
+      "name": "Pantasa",
+      "longitude": -4.8749373,
+      "latitude": 39.9580623
+    },
+    {
+      "id": "5880181823",
+      "name": "Pantasa",
+      "longitude": -4.8749241,
+      "latitude": 39.957938
+    },
+    {
+      "id": "5878743147",
+      "name": "Paredón",
+      "longitude": -4.8351001,
+      "latitude": 39.9496153
+    },
+    {
+      "id": "6143210302",
+      "name": "Parque Comercial",
+      "longitude": -4.8018038,
+      "latitude": 39.9643905
+    },
+    {
+      "id": "5878743120",
+      "name": "Paseo de la Estación",
+      "longitude": -4.8258978,
+      "latitude": 39.9662485
+    },
+    {
+      "id": "5878743142",
+      "name": "Paseo de la Estación",
+      "longitude": -4.825733,
+      "latitude": 39.9667426
+    },
+    {
+      "id": "1908747403",
+      "name": "Paseo de los Arqueros",
+      "longitude": -4.8264714,
+      "latitude": 39.961716
+    },
+    {
+      "id": "1908747437",
+      "name": "Paseo de los Arqueros",
+      "longitude": -4.8261869,
+      "latitude": 39.9618516
+    },
+    {
+      "id": "5877217987",
+      "name": "Patrocinio",
+      "longitude": -4.8538038,
+      "latitude": 39.9514062
+    },
+    {
+      "id": "5882076648",
+      "name": "Piscina Cubierta",
+      "longitude": -4.8202856,
+      "latitude": 39.9653815
+    },
+    {
+      "id": "5882076651",
+      "name": "Piscina Cubierta",
+      "longitude": -4.8196951,
+      "latitude": 39.9651626
+    },
+    {
+      "id": "12263027591",
+      "name": "Pistas de Atletismo",
+      "longitude": -4.8169837,
+      "latitude": 39.9571743
+    },
+    {
+      "id": "1908747395",
+      "name": "Plaza Trinidad",
+      "longitude": -4.8284411,
+      "latitude": 39.9619857
+    },
+    {
+      "id": "1908747453",
+      "name": "Plaza Trinidad",
+      "longitude": -4.828375,
+      "latitude": 39.9620605
+    },
+    {
+      "id": "1908747399",
+      "name": "Plaza Zamora",
+      "longitude": -4.8317665,
+      "latitude": 39.963259
+    },
+    {
+      "id": "1908747457",
+      "name": "Plaza Zamora",
+      "longitude": -4.8318102,
+      "latitude": 39.9633689
+    },
+    {
+      "id": "5877191868",
+      "name": "Plaza de España",
+      "longitude": -4.8258052,
+      "latitude": 39.9639373
+    },
+    {
+      "id": "5878743121",
+      "name": "Plaza de España",
+      "longitude": -4.8262307,
+      "latitude": 39.9642942
+    },
+    {
+      "id": "5878743141",
+      "name": "Plaza de España",
+      "longitude": -4.8263039,
+      "latitude": 39.9639916
+    },
+    {
+      "id": "5877191878",
+      "name": "Plaza de San Andrés",
+      "latitude": 39.9590049,
+      "longitude": -4.8378261
+    },
+    {
+      "id": "1908747487",
+      "name": "Plaza de la Paz",
+      "longitude": -4.8195832,
+      "latitude": 39.9641618
+    },
+    {
+      "id": "1908747491",
+      "name": "Plaza de la Paz",
+      "longitude": -4.8197152,
+      "latitude": 39.9639794
+    },
+    {
+      "id": "5877191875",
+      "name": "Plaza del Reloj",
+      "longitude": -4.8316177,
+      "latitude": 39.9603073
+    },
+    {
+      "id": "5857097050",
+      "name": "Polideportivo 1º de Mayo",
+      "longitude": -4.8153196,
+      "latitude": 39.9661495
+    },
+    {
+      "id": "5857097051",
+      "name": "Polideportivo 1º de Mayo",
+      "longitude": -4.8153118,
+      "latitude": 39.9664855
+    },
+    {
+      "id": "5880181799",
+      "name": "Polígono La Floresta",
+      "longitude": -4.849617,
+      "latitude": 39.9578739
+    },
+    {
+      "id": "5880181826",
+      "name": "Polígono La Floresta",
+      "longitude": -4.8490491,
+      "latitude": 39.9576466
+    },
+    {
+      "id": "5877191884",
+      "name": "Polígono Marifé",
+      "longitude": -4.8437865,
+      "latitude": 39.9550818
+    },
+    {
+      "id": "5877217985",
+      "name": "Polígono Marifé",
+      "longitude": -4.8448931,
+      "latitude": 39.9550837
+    },
+    {
+      "id": "5877217990",
+      "name": "Polígono Marifé",
+      "longitude": -4.8439504,
+      "latitude": 39.954922
+    },
+    {
+      "id": "5877217991",
+      "name": "Polígono Marifé",
+      "longitude": -4.84471,
+      "latitude": 39.9549751
+    },
+    {
+      "id": "5880181812",
+      "name": "Polígono Torrehierro (Calle Doctor Fleming)",
+      "longitude": -4.9251465,
+      "latitude": 39.9578516
+    },
+    {
+      "id": "5880181820",
+      "name": "Polígono Torrehierro (Calle Doctor Fleming)",
+      "longitude": -4.925068,
+      "latitude": 39.9577379
+    },
+    {
+      "id": "12264602122",
+      "name": "Polígono Torrehierro (Cruce La Cerámica)",
+      "longitude": -4.9401611,
+      "latitude": 39.9643547
+    },
+    {
+      "id": "5877217996",
+      "name": "Puente Moris",
+      "longitude": -4.8366651,
+      "latitude": 39.9575862
+    },
+    {
+      "id": "5880181797",
+      "name": "Puente Moris",
+      "longitude": -4.8369811,
+      "latitude": 39.9577422
+    },
+    {
+      "id": "5877191877",
+      "name": "Puente Pópulo",
+      "longitude": -4.8357383,
+      "latitude": 39.9598003
+    },
+    {
+      "id": "5877217997",
+      "name": "Puente Pópulo",
+      "longitude": -4.8361641,
+      "latitude": 39.9598589
+    },
+    {
+      "id": "5879103831",
+      "name": "Puente Pópulo",
+      "longitude": -4.8360652,
+      "latitude": 39.9598687
+    },
+    {
+      "id": "5878743129",
+      "name": "Puente Viejo",
+      "longitude": -4.8295768,
+      "latitude": 39.9572521
+    },
+    {
+      "id": "5878743132",
+      "name": "Puente Viejo",
+      "longitude": -4.8296322,
+      "latitude": 39.9573252
+    },
+    {
+      "id": "14056390966",
+      "name": "Puente de Hierro",
+      "longitude": -4.8332873,
+      "latitude": 39.9562878
+    },
+    {
+      "id": "5878743126",
+      "name": "Puerta de Cuartos",
+      "longitude": -4.8397764,
+      "latitude": 39.9582317
+    },
+    {
+      "id": "5879103832",
+      "name": "Puerta de Cuartos",
+      "longitude": -4.8398104,
+      "latitude": 39.9586926
+    },
+    {
+      "id": "6313176008",
+      "name": "Residencia Patrocinio",
+      "latitude": 39.9507535,
+      "longitude": -4.8576859
+    },
+    {
+      "id": "1908747449",
+      "name": "Residencia Pensionistas",
+      "longitude": -4.8170972,
+      "latitude": 39.963013
+    },
+    {
+      "id": "1908747489",
+      "name": "Residencia Pensionistas",
+      "longitude": -4.8165898,
+      "latitude": 39.9630731
+    },
+    {
+      "id": "5863135766",
+      "name": "Residencia San Diego",
+      "longitude": -4.8131585,
+      "latitude": 39.9718228
+    },
+    {
+      "id": "5879103854",
+      "name": "Reyes Católicos",
+      "longitude": -4.840741,
+      "latitude": 39.9602496
+    },
+    {
+      "id": "5882076640",
+      "name": "Reyes Católicos",
+      "longitude": -4.840631,
+      "latitude": 39.9603627
+    },
+    {
+      "id": "5857097057",
+      "name": "Ronda de los Andes",
+      "longitude": -4.8212943,
+      "latitude": 39.9668761
+    },
+    {
+      "id": "6131351478",
+      "name": "Ronda de los Andes",
+      "longitude": -4.8203297,
+      "latitude": 39.967571
+    },
+    {
+      "id": "5877191873",
+      "name": "Ronda del Cañillo",
+      "longitude": -4.8272583,
+      "latitude": 39.958543
+    },
+    {
+      "id": "5878743130",
+      "name": "Ronda del Cañillo",
+      "longitude": -4.8265644,
+      "latitude": 39.9587847
+    },
+    {
+      "id": "5879103852",
+      "name": "Rotonda Floresta",
+      "latitude": 39.9613196,
+      "longitude": -4.844362
+    },
+    {
+      "id": "6313174677",
+      "name": "Rotonda Floresta",
+      "longitude": -4.8436661,
+      "latitude": 39.9621303
+    },
+    {
+      "id": "6131351476",
+      "name": "San Marcos",
+      "longitude": -4.8518454,
+      "latitude": 39.9518056
+    },
+    {
+      "id": "12263027590",
+      "name": "Talavera Ferial",
+      "longitude": -4.8193326,
+      "latitude": 39.9577475
+    },
+    {
+      "id": "1908760881",
+      "name": "Talavera Golf",
+      "longitude": -4.7982164,
+      "latitude": 39.964886
+    },
+    {
+      "id": "5879103848",
+      "name": "Talavera la Nueva",
+      "longitude": -4.8917946,
+      "latitude": 39.9351028
+    },
+    {
+      "id": "5877217986",
+      "name": "Tanatorio",
+      "longitude": -4.846702,
+      "latitude": 39.9538281
+    },
+    {
+      "id": "5877217989",
+      "name": "Tanatorio",
+      "longitude": -4.8466112,
+      "latitude": 39.9537777
+    },
+    {
+      "id": "5877191881",
+      "name": "Universidad",
+      "longitude": -4.8423128,
+      "latitude": 39.9537079
+    },
+    {
+      "id": "5877217992",
+      "name": "Universidad",
+      "longitude": -4.8417945,
+      "latitude": 39.953111
+    },
+    {
+      "id": "5879103844",
+      "name": "Urbanización El Madroño",
+      "longitude": -4.8813959,
+      "latitude": 39.9373149
+    },
+    {
+      "id": "5879103845",
+      "name": "Urbanización El Madroño",
+      "longitude": -4.8813128,
+      "latitude": 39.9372101
+    },
+    {
+      "id": "5879103834",
+      "name": "Urbanización Patrocinio",
+      "longitude": -4.851557,
+      "latitude": 39.9511872
+    },
+    {
+      "id": "5879103835",
+      "name": "Urbanización Patrocinio",
+      "longitude": -4.8522107,
+      "latitude": 39.9510046
+    },
+    {
+      "id": "5877218000",
+      "name": "Urgencias",
+      "longitude": -4.8068695,
+      "latitude": 39.9661385
+    },
+    {
+      "id": "5882076650",
+      "name": "Urgencias",
+      "longitude": -4.8069742,
+      "latitude": 39.9663548
+    },
+    {
+      "id": "5877191872",
+      "name": "Verjas del Prado",
+      "longitude": -4.8255702,
+      "latitude": 39.9603858
+    },
+    {
+      "id": "5878743131",
+      "name": "Verjas del Prado",
+      "longitude": -4.825328,
+      "latitude": 39.9606845
+    }
+  ]
+}

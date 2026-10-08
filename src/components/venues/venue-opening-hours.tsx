@@ -1,6 +1,7 @@
 import { VenueOpeningStatusBadge } from "@/components/venues/venue-opening-status-badge";
 import {
   formatOpeningHoursDay,
+  hasOpeningHoursData,
   openingHourDayLabels,
   openingHourDayOrder,
   type OpeningStatus,
@@ -23,6 +24,8 @@ export function VenueOpeningHours({
   openingHours,
   openingStatus,
 }: VenueOpeningHoursProps) {
+  const hasKnownHours =
+    openingStatus.source === "manual" || hasOpeningHoursData(openingHours);
   const groupedHours = openingHourDayOrder.reduce<OpeningHoursGroup[]>(
     (groups, dayKey) => {
       const dayValue = openingHours[dayKey];
@@ -58,14 +61,14 @@ export function VenueOpeningHours({
   return (
     <section
       id="horarios"
-      className="scroll-mt-28 rounded-[22px] border border-[#741314]/20 bg-[#fffdf8] p-5"
+      className="scroll-mt-28 rounded-[22px] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-strong)] p-5 text-[color:var(--text-primary)]"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#741314]">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[color:var(--brand-accent)]">
             Cuándo ir
           </p>
-          <h3 className="mt-2 text-2xl font-bold tracking-[-0.04em] text-[#24110E]">
+          <h3 className="mt-2 text-2xl font-bold tracking-[-0.04em] text-[color:var(--text-primary)]">
             Horario.
           </h3>
         </div>
@@ -77,27 +80,23 @@ export function VenueOpeningHours({
       </div>
 
       <div className="mt-5 space-y-2.5">
-        {groupedHours.map((group) => (
+        {hasKnownHours ? groupedHours.map((group) => (
           <div
             key={group.key}
             className={`flex items-center justify-between gap-4 rounded-[0.9rem] border px-3 py-2.5 ${
               group.isClosed
-                ? "border-[#741314]/15 bg-[#FFE2E5]"
-                : "border-[#741314]/15 bg-[#FFF7E8]"
+                ? "border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)]"
+                : "border-[color:var(--border-subtle)] bg-[color:var(--bg-page)]"
             }`}
           >
             <div className="min-w-0">
               <p
-                className={`text-sm font-semibold ${
-                  group.isClosed ? "text-[#741314]" : "text-[#24110E]"
-                }`}
+                className="text-sm font-semibold text-[color:var(--text-primary)]"
               >
                 {group.label}
               </p>
               <p
-                className={`mt-1 text-sm ${
-                  group.isClosed ? "text-[#741314]" : "text-[#61433A]"
-                }`}
+                className="mt-1 text-sm text-[color:var(--text-secondary)]"
               >
                 {group.formattedHours}
               </p>
@@ -105,13 +104,17 @@ export function VenueOpeningHours({
 
             <span
               className={`shrink-0 text-[10px] font-medium uppercase tracking-[0.16em] ${
-                group.isClosed ? "text-danger/70" : "text-text-muted"
+                group.isClosed ? "text-danger" : "text-text-muted"
               }`}
             >
               {group.isClosed ? "No abre" : "Abre"}
             </span>
           </div>
-        ))}
+        )) : (
+          <p className="rounded-[0.9rem] border border-[color:var(--border-subtle)] bg-[color:var(--bg-surface-muted)] px-4 py-3 text-sm leading-relaxed text-[color:var(--text-secondary)]">
+            Este local todavía no ha confirmado su horario.
+          </p>
+        )}
       </div>
     </section>
   );

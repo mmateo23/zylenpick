@@ -51,6 +51,7 @@ export function AdminSiteMediaEditor({ asset, route }: AdminSiteMediaEditorProps
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const isHomeCutout = asset.key.startsWith("home_entry_");
 
   async function uploadFile(file: File) {
     setBusy(true);
@@ -60,7 +61,7 @@ export function AdminSiteMediaEditor({ asset, route }: AdminSiteMediaEditorProps
     let uploadedPath: string | null = null;
 
     try {
-      const processed = await processScoutImage(file);
+      const processed = await processScoutImage(file, { preserveTransparency: isHomeCutout });
       const preparedFile = processed.cover;
       const ticket = await prepareSiteMediaUploadAction(
         asset.key,
@@ -225,7 +226,7 @@ export function AdminSiteMediaEditor({ asset, route }: AdminSiteMediaEditorProps
             <img
               src={imageUrl}
               alt={`Vista previa de ${asset.label}`}
-              className="absolute inset-0 h-full w-full object-cover"
+              className={`absolute inset-0 h-full w-full ${isHomeCutout ? "object-contain p-4" : "object-cover"}`}
             />
           ) : (
             <div className="flex h-full min-h-64 flex-col items-center justify-center gap-3 px-6 text-center text-sm text-[#381932]/60">

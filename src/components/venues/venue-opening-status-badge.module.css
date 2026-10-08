@@ -1,0 +1,39 @@
+.open {
+  border-color: rgba(31, 90, 52, 0.32);
+  background: #dff3e4;
+  color: #1f5a34;
+}
+
+.openDot {
+  background: #2c7a48;
+}
+
+.closed {
+  border-color: rgba(116, 19, 20, 0.28);
+  background: #ffe2e5;
+  color: #741314;
+}
+
+.closedDot {
+  background: #a43a42;
+}
+
+.soon {
+  border-color: rgba(112, 68, 0, 0.3);
+  background: #fff0cc;
+  color: #704400;
+}
+
+.soonDot {
+  background: #b87508;
+}
+
+.unknown {
+  border-color: rgba(80, 65, 50, 0.28);
+  background: #fff7e8;
+  color: #4d392f;
+}
+
+.unknownDot {
+  background: #8b6d5a;
+}

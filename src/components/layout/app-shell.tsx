@@ -7,10 +7,9 @@ type AppShellProps = {
 };
 
 const navigationItems = [
-  { label: "Descubrir", href: "/" },
-  { label: "Favoritos", href: "/favoritos" },
-  { label: "Carrito", href: "/carrito" },
-  { label: "Pedidos", href: "/pedidos" },
+  { label: "Inicio", href: "/" },
+  { label: "Comercios", href: "/platos?modo=locales" },
+  { label: "Descubrir", href: "/mapa?explora=1" },
 ];
 
 export function AppShell({ children }: AppShellProps) {

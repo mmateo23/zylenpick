@@ -46,7 +46,7 @@ export default async function AdminImagesPage({
   const selectedAssets =
     selectedPage === "zones"
       ? []
-      : siteAssets.filter((asset) => asset.page === selectedPage);
+      : siteAssets.filter((asset) => asset.page === selectedPage && (selectedPage !== "home" || asset.key.startsWith("home_entry_")));
 
   const selectedCityId =
     searchParams?.city && cities.some((city) => city.id === searchParams.city)
@@ -67,11 +67,11 @@ export default async function AdminImagesPage({
           Contenido visual
         </p>
         <h1 className="mt-3 text-3xl font-black tracking-[-0.035em] text-[#381932] sm:text-4xl">
-          Biblioteca por páginas
+          Imágenes de la web
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#381932]/68 sm:text-base">
-          Entra en una página, identifica el bloque por su vista previa y cambia
-          solo esa imagen. Las fotos de platos se editan desde Locales → Selección.
+          Cambia las imágenes de Comercios, Descubre y Eventos en la Home.
+          Para otras páginas, elige una sección debajo. Las fotos de productos se editan dentro de cada ficha de local.
         </p>
       </header>
 
@@ -84,7 +84,7 @@ export default async function AdminImagesPage({
           const count =
             page.key === "zones"
               ? cities.length
-              : siteAssets.filter((asset) => asset.page === page.key).length;
+              : siteAssets.filter((asset) => asset.page === page.key && (page.key !== "home" || asset.key.startsWith("home_entry_"))).length;
 
           return (
             <Link
@@ -138,6 +138,7 @@ export default async function AdminImagesPage({
           </div>
 
           <div className="space-y-4">
+            {selectedPage === "home" && <p className="rounded-xl bg-[#FFF7E8] p-4 text-sm leading-6 text-[#741314]">Estas son las tres imágenes de la portada giratoria. Usa PNG o WebP con fondo transparente; se conservará al subirlas.</p>}
             {selectedAssets.map((asset) => (
               <AdminSiteMediaEditor
                 key={asset.key}

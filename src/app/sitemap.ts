@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getCities } from "@/features/cities/services/cities-service";
+import { publicEvents } from "@/features/events/events";
 import { getVenuesByCitySlug } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSiteUrl } from "@/lib/seo";
@@ -23,6 +24,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.9,
     },
+    {
+      url: `${siteUrl}/eventos`,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${siteUrl}/mapa`,
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/autobuses`,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
+    ...publicEvents.map((event) => ({
+      url: `${siteUrl}/eventos/${event.slug}`,
+      lastModified: new Date(`${event.verifiedOn}T12:00:00+02:00`),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
     {
       url: `${siteUrl}/el-proyecto`,
       changeFrequency: "monthly",

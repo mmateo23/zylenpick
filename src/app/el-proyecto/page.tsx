@@ -2,18 +2,16 @@ import type { Metadata } from "next";
 
 import { SiteShell } from "@/components/layout/site-shell";
 import { ProjectPage } from "@/components/project/project-page";
-import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
 import { getBaseMetadata, getSiteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = getBaseMetadata({
-  title: "Qué es Pickyalo: gastronomía y descubrimiento local",
+  title: "Qué es Pickyalo: descubre lo bueno de aquí",
   description:
-    "Pickyalo descubre y presenta platos, productos, comercios y lugares reales para que sea más fácil encontrar, elegir y volver a lo local.",
+    "Pickyalo es una guía local cuidada para descubrir comercios, lugares y planes cerca de ti, sin rankings, reseñas ni ruido.",
   path: "/el-proyecto",
 });
 
-export default async function ProjectRoutePage() {
-  const siteMedia = await getSiteMediaAssetMap();
+export default function ProjectRoutePage() {
   const siteUrl = getSiteUrl();
   const structuredData = {
     "@context": "https://schema.org",
@@ -24,7 +22,7 @@ export default async function ProjectRoutePage() {
         url: `${siteUrl}/el-proyecto`,
         name: "El proyecto Pickyalo",
         description:
-          "Pickyalo descubre y presenta platos, productos, comercios y lugares reales para hacer más fácil volver a lo local.",
+          "Pickyalo es una guía local cuidada para descubrir comercios, lugares y planes cerca de ti.",
         isPartOf: { "@id": `${siteUrl}/#website` },
         about: { "@id": `${siteUrl}/#organization` },
         inLanguage: "es-ES",
@@ -59,7 +57,7 @@ export default async function ProjectRoutePage() {
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
         }}
       />
-      <ProjectPage siteMedia={siteMedia} />
+      <ProjectPage />
     </SiteShell>
   );
 }

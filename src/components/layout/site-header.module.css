@@ -1,0 +1,39 @@
+.logoDark {
+  display: none;
+}
+
+.navItem {
+  color: var(--floating-surface-text);
+}
+
+.navItem:hover {
+  background: color-mix(in srgb, var(--floating-surface-text) 10%, transparent);
+}
+
+.navItemActive {
+  background: var(--brand-accent);
+  color: var(--cta-primary-text);
+}
+
+.navItemActive:hover {
+  background: var(--brand-accent);
+}
+
+.focusRing:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.itemLabel {
+  border-color: var(--floating-surface-border);
+  background: var(--floating-surface);
+  color: var(--floating-surface-text);
+}
+
+:global(.dark) .logoLight {
+  display: none;
+}
+
+:global(.dark) .logoDark {
+  display: block;
+}

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#fcfaf5] text-[#24110E]">
+    <div className="public-light-theme pickyalo-public-canvas min-h-screen text-[#24110E]">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-5 py-28 sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#741314]">

@@ -8,10 +8,16 @@ const nextConfig = {
     pagesBufferLength: 20,
   },
   allowedDevOrigins: [
+    "192.168.68.103",
     "192.168.68.104",
     "192.168.68.105",
     "192.168.68.106",
   ],
+  async redirects() {
+    return ["/cart/:path*", "/carrito/:path*", "/checkout/:path*", "/pedidos/:path*"].map((source) => ({
+      source, destination: "/", permanent: false,
+    }));
+  },
   async headers() {
     const noIndexImageHeaders = [
       {

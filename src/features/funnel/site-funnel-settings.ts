@@ -1,6 +1,8 @@
 import type { Json } from "@/types/database";
+import { normalizeDiscovery, type DiscoveryConfig } from "@/features/discovery/discovery-config";
 
 export type SiteFunnelPlatosConfig = {
+  discovery?: DiscoveryConfig;
   quickDecision: {
     enabled: boolean;
     title: string;
@@ -111,6 +113,7 @@ function normalizePlatosConfig(value: unknown): SiteFunnelPlatosConfig {
       : fallback.featuredFeed.insertAfter;
 
   return {
+    discovery: normalizeDiscovery(value.discovery),
     quickDecision: {
       enabled:
         typeof quickDecision.enabled === "boolean"

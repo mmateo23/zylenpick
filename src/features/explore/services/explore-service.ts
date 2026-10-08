@@ -51,7 +51,7 @@ export const getPublishedExploreMapEntries = cache(
     const { data, error } = await supabase
       .from("explore_route_points")
       .select(
-        "map_place_id, slug, title, introduction, image_url, public_token, position, explore_routes!inner(slug, name, status)",
+        "map_place_id, slug, title, introduction, image_url, public_token, position, latitude, longitude, explore_routes!inner(slug, name, status)",
       )
       .eq("is_active", true)
       .eq("is_published", true)
@@ -77,6 +77,8 @@ export const getPublishedExploreMapEntries = cache(
 
       return [{
         mapPlaceId: point.map_place_id,
+        latitude: point.latitude,
+        longitude: point.longitude,
         pointSlug: point.slug,
         pointTitle: point.title,
         introduction: point.introduction,

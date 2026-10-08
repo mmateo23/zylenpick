@@ -7,24 +7,32 @@ import { getPublishedExploreMapEntries } from "@/features/explore/services/explo
 import { getPublishedMapPlaces } from "@/features/map-places/services/map-places-service";
 import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
 import { getSiteMediaAssetMap } from "@/features/site-media/services/site-media-service";
-import { getVenuesForMap } from "@/features/venues/services/venues-map-service";
 import { getCurrentWeather } from "@/features/weather/current-weather";
-import { getNoIndexMetadata } from "@/lib/seo";
+import { getBaseMetadata } from "@/lib/seo";
 
 export const revalidate = 900;
 
-export const metadata: Metadata = getNoIndexMetadata({
-  title: "Mapa de locales | Pickyalo",
-  description: "Ruta aislada para probar un mapa visual de locales.",
+export const metadata: Metadata = getBaseMetadata({
+  title: "Mapa de Talavera: monumentos y servicios útiles",
+  description: "Explora monumentos, parques, puntos útiles y paradas con horarios de autobús en el mapa de Talavera de Pickyalo.",
+  path: "/mapa",
 });
 
 type MapaPageProps = {
-  searchParams?: { lugar?: string; localizar?: string; explora?: string };
+  searchParams?: {
+    lugar?: string;
+    localizar?: string;
+    explora?: string;
+    filtro?: string;
+    linea?: string;
+    direccion?: string;
+    desde?: string;
+    hasta?: string;
+  };
 };
 
 export default async function MapaPage({ searchParams }: MapaPageProps) {
-  const [venues, places, categories, siteMedia, exploreEntries, weather] = await Promise.all([
-    getVenuesForMap(),
+  const [places, categories, siteMedia, exploreEntries, weather] = await Promise.all([
     getPublishedMapPlaces(),
     getPublishedMapPlaceCategories(),
     getSiteMediaAssetMap(),
@@ -51,18 +59,23 @@ export default async function MapaPage({ searchParams }: MapaPageProps) {
   });
 
   return (
-    <div className="public-light-theme min-h-screen bg-[#FFF7E8]">
+    <div className="public-light-theme pickyalo-public-canvas min-h-screen">
       <SiteHeader />
       <VenuesMap
         accessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? ""}
-        venues={venues}
+        venues={[]}
         places={placesWithExplore}
         categories={categories}
         heroImageUrl={siteMedia.map_hero.imageUrl}
         weather={weather}
         initialPlaceSlug={searchParams?.lugar}
+        initialFilter={searchParams?.filtro}
         autoLocate={searchParams?.localizar === "1"}
         initialExploreOnly={searchParams?.explora === "1"}
+        initialTransitLine={searchParams?.linea}
+        initialTransitDirection={searchParams?.direccion}
+        initialTransitFrom={searchParams?.desde}
+        initialTransitTo={searchParams?.hasta}
         withSiteHeader
         guidedDiscovery
       />

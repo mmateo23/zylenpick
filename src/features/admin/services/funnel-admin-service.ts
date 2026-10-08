@@ -128,8 +128,10 @@ export async function getFunnelDishOptions(): Promise<FunnelDishOption[]> {
 export async function updateFunnelPlatosAction(formData: FormData) {
   "use server";
 
+  const current = await getAdminSiteFunnelSettings();
   const insertAfter = Number(getString(formData, "featuredFeed.insertAfter"));
   const platos: SiteFunnelPlatosConfig = {
+    discovery: current.platos.discovery,
     quickDecision: {
       enabled: getBoolean(formData, "quickDecision.enabled"),
       title:

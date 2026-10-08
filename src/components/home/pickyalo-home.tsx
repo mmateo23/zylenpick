@@ -1,454 +1,184 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BookOpen, Compass, Map, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Moon, Store, Sun, X } from "lucide-react";
 
-import { HomeCampaignCta } from "@/components/home/home-campaign-cta";
-import { FoodMarquee } from "@/components/home/food-marquee";
-import { HotPlateIcon } from "@/components/icons/pickyalo";
-import { SiteHeader } from "@/components/layout/site-header";
+import { readSelectedCity, saveSelectedCity, type StoredCity } from "@/features/location/city-preference";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
-import {
-  ScrollVelocityContainer,
-  ScrollVelocityRow,
-} from "@/components/magicui/scroll-based-velocity";
-import type { City } from "@/features/cities/types";
-import type { SiteChip } from "@/features/chips/types";
-import { curationOptions, getFilteredItems } from "@/features/chips/dish-curation";
-import type { SiteDesignConfig } from "@/features/design/site-design-config";
-import type { PublicExploreMapEntry } from "@/features/explore/types";
-import { getPricePresentation } from "@/features/pricing/price-display";
-import type { HomeShowcaseItem } from "@/features/venues/types";
+import { homeHref, homeNowItems, initialHomeSelection, type HomeResult } from "./home-discovery-model";
+import { HomePocketMap } from "./home-pocket-map";
+import { PickyPong } from "./picky-pong";
+import { HomeOrbit } from "./home-orbit";
+import styles from "./home-discovery.module.css";
 
-import styles from "./pickyalo-home.module.css";
+const returnKey = "pickyalo.home.return";
 
-type PickyaloHomeProps = {
-  cities: City[];
-  heroImageUrl: string;
-  mapFeatureImageUrl?: string;
-  exploreFeature?: PublicExploreMapEntry | null;
-  design?: SiteDesignConfig;
-  featuredItems: HomeShowcaseItem[];
-  latestItems: HomeShowcaseItem[];
-  chips?: SiteChip[];
+export type PickyaloHomeProps = {
+  cities: StoredCity[];
+  citySlug: string;
+  cityName: string;
+  items: HomeResult[];
+  today: string;
+  mapboxAccessToken: string;
+  entryImages: {
+    commerce: string;
+    discover: string;
+    events: string;
+  };
 };
 
-function getProductHref(item: HomeShowcaseItem) {
-  return `/platos?post=${encodeURIComponent(item.id)}`;
+function ResultImage({ item }: { item: HomeResult }) {
+  const [failed, setFailed] = useState(false);
+  const FallbackIcon = item.path === "comer" ? Store : item.path === "eventos" ? CalendarDays : Compass;
+  return <span className={styles.resultMedia}>
+    {item.image && !failed
+      ? <Image src={item.image} alt="" fill sizes="(max-width: 599px) 90vw, (max-width: 999px) 44vw, 360px" onError={() => setFailed(true)} />
+      : <span className={styles.imageFallback}><FallbackIcon size={40} /><span>{item.categoryLabel || "Selección local"}</span></span>}
+    <span className={styles.mediaLabel}>{item.kind === "workshop" ? "Taller" : item.kind === "venue" ? "Local" : item.path === "eventos" ? "En la agenda" : item.categoryLabel}</span>
+  </span>;
 }
 
-function getPriceLabel(item: HomeShowcaseItem) {
-  return getPricePresentation({
-    priceAmount: item.priceAmount,
-    currency: item.currency,
-    priceDisplayMode: item.priceDisplayMode,
-    priceDisplayText: item.priceDisplayText,
-    pricesVisible: item.venue.pricesVisible,
-  }).label;
-}
+export function PickyaloHome({ cities, citySlug, cityName, items, today, mapboxAccessToken, entryImages }: PickyaloHomeProps) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [cityOpen, setCityOpen] = useState(false);
+  const [orbitScene, setOrbitScene] = useState<"commerce" | "discover" | "events">("commerce");
+  const { resolvedTheme, setTheme } = useTheme();
+  const [themeReady, setThemeReady] = useState(false);
+  const cityDialog = useRef<HTMLDialogElement>(null);
+  const cityButton = useRef<HTMLButtonElement>(null);
+  const nowItems = homeNowItems(items, today);
+  const pocketItems = useMemo(() => items
+    .filter((item): item is HomeResult & { latitude: number; longitude: number } =>
+      item.path === "descubrir" && item.latitude !== undefined && item.longitude !== undefined)
+    .filter((item, index, all) => all.findIndex((candidate) => candidate.latitude === item.latitude && candidate.longitude === item.longitude) === index)
+    .slice(0, 7), [items]);
+  const shortCityName = cityName === "Talavera de la Reina" ? "Talavera" : cityName;
 
-function getUniqueVisualItems(
-  featuredItems: HomeShowcaseItem[],
-  latestItems: HomeShowcaseItem[],
-) {
-  return [...featuredItems, ...latestItems].filter((item, index, items) => {
-    return (
-      Boolean(item.imageUrl) &&
-      items.findIndex((candidate) => candidate.id === item.id) === index
-    );
-  });
-}
+  useEffect(() => setThemeReady(true), []);
 
-function normalizeSearchText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).has("ciudad")) return;
+    try {
+      const stored = readSelectedCity();
+      if (stored && stored.slug !== citySlug && cities.some((city) => city.slug === stored.slug)) {
+        router.replace(homeHref(stored.slug, initialHomeSelection), { scroll: false });
+      }
+    } catch { /* The Home remains usable when browser storage is disabled. */ }
+  }, [cities, citySlug, router]);
 
-function ProductPost({
-  item,
-  index,
-}: {
-  item: HomeShowcaseItem;
-  index: number;
-}) {
-  return (
-    <Link
-      href={getProductHref(item)}
-      className={`${styles.productPost} ${styles.marqueePost}`}
-      aria-label={`Ver ${item.name} de ${item.venue.name}`}
-    >
-      <span className={styles.productMedia}>
-        <Image
-          src={item.imageUrl ?? ""}
-          alt={item.name}
-          fill
-          sizes="(max-width: 699px) 46vw, (max-width: 1199px) 28vw, 330px"
-          className={styles.productImage}
-        />
-      </span>
-      <span className={styles.productInfo}>
-        <span>
-          <small>
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            {item.categoryName ?? "Selección local"}
-          </small>
-          <strong>{item.name}</strong>
-          <span>{item.venue.name}</span>
-        </span>
-        <span className={styles.productPrice}>{getPriceLabel(item)}</span>
-      </span>
-    </Link>
-  );
-}
+  useEffect(() => {
+    if (cityOpen) cityDialog.current?.showModal();
+    else if (cityDialog.current?.open) cityDialog.current.close();
+  }, [cityOpen]);
 
-export function PickyaloHome({
-  cities,
-  heroImageUrl,
-  mapFeatureImageUrl = "/home/zonas/badges/talavera_tile_mural.png",
-  exploreFeature = null,
-  design,
-  featuredItems,
-  latestItems,
-  chips = [],
-}: PickyaloHomeProps) {
-  const visualItems = getUniqueVisualItems(featuredItems, latestItems);
-  const availableItemIds = new Set(visualItems.map((item) => item.id));
-  const editorialChips = curationOptions
-    .filter((option) => ["raciones", "tapas", "quienNoApolla", "mojarPan", "bocatas", "recommended"].includes(option.id))
-    .filter((option) => getFilteredItems(visualItems, option.id, "all", null, "").length > 0)
-    .map((option) => ({
-      id: `editorial-${option.id}`,
-      name: option.label,
-      href: `/platos?${new URLSearchParams({ filter: option.id })}#platos-feed`,
-    }));
-  const homeChips = [
-    ...chips
-      .filter((chip) => chip.itemIds.some((id) => availableItemIds.has(id)))
-      .map((chip) => ({
-        id: chip.id,
-        name: chip.name,
-        href: `/platos?${new URLSearchParams({ chip: chip.slug })}#platos-feed`,
-      })),
-    ...editorialChips,
-  ].slice(0, 6);
-  const heroDish =
-    visualItems.find((item) => {
-      const itemName = normalizeSearchText(item.name);
-      const venueName = normalizeSearchText(item.venue.name);
+  const remember = useCallback(() => {
+    try { sessionStorage.setItem(returnKey, homeHref(citySlug, initialHomeSelection)); } catch {}
+  }, [citySlug]);
 
-      return itemName.includes("croqueta") && venueName.includes("dados");
-    }) ??
-    visualItems.find((item) =>
-      normalizeSearchText(item.name).includes("croqueta"),
-    ) ??
-    visualItems.find((item) => item.isHomeFeatured || item.isFeatured) ??
-    visualItems[0] ??
-    null;
-  const selectionItems = visualItems
-    .filter((item) => item.id !== heroDish?.id)
-    .slice(0, 9);
-  const talavera =
-    cities.find((city) => city.slug === "talavera-de-la-reina") ?? cities[0] ?? null;
-  const zoneHref = talavera ? `/zonas/${talavera.slug}` : "/zonas";
-  const storyHref = exploreFeature
-    ? `/explora/${exploreFeature.routeSlug}/${exploreFeature.pointSlug}?unlock=${exploreFeature.publicToken}`
-    : "/mapa?localizar=1";
-  const cityImage = exploreFeature?.imageUrl ?? mapFeatureImageUrl;
-  const cityTitle = exploreFeature?.pointTitle ?? "Talavera, más cerca";
+  function selectCity(city: StoredCity) {
+    setCityOpen(false);
+    try { saveSelectedCity(city); } catch {}
+    startTransition(() => router.push(homeHref(city.slug, initialHomeSelection), { scroll: false }));
+  }
 
-  return (
-    <div className={styles.page}>
-      <SiteHeader />
+  return <div className={`pickyalo-public-canvas ${styles.home}`} data-home-path="inicio" data-orbit-scene={orbitScene}>
+    <a href="#home-content" className={styles.skip}>Saltar al contenido</a>
+    <div className={styles.shell}>
+      <header className={styles.header}>
+        <Link href="/" aria-label="Pickyalo · inicio" className={styles.brand}>
+          <Image className={styles.logoLight} src="/logo/LogoNuevo.svg" alt="Pickyalo" width={124} height={44} priority />
+          <Image className={styles.logoDark} src="/logo/LogoNuevo_Negativo.svg" alt="Pickyalo" width={124} height={44} />
+        </Link>
+        <div className={styles.headerActions}>
+        <button ref={cityButton} className={styles.locality} onClick={() => setCityOpen(true)} aria-haspopup="dialog" disabled={pending}>
+          <MapPin size={16} aria-hidden="true" /><span>{shortCityName}</span><ChevronDown size={14} aria-hidden="true" />
+        </button>
+        <button className={styles.themeToggle} type="button" aria-label="Modo granate" aria-pressed={themeReady && resolvedTheme === "dark"} onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
+          <Moon className={styles.logoLight} size={19} aria-hidden="true" /><Sun className={styles.logoDark} size={19} aria-hidden="true" />
+        </button>
+        </div>
+      </header>
 
-      <main>
-        <section className={styles.hero} aria-labelledby="home-title">
-          <div className={styles.heroHeading}>
-            <p>Pickyalo · Talavera de la Reina</p>
-            <h1 id="home-title">Pide con los ojos.</h1>
+      <main id="home-content" className={styles.initial}>
+        <HomeOrbit images={entryImages} cityName={shortCityName} onNavigate={remember} onSceneChange={setOrbitScene} />
+
+        <div id="home-local-content" className={styles.orbitContentAnchor} />
+        {pocketItems.length ? <section className={styles.pocket} aria-labelledby="pocket-title">
+          <div className={styles.pocketCopy}>
+            <p className={styles.eyebrow}>POCKET MAP · {shortCityName}</p>
+            <h2 id="pocket-title">Lo bueno de aquí,<br /><em>en el bolsillo.</em></h2>
+            <p>Un vistazo rápido a los lugares y servicios que ya forman parte de Pickyalo.</p>
+            <Link href="/mapa" onClick={remember}>Abrir el mapa completo <ArrowRight size={17} aria-hidden="true" /></Link>
           </div>
+          <HomePocketMap accessToken={mapboxAccessToken} cityName={shortCityName} items={pocketItems} onOpen={remember} />
+        </section> : null}
 
-          <div className={styles.postScene}>
+        <Link className={styles.busBanner} href="/autobuses" onClick={remember}>
+          <span className={styles.busIcon} aria-hidden="true">
             <Image
-              src="/home/hero/croquetas_hover_burst_transparent.png"
+              src="/images/transit/pickyalo-bus-asset-cutout.png"
               alt=""
-              width={560}
-              height={560}
-              sizes="(max-width: 699px) 190px, 320px"
-              className={`${styles.foodAsset} ${styles.croquetasAsset}`}
-              aria-hidden="true"
+              fill
+              sizes="(max-width: 599px) 108px, 160px"
             />
-            <Image
-              src="/home/hero/jamon_iberico_hover_burst_transparent.png"
-              alt=""
-              width={340}
-              height={340}
-              sizes="(max-width: 699px) 130px, 220px"
-              className={`${styles.foodAsset} ${styles.jamonAsset}`}
-              aria-hidden="true"
-            />
-            <Image
-              src="/home/hero/boletus_hover_burst_transparent.png"
-              alt=""
-              width={300}
-              height={300}
-              sizes="(max-width: 699px) 120px, 190px"
-              className={`${styles.foodAsset} ${styles.boletusAsset}`}
-              aria-hidden="true"
-            />
+          </span>
+          <span className={styles.busCopy}>
+            <span className={styles.eyebrow}>AUTOBUSES URBANOS</span>
+            <strong>¿Qué línea pasa por aquí?</strong>
+            <span>Consulta sentidos, próximas salidas y siguientes paradas.</span>
+          </span>
+          <span className={styles.busAction}>Ver autobuses <ArrowRight size={18} aria-hidden="true" /></span>
+        </Link>
 
-            {heroDish ? (
-              <Link
-                href={getProductHref(heroDish)}
-                className={styles.heroPost}
-                aria-label={`Ver ${heroDish.name} de ${heroDish.venue.name}`}
-              >
-                <span className={styles.postHeader}>
-                  <span className={styles.venueAvatar}>
-                    {heroDish.venue.logoUrl ? (
-                      <Image
-                        src={heroDish.venue.logoUrl}
-                        alt=""
-                        fill
-                        sizes="44px"
-                        className={styles.venueLogo}
-                      />
-                    ) : (
-                      <span>{heroDish.venue.name.trim().slice(0, 1)}</span>
-                    )}
-                  </span>
-                  <span className={styles.venueIdentity}>
-                    <strong>{heroDish.venue.name}</strong>
-                    <small>{heroDish.venue.cityName}</small>
-                  </span>
-                  <ArrowRight size={20} aria-hidden="true" />
-                </span>
-
-                <span className={styles.postMedia}>
-                  <Image
-                    src={heroDish.imageUrl ?? heroImageUrl}
-                    alt={heroDish.name}
-                    fill
-                    priority
-                    sizes="(max-width: 699px) 340px, 390px"
-                    className={styles.postImage}
-                  />
-                </span>
-
-                <span className={styles.postBody}>
-                  <small>{heroDish.categoryName ?? "Selección local"}</small>
-                  <span className={styles.postTitleRow}>
-                    <strong>{heroDish.name}</strong>
-                    <span>{getPriceLabel(heroDish)}</span>
-                  </span>
-                  <span className={styles.postPickup}>
-                    {heroDish.pickupEtaMin
-                      ? `Listo en ${heroDish.pickupEtaMin} min`
-                      : "Para recoger cerca"}
-                  </span>
-                </span>
-              </Link>
-            ) : (
-              <Link href="/platos" className={styles.heroFallback}>
-                <Image
-                  src={heroImageUrl}
-                  alt="Selección gastronómica de Pickyalo"
-                  fill
-                  priority
-                  sizes="(max-width: 699px) 340px, 390px"
-                />
-                <span>Ver platos</span>
-              </Link>
-            )}
-
-            <Image
-              src="/home/hero/pickyalo-sticker.png"
-              alt=""
-              width={1024}
-              height={1535}
-              sizes="(max-width: 699px) 80px, 118px"
-              className={styles.postSticker}
-              aria-hidden="true"
-            />
+        <section className={styles.aboutGame} aria-labelledby="about-heading">
+          <div className={styles.aboutGameCopy}>
+            <p className={styles.eyebrow}>CERCA · LOCAL · ELEGIDO</p>
+            <h2 id="about-heading">Pickyalo,<br /><em>en pocas palabras.</em></h2>
+            <p>Lo bueno de tu ciudad, <strong>más fácil de elegir.</strong><br />Comida, sitios y planes cerca de ti, seleccionados con criterio.</p>
+            <p className={styles.aboutPunchline}>Menos buscar. <em>Más disfrutar.</em></p>
+            <Link href="/el-proyecto" onClick={remember}>Conoce el proyecto<ArrowRight size={16} aria-hidden="true" /></Link>
           </div>
-
-          <div className={styles.heroActions} aria-label="Empieza a descubrir">
-            <Link href="/platos" className={styles.foodAction}>
-              <HotPlateIcon size={21} strokeWidth={2.2} aria-hidden="true" />
-              <span>Ver platos</span>
-              <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-
-            <Link href="/mapa?localizar=1" className={styles.mapAction}>
-              <Compass
-                size={32}
-                strokeWidth={1.8}
-                className={styles.mapActionAsset}
-                aria-hidden="true"
-              />
-              <span>Explorar la ciudad</span>
-              <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
+          <PickyPong />
         </section>
 
-        {design?.texts.homeCampaign.enabled ? (
-          <section className={styles.campaign} aria-label="Evento destacado">
-            <HomeCampaignCta
-              campaign={design.texts.homeCampaign}
-              feature
-              featureAssetUrl={
-                design.texts.homeCampaign.featureImageEnabled
-                  ? design.texts.homeCampaign.featureImageUrl
-                  : undefined
-              }
-            />
-          </section>
-        ) : null}
-
-        {selectionItems.length ? (
-          <section className={styles.selection} aria-labelledby="selection-title">
-            <header className={styles.sectionHeader}>
-              <div>
-                <p>Ahora mismo</p>
-                <h2 id="selection-title">Para elegir con los ojos.</h2>
-              </div>
-              <Link href="/platos">
-                Ver todos <ArrowRight size={17} aria-hidden="true" />
-              </Link>
-            </header>
-
-            {homeChips.length > 0 ? (
-              <nav className={styles.selectionChips} aria-label="Selecciones de platos">
-                {homeChips.map((chip) => (
-                  <Link
-                    key={chip.id}
-                    href={chip.href}
-                    className={styles.selectionChip}
-                    prefetch={false}
-                  >
-                    <span>{chip.name}</span>
-                  </Link>
-                ))}
-              </nav>
-            ) : null}
-
-            <FoodMarquee>
-              {selectionItems.map((item, index) => (
-                <ProductPost key={item.id} item={item} index={index} />
-              ))}
-            </FoodMarquee>
-          </section>
-        ) : null}
-
-        <section
-          className={styles.velocityDivider}
-          aria-label="De los platos a la ciudad"
-        >
-          <ScrollVelocityContainer className={styles.velocityTrack}>
-            <ScrollVelocityRow baseVelocity={0.6} direction={1}>
-              Platos reales · Locales de cerca ·
-            </ScrollVelocityRow>
-            <ScrollVelocityRow baseVelocity={0.5} direction={-1}>
-              Mira · Elige · Recoge · Explora ·
-            </ScrollVelocityRow>
-          </ScrollVelocityContainer>
-          <span className={styles.velocityFadeLeft} aria-hidden="true" />
-          <span className={styles.velocityFadeRight} aria-hidden="true" />
-        </section>
-
-        <section className={styles.cityStory} aria-labelledby="city-story-title">
-          <div className={styles.cityStoryMasthead}>
-            <span>Pickyalo explora</span>
-            {talavera ? (
-              <span><MapPin size={15} aria-hidden="true" />{talavera.name}</span>
-            ) : null}
+        <section className={styles.nowSection} aria-labelledby="now-heading">
+          <div className={styles.nowHeading}>
+            <div><p className={styles.eyebrow}>UNA SELECCIÓN PARA EMPEZAR</p><h2 id="now-heading">Ahora en {shortCityName}</h2></div>
+            <p>Si quieres mirar con calma, empieza por aquí.</p>
           </div>
-          <Link href={storyHref} className={styles.cityStoryMedia}>
-            <span className={styles.cityStoryPhoto}>
-              <Image
-                src={cityImage}
-                alt={cityTitle}
-                fill
-                sizes="(max-width: 899px) 94vw, (max-width: 1250px) 52vw, 630px"
-                className={styles.cityStoryImage}
-              />
-            </span>
-            <span className={styles.cityStoryLabel}>
-              <small>{exploreFeature?.routeName ?? "Una historia de Talavera"}</small>
-              <strong>{cityTitle}</strong>
-              <span className={styles.storyLink}>
-                {exploreFeature ? "Ver historia" : "Explorar"}
-                <ArrowRight size={18} aria-hidden="true" />
-              </span>
-            </span>
-          </Link>
-
-          <div className={styles.cityStoryCopy}>
-            <p>Lo bueno sigue al salir</p>
-            <h2 id="city-story-title">
-              <span>Un bocado.</span>
-              <em>Y una historia.</em>
-            </h2>
-            <div className={styles.cityStoryDescription}>
-              Murales, calles y lugares con algo que contar. Elige una parada y conoce lo que hay detrás.
-            </div>
-            <nav className={styles.cityStoryActions} aria-label="Descubrir desde este lugar">
-              {exploreFeature ? (
-                <Link href={storyHref} className={styles.cityAction}>
-                  <span className={styles.cityActionIcon}><BookOpen size={24} strokeWidth={1.75} aria-hidden="true" /></span>
-                  <span>Ver historia</span>
-                </Link>
-              ) : null}
-              <Link href="/mapa?localizar=1" className={`${styles.cityAction} ${styles.cityActionPrimary}`}>
-                <span className={styles.cityActionIcon}><Map size={24} strokeWidth={1.75} aria-hidden="true" /></span>
-                <span>Abrir mapa</span>
-              </Link>
-              <Link href={zoneHref} className={styles.cityAction}>
-                <span className={styles.cityActionIcon}><MapPin size={24} strokeWidth={1.75} aria-hidden="true" /></span>
-                <span>Ver la zona</span>
-              </Link>
-            </nav>
-          </div>
-        </section>
-
-        <section className={styles.localCallout} aria-labelledby="join-local-title">
-          <div className={styles.localCalloutHeading}>
-            <p className={styles.localCalloutEyebrow}>Para quienes dan sabor al barrio</p>
-            <h2 id="join-local-title">Tú pones lo bueno.
-              <span className={styles.localCalloutSignature}>
-                <em>Que se vea.</em>
-                <span className={styles.localCalloutComposition} aria-hidden="true">
-                  <Image
-                    src="/home/zonas/talavera-elements/talavera_medallon_barca_transparent.png"
-                    alt=""
-                    fill
-                    sizes="(max-width: 699px) 190px, 260px"
-                    className={styles.localCalloutCeramic}
-                  />
-                <Image
-                  src="/home/assets/asset_jamon_iberico_transparent.png"
-                  alt=""
-                  width={160}
-                  height={160}
-                  sizes="(max-width: 699px) 190px, 260px"
-                  className={styles.localCalloutAsset}
-                />
+          {nowItems.length ? <div className={styles.results}>
+            {nowItems.map((item) => <article key={item.id} className={`pickyalo-media-card ${styles.result}`}>
+              <Link href={item.href} prefetch={false} onClick={remember} aria-label={`${item.title} · ${item.cta}`}>
+                <ResultImage item={item} />
+                <span className={styles.resultBody}>
+                  <span className={styles.resultTitle}><h3>{item.title}</h3></span>
+                  <span className={styles.resultSubtitle}>{item.subtitle}</span>
+                  {item.kind === "event" && item.startsOn && <span className={styles.eventDate}>{new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "long", timeZone: "Europe/Madrid" }).format(new Date(item.startsOn))}</span>}
+                  <span className={styles.resultCta}>{item.cta}<ArrowRight size={18} aria-hidden="true" /></span>
                 </span>
-              </span>
-            </h2>
-          </div>
-          <div className={styles.localCalloutDetails}>
-            <p>Tu cocina, tu mostrador, tus especialidades. Te ayudamos a enseñarlas a quienes buscan qué comer cerca.</p>
-            <Link href="/unete">
-              Quiero sumar mi local <ArrowRight size={20} aria-hidden="true" />
-            </Link>
-            <span>Puedes empezar gratis.</span>
-          </div>
+              </Link>
+            </article>)}
+          </div> : <div className={styles.empty}><Compass size={34} strokeWidth={1.25} aria-hidden="true" /><h3>Estamos preparando la selección.</h3><p>Mientras tanto, puedes entrar en Comercios o descubrir la ciudad en el mapa.</p></div>}
         </section>
       </main>
 
-      <ZylenPickFooter theme="light" />
     </div>
-  );
+
+    <ZylenPickFooter theme="auto" />
+
+    <dialog ref={cityDialog} className={styles.cityDialog} aria-labelledby="city-heading" onCancel={() => setCityOpen(false)} onClose={() => { setCityOpen(false); cityButton.current?.focus(); }} onClick={(event) => { if (event.target === event.currentTarget) setCityOpen(false); }}>
+      <div className={styles.cityPanel}>
+        <button className={"pickyalo-light-control " + (styles.close)} onClick={() => setCityOpen(false)} aria-label="Cerrar selección de localidad"><X size={21} /></button>
+        <p className={styles.eyebrow}>LO BUENO ESTÁ CERCA</p><h2 id="city-heading">¿Dónde miramos?</h2>
+        <p>Elige tu localidad. Tú decides por dónde empezar.</p>
+        <div className={styles.cityList}>{cities.map((city) => <button key={city.slug} onClick={() => selectCity(city)} aria-pressed={city.slug === citySlug}><MapPin size={18} aria-hidden="true" /><span>{city.name}</span>{city.slug === citySlug ? <Check size={18} aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}</button>)}</div>
+        {!cities.length && <p>No hemos podido cargar las localidades.</p>}
+      </div>
+    </dialog>
+  </div>;
 }
