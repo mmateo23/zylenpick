@@ -1,13 +1,16 @@
 import type { MetadataRoute } from "next";
 
 import { getCities } from "@/features/cities/services/cities-service";
-import { publicEvents } from "@/features/events/events";
+import { getPublishedEvents } from "@/features/events/services/events-service";
 import { getVenuesByCitySlug } from "@/features/venues/services/venues-service";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getSiteUrl } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
+  const events = await getPublishedEvents();
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
@@ -39,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     },
-    ...publicEvents.map((event) => ({
+    ...events.map((event) => ({
       url: `${siteUrl}/eventos/${event.slug}`,
       lastModified: new Date(`${event.verifiedOn}T12:00:00+02:00`),
       changeFrequency: "weekly" as const,

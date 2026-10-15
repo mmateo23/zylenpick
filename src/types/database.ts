@@ -9,6 +9,108 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      events: {
+        Row: {
+          slug: string;
+          city_id: string;
+          title: string;
+          short_title: string;
+          eyebrow: string;
+          summary: string;
+          description: string;
+          starts_on: string;
+          ends_on: string;
+          location_label: string;
+          access_label: string;
+          organizer: string;
+          website_url: string;
+          source_url: string;
+          source_label: string;
+          verified_on: string;
+          status: "draft" | "published" | "cancelled" | "archived";
+          tags: string[];
+          highlights: string[];
+          schedule: Json;
+          created_at: string;
+          updated_at: string;
+          venue_note: string | null;
+          access_note: string | null;
+          image_url: string | null;
+          home_image_url: string | null;
+          image_alt: string | null;
+          tickets_url: string | null;
+          directions_url: string | null;
+        };
+        Insert: {
+          slug: string;
+          city_id: string;
+          title: string;
+          short_title: string;
+          eyebrow: string;
+          summary: string;
+          description: string;
+          starts_on: string;
+          ends_on: string;
+          location_label: string;
+          access_label: string;
+          organizer: string;
+          website_url: string;
+          source_url: string;
+          source_label: string;
+          verified_on: string;
+          status?: "draft" | "published" | "cancelled" | "archived";
+          tags?: string[];
+          highlights?: string[];
+          schedule?: Json;
+          created_at?: string;
+          updated_at?: string;
+          venue_note?: string | null;
+          access_note?: string | null;
+          image_url?: string | null;
+          home_image_url?: string | null;
+          image_alt?: string | null;
+          tickets_url?: string | null;
+          directions_url?: string | null;
+        };
+        Update: {
+          slug?: string;
+          city_id?: string;
+          title?: string;
+          short_title?: string;
+          eyebrow?: string;
+          summary?: string;
+          description?: string;
+          starts_on?: string;
+          ends_on?: string;
+          location_label?: string;
+          access_label?: string;
+          organizer?: string;
+          website_url?: string;
+          source_url?: string;
+          source_label?: string;
+          verified_on?: string;
+          status?: "draft" | "published" | "cancelled" | "archived";
+          tags?: string[];
+          highlights?: string[];
+          schedule?: Json;
+          created_at?: string;
+          updated_at?: string;
+          venue_note?: string | null;
+          access_note?: string | null;
+          image_url?: string | null;
+          home_image_url?: string | null;
+          image_alt?: string | null;
+          tickets_url?: string | null;
+          directions_url?: string | null;
+        };
+        Relationships: [{
+          foreignKeyName: "events_city_id_fkey";
+          columns: ["city_id"];
+          isOneToOne: false;
+          referencedRelation: "cities";
+          referencedColumns: ["id"];
+        }];
+      };
       cities: {
         Row: {
           id: string;

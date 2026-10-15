@@ -7,7 +7,7 @@ import { getCities } from "@/features/cities/services/cities-service";
 import { getSiteDesignConfig } from "@/features/design/services/site-design-service";
 import { getHomeCampaignImage, isHomeCampaignActive } from "@/features/design/site-design-config";
 import { matchesIntent } from "@/features/discovery/discovery-filters";
-import { getUpcomingEvents } from "@/features/events/events";
+import { getUpcomingEvents } from "@/features/events/services/events-service";
 import { getPublishedExploreMapEntries } from "@/features/explore/services/explore-service";
 import { getMapPlaceCategory } from "@/features/map-places/categories";
 import { getPublishedMapPlaceCategories } from "@/features/map-places/services/map-place-categories-service";
@@ -18,7 +18,7 @@ import { getHomeShowcase, getVenuesByCitySlug } from "@/features/venues/services
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getBaseMetadata } from "@/lib/seo";
 
-export const revalidate = 900;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = getBaseMetadata({
   title: "Comercio local y lugares por descubrir en Talavera",
@@ -36,7 +36,7 @@ export default async function HomePage({ searchParams = {} }: { searchParams?: R
   const params = new URLSearchParams();
   Object.entries(searchParams).forEach(([key, value]) => { if (typeof value === "string") params.set(key, value); });
   // Independent public reads: one failed source must not take down the other paths.
-  const [cityRead, foodRead, placeRead, exploreRead, categoryRead, designRead, siteMediaRead] = await Promise.allSettled([
+  const [cityRead, foodRead, placeRead, exploreRead, categoryRead, designRead, siteMediaRead, eventRead] = await Promise.allSettled([
     configured ? getCities() : Promise.resolve([]),
     configured ? getHomeShowcase() : Promise.resolve({ featuredItems: [], latestItems: [] }),
     configured ? getPublishedMapPlaces() : Promise.resolve([]),
@@ -44,6 +44,7 @@ export default async function HomePage({ searchParams = {} }: { searchParams?: R
     configured ? getPublishedMapPlaceCategories() : Promise.resolve([]),
     getSiteDesignConfig(),
     getSiteMediaAssetMap(),
+    getUpcomingEvents(),
   ]);
   const cities = resolved(cityRead, []);
   const city = cities.find((entry) => entry.slug === params.get("ciudad"))
@@ -83,7 +84,7 @@ export default async function HomePage({ searchParams = {} }: { searchParams?: R
       latitude: place.latitude, longitude: place.longitude,
     });
   });
-  const upcomingEvents = getUpcomingEvents().filter((event) => event.city.slug === city?.slug);
+  const upcomingEvents = resolved(eventRead, []).filter((event) => event.city.slug === city?.slug);
   upcomingEvents.forEach((event) => results.push({
     id: `event-${event.slug}`, path: "eventos", kind: "event", title: event.title,
     subtitle: event.summary, category: event.tags[0]?.toLowerCase() ?? "", categoryLabel: event.tags[0] ?? "Evento",
