@@ -7,17 +7,16 @@ import { ArrowLeft, ArrowUpRight, CalendarDays, ExternalLink, MapPin, Ticket, Us
 import styles from "@/components/events/events.module.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ZylenPickFooter } from "@/components/layout/zylenpick-footer";
-import { formatEventDateRange, getEventBySlug, getEventTemporalState, publicEvents } from "@/features/events/events";
+import { formatEventDateRange, getEventTemporalState } from "@/features/events/events";
+import { getEventBySlug } from "@/features/events/services/events-service";
 import { getBaseMetadata, getSiteUrl } from "@/lib/seo";
 
 type Props = { params: { slug: string } };
 
-export function generateStaticParams() {
-  return publicEvents.map((event) => ({ slug: event.slug }));
-}
+export const dynamic = "force-dynamic";
 
-export function generateMetadata({ params }: Props): Metadata {
-  const event = getEventBySlug(params.slug);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const event = await getEventBySlug(params.slug);
   if (!event) return { title: "Evento no encontrado | Pickyalo" };
   return getBaseMetadata({
     title: event.title,
@@ -27,8 +26,8 @@ export function generateMetadata({ params }: Props): Metadata {
   });
 }
 
-export default function EventDetailPage({ params }: Props) {
-  const event = getEventBySlug(params.slug);
+export default async function EventDetailPage({ params }: Props) {
+  const event = await getEventBySlug(params.slug);
   if (!event) notFound();
   const temporalState = getEventTemporalState(event);
   const siteUrl = getSiteUrl();
@@ -68,7 +67,7 @@ export default function EventDetailPage({ params }: Props) {
       <SiteHeader />
       <main>
         <section className={styles.detailHero}>
-          {event.imageUrl ? <div className={styles.detailImage}><Image src={event.imageUrl} alt={event.imageAlt ?? ""} fill priority sizes="100vw" /></div> : null}
+          {event.imageUrl ? <div className={styles.detailImage}><Image src={event.imageUrl} unoptimized={event.imageUrl.startsWith("http")} alt={event.imageAlt ?? ""} fill priority sizes="100vw" /></div> : null}
           <div className={`${styles.wrap} ${styles.detailHeroInner}`}>
             <Link href="/eventos" className={styles.back}><ArrowLeft size={17} />Todos los eventos</Link>
             <p className={styles.eyebrow}>{event.eyebrow}</p>
@@ -118,7 +117,8 @@ export default function EventDetailPage({ params }: Props) {
               <div className={styles.fact}><Users size={21} /><div><strong>Organiza</strong><span>{event.organizer}</span></div></div>
             </div>
             <div className={styles.actions}>
-              <a href={event.websiteUrl} target="_blank" rel="noreferrer" className={styles.primary}>Web oficial <ArrowUpRight size={17} /></a>
+              <a href={event.ticketsUrl ?? event.websiteUrl} target="_blank" rel="noreferrer" className={styles.primary}>{event.ticketsUrl ? "Comprar entradas" : "Web oficial"} <ArrowUpRight size={17} /></a>
+              {event.directionsUrl ? <a href={event.directionsUrl} target="_blank" rel="noreferrer" className={styles.secondary}>Cómo llegar <MapPin size={16} /></a> : null}
               <a href={event.sourceUrl} target="_blank" rel="noreferrer" className={styles.secondary}>Ver información confirmada <ExternalLink size={16} /></a>
             </div>
             <p className={styles.source}>Fuente: <a href={event.sourceUrl} target="_blank" rel="noreferrer">{event.sourceLabel}</a>. Revisado el {new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(new Date(`${event.verifiedOn}T12:00:00+02:00`))}. Los detalles no publicados se consultan en la fuente oficial.</p>

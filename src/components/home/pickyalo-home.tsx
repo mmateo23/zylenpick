@@ -36,7 +36,7 @@ function ResultImage({ item }: { item: HomeResult }) {
   const FallbackIcon = item.path === "comer" ? Store : item.path === "eventos" ? CalendarDays : Compass;
   return <span className={styles.resultMedia}>
     {item.image && !failed
-      ? <Image src={item.image} alt="" fill sizes="(max-width: 599px) 90vw, (max-width: 999px) 44vw, 360px" onError={() => setFailed(true)} />
+      ? <Image src={item.image} unoptimized={item.kind === "event" && item.image.startsWith("http")} alt="" fill sizes="(max-width: 599px) 90vw, (max-width: 999px) 44vw, 360px" onError={() => setFailed(true)} />
       : <span className={styles.imageFallback}><FallbackIcon size={40} /><span>{item.categoryLabel || "Selección local"}</span></span>}
     <span className={styles.mediaLabel}>{item.kind === "workshop" ? "Taller" : item.kind === "venue" ? "Local" : item.path === "eventos" ? "En la agenda" : item.categoryLabel}</span>
   </span>;

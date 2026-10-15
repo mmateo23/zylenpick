@@ -11,9 +11,11 @@ import {
   formatEventDateRange,
   getEventTemporalState,
   getMadridDate,
-  getUpcomingEvents,
 } from "@/features/events/events";
+import { getUpcomingEvents } from "@/features/events/services/events-service";
 import { getBaseMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = getBaseMetadata({
   title: "Eventos y planes en Talavera",
@@ -22,9 +24,9 @@ export const metadata: Metadata = getBaseMetadata({
   path: "/eventos",
 });
 
-export default function EventsPage() {
+export default async function EventsPage() {
   const today = getMadridDate();
-  const events = getUpcomingEvents(today);
+  const events = await getUpcomingEvents(today);
 
   return (
     <div className={`public-light-theme pickyalo-public-canvas ${styles.page}`}>
@@ -44,6 +46,7 @@ export default function EventsPage() {
               {events[0]?.homeImageUrl ? (
                 <Image
                   src={events[0].homeImageUrl}
+                  unoptimized={events[0].homeImageUrl.startsWith("http")}
                   alt=""
                   fill
                   sizes="(max-width: 759px) 100vw, 480px"
@@ -74,7 +77,7 @@ export default function EventsPage() {
                     <article className={`pickyalo-media-card ${styles.card}`} key={event.slug}>
                       <Link href={`/eventos/${event.slug}`}>
                         <span className={styles.cardMedia}>
-                          {event.imageUrl ? <Image src={event.imageUrl} alt={event.imageAlt ?? ""} fill sizes="(max-width:759px) 100vw, 560px" /> : null}
+                          {event.imageUrl ? <Image src={event.imageUrl} unoptimized={event.imageUrl.startsWith("http")} alt={event.imageAlt ?? ""} fill sizes="(max-width:759px) 100vw, 560px" /> : null}
                           <span className={`pickyalo-media-gradient ${styles.mediaShade}`} />
                           <span className={styles.dateBlock}><strong>{starts.getDate()}</strong><span>{new Intl.DateTimeFormat("es-ES", { month: "short" }).format(starts)}</span></span>
                           <span className={styles.cardKind}>{state === "ongoing" ? "Está pasando" : event.eyebrow}</span>

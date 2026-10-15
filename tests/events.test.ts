@@ -4,15 +4,16 @@ import {
   formatEventDateRange,
   getEventTemporalState,
   getUpcomingEvents,
-  publicEvents,
 } from "../src/features/events/events";
 
+import { eventFixtures } from "./fixtures/events";
+
 describe("public events", () => {
-  const autocross = publicEvents.find((event) => event.slug === "autocross-cerro-negro-2026");
+  const autocross = eventFixtures.find((event) => event.slug === "autocross-cerro-negro-2026");
 
   it("keeps the verified example in the upcoming agenda before it starts", () => {
     expect(autocross).toBeDefined();
-    expect(getUpcomingEvents("2026-09-21").map((event) => event.slug)).toContain(
+    expect(getUpcomingEvents(eventFixtures, "2026-09-21").map((event) => event.slug)).toContain(
       "autocross-cerro-negro-2026",
     );
     expect(getEventTemporalState(autocross!, "2026-09-21")).toBe("upcoming");
@@ -28,6 +29,6 @@ describe("public events", () => {
 
   it("never exposes a past event as upcoming", () => {
     expect(getEventTemporalState(autocross!, "2026-09-28")).toBe("past");
-    expect(getUpcomingEvents("2026-09-28")).not.toContainEqual(autocross);
+    expect(getUpcomingEvents(eventFixtures, "2026-09-28")).not.toContainEqual(autocross);
   });
 });
